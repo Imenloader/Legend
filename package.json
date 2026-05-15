@@ -1,6 +1,7 @@
 {
   "name": "shadow-realm-chronicles",
   "version": "1.0.0",
+  "type": "module",
   "description": "A premium web RPG",
   "main": "index.html",
   "scripts": {
