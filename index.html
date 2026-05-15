@@ -1,246 +1,378 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
     <title>Legends of the Jade and Sand | Hybrid RPG</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Ma+Shan+Zheng&display=swap"
+        rel="stylesheet"
+    />
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        #start-btn {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            z-index: 9999;
+        }
+
+        .ornament {
+            pointer-events: none;
+        }
+
+        .screen {
+            touch-action: manipulation;
+        }
+    </style>
 </head>
+
 <body>
-    <div id="game-container">
-        <!-- Main Menu -->
-        <div id="menu-screen" class="screen active">
-            <div class="ornament top"></div>
-            <h1>Jade & Sand<br>Legends</h1>
-            <input type="text" id="char-name" placeholder="Enter your Legend's Name..." autocomplete="off" style="margin-bottom: 20px;">
-            <select id="perspective-select" style="width: 100%; padding: 16px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 4px; color: var(--text); font-size: 1.1rem; margin-bottom: 30px; font-family: 'Inter', sans-serif;">
-                <option value="second">Second Person ("You walk...")</option>
-                <option value="first">First Person ("I walk...")</option>
-            </select>
-            <button id="start-btn" class="btn">Begin Journey</button>
-            <div class="ornament bottom"></div>
-        </div>
 
-        <!-- Character Creation -->
-        <div id="creation-screen" class="screen">
-            <h1>Select Destiny</h1>
-            <div class="input-group">
-                <input type="text" id="player-name" placeholder="Enter Hero Name" maxlength="12">
-            </div>
-            <div class="class-selector">
-                <div class="class-card selected" data-class="Sword Immortal" data-sprite="assets/sword_immortal_1778872325571.png">
-                    <div class="card-image-wrapper">
-                        <img class="card-bg" src="assets/sword_immortal_1778872325571.png" alt="Sword Immortal">
-                    </div>
-                    <h3>Sword Immortal</h3>
-                    <p>High Crit & Damage</p>
-                </div>
-                <div class="class-card" data-class="Medicine Cultivator" data-sprite="assets/medicine_cultivator_1778872338789.png">
-                    <div class="card-image-wrapper">
-                        <img class="card-bg" src="assets/medicine_cultivator_1778872338789.png" alt="Medicine Cultivator">
-                    </div>
-                    <h3>Medicine Cultivator</h3>
-                    <p>High HP & Healing</p>
-                </div>
-                <div class="class-card" data-class="Desert Knight" data-sprite="assets/desert_knight_1778872351281.png">
-                    <div class="card-image-wrapper">
-                        <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Desert Knight">
-                    </div>
-                    <h3>Desert Knight</h3>
-                    <p>High Defense & HP</p>
-                </div>
-                <div class="class-card" data-class="Sufi Mystic" data-sprite="assets/sufi_mystic_1778872363338.png">
-                    <div class="card-image-wrapper">
-                        <img class="card-bg" src="assets/sufi_mystic_1778872363338.png" alt="Sufi Mystic">
-                    </div>
-                    <h3>Sufi Mystic</h3>
-                    <p>High Qi & Magic</p>
-                </div>
-            </div>
-            <button id="create-btn" class="btn">Awaken Soul</button>
-        </div>
+<div id="game-container">
 
-        <!-- Hub City Screen -->
-        <div id="hub-screen" class="screen">
-            <h1 style="font-size: 3rem;">City of Crossroads</h1>
-            <p>The Silk Road bustles with merchants, cultivators, and mystics.</p>
-            
-            <div class="stats-group" style="text-align: center; max-width: 400px; margin: 0 auto 30px;">
-                <div class="stat-label">Life Essence: <span id="hub-hp">100</span> / <span id="hub-max-hp">100</span></div>
-                <div class="hp-bar-container">
-                    <div id="hub-hp-bar" class="hp-bar"></div>
-                </div>
-                <div style="margin-top: 10px; color: var(--secondary); font-size: 1.2rem; font-family: 'Ma Shan Zheng', cursive;">
-                    <span id="hub-rank-name">Body Tempering</span>
-                </div>
-                <div style="color: var(--text-dim); font-size: 0.9rem;">Stage <span id="hub-lvl">1</span> <span id="hub-class">Cultivator</span></div>
-            </div>
+    <!-- MAIN MENU -->
+    <div id="menu-screen" class="screen active">
 
-            <div class="quest-log" style="background: var(--glass); border: 1px solid var(--primary); padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
-                <div style="color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">Current Destiny</div>
-                <div id="current-quest" style="color: var(--text); font-size: 1.1rem; margin-top: 5px;">Reach Stage 3 to Awaken a Companion</div>
-            </div>
+        <div class="ornament top"></div>
 
-            <div class="class-selector" style="grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                <button id="explore-btn" class="btn" style="width: 100%;">Venture Forth<br><span style="font-size: 0.7rem; color: #fff;">Combat & Loot</span></button>
-                <button id="inventory-btn" class="btn btn-secondary" style="width: 100%;">Inventory<br><span style="font-size: 0.7rem; color: #fff;">Equip & Items</span></button>
-                <button id="rest-btn" class="btn btn-secondary" style="width: 100%;">Meditation<br><span style="font-size: 0.7rem; color: #fff;">Recover Essence</span></button>
-            </div>
-        </div>
+        <h1>Jade & Sand<br>Legends</h1>
 
-        <!-- Inventory / Equipment Screen -->
-        <div id="inventory-screen" class="screen">
-            <h2>Cultivation & Equipment</h2>
-            <div class="combat-layout" style="width: 100%; margin-top: 20px;">
-                
-                <!-- Equipment Slots -->
-                <div class="entity-panel" style="flex: 0.5;">
-                    <h3 style="color: var(--secondary); margin-bottom: 20px;">Equipment</h3>
-                    <div id="equip-weapon" class="inventory-slot" style="width: 100%; height: auto; padding: 10px; margin-bottom: 10px; display: block; text-align: left;">
-                        <div style="font-size: 0.8rem; color: var(--text-dim);">Weapon</div>
-                        <div id="eq-weapon-name" style="color: var(--text);">None</div>
-                        <div id="eq-weapon-stats" style="font-size: 0.8rem; color: var(--success);"></div>
-                    </div>
-                    <div id="equip-armor" class="inventory-slot" style="width: 100%; height: auto; padding: 10px; margin-bottom: 10px; display: block; text-align: left;">
-                        <div style="font-size: 0.8rem; color: var(--text-dim);">Armor</div>
-                        <div id="eq-armor-name" style="color: var(--text);">Basic Robes</div>
-                        <div id="eq-armor-stats" style="font-size: 0.8rem; color: var(--success);">+5 Def</div>
-                    </div>
-                    <div id="equip-relic" class="inventory-slot" style="width: 100%; height: auto; padding: 10px; margin-bottom: 10px; display: block; text-align: left;">
-                        <div style="font-size: 0.8rem; color: var(--text-dim);">Relic</div>
-                        <div id="eq-relic-name" style="color: var(--text);">None</div>
-                        <div id="eq-relic-stats" style="font-size: 0.8rem; color: var(--success);"></div>
-                    </div>
-                </div>
+        <input
+            type="text"
+            id="char-name"
+            placeholder="Enter your Legend's Name..."
+            autocomplete="off"
+            style="margin-bottom: 20px;"
+        />
 
-                <div class="divider"></div>
+        <select
+            id="perspective-select"
+            style="
+                width: 100%;
+                padding: 16px;
+                background: rgba(0,0,0,0.5);
+                border: 1px solid var(--glass-border);
+                border-radius: 4px;
+                color: var(--text);
+                font-size: 1.1rem;
+                margin-bottom: 30px;
+                font-family: 'Inter', sans-serif;
+            "
+        >
+            <option value="second">
+                Second Person ("You walk...")
+            </option>
 
-                <!-- Bag / Items -->
-                <div class="entity-panel" style="flex: 1;">
-                    <h3 style="color: var(--secondary); margin-bottom: 20px;">Satchel</h3>
-                    <div id="item-grid" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 250px; overflow-y: auto; width: 100%; justify-content: flex-start;">
-                        <!-- Items rendered here by JS -->
-                    </div>
-                </div>
-            </div>
-            <button id="back-hub-btn" class="btn" style="margin-top: 30px;">Return to City</button>
-        </div>
+            <option value="first">
+                First Person ("I walk...")
+            </option>
+        </select>
 
-        <!-- Story Engine Screen -->
-        <div id="story-screen" class="screen" style="max-width: 900px; padding: 20px 40px;">
-            <!-- Top Bar Stats -->
-            <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">
-                <div style="flex: 1; margin-right: 20px;">
-                    <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">Hero</span> | HP: <span id="story-hp">100</span> | MP/Qi: <span id="story-mp">50</span> <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[muted]':'[sound on]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[sound on]</button>
-                    <div class="hp-bar-container" style="height: 6px; margin-top: 4px;"><div id="story-hp-bar" class="hp-bar"></div></div>
-                </div>
-                <div style="flex: 1; text-align: right; display: none;" id="story-enemy-stats-container">
-                    <span id="story-enemy-name" style="color: var(--danger); font-weight: bold;">Enemy</span> | HP: <span id="story-enemy-hp">50</span>
-                    <div class="hp-bar-container" style="height: 6px; margin-top: 4px;"><div id="story-enemy-hp-bar" class="hp-bar" style="background: linear-gradient(90deg, #5e1313, #8a1c1c);"></div></div>
-                </div>
-            </div>
+        <button
+            id="start-btn"
+            class="btn"
+            type="button"
+        >
+            Begin Journey
+        </button>
 
-            <!-- Narrative Window -->
-            <div id="narrative-window" class="log-container" style="flex: 1; width: 100%; height: 100%; min-height: 400px; margin-bottom: 20px; padding: 25px; font-size: 1.15rem; line-height: 1.8; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth;">
-                <!-- Text and dynamic portraits go here -->
-            </div>
+        <div class="ornament bottom"></div>
 
-            <!-- Choice Engine -->
-            <div id="choice-engine" class="actions" style="grid-template-columns: 1fr; gap: 10px; width: 100%;">
-                <!-- Dynamic choices injected here -->
-            </div>
-        </div>
-
-        <!-- Victory/Defeat Screen -->
-        <div id="result-screen" class="screen">
-            <h1 id="result-title">Ascension</h1>
-            <p id="result-text">The path continues.</p>
-            <div id="reward-info" style="margin-bottom: 30px; text-align: center;">
-                <span id="xp-gain" style="color: var(--secondary); font-weight: 600;">+25 Rank Exp</span>
-                <div id="loot-drop" style="margin-top: 15px; color: var(--primary);"></div>
-            </div>
-            <div class="actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;">
-                <button id="explore-btn" class="btn">Continue Journey</button>
-                <button id="inventory-btn" class="btn btn-secondary">Equipment & Artifacts</button>
-                <button id="rest-btn" class="btn btn-secondary">Meditate (Restore All)</button>
-            </div>
-        </div>
-    
-        <!-- WORLD MAP SCREEN -->
-        <div id="map-screen" class="screen" style="max-width:1000px;padding:20px 30px;">
-            <div class="map-header">
-                <h2 class="map-title">&#x2726; The Immortal Codex &#x2014; World Map &#x2726;</h2>
-                <p class="map-subtitle">Navigate the Six Great Realms. Locked regions await your ascension.</p>
-            </div>
-            <div class="map-canvas-wrapper">
-                <svg id="world-map-svg" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <radialGradient id="mapBg" cx="50%" cy="50%" r="70%">
-                            <stop offset="0%" stop-color="#1a1208"/>
-                            <stop offset="100%" stop-color="#0a0805"/>
-                        </radialGradient>
-                        <filter id="glow-node" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur stdDeviation="5" result="blur"/>
-                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
-                        <marker id="road-arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-                            <path d="M0,0 L6,3 L0,6 Z" fill="#8a6a2a" opacity="0.6"/>
-                        </marker>
-                    </defs>
-                    <rect width="800" height="520" fill="url(#mapBg)" rx="12"/>
-                    <g opacity="0.06" stroke="#d4af37" stroke-width="0.5">
-                        <line x1="0" y1="130" x2="800" y2="130"/><line x1="0" y1="260" x2="800" y2="260"/>
-                        <line x1="0" y1="390" x2="800" y2="390"/><line x1="200" y1="0" x2="200" y2="520"/>
-                        <line x1="400" y1="0" x2="400" y2="520"/><line x1="600" y1="0" x2="600" y2="520"/>
-                    </g>
-                    <g stroke="#8a6a2a" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.35" fill="none" marker-end="url(#road-arrow)">
-                        <path d="M 400,280 Q 510,230 590,175"/>
-                        <path d="M 400,280 Q 290,325 185,360"/>
-                        <path d="M 400,280 Q 490,330 625,370"/>
-                        <path d="M 590,175 Q 565,115 415,72"/>
-                        <path d="M 185,360 Q 155,285 135,195"/>
-                        <path d="M 625,370 Q 590,220 425,78"/>
-                    </g>
-                    <g transform="translate(62,62)" opacity="0.25">
-                        <circle cx="0" cy="0" r="28" fill="none" stroke="#d4af37" stroke-width="1"/>
-                        <path d="M0,-28 L4,-8 L0,0 L-4,-8 Z" fill="#d4af37"/>
-                        <path d="M0,28 L4,8 L0,0 L-4,8 Z" fill="#8a6a2a"/>
-                        <path d="M-28,0 L-8,4 L0,0 L-8,-4 Z" fill="#8a6a2a"/>
-                        <path d="M28,0 L8,4 L0,0 L8,-4 Z" fill="#8a6a2a"/>
-                        <text x="0" y="-34" text-anchor="middle" fill="#d4af37" font-size="9" font-family="Cinzel">N</text>
-                    </g>
-                    <g id="map-regions-group"></g>
-                </svg>
-            </div>
-            <div id="map-tooltip" class="map-tooltip" style="display:none;">
-                <div class="map-tooltip-header">
-                    <span id="map-tooltip-name">Region</span>
-                    <span id="map-tooltip-status" class="map-status-badge"></span>
-                </div>
-                <p id="map-tooltip-subtitle" class="map-tooltip-subtitle"></p>
-                <p id="map-tooltip-desc" class="map-tooltip-desc"></p>
-                <div id="map-tooltip-enemies" class="map-tooltip-enemies"></div>
-                <button id="map-travel-btn" class="btn map-travel-btn">Travel Here</button>
-            </div>
-            <div class="map-legend">
-                <span class="legend-item"><span class="legend-dot" style="background:#d4af37"></span>Unlocked</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#333"></span>Locked</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#00e5a0"></span>Current Region</span>
-            </div>
-            <button id="map-back-btn" class="btn btn-secondary" style="margin-top:18px;">Return to Crossroads</button>
-        </div>
     </div>
 
-    <script src="audio.js"></script>
-    <script src="lore.js"></script>
-    <script src="lore_part2.js"></script>
-    <script src="companions.js"></script>
-    <script src="story.js"></script>
-    <script src="combat.js"></script>
-    <script src="game.js"></script>
+    <!-- CHARACTER CREATION -->
+    <div id="creation-screen" class="screen">
+
+        <h1>Select Destiny</h1>
+
+        <div class="input-group">
+            <input
+                type="text"
+                id="player-name"
+                placeholder="Enter Hero Name"
+                maxlength="12"
+            />
+        </div>
+
+        <div class="class-selector">
+
+            <div
+                class="class-card selected"
+                data-class="Sword Immortal"
+                data-sprite="assets/sword_immortal_1778872325571.png"
+            >
+                <div class="card-image-wrapper">
+                    <img
+                        class="card-bg"
+                        src="assets/sword_immortal_1778872325571.png"
+                        alt="Sword Immortal"
+                    />
+                </div>
+
+                <h3>Sword Immortal</h3>
+                <p>High Crit & Damage</p>
+            </div>
+
+            <div
+                class="class-card"
+                data-class="Medicine Cultivator"
+                data-sprite="assets/medicine_cultivator_1778872338789.png"
+            >
+                <div class="card-image-wrapper">
+                    <img
+                        class="card-bg"
+                        src="assets/medicine_cultivator_1778872338789.png"
+                        alt="Medicine Cultivator"
+                    />
+                </div>
+
+                <h3>Medicine Cultivator</h3>
+                <p>High HP & Healing</p>
+            </div>
+
+            <div
+                class="class-card"
+                data-class="Desert Knight"
+                data-sprite="assets/desert_knight_1778872351281.png"
+            >
+                <div class="card-image-wrapper">
+                    <img
+                        class="card-bg"
+                        src="assets/desert_knight_1778872351281.png"
+                        alt="Desert Knight"
+                    />
+                </div>
+
+                <h3>Desert Knight</h3>
+                <p>High Defense & HP</p>
+            </div>
+
+            <div
+                class="class-card"
+                data-class="Sufi Mystic"
+                data-sprite="assets/sufi_mystic_1778872363338.png"
+            >
+                <div class="card-image-wrapper">
+                    <img
+                        class="card-bg"
+                        src="assets/sufi_mystic_1778872363338.png"
+                        alt="Sufi Mystic"
+                    />
+                </div>
+
+                <h3>Sufi Mystic</h3>
+                <p>High Qi & Magic</p>
+            </div>
+
+        </div>
+
+        <button id="create-btn" class="btn">
+            Awaken Soul
+        </button>
+
+    </div>
+
+    <!-- HUB SCREEN -->
+    <div id="hub-screen" class="screen">
+
+        <h1 style="font-size: 3rem;">
+            City of Crossroads
+        </h1>
+
+        <p>
+            The Silk Road bustles with merchants, cultivators, and mystics.
+        </p>
+
+        <div
+            class="stats-group"
+            style="text-align:center;max-width:400px;margin:0 auto 30px;"
+        >
+
+            <div class="stat-label">
+                Life Essence:
+                <span id="hub-hp">100</span> /
+                <span id="hub-max-hp">100</span>
+            </div>
+
+            <div class="hp-bar-container">
+                <div id="hub-hp-bar" class="hp-bar"></div>
+            </div>
+
+            <div
+                style="
+                    margin-top:10px;
+                    color:var(--secondary);
+                    font-size:1.2rem;
+                    font-family:'Ma Shan Zheng', cursive;
+                "
+            >
+                <span id="hub-rank-name">Body Tempering</span>
+            </div>
+
+            <div
+                style="
+                    color:var(--text-dim);
+                    font-size:0.9rem;
+                "
+            >
+                Stage
+                <span id="hub-lvl">1</span>
+                <span id="hub-class">Cultivator</span>
+            </div>
+
+        </div>
+
+        <div
+            class="class-selector"
+            style="grid-template-columns:1fr 1fr 1fr;gap:20px;"
+        >
+
+            <button
+                id="explore-btn"
+                class="btn"
+                style="width:100%;"
+            >
+                Venture Forth
+            </button>
+
+            <button
+                id="inventory-btn"
+                class="btn btn-secondary"
+                style="width:100%;"
+            >
+                Inventory
+            </button>
+
+            <button
+                id="rest-btn"
+                class="btn btn-secondary"
+                style="width:100%;"
+            >
+                Meditation
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+
+        <h1 id="result-title">
+            Ascension
+        </h1>
+
+        <p id="result-text">
+            The path continues.
+        </p>
+
+        <div
+            class="actions"
+            style="
+                margin-top:20px;
+                display:flex;
+                flex-direction:column;
+                gap:15px;
+                width:100%;
+                max-width:400px;
+                margin-left:auto;
+                margin-right:auto;
+            "
+        >
+
+            <button
+                id="result-explore-btn"
+                class="btn"
+            >
+                Continue Journey
+            </button>
+
+            <button
+                id="result-inventory-btn"
+                class="btn btn-secondary"
+            >
+                Equipment & Artifacts
+            </button>
+
+            <button
+                id="result-rest-btn"
+                class="btn btn-secondary"
+            >
+                Meditate (Restore All)
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="audio.js"></script>
+<script src="lore.js"></script>
+<script src="lore_part2.js"></script>
+<script src="companions.js"></script>
+<script src="story.js"></script>
+<script src="combat.js"></script>
+<script src="game.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const startBtn = document.getElementById("start-btn");
+
+    function openCreationScreen() {
+
+        const menuScreen = document.getElementById("menu-screen");
+        const creationScreen = document.getElementById("creation-screen");
+
+        if (menuScreen) {
+            menuScreen.classList.remove("active");
+            menuScreen.style.display = "none";
+        }
+
+        if (creationScreen) {
+            creationScreen.classList.add("active");
+            creationScreen.style.display = "flex";
+        }
+
+        console.log("Journey Started");
+
+    }
+
+    if (startBtn) {
+
+        startBtn.addEventListener(
+            "click",
+            openCreationScreen
+        );
+
+        startBtn.addEventListener(
+            "touchstart",
+            function (e) {
+
+                e.preventDefault();
+                openCreationScreen();
+
+            },
+            { passive: false }
+        );
+
+    }
+
+});
+
+</script>
+
 </body>
 </html>
