@@ -299,42 +299,30 @@
 
 <!-- MOBILE TOUCH FIX -->
 <script>
-
 document.addEventListener("DOMContentLoaded", () => {
-
-    const startBtn = document.getElementById("start-btn");
-
-    if (!startBtn) return;
-
+    // Global event delegation for touchstart to fix Android tap issues
     let touched = false;
 
-    startBtn.addEventListener(
-        "touchstart",
-        function(e) {
+    document.body.addEventListener("touchstart", function(e) {
+        // Find if the target or its ancestors is a button or class-card
+        const target = e.target.closest('button, .class-card, .choice-btn, .map-region-node');
+        if (!target) return;
 
-            touched = true;
+        touched = true;
 
-            e.preventDefault();
+        // Prevent default touch behavior to stop ghost clicks
+        e.preventDefault();
 
-            startBtn.click();
+        // Programmatically trigger click
+        target.click();
+    }, { passive: false });
 
-        },
-        { passive: false }
-    );
-
-    startBtn.addEventListener(
-        "click",
-        function(e) {
-
-            if (touched) {
-                touched = false;
-            }
-
+    document.body.addEventListener("click", function(e) {
+        if (touched) {
+            touched = false;
         }
-    );
-
+    });
 });
-
 </script>
 
 </body>
