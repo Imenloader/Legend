@@ -1,4 +1,4 @@
-// Supabase Configuration
+﻿// Supabase Configuration
 const SUPABASE_URL = 'https://zdgyluzcfcenszqtqkrm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkZ3lsdXpjZmNlbnN6cXRxa3JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjczNDIsImV4cCI6MjA5MzEwMzM0Mn0.W4h91ashw4TQoWzU5TU8SJhctyv3JG4Veec_lbPIMDE';
 let supabaseClient = null;
@@ -805,12 +805,12 @@ function applyLoadData(data) {
 
 // SVG coordinates for each region node
 const REGION_COORDS = {
-    crossroads:     { x: 400, y: 280, icon: 'o', color: '#d4af37' },
-    jade_peak:      { x: 590, y: 175, icon: 'o', color: '#00a86b' },
-    empty_quarter:  { x: 185, y: 360, icon: 'o', color: '#c8860a' },
-    abyssal_sea:    { x: 625, y: 370, icon: 'o', color: '#0f52ba' },
-    brass_city:     { x: 135, y: 195, icon: 'o', color: '#8a1c1c' },
-    celestial_court:{ x: 415, y: 72,  icon: 'o', color: '#e8d080' }
+    crossroads:     { x: 400, y: 280, icon: '&#x2726;', color: '#d4af37' },
+    jade_peak:      { x: 590, y: 175, icon: '&#x2726;', color: '#00a86b' },
+    empty_quarter:  { x: 185, y: 360, icon: '&#x2726;', color: '#c8860a' },
+    abyssal_sea:    { x: 625, y: 370, icon: '&#x2726;', color: '#0f52ba' },
+    brass_city:     { x: 135, y: 195, icon: '&#x2726;', color: '#8a1c1c' },
+    celestial_court:{ x: 415, y: 72,  icon: '&#x2726;', color: '#e8d080' }
 };
 
 function showWorldMap() {

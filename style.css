@@ -565,9 +565,7 @@ input[type="text"]:focus {
 /* WORLD MAP SCREEN                                           */
 /* ----------------------------------------------------------- */
 
-#map-screen {
-    display: none;
-    flex-direction: column;
+#map-screen {`n    flex-direction: column;
     align-items: center;
     gap: 20px;
     animation: fadeIn 0.5s ease;
@@ -773,17 +771,7 @@ input[type="text"]:focus {
     }
 
     /* World Map Overrides */
-    #map-screen {
-        padding: 10px !important;
-    }
-    .map-title {
-        font-size: 1.2rem;
-    }
-    .map-subtitle {
-        font-size: 0.75rem;
-    }
-    .map-legend {
-        flex-direction: column;
+    #map-screen {`n    flex-direction: column;
         align-items: center;
         gap: 10px;
     }
