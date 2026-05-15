@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // COMBAT.JS — Phase 3: Advanced Combat Engine
 // Per-enemy move patterns, Enemy Memory, Unique Abilities
 // "Legends of the Jade and Sand: The Immortal Codex"
@@ -75,68 +75,78 @@ window.COMBAT = {
 
     // ── MOVE RESOLUTION ENGINE ──
     // Returns { playerDmg, enemyDmg, resultText, special }
-    resolveMove(playerMove, enemyMove, playerAtk, enemyAtk, enemy) {
+    resolveMove(playerMove, enemyMove, playerAtk, enemyAtk, enemy, state) {
         let playerDmg = playerAtk;
         let enemyDmg = enemyAtk;
         let resultText = '';
         let special = null;
 
-        // ── COUNTER MATRIX ──
-        // fast (Strike) beats magic (Interrupt)
-        // guard (Brace) beats heavy (Block)
-        // dodge (Evade) beats fast (Slip)
+        // Ensure state variables exist
+        state.comboMultiplier = state.comboMultiplier || 1.0;
+        state.enemyStagger = state.enemyStagger || 0;
 
-        if (playerMove === 'fast') {
-            if (enemyMove === 'magic') {
-                resultText = `You blur forward, striking before their incantation can complete! The spell dissipates harmlessly.`;
-                enemyDmg = 0;
-                playerDmg = Math.floor(playerDmg * 1.6); // Interrupt bonus
-                special = 'interrupt';
-            } else if (enemyMove === 'fast') {
-                resultText = `Speed meets speed. You trade blows in a flurry of impacts.`;
-                enemyDmg = Math.floor(enemyDmg * 0.7);
-                playerDmg = Math.floor(playerDmg * 0.7);
-            } else { // heavy
-                resultText = `Your quick strike meets the full weight of their heavy blow. You're sent staggering.`;
-                enemyDmg = Math.floor(enemyDmg * 1.3);
-                playerDmg = Math.floor(playerDmg * 0.5);
+        // Apply Combo Multiplier to base attack
+        playerDmg = Math.floor(playerDmg * state.comboMultiplier);
+
+        // ── SYMMETRIC COUNTER MATRIX ──
+        const outcomes = {
+            fast: {
+                magic: { text: "You blur forward, interrupting their incantation!", p: 1.6, e: 0, s: 'interrupt', type: 'perfect' },
+                dodge: { text: "You strike fast, but they easily weave around it and counter.", p: 0.2, e: 1.4, s: null },
+                fast:  { text: "A flurry of simultaneous strikes.", p: 0.7, e: 0.7, s: null },
+                heavy: { text: "Your quick strike meets their crushing blow. You're swatted aside.", p: 0.5, e: 1.3, s: null }
+            },
+            guard: {
+                heavy: { text: "You perfectly brace against the crushing blow and riposte!", p: 1.3, e: 0.1, s: 'perfect_block', type: 'perfect' },
+                magic: { text: "Physical guard is useless against spiritual magic. Guard broken!", p: 0, e: 1.6, s: 'guard_broken' },
+                guard: { text: "Both combatants hold their ground cautiously.", p: 0, e: 0, s: null },
+                fast:  { text: "Their fast strikes find gaps in your guard.", p: 0.7, e: 0.6, s: null }
+            },
+            dodge: {
+                fast:  { text: "You slip perfectly beneath their rapid strikes and counter.", p: 1.4, e: 0, s: 'perfect_dodge', type: 'perfect' },
+                heavy: { text: "You try to dodge, but the heavy shockwave catches you.", p: 0, e: 1.4, s: null },
+                magic: { text: "You weave away from the tracking magic, taking grazing damage.", p: 0.8, e: 0.4, s: null }
+            },
+            heavy: {
+                guard: { text: "Your immense physical force crushes straight through their guard!", p: 1.6, e: 0, s: 'guard_crush', type: 'perfect' },
+                fast:  { text: "You commit to a heavy blow, ignoring their light strikes.", p: 1.3, e: 0.5, s: null },
+                dodge: { text: "Your heavy strike hits only air. You are left wide open.", p: 0, e: 1.5, s: null },
+                magic: { text: "You charge through their spell, taking the hit to deliver yours.", p: 1.2, e: 1.2, s: null }
+            },
+            magic: {
+                heavy: { text: "Your spiritual blast obliterates their heavy charge!", p: 1.6, e: 0.2, s: 'magic_burst', type: 'perfect' },
+                guard: { text: "Your magic ignores their physical defense entirely.", p: 1.5, e: 0, s: 'guard_broken', type: 'perfect' },
+                fast:  { text: "They move too fast, interrupting your spiritual flow.", p: 0.2, e: 1.5, s: 'interrupted' },
+                dodge: { text: "Your magic tracks them partially as they dodge.", p: 0.6, e: 0.6, s: null }
             }
-        } else if (playerMove === 'guard') {
-            if (enemyMove === 'heavy') {
-                resultText = `You plant your feet and absorb the crushing blow, then drive forward in a powerful riposte!`;
-                enemyDmg = Math.floor(enemyDmg * 0.1); // Nearly blocked
-                playerDmg = Math.floor(playerDmg * 1.3); // Counter bonus
-                special = 'perfect_block';
-            } else if (enemyMove === 'fast') {
-                resultText = `You guard, but their quick strike finds the gaps in your defense.`;
-                enemyDmg = Math.floor(enemyDmg * 0.6);
-                playerDmg = Math.floor(playerDmg * 0.7);
-            } else { // magic
-                resultText = `Your physical guard is utterly useless against spiritual magic. It passes through and detonates inside your guard!`;
-                enemyDmg = Math.floor(enemyDmg * 1.5);
-                playerDmg = 0;
-                special = 'guard_broken';
-            }
-        } else if (playerMove === 'dodge') {
-            if (enemyMove === 'fast') {
-                resultText = `You slip like desert wind between their rapid strikes, leaving them overextended. A clean counter follows.`;
-                enemyDmg = 0;
-                playerDmg = Math.floor(playerDmg * 1.4); // Counter bonus
-                special = 'perfect_dodge';
-            } else if (enemyMove === 'heavy') {
-                resultText = `You try to dodge the heavy blow, but its shockwave catches you regardless. The impact sends you flying.`;
-                enemyDmg = Math.floor(enemyDmg * 1.4);
-                playerDmg = 0;
-            } else { // magic
-                resultText = `You weave sideways as the magic projectile tracks you — close, but not quite close enough to matter.`;
-                enemyDmg = Math.floor(enemyDmg * 0.4);
-                playerDmg = Math.floor(playerDmg * 0.8);
-            }
+        };
+
+        const outcome = outcomes[playerMove][enemyMove] || { text: 'You clash!', p: 1, e: 1, s: null };
+        resultText = outcome.text;
+        playerDmg = Math.floor(playerDmg * outcome.p);
+        enemyDmg = Math.floor(enemyDmg * outcome.e);
+        special = outcome.s;
+
+        // ── COMBO AND STAGGER LOGIC ──
+        if (outcome.type === 'perfect') {
+            state.enemyStagger++;
+            state.comboMultiplier = Math.min(2.5, state.comboMultiplier + 0.2); // Build combo
+        } else if (enemyDmg > 0) {
+            state.comboMultiplier = 1.0; // Reset combo on taking damage
         }
 
-        return { playerDmg: Math.floor(playerDmg), enemyDmg: Math.floor(enemyDmg), resultText, special };
-    },
+        // Stagger Break Execution
+        if (state.enemyStagger >= 3) {
+            state.enemyStagger = 0;
+            state.enemyStunned = true;
+            state.enemyStunTurns = 1;
+            playerDmg = Math.floor(playerDmg * 3.0); // Execution damage
+            special = 'execution';
+            resultText += ` Their posture is completely broken! You deliver a devastating FATAL BLOW!`;
+        }
 
+        return { playerDmg, enemyDmg, resultText, special };
+    },
     // ── UNIQUE ABILITY HANDLER ──
     // Processes companion unique abilities in combat
     useCompanionAbility(state, enemy) {
@@ -252,10 +262,24 @@ window.COMBAT = {
         const comp = window.COMPANIONS?.getActive(state);
 
         const choices = [
-            { text: `⚔️ Strike Quickly <em>(counters: Magic)</em>`, callback: () => resolveFn('fast') },
-            { text: `🛡️ Brace & Guard <em>(counters: Heavy)</em>`, callback: () => resolveFn('guard'), disabled: inBerserker },
-            { text: `🌀 Dodge & Counter <em>(counters: Fast)</em>`, callback: () => resolveFn('dodge'), disabled: inBerserker }
+            { text: `⚔️ Strike Fast <em>(counters: Magic)</em>`, callback: () => resolveFn('fast') },
+            { text: `🛡️ Brace <em>(counters: Heavy)</em>`, callback: () => resolveFn('guard'), disabled: inBerserker },
+            { text: `🌀 Dodge <em>(counters: Fast)</em>`, callback: () => resolveFn('dodge'), disabled: inBerserker }
         ];
+
+        // Heavy attack (Costs 15 Qi)
+        if (state.player.mp >= 15) {
+            choices.push({ text: `💥 Heavy Smash (15 Qi) <em>(counters: Guard)</em>`, callback: () => { state.player.mp -= 15; resolveFn('heavy'); } });
+        } else {
+            choices.push({ text: `💥 Heavy Smash (15 Qi)`, disabled: true });
+        }
+
+        // Magic attack (Costs 25 Qi)
+        if (state.player.mp >= 25) {
+            choices.push({ text: `🔮 Qi Burst (25 Qi) <em>(counters: Heavy)</em>`, callback: () => { state.player.mp -= 25; resolveFn('magic'); } });
+        } else {
+            choices.push({ text: `🔮 Qi Burst (25 Qi)`, disabled: true });
+        }
 
         // Potion choice
         if (state.player.inventory?.potions > 0) {
