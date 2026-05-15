@@ -21,6 +21,12 @@
     font-family: 'Inter', sans-serif;
 }
 
+/* Global focus state for keyboard accessibility */
+:focus-visible {
+    outline: 2px solid var(--secondary);
+    outline-offset: 2px;
+}
+
 body {
     background: var(--bg-dark);
     color: var(--text);

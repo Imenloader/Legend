@@ -71,6 +71,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         initGame();
     });
 
+    // Setup class cards keyboard and click interaction
+    document.querySelectorAll('.class-card').forEach(card => {
+        const toggleClassCard = () => {
+            document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+        };
+        card.addEventListener('click', toggleClassCard);
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleClassCard();
+            }
+        });
+    });
+
     // Attempt to load cloud save silently
     await loadGameCloud();
 });
