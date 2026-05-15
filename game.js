@@ -485,6 +485,7 @@ const lootTiers = [
 function startCombat(enemy) {
     state.currentEnemy = enemy;
     state.combatState = 'enemy_prep';
+    
     // Reset per-battle flags
     state.nextEnemyAttackNegated = false;
     state.enemyStunned = false;
@@ -494,6 +495,21 @@ function startCombat(enemy) {
     state.berserkerBonus = 1;
     state.playerDmgBonus = 1;
     state.enemyAtkDebuff = 1;
+    state.comboMultiplier = 1.0;
+    state.enemyStagger = 0;
+    
+    // Aura Suppression Logic
+    const playerStage = Math.floor(state.player.maxHp / 20); 
+    const enemyStage = enemy.baseHp ? Math.floor(enemy.baseHp / 25) : 3;
+    
+    if (playerStage > enemyStage + 2) {
+        state.enemyAtkDebuff = 0.8;
+        narrate(`Your towering Cultivation Aura suppresses the enemy. Their attacks are weakened.`, "System", null, false, true);
+    } else if (enemyStage > playerStage + 2) {
+        state.playerDmgBonus = 0.8;
+        narrate(`The enemy's oppressive Aura crushes your breath. Your attacks are weakened.`, "System", null, false, true);
+    }
+
     updateTopBar();
 
     // Opening line
@@ -585,62 +601,73 @@ function resolveCombatTurn(playerMove) {
     const enemy = state.currentEnemy;
     const enemyMove = enemy.nextMove;
 
-    // Record player move for enemy memory
     if (window.COMBAT && playerMove !== 'potion') {
         window.COMBAT.recordPlayerMove(enemy.id || enemy.name, playerMove);
     }
 
     if (playerMove === 'potion') {
-        // Enemy still hits during potion
         const dmg = Math.floor(enemy.atk * (state.enemyAtkDebuff || 1));
         state.player.hp -= dmg;
         narrate(`${enemy.name}'s attack lands while you drink! You take ${dmg} damage.`, 'System', null, false, true);
+        state.comboMultiplier = 1.0; 
         updateTopBar();
         state.combatState = 'enemy_prep';
         setTimeout(combatLoop, 1800);
         return;
     }
 
-    // Resolve via COMBAT engine
     let result;
     if (window.COMBAT) {
         const buffedAtk = Math.floor(state.player.atk * (state.berserkerBonus || 1) * (state.playerDmgBonus || 1));
         const effectiveEnemyAtk = Math.floor(enemy.atk * (state.enemyAtkDebuff || 1));
-        result = window.COMBAT.resolveMove(playerMove, enemyMove, buffedAtk, effectiveEnemyAtk, enemy);
+        result = window.COMBAT.resolveMove(playerMove, enemyMove, buffedAtk, effectiveEnemyAtk, enemy, state);
     } else {
         result = { playerDmg: state.player.atk, enemyDmg: enemy.atk, resultText: 'You clash!', special: null };
     }
 
-    // Apply negation
     if (state.nextEnemyAttackNegated) {
         result.enemyDmg = 0;
         state.nextEnemyAttackNegated = false;
         narrate(`${state.companion ? window.COMPANIONS.getActive(state)?.name : 'An ally'} negates the incoming attack!`, 'System');
     }
 
-    // Apply damage
     enemy.hp = Math.max(0, enemy.hp - result.playerDmg);
     state.player.hp = Math.max(0, state.player.hp - result.enemyDmg);
 
-    // Narrate result
     narrate(result.resultText, 'System', null, false, true);
+    
+    if (state.comboMultiplier > 1.0) {
+        narrate(`🔥 Combo! Damage multiplier: <b>x${state.comboMultiplier.toFixed(1)}</b>`, 'System', null, false, true);
+    }
+    if (state.enemyStagger > 0 && state.enemyStagger < 3) {
+        narrate(`💢 Enemy Stagger: <b>${state.enemyStagger}/3</b>`, 'System', null, false, true);
+    }
+
     if (result.playerDmg > 0) narrate(`You deal <b>${result.playerDmg}</b> damage.`, 'System', null, false, true);
     if (window.AUDIO && result.playerDmg > 0) window.AUDIO.playEffect('combat_hit');
     if (result.enemyDmg > 0) narrate(`You take <b>${result.enemyDmg}</b> damage.`, 'System', null, true, true);
     if (result.special) {
-    if (window.AUDIO && result.special === 'perfect_block') window.AUDIO.playEffect('combat_block');
+        if (window.AUDIO && result.special.includes('perfect')) window.AUDIO.playEffect('combat_block');
         const specials = {
-            interrupt: '⚡ Interrupt! Spell cancelled.',
-            perfect_block: '🛡️ Perfect Block! Riposte!',
-            perfect_dodge: '💨 Perfect Dodge! Counter!',
-            guard_broken: '💥 Guard Broken! Magic ignores armor!'
+            interrupt: '<span class="loot-rare">⚡ Interrupt! Spell cancelled.</span>',
+            perfect_block: '<span class="loot-epic">🛡️ Perfect Block! Riposte!</span>',
+            perfect_dodge: '<span class="loot-epic">💨 Perfect Dodge! Counter!</span>',
+            guard_crush: '<span class="loot-legendary">💥 Guard Crushed!</span>',
+            magic_burst: '<span class="loot-mythic">🔮 Spiritual Overpower!</span>',
+            guard_broken: '<span class="loot-common">💥 Guard Broken! Magic ignores armor!</span>',
+            interrupted: '<span class="loot-common">❌ Interrupted!</span>',
+            execution: '<span class="loot-mythic" style="font-size: 1.3em;">💀 EXECUTION!</span>'
         };
-        narrate(specials[result.special] || '', 'System', null, false, true);
+        if (specials[result.special]) narrate(specials[result.special], 'System', null, false, true);
     }
 
     updateTopBar();
+
+    if (state.player.hp <= 0) { setTimeout(handleDefeat, 1500); return; }
+    if (enemy.hp <= 0) { setTimeout(handleVictory, 1500); return; }
+
     state.combatState = 'enemy_prep';
-    setTimeout(combatLoop, 2000);
+    setTimeout(combatLoop, 2500);
 }
 
 function handleVictory() {
