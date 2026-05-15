@@ -1,4 +1,4 @@
-﻿// Supabase Configuration
+// Supabase Configuration
 const SUPABASE_URL = 'https://zdgyluzcfcenszqtqkrm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkZ3lsdXpjZmNlbnN6cXRxa3JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjczNDIsImV4cCI6MjA5MzEwMzM0Mn0.W4h91ashw4TQoWzU5TU8SJhctyv3JG4Veec_lbPIMDE';
 let supabaseClient = null;
@@ -189,7 +189,7 @@ function initGame() {
 // --- Hub Loop ---
 function hubLoop() {
     state.narrative_node = 'hub';
-    if (window.AUDIO) { window.AUDIO.resume(); window.AUDIO.playRegion(regionId); }
+    if (window.AUDIO) { window.AUDIO.resume(); window.AUDIO.playRegion('crossroads'); }
     state.currentEnemy = null;
     updateTopBar();
 

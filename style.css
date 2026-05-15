@@ -731,3 +731,92 @@ input[type="text"]:focus {
     100% { r: 22; opacity: 0.6; }
 }
 .region-pulse { animation: nodePulse 2.5s ease-in-out infinite; }
+
+/* ========================================================= */
+/* ENHANCED MOBILE RESPONSIVENESS                            */
+/* ========================================================= */
+@media (max-width: 600px) {
+    /* Story Screen Overrides */
+    #story-screen {
+        padding: 15px !important;
+    }
+    
+    /* Top Bar Stats */
+    #story-screen > div:first-child {
+        flex-direction: column;
+        gap: 10px;
+    }
+    #story-screen > div:first-child > div {
+        text-align: left !important;
+        margin-right: 0 !important;
+        width: 100%;
+    }
+    #story-enemy-stats-container {
+        margin-top: 10px;
+    }
+    #mute-btn {
+        float: right;
+    }
+    
+    /* Narrative Window */
+    #narrative-window {
+        padding: 15px !important;
+        font-size: 1.05rem !important;
+        min-height: 250px !important;
+    }
+
+    /* Buttons minimum touch target */
+    .btn {
+        padding: 12px 18px;
+        min-height: 44px; /* Apple Human Interface touch target size */
+        font-size: 0.95rem;
+    }
+
+    /* World Map Overrides */
+    #map-screen {
+        padding: 10px !important;
+    }
+    .map-title {
+        font-size: 1.2rem;
+    }
+    .map-subtitle {
+        font-size: 0.75rem;
+    }
+    .map-legend {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .map-tooltip {
+        position: static !important; /* Fallback from absolute */
+        margin-top: 15px;
+        transform: none !important;
+    }
+    
+    /* Inventory & Equipment */
+    #inventory-screen .split-layout {
+        flex-direction: column;
+    }
+    #inventory-screen .panel {
+        width: 100% !important;
+    }
+}
+
+@media (max-height: 700px) {
+    /* Compress UI vertically for short phone screens */
+    .screen {
+        height: 98%;
+        padding: 10px;
+    }
+    h1.game-title {
+        font-size: 2.2rem;
+        margin-bottom: 5px;
+    }
+    .subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+    }
+    .log-container {
+        padding: 12px !important;
+    }
+}
