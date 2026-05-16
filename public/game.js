@@ -319,7 +319,19 @@ function initGame() {
             }
         }
         if (window.SECTS) window.SECTS.process(state);
-    }, 1000);
+
+        // --- DYNAMIC EVENT HEARTBEAT ---
+        // Every 5 seconds, there is a 5% chance of a random life/sect event
+        if (Math.random() < 0.05) {
+            const eventType = Math.random() > 0.5 ? 'LIFE' : 'SECT';
+            if (eventType === 'LIFE' && window.LIFE && window.LIFE.processRandomEvent) {
+                window.LIFE.processRandomEvent(state, narrate);
+                if (window.LIFE.processBirth) window.LIFE.processBirth(state, narrate);
+            } else if (eventType === 'SECT' && window.SECTS && window.SECTS.processRandomEvent) {
+                window.SECTS.processRandomEvent(state, narrate);
+            }
+        }
+    }, 5000); // 5s heartbeat for performance
 
     showScreen('story-screen');
     if (window.AUDIO) { window.AUDIO.init(); window.AUDIO.playRegion('crossroads'); }
@@ -372,6 +384,12 @@ function hubLoop() {
     
     if (state.player.lvl >= 10) {
         choices.push({ text: "✨ Hall of Transmigration", callback: showRebirthScreen });
+    }
+    
+    if (state.player.lvl >= 20 && !state.player.isAscended) {
+        choices.push({ text: "⚡ Attempt Heavenly Tribulation", callback: () => {
+            if (window.ASCENSION) window.ASCENSION.startTribulation(state, narrate, startCombat);
+        }});
     }
     
     if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 Cultivate Qi", callback: showCultivationScreen });

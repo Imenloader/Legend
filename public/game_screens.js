@@ -395,18 +395,30 @@ function showManagementScreen() {
     html += `<h3 style="color:var(--secondary)">👨‍👩‍👧‍👦 Biological Family</h3>`;
     if (state.player.family && state.player.family.length) {
         state.player.family.forEach(f => {
-            html += `<p style="margin:5px 0;">${f.relation}: <b>${f.name}</b> (Affinity: ${f.affinity}%)</p>`;
+            html += `<p style="margin:5px 0;">${f.relation}: <b>${f.name}</b> (Affinity: ${f.affinity}%)${!f.alive ? ' <span style="color:var(--danger)">[DECEASED]</span>' : ''}</p>`;
         });
-    } else {
-        html += `<p>You have no living relatives.</p>`;
+    }
+    if (state.player.spouse) {
+        html += `<p style="margin:10px 0; color:var(--success);">Spouse: <b>${state.player.spouse.name}</b> | Children: <b>${state.player.children || 0}</b></p>`;
     }
     
     // Sect Section
     html += `<h3 style="color:var(--jade); margin-top:20px;">🏛️ My Immortal Sect</h3>`;
     if (state.sect) {
         html += `<p>Sect Name: <b>${state.sect.name}</b> (Lv. ${state.sect.level})</p>
-                 <p>Disciples: <b>${state.sect.disciples.length} / ${state.sect.maxDisciples}</b></p>
+                 <p>Disciples: <b>${state.sect.disciples.filter(d=>d.alive).length} / ${state.sect.maxDisciples}</b></p>
                  <p>Treasury: <b>${state.sect.treasury} Stones</b></p>`;
+        
+        // Diplomacy Sub-section
+        html += `<div style="margin-top:10px; padding:10px; background:rgba(255,255,255,0.05); border-radius:4px;">
+                    <b style="font-size:0.8rem; text-transform:uppercase;">Sect Diplomacy:</b><br>`;
+        if (window.SECTS && window.SECTS.rivalSects) {
+            window.SECTS.rivalSects.forEach(r => {
+                const color = r.relation === 'Hostile' ? 'var(--danger)' : (r.relation === 'Ally' ? 'var(--success)' : 'var(--text-dim)');
+                html += `<small>${r.name}: <span style="color:${color}">${r.relation}</span></small><br>`;
+            });
+        }
+        html += `</div>`;
     } else {
         html += `<p>You have not founded a sect yet.</p>`;
     }
@@ -415,12 +427,57 @@ function showManagementScreen() {
     narrate(html, "System", null, false, true);
     
     const choices = [
-        { text: "🤝 Interact with Family", callback: () => { narrate("You spent time with your family, increasing affinity.", "System"); state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity+5)); showManagementScreen(); } },
+        { text: "🤝 Spend Time with Family", callback: () => { narrate("You spent time with your family, increasing affinity.", "System"); state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity+5)); showManagementScreen(); } },
+        { text: "💍 Seek Marriage (5000 Stones)", callback: () => { if(window.LIFE) { const res = window.LIFE.seekMarriage(state, narrate); narrate(res.message, "System"); showManagementScreen(); } } },
         { text: "🏠 Found Sect (10,000 Stones)", callback: () => { if(state.player.gold >= 10000) { state.player.gold -= 10000; window.SECTS.init(state); showManagementScreen(); } } },
         { text: "👤 Recruit Disciple", callback: () => { const res = window.SECTS.recruit(state); narrate(res.message, "System"); showManagementScreen(); } },
+        { text: "⚔️ Enter War Room", callback: showWarRoom },
         { text: "↩ Return", callback: hubLoop }
     ];
     
+    setChoices(choices);
+}
+
+function showWarRoom() {
+    clearNarrative();
+    narrate("<b>SECT WAR ROOM</b> — Strategic Command", "System", null, false, true);
+    
+    let html = `<div style="text-align:left;">
+        <h3 style="color:var(--danger)">🚩 Active Wars & Rivals</h3>`;
+    
+    if (window.SECTS && window.SECTS.rivalSects) {
+        window.SECTS.rivalSects.forEach(r => {
+            const status = r.relation === 'War' ? '<b style="color:var(--danger)">[AT WAR]</b>' : r.relation;
+            html += `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <b>${r.name}</b> (${status})<br>
+                Power: ${r.power} | Territory: ${r.territory}
+            </div>`;
+        });
+    }
+
+    html += `<h3 style="color:var(--secondary); margin-top:20px;">🗺️ Territory Control</h3>`;
+    if (window.SECTS && window.SECTS.territories) {
+        Object.entries(window.SECTS.territories).forEach(([name, t]) => {
+            const ownerColor = t.owner === 'Player' ? 'var(--success)' : 'var(--danger)';
+            html += `<p>${name}: <b style="color:${ownerColor}">${t.owner}</b> (+${t.income} Spirit Stones/tick)</p>`;
+        });
+    }
+    
+    html += `</div>`;
+    narrate(html, "System", null, false, true);
+
+    const choices = [];
+    if (window.SECTS) {
+        window.SECTS.rivalSects.filter(r => r.relation !== 'War' && r.relation !== 'Defeated').forEach(r => {
+            choices.push({ text: `⚔️ Declare War on ${r.name}`, callback: () => {
+                const res = window.SECTS.declareWar(state, r.id);
+                narrate(res.message, "System");
+                showWarRoom();
+            }});
+        });
+    }
+    
+    choices.push({ text: "↩ Back to Management", callback: showManagementScreen });
     setChoices(choices);
 }
 

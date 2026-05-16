@@ -554,8 +554,11 @@ window.STORY = {
 
         // Build choices with karma filtering
         const filteredChoices = (node.choices || []).filter(c => {
-            if (c.karmaReq > 0) return (state.player.karma || 0) >= c.karmaReq;
-            if (c.karmaReq < 0) return (state.player.karma || 0) <= c.karmaReq;
+            if (c.karmaReq > 0 && (state.player.karma || 0) < c.karmaReq) return false;
+            if (c.karmaReq < 0 && (state.player.karma || 0) > c.karmaReq) return false;
+            if (c.backgroundReq && (!state.player.background || state.player.background.id !== c.backgroundReq)) return false;
+            if (c.systemReq && (!state.player.system || state.player.system.id !== c.systemReq)) return false;
+            if (c.goldCost && (state.player.gold || 0) < c.goldCost) return false;
             return true;
         });
 
@@ -573,7 +576,10 @@ window.STORY = {
             text: c.text,
             callback: () => {
                 // Apply karma
-                if (c.karmaChange) state.player.karma = Math.max(-100, Math.min(100, state.player.karma + c.karmaChange));
+                if (c.karmaChange) state.player.karma = Math.max(-100, Math.min(100, (state.player.karma || 0) + c.karmaChange));
+
+                // Apply gold cost
+                if (c.goldCost) state.player.gold -= c.goldCost;
 
                 // Apply affinity change
                 if (c.affinityChange && window.COMPANIONS) {

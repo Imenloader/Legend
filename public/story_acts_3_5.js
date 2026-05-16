@@ -45,7 +45,59 @@ She smiles sadly. "The mirror doesn't show what is. It shows what could have bee
         choices: [
             { text: 'Show them your faction token', next: 'act3_jade_pass', karmaReq: 50 },
             { text: 'Intimidate them with your Qi', next: 'act3_enforcer_combat', karmaReq: -50 },
-            { text: 'Try to find a way around', next: 'act3_stealth_path', karmaChange: 0 }
+            { text: 'Try to find a way around', next: 'act3_stealth_path', karmaChange: 0 },
+            // NEW: Background/System paths
+            { text: '👑 (Imperial Prince) Demand passage by birthright', next: 'act3_royal_bypass', backgroundReq: 'royal' },
+            { text: '💰 (Merchant) Bribe them with 2000 Stones', next: 'act3_merchant_bribe', backgroundReq: 'merchant', goldCost: 2000 },
+            { text: '⚔️ (Sword Immortal) Draw your blade and clear the path', next: 'act3_sword_strike', systemReq: 'sword_saint' }
+        ]
+    },
+
+    act3_royal_bypass: {
+        id: 'act3_royal_bypass',
+        act: 3,
+        speaker: 'Jade Enforcer',
+        narration: `The enforcer's eyes widen as he recognizes the royal seal on your ring. He immediately drops to one knee.
+        
+        "Your Highness! We... we were not informed of your arrival. Please, forgive our insolence. The path is yours."`,
+        choices: [
+            { text: 'Proceed with dignity', next: 'act3_hall_arrival', karmaChange: 5 }
+        ]
+    },
+
+    act3_merchant_bribe: {
+        id: 'act3_merchant_bribe',
+        act: 3,
+        speaker: 'Jade Enforcer',
+        narration: `The leader's eyes gleam as he weighs the heavy bag of Spirit Stones. He gestures for his men to stand down.
+        
+        "It seems your papers are... in order. Move along, and don't let anyone else see you."`,
+        choices: [
+            { text: 'Continue toward the Hall', next: 'act3_hall_arrival', karmaChange: -2 }
+        ]
+    },
+
+    act3_sword_strike: {
+        id: 'act3_sword_strike',
+        act: 3,
+        speaker: 'System',
+        narration: `You don't say a word. You simply draw your blade. The air screams as a single stroke of jade-light cleaves the very air. The enforcers' spears shatter before they can even react.
+        
+        They scramble back in terror, realizing they are facing a true Sword Immortal.`,
+        choices: [
+            { text: 'Sheathe your blade and walk through', next: 'act3_hall_arrival', karmaChange: -5 }
+        ]
+    },
+
+    act3_hall_arrival: {
+        id: 'act3_hall_arrival',
+        act: 3,
+        speaker: 'System',
+        narration: `You arrive at the Hall of Reflections. It is a structure of white stone and blue glass, half-buried in the shifting sands.
+        
+        Inside, the air is perfectly still. You stand before the Mirror of Past Lives.`,
+        choices: [
+            { text: 'Look into the mirror', next: 'act3_mirror_vision' }
         ]
     },
 
