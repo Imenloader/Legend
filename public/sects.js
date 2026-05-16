@@ -40,7 +40,7 @@ window.SECTS = {
         if (state.sect.disciples.length >= state.sect.maxDisciples) return { success: false, message: "Sect is at full capacity!" };
         
         const cost = 1000 * state.sect.level;
-        if (state.player.gold < cost) return { success: false, message: "Not enough stones to recruit!" };
+        if (state.player.gold < cost) return { success: false, message: "Not enough Spirit Stones to recruit!" };
         
         const names = ['Jun', 'Lao', 'Xiao', 'Mei', 'Ying'];
         const d = {

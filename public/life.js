@@ -87,7 +87,7 @@ window.LIFE = {
             narrate(`<b>Family Visit</b>: Your ${member.relation} ${member.name} visits you at the Crossroads. They are proud of your progress and give you a <b>${gift}</b>.`, "Family");
             member.affinity = Math.min(100, member.affinity + 5);
             if (gift === 'Qi Pill') { state.player.xp += 100; narrate(`Gained 100 Qi!`, "System"); }
-            else { state.player.gold += 500; narrate(`Gained 500 Gold!`, "System"); }
+            else { state.player.gold += 500; narrate(`Gained 500 Spirit Stones!`, "System"); }
         } else if (roll < 0.7) {
             // Marriage / Sibling Event
             narrate(`<b>Family News</b>: Your ${member.relation} ${member.name} has reached a breakthrough in their own cultivation! Their affinity towards you grows as you share in the celebration.`, "Family");

@@ -61,7 +61,15 @@
             class="btn"
             type="button"
         >
-            Begin Journey
+            New Journey
+        </button>
+        <button
+            id="continue-btn"
+            class="btn btn-secondary"
+            type="button"
+            style="display: none; margin-top: 10px; border-color: var(--jade); color: var(--jade);"
+        >
+            Continue Legend
         </button>
         <div class="ornament bottom"></div>
     </div>
@@ -216,7 +224,7 @@
         <!-- Top Bar Stats -->
         <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">
             <div style="flex: 1; margin-right: 20px;">
-                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">Hero</span> | HP: <span id="story-hp">100</span> | MP/Qi: <span id="story-mp">50</span> | Gold: <span id="story-gold" style="color:#f5c842">50</span> 
+                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">Hero</span> | HP: <span id="story-hp">100</span> | MP/Qi: <span id="story-mp">50</span> | Spirit Stones: <span id="story-gold" style="color:#f5c842">50</span> 
                 <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[muted]':'[sound on]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[sound on]</button>
                 <button onclick="exportCombatLog()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[export log]</button>
                 <button onclick="if(typeof showPropertiesScreen==='function')showPropertiesScreen()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[props]</button>

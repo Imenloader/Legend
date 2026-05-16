@@ -297,8 +297,8 @@ function showAuctionHouse() {
     const bid2 = Math.floor(a.currentBid * 1.5);
 
     setChoices([
-        { text: `Bid ${bid1} Stones`, callback: () => { if(state.player.gold >= bid1) { window.AUCTION.placeBid(state, state.player.name, bid1); state.player.gold -= bid1; showAuctionHouse(); } } },
-        { text: `Outbid with ${bid2} Stones`, callback: () => { if(state.player.gold >= bid2) { window.AUCTION.placeBid(state, state.player.name, bid2); state.player.gold -= bid2; showAuctionHouse(); } } },
+        { text: `Bid ${bid1} Spirit Stones`, callback: () => { if(state.player.gold >= bid1) { window.AUCTION.placeBid(state, state.player.name, bid1); state.player.gold -= bid1; showAuctionHouse(); } } },
+        { text: `Outbid with ${bid2} Spirit Stones`, callback: () => { if(state.player.gold >= bid2) { window.AUCTION.placeBid(state, state.player.name, bid2); state.player.gold -= bid2; showAuctionHouse(); } } },
         { text: "🔄 Refresh", callback: showAuctionHouse },
         { text: "↩ Return", callback: hubLoop }
     ]);
@@ -511,7 +511,7 @@ function showManagementScreen() {
     ];
 
     if (!state.sect) {
-        choices.push({ text: "🏠 Found Sect (10,000 Stones)", callback: () => { if(state.player.gold >= 10000) { state.player.gold -= 10000; window.SECTS.init(state); showManagementScreen(); } } });
+        choices.push({ text: "🏠 Found Sect (10,000 Spirit Stones)", callback: () => { if(state.player.gold >= 10000) { state.player.gold -= 10000; window.SECTS.init(state); showManagementScreen(); } } });
     } else {
         choices.push({ text: "📜 Choose Sect Path", callback: () => {
             const paths = ["Sword", "Alchemy", "Array"];
@@ -525,7 +525,7 @@ function showManagementScreen() {
         choices.push({ text: "⚔️ Enter War Room", callback: showWarRoom });
     }
 
-    choices.push({ text: "💍 Seek Marriage (5000 Stones)", callback: () => { if(window.LIFE) { const res = window.LIFE.seekMarriage(state, narrate); narrate(res.message, "System"); showManagementScreen(); } } });
+    choices.push({ text: "💍 Seek Marriage (5000 Spirit Stones)", callback: () => { if(window.LIFE) { const res = window.LIFE.seekMarriage(state, narrate); narrate(res.message, "System"); showManagementScreen(); } } });
     choices.push({ text: "↩ Return", callback: hubLoop });
     
     setChoices(choices);

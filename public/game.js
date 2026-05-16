@@ -6,6 +6,7 @@ async function loadGameCloud() {
             const loadedState = JSON.parse(saved);
             Object.assign(state, loadedState);
             console.log('Local state loaded.');
+            document.getElementById('continue-btn').style.display = 'block';
         } catch (e) { console.error('Failed to parse local save', e); }
     }
 
@@ -21,6 +22,7 @@ async function loadGameCloud() {
             if (data && data.state) {
                 Object.assign(state, data.state);
                 console.log('Cloud state synchronized.');
+                document.getElementById('continue-btn').style.display = 'block';
                 return true;
             }
         } catch (e) { console.warn('Cloud sync unavailable', e); }
@@ -181,8 +183,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.classList.add('selected');
         });
     });
+    document.getElementById('continue-btn').addEventListener('click', () => {
+        resumeGame();
+    });
+    
     await loadGameCloud();
 });
+
+function resumeGame() {
+    console.log("Resuming legend...");
+    if (window.AUDIO) { window.AUDIO.init(); window.AUDIO.playRegion('crossroads'); }
+    
+    // Restore correct screen
+    if (state.screen && state.screen !== 'menu') {
+        showScreen(state.screen);
+    } else {
+        showScreen('story-screen');
+    }
+    
+    calculateTotalStats();
+    updateTopBar();
+    
+    // Resume loop
+    if (state.currentEnemy) {
+        combatLoop();
+    } else {
+        hubLoop();
+    }
+    
+    narrate("<b>Echoes of the Past</b>: You have returned to your path.", "System", null, false, true);
+}
 
 // --- Narrative Engine ---
 function parsePerspective(text) {
@@ -700,7 +730,7 @@ function showInventory() {
 
     narrate(`<div style="background:rgba(0,0,0,0.5);padding:15px;border-radius:10px;border:1px solid var(--secondary)">
         <b>Cultivator:</b> ${state.player.name} | Lvl ${state.player.lvl}<br>
-        <b>Gold:</b> ${state.player.gold} | <b>Karma:</b> ${state.player.karma}${factionText}
+        <b>Spirit Stones:</b> ${state.player.gold} | <b>Karma:</b> ${state.player.karma}${factionText}
     </div>`, "System", null, false, true);
     
     const slots = Object.keys(state.player.equipment);
