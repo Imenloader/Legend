@@ -1,21 +1,54 @@
 async function loadGameCloud() {
+    // Try localStorage first for speed
     const saved = localStorage.getItem('legend_rpg_state');
     if (saved) {
         try {
             const loadedState = JSON.parse(saved);
             Object.assign(state, loadedState);
-            console.log('Game state loaded.');
-            return true;
-        } catch (e) {
-            console.error('Failed to parse save data', e);
-        }
+            console.log('Local state loaded.');
+        } catch (e) { console.error('Failed to parse local save', e); }
+    }
+
+    // Then sync with Supabase for cloud-based persistence
+    if (supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('game_saves')
+                .select('state')
+                .eq('player_id', state.playerId)
+                .single();
+            
+            if (data && data.state) {
+                Object.assign(state, data.state);
+                console.log('Cloud state synchronized.');
+                return true;
+            }
+        } catch (e) { console.warn('Cloud sync unavailable', e); }
     }
     return false;
 }
 
-function saveGame() {
+async function saveGame() {
+    // Always save locally first
     localStorage.setItem('legend_rpg_state', JSON.stringify(state));
-    console.log('Game saved to localStorage.');
+    
+    // Attempt cloud save
+    if (supabaseClient) {
+        try {
+            const { error } = await supabaseClient
+                .from('game_saves')
+                .upsert({ 
+                    player_id: state.playerId, 
+                    state: state,
+                    last_login: new Date().toISOString()
+                }, { onConflict: 'player_id' });
+            
+            if (error) throw error;
+            console.log('Cloud save successful.');
+        } catch (e) {
+            console.error('Cloud save failed:', e.message);
+        }
+    }
 }
 
 // Supabase Configuration
@@ -43,9 +76,13 @@ let state = {
         maxMp: 50,
         atk: 15,
         def: 5,
+        critRate: 0.05,
+        dodgeRate: 0.05,
         sprite: 'assets/sword_immortal_1778872325571.png',
         karma: 0,
         gold: 50,
+        children: 0,
+        kills: 0,
         inventory: {
             potions: 2,
             elixirs: 0,
@@ -73,7 +110,7 @@ let state = {
     companions: {},
     relationships: {},
     achievements: [],
-    narrative_node: 'hub',
+    narrative_node: 'womb_start',
     storyFlags: {},
     currentEnemy: null,
     combatState: null
@@ -133,8 +170,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (rescueBtn) {
         rescueBtn.addEventListener('click', () => {
             narrate("Emergency state reset initiated. Returning to Crossroads...", "System");
-            state.screen = 'story-screen';
             state.currentEnemy = null;
+            showScreen('story-screen');
             hubLoop();
         });
     }
@@ -281,6 +318,7 @@ function initGame() {
                 updateTopBar();
             }
         }
+        if (window.SECTS) window.SECTS.process(state);
     }, 1000);
 
     showScreen('story-screen');
@@ -330,6 +368,7 @@ function hubLoop() {
     if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ Sect Auction House", callback: showAuctionHouse });
     if (typeof showSkillTree === 'function') choices.push({ text: "☯️ Martial Techniques", callback: showSkillTree });
     if (typeof showPropertiesScreen === 'function') choices.push({ text: "👤 View Properties", callback: showPropertiesScreen });
+    if (typeof showManagementScreen === 'function') choices.push({ text: "👨‍👩‍👧‍👦 Manage Family & Sect", callback: showManagementScreen });
     
     if (state.player.lvl >= 10) {
         choices.push({ text: "✨ Hall of Transmigration", callback: showRebirthScreen });
@@ -366,6 +405,36 @@ function showCompanionScreen() {
 }
 
 // --- Combat Integration ---
+function exploreRegion(regionId) {
+    if (!window.LORE || !window.LORE.REGIONS[regionId]) {
+        narrate("This region is lost in the mists of time.", "System");
+        hubLoop();
+        return;
+    }
+    const region = window.LORE.REGIONS[regionId];
+    const enemies = window.LORE.getAllEnemies ? Object.values(window.LORE.getAllEnemies()).filter(e => e.region === regionId) : [];
+    
+    if (enemies.length === 0) {
+        narrate(`You wander the ${region.name}, but find only silence.`, "System");
+        setTimeout(hubLoop, 2000);
+        return;
+    }
+
+    const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+    const scaledEnemy = {
+        ...enemy,
+        hp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, region.minLevel || 1) : 1)),
+        maxHp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, region.minLevel || 1) : 1)),
+        atk: Math.floor(enemy.baseAtk * (window.BALANCE ? window.BALANCE.enemyAtkScale(state.player.lvl, region.minLevel || 1) : 1))
+    };
+
+    narrate(`Traveling to ${region.name}...`, "System");
+    setTimeout(() => {
+        showScreen('story-screen');
+        startCombat(scaledEnemy);
+    }, 1000);
+}
+
 function updateMomentumUI() {
     const bar = document.getElementById('momentum-bar-fill');
     const indicator = document.getElementById('stance-indicator');
@@ -450,12 +519,28 @@ function resolveCombatTurn(moveId) {
 }
 
 function handleVictory() {
-    narrate(`Victory!`, 'System');
-    const xp = state.currentEnemy.xpReward || 50;
-    state.player.xp += xp;
-    if (state.player.xp >= state.player.maxXp) { state.player.lvl++; state.player.xp -= state.player.maxXp; state.player.maxXp *= 1.5; calculateTotalStats(); narrate("LEVEL UP!", "System"); }
+    const enemy = state.currentEnemy;
+    narrate(`Victory! You have defeated ${enemy.name}.`, 'System');
+    
+    const xpReward = window.BALANCE ? window.BALANCE.xpForEnemy(enemy.minLevel || 1) : 50;
+    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()));
+    
+    state.player.xp += xpReward;
+    state.player.gold += goldReward;
+    
+    narrate(`Gained ${xpReward} Qi and found ${goldReward} Spirit Stones.`, "System");
+
+    if (state.player.xp >= state.player.maxXp) { 
+        state.player.lvl++; 
+        state.player.xp -= state.player.maxXp; 
+        state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 2.1)); 
+        calculateTotalStats(); 
+        narrate("<b>BREAKTHROUGH!</b> Your cultivation has reached a new height.", "System"); 
+    }
+    
     state.currentEnemy = null;
-    saveGame(); hubLoop();
+    saveGame(); 
+    setTimeout(hubLoop, 2000);
 }
 
 function handleDefeat() {
@@ -482,12 +567,11 @@ function calculateTotalStats() {
     if (window.SKILLS) {
         const skillBonuses = window.SKILLS.getPassiveBonuses(state);
         if (skillBonuses.atk) bAtk += baseAtk * skillBonuses.atk;
-        if (skillBonuses.mpRegen) { /* Handled in turn recovery */ }
     }
 
     // Karma Divine Bonuses
-    if (state.player.karma >= 50) bHp += baseMaxHp * 0.15; // Saintly HP bonus
-    if (state.player.karma <= -50) bAtk += baseAtk * 0.1; // Demonic ATK bonus
+    if (state.player.karma >= 50) bHp += baseMaxHp * 0.15;
+    if (state.player.karma <= -50) bAtk += baseAtk * 0.1;
 
     // Legacy (Rebirth) Bonuses
     if (state.legacy) {
@@ -500,10 +584,18 @@ function calculateTotalStats() {
                 const trait = window.REBIRTH.traits[tId];
                 if (trait && trait.bonus) {
                     if (trait.bonus.hp) bHp += baseMaxHp * trait.bonus.hp;
-                    if (trait.bonus.crit) { /* Handled in combat logic if needed */ }
                 }
             });
         }
+    }
+
+    // Beast Pavilion (Pet) Bonuses
+    if (window.PETS) {
+        const petBonus = window.PETS.getBonuses(state);
+        if (petBonus.atk) bAtk += baseAtk * petBonus.atk;
+        if (petBonus.def) bDef += baseDef * petBonus.def;
+        if (petBonus.hp) bHp += petBonus.hp;
+        if (petBonus.mp) bMp += petBonus.mp;
     }
 
     Object.values(state.player.equipment).forEach(item => {
@@ -512,6 +604,22 @@ function calculateTotalStats() {
             bHp += item.stats.hp || 0; bMp += item.stats.mp || 0;
         }
     });
+
+    // 6. Life System & Background Traits
+    const sys = state.player.system || {};
+    const bg = state.player.background || {};
+    
+    if (bg.statMult) { bAtk *= bg.statMult; bDef *= bg.statMult; }
+    if (bg.hpMult) bHp *= bg.hpMult;
+    
+    if (sys.id === 'many_children') {
+        const bonus = 1 + ((state.player.children || 0) * 0.02);
+        bAtk *= bonus; bDef *= bonus; bHp *= bonus; bMp *= bonus;
+    }
+    if (sys.id === 'killing') {
+        bAtk += Math.floor((state.player.kills || 0) / 10);
+    }
+
     state.player.atk = Math.floor(baseAtk + bAtk);
     state.player.def = Math.floor(baseDef + bDef);
     state.player.maxHp = Math.floor(baseMaxHp + bHp);

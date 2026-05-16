@@ -6,6 +6,38 @@
 const STORY_NODES = {
 
     // ========================================================
+    // PHASE 0 — THE WOMB (The Pre-Birth Choice)
+    // ========================================================
+    womb_start: {
+        id: 'womb_start',
+        act: 0,
+        title: 'The Great Dark',
+        narration: `The world is only warmth and the steady drumbeat of a heart that is not yours. You are a soul waiting for a vessel. The Great Dao flows around you, offering gifts before you enter the mortal coil. 
+
+What will you grasp in the silence?`,
+        choices: [
+            { text: '☀️ Grasp the light (Atk focus)', next: 'womb_birth', onEnter: (s) => { s.player.atk += 10; s._wombGift = 'Strength'; } },
+            { text: '🌊 Flow with the energy (HP focus)', next: 'womb_birth', onEnter: (s) => { s.player.maxHp += 50; s.player.hp = s.player.maxHp; s._wombGift = 'Vitality'; } },
+            { text: '🧘 Quietly observe (Karma/Qi focus)', next: 'womb_birth', onEnter: (s) => { s.player.karma += 20; s.player.maxMp += 30; s.player.mp = s.player.maxMp; s._wombGift = 'Spirituality'; } }
+        ]
+    },
+
+    womb_birth: {
+        id: 'womb_birth',
+        act: 0,
+        title: 'The First Cry',
+        narration: `Sudden cold. Blinding light. The roar of a world that does not care for your comfort. You feel your spirit anchoring into a body.
+
+Your cry echoes in the room. A voice speaks — your father? Your mother? The environment around you begins to take shape.`,
+        onEnter: (s) => {
+            if (window.LIFE) window.LIFE.rollLife(s);
+        },
+        choices: [
+            { text: 'Open your eyes to your new life', next: 'act1_intro' }
+        ]
+    },
+
+    // ========================================================
     // ACT I — THE CROSSROADS AWAKENING (Stages 1-3)
     // Theme: Discovery. The player is a nobody.
     // ========================================================
@@ -14,9 +46,17 @@ const STORY_NODES = {
         id: 'act1_intro',
         act: 1,
         title: 'The Crossroads Awakening',
-        narration: `The City of Crossroads rises from the desert like a dream. Minarets catch the last light of the sun. Pagodas crest the hill behind them. The air smells of frankincense and spirit-incense burning together.
-
-You arrived with nothing — no sect, no order, no name worth speaking. Only a pull in your chest, like a compass needle pointing somewhere it cannot name.
+        onEnter: (s) => {
+            const bg = s.player.background || { name: 'Unknown' };
+            const sys = s.player.system || { name: 'None' };
+            narrate(`<div style="background:rgba(255,255,255,0.05);padding:10px;margin-bottom:10px;border-left:4px solid var(--secondary);">
+                <b>LIFE ROLL:</b> You are a <b>${bg.name}</b> born with the <b>${sys.name}</b>.<br>
+                <i>${bg.desc}</i>
+            </div>`, "System", null, false, true);
+        },
+        narration: `Years pass like sand through an hourglass. You are no longer a child. You find yourself at the City of Crossroads.
+        
+The minarets catch the last light of the sun. The air smells of frankincense and spirit-incense. You have arrived with the weight of your birthright — whether it be a golden crown or a beggar's bowl.
 
 A woman in storyteller's robes sits at the central fountain. She has been there, you sense, for a very long time.`,
         speaker: 'Scheherazade',
@@ -1011,22 +1051,22 @@ She picks up her cup and begins a new story. The first words are familiar. The e
 // ============================================================
 window.BALANCE = {
     // Stage-based stat scaling
-    hpPerLevel:     22,   // HP gained per stage breakthrough
-    atkPerLevel:     6,   // ATK gained per stage
-    mpPerLevel:     10,   // Max MP/Qi gained per stage
-    xpMultiplier: 1.45,   // XP needed per level increases by 45%
+    hpPerLevel:     15,   // Reduced from 22
+    atkPerLevel:     3,   // Reduced from 6
+    mpPerLevel:      8,   
+    xpMultiplier: 2.10,   // Increased from 1.45 (HELL GRIND)
 
     // Starting stats
-    base: { hp: 120, mp: 60, atk: 18, maxXp: 120 },
+    base: { hp: 100, mp: 50, atk: 12, maxXp: 150 },
 
     // Enemy scaling (relative to player stage)
     enemyHpScale: (playerLvl, stageMin) => {
         const delta = Math.max(0, playerLvl - stageMin);
-        return 1 + (delta * 0.15); // 15% harder per stage above minimum
+        return 1 + (delta * 0.25); // 25% harder per level (Aggressive scaling)
     },
     enemyAtkScale: (playerLvl, stageMin) => {
         const delta = Math.max(0, playerLvl - stageMin);
-        return 1 + (delta * 0.10);
+        return 1 + (delta * 0.20); // 20% harder
     },
 
     // XP rewards � scales with enemy level

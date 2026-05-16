@@ -1,0 +1,28 @@
+IMMORTAL LIFE CODEX: COMPREHENSIVE ARCHITECTURAL PLAN
+======================================================
+
+1. BIRTH & BACKGROUND SYSTEM
+Players begin in the womb. Background is rolled based on previous Karma.
+- Poor: High XP mult, 0 Gold.
+- Rich: Low XP mult, 10,000 Gold.
+- Royal: Massive base stats, high Karma debt.
+
+2. FAMILY & RELATIONS
+- Procedural generation of parents and siblings.
+- Marriage system with NPC bonding and children.
+
+3. GOLDEN FINGER CHEAT SYSTEMS
+- Many Children Many Blessings: descendant-based stat scaling.
+- Killing System: Kill-based permanent Atk gain.
+- Sword Immortal: 2x Sword damage, auto-mastery.
+
+4. SECT MANAGEMENT
+- Join existing sects with rank progression.
+- Found your own sect at Level 5.
+- Recruit and train disciples.
+
+5. TECHNICAL STEPS
+- Implement life.js for birth/backgrounds.
+- Implement sects.js for management.
+- Update game.js to handle womb-phase start.
+- Update rebirth.js to link previous life quality to next life luck.

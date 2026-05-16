@@ -183,6 +183,9 @@ function showWorldMap() {
     if (!group) return;
     group.innerHTML = '';
 
+    const backBtn = document.getElementById('return-map-btn');
+    if (backBtn) backBtn.onclick = hubLoop;
+
     if (window.LORE) {
         Object.values(window.LORE.REGIONS).forEach(region => {
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -359,17 +362,19 @@ function showPropertiesScreen() {
                     <p style="margin:5px 0; text-align:left;">Faction: <b>${p.faction || 'Unaffiliated'}</b></p>
                 </div>
 
+                <!-- Life & Background -->
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--primary);">
+                    <h3 style="margin-top:0; color:var(--text);">🧬 LIFE IDENTITY</h3>
+                    <p style="margin:5px 0; text-align:left;">Background: <b>${p.background?.name || 'Unknown'}</b></p>
+                    <p style="margin:5px 0; text-align:left;">System Cheat: <b>${p.system?.name || 'None'}</b></p>
+                    <p style="margin:5px 0; text-align:left;">Children: <b>${p.children || 0}</b> | Kills: <b>${p.kills || 0}</b></p>
+                </div>
+
                 <!-- Legacy & Rebirth -->
                 <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--sapphire);">
                     <h3 style="margin-top:0; color:var(--text);">⏳ LEGACY RECORD</h3>
                     <p style="margin:5px 0; text-align:left;">Rebirths: <b>${state.legacy ? state.legacy.rebirthCount : 0}</b></p>
                     <p style="margin:5px 0; text-align:left;">Ancestral Traits: <b>${state.legacy && state.legacy.traits.length ? state.legacy.traits.length : 'None'}</b></p>
-                </div>
-
-                <!-- Beast Pavilion -->
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--jade);">
-                    <h3 style="margin-top:0; color:var(--text);">🐾 BEAST COMPANION</h3>
-                    <p style="margin:5px 0; text-align:left;">Active Pet: <b>${p.activePet || 'None'}</b></p>
                 </div>
 
             </div>
@@ -379,6 +384,46 @@ function showPropertiesScreen() {
     narrate(html, "System", null, false, true);
     setChoices([{ text: "↩ Return", callback: hubLoop }]);
 }
+
+function showManagementScreen() {
+    clearNarrative();
+    narrate("<b>FAMILY & SECT MANAGEMENT</b>", "System", null, false, true);
+    
+    let html = `<div style="text-align:left;">`;
+    
+    // Family Section
+    html += `<h3 style="color:var(--secondary)">👨‍👩‍👧‍👦 Biological Family</h3>`;
+    if (state.player.family && state.player.family.length) {
+        state.player.family.forEach(f => {
+            html += `<p style="margin:5px 0;">${f.relation}: <b>${f.name}</b> (Affinity: ${f.affinity}%)</p>`;
+        });
+    } else {
+        html += `<p>You have no living relatives.</p>`;
+    }
+    
+    // Sect Section
+    html += `<h3 style="color:var(--jade); margin-top:20px;">🏛️ My Immortal Sect</h3>`;
+    if (state.sect) {
+        html += `<p>Sect Name: <b>${state.sect.name}</b> (Lv. ${state.sect.level})</p>
+                 <p>Disciples: <b>${state.sect.disciples.length} / ${state.sect.maxDisciples}</b></p>
+                 <p>Treasury: <b>${state.sect.treasury} Stones</b></p>`;
+    } else {
+        html += `<p>You have not founded a sect yet.</p>`;
+    }
+    
+    html += `</div>`;
+    narrate(html, "System", null, false, true);
+    
+    const choices = [
+        { text: "🤝 Interact with Family", callback: () => { narrate("You spent time with your family, increasing affinity.", "System"); state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity+5)); showManagementScreen(); } },
+        { text: "🏠 Found Sect (10,000 Stones)", callback: () => { if(state.player.gold >= 10000) { state.player.gold -= 10000; window.SECTS.init(state); showManagementScreen(); } } },
+        { text: "👤 Recruit Disciple", callback: () => { const res = window.SECTS.recruit(state); narrate(res.message, "System"); showManagementScreen(); } },
+        { text: "↩ Return", callback: hubLoop }
+    ];
+    
+    setChoices(choices);
+}
+
 
 
 
