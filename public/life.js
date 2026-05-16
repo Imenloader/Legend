@@ -35,15 +35,34 @@ window.LIFE = {
     // Generate random family
     generateFamily(state) {
         const family = [];
-        const names = ['Ali', 'Zhang', 'Wei', 'Layla', 'Omar', 'Fatima', 'Zhao'];
-        const types = ['Father', 'Mother', 'Brother', 'Sister'];
+        const maleNames = ['Ali', 'Zhang', 'Wei', 'Omar', 'Zhao', 'Ahmed', 'Khalid', 'Hassan', 'Chen', 'Li', 'Jian', 'Youssef'];
+        const femaleNames = ['Layla', 'Fatima', 'Yue', 'Meiling', 'Farah', 'Aisha', 'Jing', 'Zahra', 'Mei', 'Lin', 'Noor', 'Xing'];
         
-        types.forEach(type => {
+        const types = [
+            { relation: 'Father', gender: 'male' },
+            { relation: 'Mother', gender: 'female' },
+            { relation: 'Brother', gender: 'male' },
+            { relation: 'Sister', gender: 'female' }
+        ];
+        
+        const usedNames = new Set();
+        
+        types.forEach(t => {
+            const namePool = t.gender === 'male' ? maleNames : femaleNames;
+            let name;
+            let attempts = 0;
+            do {
+                name = namePool[Math.floor(Math.random() * namePool.length)];
+                attempts++;
+            } while (usedNames.has(name) && attempts < 10);
+            
+            usedNames.add(name);
+            
             family.push({
                 id: `fam_${Math.random().toString(36).substr(2, 9)}`,
-                name: names[Math.floor(Math.random() * names.length)],
-                relation: type,
-                affinity: 50, // 0-100
+                name: name,
+                relation: t.relation,
+                affinity: 50 + Math.floor(Math.random() * 20), // Start with slight positive affinity
                 alive: true,
                 lvl: 1
             });
