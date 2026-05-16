@@ -59,7 +59,10 @@ window.CULTIVATION = {
 
         // Check required pill
         if (nextStage.requiredPill) {
-            const hasPill = state.player.inventory.items && state.player.inventory.items.includes(nextStage.requiredPill);
+            const hasPill = state.player.inventory.items && state.player.inventory.items.some(it => 
+                (typeof it === 'string' && it === nextStage.requiredPill) || 
+                (typeof it === 'object' && it.name.toLowerCase().replace(/ /g, '_') === nextStage.requiredPill)
+            );
             if (!hasPill) {
                 return { success: false, message: `You require a ${nextStage.requiredPill.replace(/_/g, ' ')} to protect your meridians during this breakthrough.` };
             }

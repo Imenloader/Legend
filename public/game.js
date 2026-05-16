@@ -109,20 +109,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (nameInput) state.player.name = nameInput;
         state.settings.perspective = perspective;
         showScreen('creation-screen');
-    });
-    document.getElementById('create-btn').addEventListener('click', () => {
-        const nameInput = document.getElementById('player-name').value;
-        if (nameInput) state.player.name = nameInput;
-        const selectedCard = document.querySelector('.class-card.selected');
-        if (selectedCard) {
-            state.player.class = selectedCard.dataset.class;
-            state.player.sprite = selectedCard.dataset.sprite;
-            if (state.player.class === 'Sword Immortal') { state.player.atk += 5; }
-            else if (state.player.class === 'Medicine Cultivator') { state.player.maxHp += 30; state.player.hp = state.player.maxHp; }
-            else if (state.player.class === 'Sufi Mystic') { state.player.maxMp += 20; state.player.mp = state.player.maxMp; }
-        }
-        initGame();
-    });
+    });    // Bind Character Creation Button
+    const createBtn = document.getElementById('create-btn');
+    if (createBtn) {
+        createBtn.addEventListener('click', () => {
+            const nameInput = document.getElementById('player-name').value;
+            if (nameInput) state.player.name = nameInput;
+
+            const selectedCard = document.querySelector('.class-card.selected');
+            if (selectedCard) {
+                state.player.class = selectedCard.dataset.class;
+                state.player.sprite = selectedCard.dataset.sprite;
+                if (state.player.class === 'Sword Immortal') { state.player.atk += 5; }
+                else if (state.player.class === 'Medicine Cultivator') { state.player.maxHp += 30; state.player.hp = state.player.maxHp; }
+                else if (state.player.class === 'Sufi Mystic') { state.player.maxMp += 20; state.player.mp = state.player.maxMp; }
+            }
+            initGame();
+        });
+    }
+
+    // Safety Fallback UI: Bind any emergency return buttons
+    const rescueBtn = document.getElementById('rescue-btn');
+    if (rescueBtn) {
+        rescueBtn.addEventListener('click', () => {
+            narrate("Emergency state reset initiated. Returning to Crossroads...", "System");
+            state.screen = 'story-screen';
+            state.currentEnemy = null;
+            hubLoop();
+        });
+    }
     document.querySelectorAll('.class-card').forEach(card => {
         card.addEventListener('click', () => {
             document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
@@ -246,7 +261,7 @@ function hubLoop() {
                     const enemy = window.LORE ? window.LORE.getAllEnemies()[state.pendingCombatEnemy] : null;
                     state.pendingCombatEnemy = null;
                     if (enemy) startCombat({ ...enemy, hp: enemy.baseHp, maxHp: enemy.baseHp, atk: enemy.baseAtk });
-                    else hubLoop();
+                    else { narrate("Error: Enemy data missing. Returning to hub.", "System"); hubLoop(); }
                 } else { saveGame(); hubLoop(); }
             });
             return;
@@ -322,9 +337,25 @@ function combatLoop() {
     enemy.nextMove = window.COMBAT ? window.COMBAT.selectEnemyMove(enemy) : 'heavy';
     narrate(window.COMBAT ? window.COMBAT.getTelegraph(enemy, enemy.nextMove) : 'Enemy attacks!', enemy.name, enemy.sprite, true);
     setTimeout(() => {
-        const choices = [
-            { id: 'water', label: '🌊 Water' }, { id: 'mountain', label: '🏔️ Mountain' }, { id: 'wind', label: '🌪️ Wind' }
-        ].map(f => ({ text: f.label, callback: () => { state.playerForm = f.id; resolveCombatTurn(f.id === 'water' ? 'flowing_strike' : (f.id === 'mountain' ? 'crushing_palm' : 'gale_strike')); }}));
+        const moves = window.COMBAT ? window.COMBAT.getActionsForForm(state.playerForm) : [];
+        const choices = moves.map(m => ({
+            text: m.name + (m.cost > 0 ? ` (${m.cost} Qi)` : ''),
+            callback: () => {
+                if (m.cost > (state.player.mp || 0)) {
+                    narrate("Not enough Qi for this move!", "System");
+                    combatLoop();
+                    return;
+                }
+                if (m.cost > 0) state.player.mp -= m.cost;
+                resolveCombatTurn(m.id);
+            }
+        }));
+        
+        // Add form switching if it's the start of turn (optional logic expansion)
+        choices.push({ text: "🌊 Switch to Water", callback: () => { state.playerForm = 'water'; combatLoop(); }});
+        choices.push({ text: "🏔️ Switch to Mountain", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
+        choices.push({ text: "🌪️ Switch to Wind", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
+
         setChoices(choices);
     }, 1000);
 }
