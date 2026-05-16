@@ -156,7 +156,74 @@ function showWorldMap() {
                     alert(`${region.name} is currently locked.`);
                 }
             };
-            group.appendChild(circle);
-        });
+            });
     }
 }
+
+// ============================================================
+// NEW RPG SCREENS: Quests, Shop, Skills
+// ============================================================
+
+function showQuestLog() {
+    clearNarrative();
+    narrate("<b>Active Missions & Bounties</b>", "System", null, false, true);
+    
+    if (!state.activeQuests || state.activeQuests.length === 0) {
+        narrate("No active quests. Check back later.");
+    } else {
+        state.activeQuests.forEach(qId => {
+            const q = window.QUESTS.database[qId];
+            if (q) {
+                narrate(`<div style="background:rgba(0,0,0,0.3);padding:10px;border-left:4px solid var(--secondary);margin-bottom:10px;">
+                    <b style="color:var(--secondary)">${q.title}</b> [${q.type}]<br>
+                    ${q.desc}<br>
+                    <small>Objective: ${q.objective}</small>
+                </div>`, "System", null, false, true);
+            }
+        });
+    }
+    setChoices([{ text: "↩ Return", callback: hubLoop }]);
+}
+
+function showMarket() {
+    clearNarrative();
+    narrate("<b>The Crossroads Market</b> - Buy supplies or sell your treasures.", "System", null, false, true);
+    
+    const stock = window.SHOP.stocks.crossroads_market;
+    const choices = stock.map(item => ({
+        text: `Buy ${item.name} (${item.price} Spirit Stones)`,
+        callback: () => {
+            const res = window.SHOP.buy(state, 'crossroads_market', item.id);
+            narrate(res.message, "System");
+            setTimeout(showMarket, 1000);
+        }
+    }));
+
+    choices.push({ text: "💰 Sell Items", callback: () => {
+        state.isSelling = true;
+        showInventory();
+    }});
+    choices.push({ text: "↩ Return", callback: () => { state.isSelling = false; hubLoop(); }});
+    setChoices(choices);
+}
+
+function showSkillTree() {
+    clearNarrative();
+    narrate("<b>Jade & Sand Martial Techniques</b>", "System", null, false, true);
+    
+    if (!state.player.skills || state.player.skills.length === 0) {
+        narrate("You have not learned any techniques yet.");
+    } else {
+        state.player.skills.forEach(sId => {
+            const s = window.SKILLS.techniques[sId];
+            if (s) {
+                narrate(`<div style="background:rgba(0,0,0,0.3);padding:10px;border-left:4px solid var(--jade);margin-bottom:10px;">
+                    <b style="color:var(--jade)">${s.name}</b> ${s.passive ? '[Passive]' : `[Cost: ${s.mpCost} Qi]`}<br>
+                    ${s.desc}
+                </div>`, "System", null, false, true);
+            }
+        });
+    }
+    setChoices([{ text: "↩ Return", callback: hubLoop }]);
+}
+

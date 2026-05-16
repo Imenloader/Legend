@@ -239,6 +239,20 @@ function initGame() {
         const defaultId = state.player.class === 'Desert Knight' ? 'tariq_ibn_ziyad' : 'sun_wukong';
         window.COMPANIONS.activate(state, defaultId);
     }
+
+    // --- IDLE / OFFLINE PROGRESSION ---
+    const now = Date.now();
+    if (state.lastLogin) {
+        const diffMs = now - state.lastLogin;
+        const diffHours = diffMs / (1000 * 60 * 60);
+        if (diffHours >= 1) {
+            const idleQi = Math.floor(diffHours * 10 * (state.player.lvl || 1));
+            state.player.xp += idleQi;
+            narrate(`While you were away, you gathered ${idleQi} Qi through passive meditation.`, "System");
+        }
+    }
+    state.lastLogin = now;
+
     showScreen('story-screen');
     if (window.AUDIO) { window.AUDIO.init(); window.AUDIO.playRegion('crossroads'); }
     clearNarrative();
@@ -262,7 +276,12 @@ function hubLoop() {
                     state.pendingCombatEnemy = null;
                     if (enemy) startCombat({ ...enemy, hp: enemy.baseHp, maxHp: enemy.baseHp, atk: enemy.baseAtk });
                     else { narrate("Error: Enemy data missing. Returning to hub.", "System"); hubLoop(); }
-                } else { saveGame(); hubLoop(); }
+                } else { 
+                    if (window.QUESTS) window.QUESTS.updateQuests(state);
+                    if (window.SKILLS) window.SKILLS.checkUnlocks(state);
+                    saveGame(); 
+                    hubLoop(); 
+                }
             });
             return;
         }
@@ -276,13 +295,19 @@ function hubLoop() {
     narrate(`You stand at the City of Crossroads. The air is thick with spirit-energy.`);
     const choices = [];
     if (typeof showWorldMap === 'function') choices.push({ text: "🗺️ Open World Map", callback: showWorldMap });
+    if (typeof showQuestLog === 'function') choices.push({ text: "📜 Mission Board", callback: showQuestLog });
+    if (typeof showMarket === 'function') choices.push({ text: "⚖️ Crossroads Market", callback: showMarket });
+    if (typeof showSkillTree === 'function') choices.push({ text: "☯️ Martial Techniques", callback: showSkillTree });
+    
     if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 Cultivate Qi", callback: showCultivationScreen });
     if (typeof showAlchemyScreen === 'function') choices.push({ text: "⚗️ Alchemy Furnace", callback: showAlchemyScreen });
     if (typeof showForgeScreen === 'function') choices.push({ text: "🔨 Spirit Forge", callback: showForgeScreen });
+    
     choices.push({ text: "🎒 Inventory & Karma", callback: showInventory });
     choices.push({ text: "🧘 Meditate (Restore)", callback: () => {
         state.player.hp = state.player.maxHp; state.player.mp = state.player.maxMp;
-        narrate("Fully restored.", "System", null, false, true);
+        narrate("Fully restored Essence and Qi.", "System", null, false, true);
+        if (window.QUESTS) window.QUESTS.updateQuests(state);
         updateTopBar(); saveGame(); setTimeout(hubLoop, 1500);
     }});
     choices.push({ text: "Manage Companion", callback: showCompanionScreen });
@@ -404,6 +429,13 @@ function calculateTotalStats() {
         bMp += (baseMaxMp * 0.1 * (state.player.factionRank || 1));
     }
 
+    // Technique Bonuses (Passive Skills)
+    if (window.SKILLS) {
+        const skillBonuses = window.SKILLS.getPassiveBonuses(state);
+        if (skillBonuses.atk) bAtk += baseAtk * skillBonuses.atk;
+        if (skillBonuses.mpRegen) { /* Handled in turn recovery */ }
+    }
+
     Object.values(state.player.equipment).forEach(item => {
         if (item && item.stats) {
             bAtk += item.stats.atk || 0; bDef += item.stats.def || 0;
@@ -468,13 +500,40 @@ function switchSatchelTab(tab) {
     const grid = document.getElementById('item-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    if (tab === 'equipment') {
-        state.player.inventory.items.forEach((item, idx) => {
+    
+    if (tab === 'equipment' || tab === 'consumables') {
+        const items = state.player.inventory.items.filter(it => 
+            tab === 'equipment' ? it.slot : !it.slot
+        );
+        
+        items.forEach((item, idx) => {
+            const realIndex = state.player.inventory.items.indexOf(item);
             const div = document.createElement('div');
             div.className = 'inventory-slot';
-            div.style.cssText = 'padding:10px;cursor:pointer;min-width:100px;';
-            div.innerHTML = `<b>${item.name}</b><br><small>${item.slot}</small>`;
-            div.onclick = () => equipItem(idx);
+            div.style.cssText = 'padding:10px;cursor:pointer;min-width:120px;flex-direction:column;';
+            
+            if (state.isSelling) {
+                const sellPrice = Math.floor((item.price || 50) * 0.5);
+                div.innerHTML = `<span style="color:var(--secondary)">SELL: ${item.name}</span><br><small>${sellPrice} Stones</small>`;
+                div.onclick = () => {
+                    const res = window.SHOP.sell(state, realIndex);
+                    narrate(res.message, "System");
+                    switchSatchelTab(tab);
+                    updateTopBar();
+                };
+            } else {
+                div.innerHTML = `<b>${item.name}</b><br><small>${item.slot || item.type || 'Consumable'}</small>`;
+                div.onclick = () => {
+                    if (item.slot) equipItem(realIndex);
+                    else if (item.effect) {
+                        if (item.effect.hp) state.player.hp = Math.min(state.player.maxHp, state.player.hp + item.effect.hp);
+                        if (item.effect.mp) state.player.mp = Math.min(state.player.maxMp, state.player.mp + item.effect.mp);
+                        state.player.inventory.items.splice(realIndex, 1);
+                        narrate(`Used ${item.name}.`, "System");
+                        updateTopBar(); switchSatchelTab(tab);
+                    }
+                };
+            }
             grid.appendChild(div);
         });
     } else if (tab === 'materials') {
@@ -488,3 +547,4 @@ function switchSatchelTab(tab) {
         });
     }
 }
+
