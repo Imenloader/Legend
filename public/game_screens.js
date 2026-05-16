@@ -389,48 +389,121 @@ function showManagementScreen() {
     clearNarrative();
     narrate("<b>FAMILY & SECT MANAGEMENT</b>", "System", null, false, true);
     
-    let html = `<div style="text-align:left;">`;
+    let html = `<div class="management-container">`;
     
-    // Family Section
-    html += `<h3 style="color:var(--secondary)">👨‍👩‍👧‍👦 Biological Family</h3>`;
+    // --- Family Card ---
+    html += `
+        <div class="management-card">
+            <div class="management-header">
+                <h3 style="color:var(--secondary)">👨‍👩‍👧‍👦 Lineage & Relations</h3>
+                ${state.player.spouse ? `<span class="management-badge badge-alive">Married to ${state.player.spouse.name}</span>` : '<span class="management-badge" style="background:rgba(255,255,255,0.1)">Unmarried</span>'}
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    `;
+    
     if (state.player.family && state.player.family.length) {
         state.player.family.forEach(f => {
-            html += `<p style="margin:5px 0;">${f.relation}: <b>${f.name}</b> (Affinity: ${f.affinity}%)${!f.alive ? ' <span style="color:var(--danger)">[DECEASED]</span>' : ''}</p>`;
+            const statusClass = f.alive ? 'badge-alive' : 'badge-deceased';
+            const statusText = f.alive ? 'Alive' : 'Fallen';
+            html += `
+                <div class="management-stat-row" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:4px;">
+                    <div>
+                        <div class="management-stat-label">${f.relation}</div>
+                        <div class="management-stat-value">${f.name}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="management-badge ${statusClass}">${statusText}</div>
+                        <div style="font-size:0.7rem; color:var(--secondary); margin-top:4px;">Affinity: ${f.affinity}%</div>
+                    </div>
+                </div>
+            `;
         });
-    }
-    if (state.player.spouse) {
-        html += `<p style="margin:10px 0; color:var(--success);">Spouse: <b>${state.player.spouse.name}</b> | Children: <b>${state.player.children || 0}</b></p>`;
+    } else {
+        html += `<p style="grid-column: span 2; color:var(--text-dim); font-style:italic;">No biological records found.</p>`;
     }
     
-    // Sect Section
-    html += `<h3 style="color:var(--jade); margin-top:15px; font-size:1rem;">🏛️ My Immortal Sect</h3>`;
+    html += `
+            </div>
+            ${state.player.children ? `<div style="margin-top:10px; text-align:center; color:var(--jade); font-family:'Cinzel';">Descendants: ${state.player.children}</div>` : ''}
+        </div>
+    `;
+    
+    // --- Sect Card ---
+    html += `
+        <div class="management-card" style="border-left:4px solid var(--jade);">
+            <div class="management-header">
+                <h3 style="color:var(--jade)">🏛️ Sect Infrastructure</h3>
+                ${state.sect ? `<span class="management-badge badge-alive">Lv. ${state.sect.level}</span>` : ''}
+            </div>
+    `;
+    
     if (state.sect) {
-        html += `<p style="font-size:0.9rem; margin:2px 0;">Sect: <b>${state.sect.name}</b> (Lv. ${state.sect.level}) | Treasury: <b>${state.sect.treasury}</b></p>`;
+        html += `
+            <div class="management-stat-row">
+                <span class="management-stat-label">Sect Name</span>
+                <span class="management-stat-value">${state.sect.name}</span>
+            </div>
+            <div class="management-stat-row">
+                <span class="management-stat-label">Treasury</span>
+                <span class="management-stat-value" style="color:var(--secondary)">${state.sect.treasury} Stones</span>
+            </div>
+            <div class="management-stat-row">
+                <span class="management-stat-label">Fame</span>
+                <span class="management-stat-value">${Math.floor(state.sect.fame)}</span>
+            </div>
+            
+            <div style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        `;
         
-        if (state.sect.buildings) {
-            html += `<div style="margin:5px 0; padding:8px; background:rgba(0,168,107,0.1); border:1px solid rgba(0,168,107,0.2); border-radius:4px;">
-                <b style="font-size:0.7rem; text-transform:uppercase; color:var(--jade)">Infrastructure:</b><br>`;
-            Object.values(state.sect.buildings).forEach(b => {
-                html += `<small style="display:block; font-size:0.8rem;">${b.name} (Lv. ${b.lvl}) — <i>${b.bonus}</i></small>`;
-            });
-            html += `</div>`;
-        }
+        Object.values(state.sect.buildings || {}).forEach(b => {
+            html += `
+                <div style="background:rgba(0,168,107,0.1); padding:8px; border-radius:4px; border:1px solid rgba(0,168,107,0.2);">
+                    <div style="font-size:0.7rem; color:var(--jade); text-transform:uppercase;">${b.name}</div>
+                    <div style="font-size:0.85rem;">Level ${b.lvl} <small style="color:var(--text-dim)">(${b.bonus})</small></div>
+                </div>
+            `;
+        });
         
-        // Diplomacy Sub-section
-        html += `<div style="margin-top:5px; padding:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:4px;">
-                    <b style="font-size:0.7rem; text-transform:uppercase; color:var(--secondary)">Diplomacy:</b><br>`;
-        if (window.SECTS && window.SECTS.rivalSects) {
-            window.SECTS.rivalSects.forEach(r => {
-                const color = r.relation === 'Hostile' ? 'var(--danger)' : (r.relation === 'Ally' ? 'var(--success)' : (r.relation === 'War' ? 'var(--danger)' : 'var(--text-dim)'));
-                html += `<small style="display:inline-block; margin-right:10px; font-size:0.75rem;">${r.name}: <span style="color:${color}">${r.relation}</span></small>`;
-            });
-        }
         html += `</div>`;
     } else {
-        html += `<p style="font-size:0.9rem;">You have not founded a sect yet.</p>`;
+        html += `<p style="color:var(--text-dim); font-style:italic; text-align:center;">You have not yet founded an immortal lineage.</p>`;
     }
     
-    html += `</div>`;
+    html += `</div>`; // End Sect Card
+    
+    // --- Diplomacy Card ---
+    if (state.sect) {
+        html += `
+            <div class="management-card">
+                <div class="management-header">
+                    <h3 style="color:var(--danger)">🚩 Diplomacy & Rivals</h3>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        `;
+        
+        if (window.SECTS && window.SECTS.rivalSects) {
+            window.SECTS.rivalSects.forEach(r => {
+                let badgeClass = 'badge-ally';
+                if (r.relation === 'Hostile') badgeClass = 'badge-hostile';
+                if (r.relation === 'War') badgeClass = 'badge-war';
+                if (r.relation === 'Neutral') badgeClass = 'management-badge';
+                
+                html += `
+                    <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:4px; flex:1; min-width:140px;">
+                        <div style="font-size:0.85rem; margin-bottom:5px;">${r.name}</div>
+                        <span class="management-badge ${badgeClass}">${r.relation}</span>
+                    </div>
+                `;
+            });
+        }
+        
+        html += `
+                </div>
+            </div>
+        `;
+    }
+    
+    html += `</div>`; // End Container
     narrate(html, "System", null, false, true);
     
     const choices = [

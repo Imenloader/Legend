@@ -561,7 +561,10 @@ function handleVictory() {
     const enemy = state.currentEnemy;
     narrate(`Victory! You have defeated ${enemy.name}.`, 'System');
     
-    const xpReward = window.BALANCE ? window.BALANCE.xpForEnemy(enemy.minLevel || 1) : 50;
+    const xpBase = window.BALANCE ? window.BALANCE.xpForEnemy(enemy.minLevel || 1) : 50;
+    const bg = state.player.background || {};
+    const xpReward = Math.floor(xpBase * (bg.xpMult || 1));
+    
     const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()));
     
     state.player.xp += xpReward;
@@ -657,6 +660,9 @@ function calculateTotalStats() {
     }
     if (sys.id === 'killing') {
         bAtk += Math.floor((state.player.kills || 0) / 10);
+    }
+    if (sys.id === 'sword_saint') {
+        bAtk *= 1.5; // High damage focus
     }
 
     state.player.atk = Math.floor(baseAtk + bAtk);

@@ -33,7 +33,7 @@ Your cry echoes in the room. A voice speaks — your father? Your mother? The en
             if (window.LIFE) window.LIFE.rollLife(s);
         },
         choices: [
-            { text: 'Open your eyes to your new life', next: 'act1_intro' }
+            { text: 'Open your eyes to your new life', next: 'act1_intro', storyFlag: 'womb_complete' }
         ]
     },
 
@@ -533,6 +533,7 @@ window.STORY = {
 
     // Get the next story beat to trigger based on player stage
     getNextBeat(state) {
+        if (!this.hasFlag(state, 'womb_complete')) return 'womb_start';
         if (!this.hasFlag(state, 'act1_started')) return 'act1_intro';
         if (state.player.lvl >= 3 && !this.hasFlag(state, 'act2_started')) return 'act2_intro';
         if (state.player.lvl >= 4 && this.hasFlag(state, 'act2_started') && !this.hasFlag(state, 'harun_met')) return 'act2_harun_crisis';

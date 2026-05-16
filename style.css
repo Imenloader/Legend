@@ -404,3 +404,75 @@ input[type="text"]:focus {
 /* --- Alignment Auras --- */
 .aura-saintly { box-shadow: 0 0 40px var(--secondary), inset 0 0 20px var(--secondary) !important; }
 .aura-demonic { box-shadow: 0 0 40px var(--primary), inset 0 0 20px var(--primary) !important; }
+
+/* --- Management UI --- */
+.management-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.management-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.management-card:hover {
+    border-color: var(--secondary-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+}
+
+.management-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    text-align: left;
+}
+
+.management-stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.management-stat-label {
+    color: var(--text-dim);
+}
+
+.management-stat-value {
+    color: var(--text);
+    font-weight: bold;
+}
+
+.management-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.badge-alive { background: rgba(0, 168, 107, 0.2); color: var(--jade); border: 1px solid var(--jade); }
+.badge-deceased { background: rgba(138, 28, 28, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+.badge-ally { background: rgba(0, 255, 136, 0.2); color: var(--success); border: 1px solid var(--success); }
+.badge-hostile { background: rgba(255, 77, 77, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+.badge-war { background: var(--primary); color: white; animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
