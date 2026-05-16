@@ -56,12 +56,14 @@
             type="text"
             id="char-name"
             placeholder="Enter your Legend's Name..."
+            aria-label="Enter your Legend's Name"
             autocomplete="off"
             style="margin-bottom: 20px;"
         />
 
         <select
             id="perspective-select"
+            aria-label="Select perspective"
             style="
                 width:100%;
                 padding:16px;
@@ -105,6 +107,7 @@
                 type="text"
                 id="player-name"
                 placeholder="Enter Hero Name"
+                aria-label="Enter Hero Name"
                 maxlength="12"
             />
         </div>
@@ -113,6 +116,9 @@
 
             <div
                 class="class-card selected"
+                role="button"
+                tabindex="0"
+                aria-label="Select Sword Immortal class"
                 data-class="Sword Immortal"
                 data-sprite="assets/sword_immortal_1778872325571.png"
             >
@@ -131,6 +137,9 @@
 
             <div
                 class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="Select Medicine Cultivator class"
                 data-class="Medicine Cultivator"
                 data-sprite="assets/medicine_cultivator_1778872338789.png"
             >
@@ -149,6 +158,9 @@
 
             <div
                 class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="Select Desert Knight class"
                 data-class="Desert Knight"
                 data-sprite="assets/desert_knight_1778872351281.png"
             >
@@ -167,6 +179,9 @@
 
             <div
                 class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="Select Sufi Mystic class"
                 data-class="Sufi Mystic"
                 data-sprite="assets/sufi_mystic_1778872363338.png"
             >
@@ -289,13 +304,13 @@
 </div>
 
 <!-- GAME FILES -->
-<script src="/audio.js"></script>
-<script src="/lore.js"></script>
-<script src="/lore_part2.js"></script>
-<script src="/companions.js"></script>
-<script src="/story.js"></script>
-<script src="/combat.js"></script>
-<script src="/game.js"></script>
+<script type="module" src="/audio.js"></script>
+<script type="module" src="/lore.js"></script>
+<script type="module" src="/lore_part2.js"></script>
+<script type="module" src="/companions.js"></script>
+<script type="module" src="/story.js"></script>
+<script type="module" src="/combat.js"></script>
+<script type="module" src="/game.js"></script>
 
 <!-- MOBILE TOUCH FIX -->
 <script>
