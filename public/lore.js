@@ -277,9 +277,56 @@ const CHINESE_HEROES = {
             mpCost: 35,
             description: 'Bluff an enemy into standing down for 2 turns without dealing any damage. Fails against enemies with high spiritual sense.',
             effect: 'bluff_stun'
+        }
+    }
+};
+
+// --- CROSSROADS ENEMY ROSTER ---
+const CROSSROADS_ENEMIES = {
+    silk_road_bandit: {
+        id: 'silk_road_bandit',
+        name: 'Silk Road Bandit',
+        region: 'crossroads',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 40, baseAtk: 10, xpReward: 20,
+        description: 'A desperate thief preying on merchants. They are fast but poorly armored.',
+        moves: {
+            heavy: { name: 'Thug Smash', text: 'The bandit raises a heavy club, ready to crush your guard.' },
+            fast: { name: 'Dagger Lunge', text: 'A quick, dirty strike aimed at your vitals.' },
+            magic: { name: 'Sand Throw', text: 'A handful of sand aimed at your eyes to blind your next move.' }
         },
-        questArc: 'The Unfinished Northern Campaign',
-        secretMotivation: 'His spirit is bound to this world because his final military campaign failed. He needs the player to symbolically complete it by defeating a specific warlord-type enemy.'
+        archetype: 'assassin',
+        loot: ['Silk Coin Pouch', 'Rusty Dagger']
+    },
+    corrupted_merchant: {
+        id: 'corrupted_merchant',
+        name: 'Corrupted Merchant Prince',
+        region: 'crossroads',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 60, baseAtk: 12, xpReward: 35,
+        description: 'A man who traded his soul for gold. He fights with coins that explode with greed.',
+        moves: {
+            heavy: { name: 'Gold Weight', text: 'He hurls a bag of cursed gold, weighing down your spirit.' },
+            fast: { name: 'Bribe Strike', text: 'A strike that attempts to drain your MP to "buy" your defeat.' },
+            magic: { name: 'Greed Explosion', text: 'His coins burst into spiritual fire, fueled by pure avarice.' }
+        },
+        archetype: 'balanced',
+        loot: ['Cursed Gold Coin', 'Silk Road Contract']
+    },
+    street_ghost: {
+        id: 'street_ghost',
+        name: 'Vengeful Street Ghost',
+        region: 'crossroads',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 35, baseAtk: 15, xpReward: 25,
+        description: 'The spirit of a beggar who died in the shadows. It seeks warmth by draining yours.',
+        moves: {
+            heavy: { name: 'Cold Grasp', text: 'Its touch is like ice, slowing your movements.' },
+            fast: { name: 'Whispering Lunge', text: 'It vanishes and reappears, its wail echoing in your ears.' },
+            magic: { name: 'Life Drain', text: 'It attempts to pull your life essence directly into its hollow chest.' }
+        },
+        archetype: 'mage',
+        loot: ['Ghost Essence', 'Faded Beggar\'s Bowl']
     }
 };
 
@@ -382,7 +429,15 @@ const CHINESE_ENEMIES = {
 window.LORE = Object.assign(window.LORE || {}, { 
     REGIONS, 
     CHINESE_HEROES, 
-    CHINESE_ENEMIES 
+    CHINESE_ENEMIES,
+    CROSSROADS_ENEMIES,
+    getAllEnemies: function() {
+        return { 
+            ...(this.CHINESE_ENEMIES || {}), 
+            ...(this.ARABIAN_ENEMIES || {}), 
+            ...(this.CROSSROADS_ENEMIES || {}) 
+        };
+    }
 });
 
 // ============================================================

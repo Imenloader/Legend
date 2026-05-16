@@ -20,6 +20,20 @@ window.CRAFTING = {
             ingredients: { 'spirit_herb': 5, 'monster_core': 2 },
             type: 'special',
             effect: { breakthrough: true }
+        },
+        'nascent_pill': {
+            name: 'Nascent Soul Pill',
+            desc: 'A divine pill that stabilizes the nascent spirit.',
+            ingredients: { 'spirit_herb': 15, 'dragon_vein_shard': 1 },
+            type: 'special',
+            effect: { breakthrough: true, maxHp: 100 }
+        },
+        'immortal_elixir': {
+            name: 'Immortal Essence Elixir',
+            desc: 'Grants permanent +10 ATK and full recovery.',
+            ingredients: { 'celestial_silk': 2, 'dragon_vein_shard': 2 },
+            type: 'permanent',
+            effect: { atk: 10, fullHeal: true }
         }
     },
 
@@ -42,6 +56,18 @@ window.CRAFTING = {
             slot: 'body', 
             ingredients: { 'spirit_herb': 6, 'iron_ore': 2 },
             baseStats: { def: 12, hp: 20 }
+        },
+        'jade_emperor_plate': {
+            name: 'Jade Emperor Plate',
+            slot: 'body',
+            ingredients: { 'iron_ore': 20, 'dragon_vein_shard': 5 },
+            baseStats: { def: 80, hp: 200 }
+        },
+        'phoenix_crown': {
+            name: 'Phoenix Crown',
+            slot: 'head',
+            ingredients: { 'spirit_herb': 10, 'celestial_silk': 3 },
+            baseStats: { def: 30, mp: 100, mpRegen: 5 }
         }
     },
 

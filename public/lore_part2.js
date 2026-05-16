@@ -445,19 +445,26 @@ window.LORE = Object.assign(window.LORE || {}, {
     LOOT_TABLES,
     NPC_ENGINE,
     getAllHeroes: function() { 
-        return { ...this.CHINESE_HEROES, ...this.ARABIAN_HEROES }; 
+        return { 
+            ...(this.CHINESE_HEROES || {}), 
+            ...(this.ARABIAN_HEROES || {}),
+            ...(this.MYTH_HEROES || {}),
+            ...(this.EXTRA_HEROES || {})
+        }; 
     },
     getAllEnemies: function() { 
-        return { ...this.CHINESE_ENEMIES, ...this.ARABIAN_ENEMIES }; 
+        return { 
+            ...(this.CHINESE_ENEMIES || {}), 
+            ...(this.ARABIAN_ENEMIES || {}),
+            ...(this.CROSSROADS_ENEMIES || {})
+        }; 
     },
     getRegionEnemies: function(regionId) {
-        const region = this.REGIONS[regionId];
-        if (!region) return [];
-        const all = this.getAllEnemies();
-        return region.enemies.map(id => all[id]).filter(Boolean);
+        const all = Object.values(this.getAllEnemies());
+        return all.filter(e => e.region === regionId);
     },
     getLootTable: function(regionId) {
-        const region = this.REGIONS[regionId];
-        return region ? this.LOOT_TABLES[region.lootTable] : this.LOOT_TABLES['crossroads_loot'];
+        const region = this.REGIONS ? this.REGIONS[regionId] : null;
+        return (region && this.LOOT_TABLES) ? (this.LOOT_TABLES[region.lootTable] || this.LOOT_TABLES['crossroads_loot']) : null;
     }
 });

@@ -12,6 +12,14 @@ function showCultivationScreen() {
 
     narrate('<b style="font-size:1.3em;letter-spacing:2px;">THE INNER SEA</b>', 'System', null, false, true);
     narrate(`Your cultivation is in the <span style="color:${col};font-weight:bold;">${cult.stage}</span> realm, Level <b>${cult.stageLevel}</b>/9.`, 'System', null, false, true);
+    
+    // Show active method
+    const activeMethodId = cult.activeMethod || 'jade_body';
+    const activeMethod = window.CULTIVATION && window.CULTIVATION.methods ? window.CULTIVATION.methods[activeMethodId] : null;
+    if (activeMethod) {
+        narrate(`Active Method: <span class="loot-epic">${activeMethod.name}</span><br><small>${activeMethod.desc}</small>`, 'System', null, false, true);
+    }
+
     narrate(`HP: <b>${state.player.maxHp}</b> | Qi: <b>${state.player.maxMp}</b> | ATK: <b>${state.player.atk}</b> | DEF: <b>${state.player.def}</b>`, 'System', null, false, true);
 
     const choices = [
@@ -34,6 +42,29 @@ function showCultivationScreen() {
 
                 updateTopBar(); saveGame();
                 setTimeout(showCultivationScreen, 2200);
+            }
+        },
+        {
+            text: '📜 Change Cultivation Method',
+            callback: () => {
+                clearNarrative();
+                narrate("<b>Choose your Cultivation Path</b>", "System", null, false, true);
+                const methodChoices = Object.values(window.CULTIVATION.methods).map(m => ({
+                    text: `${m.unlocked ? (m.id === activeMethodId ? '✅ ' : '✨ ') : '🔒 '}${m.name}`,
+                    callback: () => {
+                        if (!m.unlocked) {
+                            narrate("This method is currently locked. Find its manual in the world.", "System");
+                            setTimeout(showCultivationScreen, 1500);
+                            return;
+                        }
+                        cult.activeMethod = m.id;
+                        calculateTotalStats();
+                        narrate(`You have switched to the <b>${m.name}</b>. Your foundation realigns.`, "System");
+                        updateTopBar(); saveGame();
+                        setTimeout(showCultivationScreen, 1500);
+                    }
+                }));
+                setChoices([...methodChoices, { text: "↩ Back", callback: showCultivationScreen }]);
             }
         }
     ];
@@ -186,31 +217,109 @@ function showWorldMap() {
     const backBtn = document.getElementById('map-back-btn');
     if (backBtn) backBtn.onclick = hubLoop;
 
-    if (window.LORE) {
-        Object.values(window.LORE.REGIONS).forEach(region => {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', region.x || 100);
-            circle.setAttribute('cy', region.y || 100);
-            circle.setAttribute('r', '12');
-            circle.setAttribute('fill', region.unlocked ? 'var(--secondary)' : '#333');
-            circle.setAttribute('class', 'map-node');
-            circle.style.cursor = 'pointer';
-            
-            circle.onclick = () => {
-                if (region.unlocked) {
-                    showScreen('story-screen');
-                    exploreRegion(region.id);
-                } else {
-                    alert(`${region.name} is currently locked.`);
-                }
-            };
-            });
+    const lore = window.LORE;
+    if (!lore || !lore.REGIONS) {
+        narrate("The map scrolls are still unrolling... please wait.", "System");
+        return;
     }
+
+    Object.values(lore.REGIONS).forEach(region => {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        const x = region.x || 400;
+        const y = region.y || 280;
+        
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', '14');
+        
+        const isCurrent = state.player.currentRegion === region.id || (region.id === 'crossroads' && !state.player.currentRegion);
+        const isUnlocked = region.unlocked === true;
+        
+        let fillColor = '#333333'; 
+        if (isCurrent) fillColor = '#00e5a0'; 
+        else if (isUnlocked) fillColor = '#d4af37'; 
+        
+        circle.style.fill = fillColor;
+        circle.style.stroke = '#ffffff';
+        circle.style.strokeWidth = isCurrent ? '3px' : '1px';
+        circle.style.strokeOpacity = isCurrent ? '1' : '0.5';
+        circle.style.cursor = 'pointer';
+        circle.classList.add('map-node');
+        
+        if (isCurrent) {
+            circle.style.filter = 'drop-shadow(0 0 12px #00e5a0)';
+        }
+        
+        circle.onmouseenter = (e) => {
+            const tooltip = document.getElementById('map-tooltip');
+            if (!tooltip) return;
+            
+            document.getElementById('map-tooltip-name').textContent = region.name || 'Unknown Region';
+            document.getElementById('map-tooltip-subtitle').textContent = region.subtitle || 'Wilderness';
+            document.getElementById('map-tooltip-desc').textContent = region.description || 'A mysterious place.';
+            
+            const status = document.getElementById('map-tooltip-status');
+            status.textContent = isUnlocked ? 'UNLOCKED' : 'LOCKED';
+            status.className = 'map-status-badge ' + (isUnlocked ? 'status-unlocked' : 'status-locked');
+            
+            const travelBtn = document.getElementById('map-travel-btn');
+            travelBtn.style.display = isUnlocked ? 'block' : 'none';
+            travelBtn.onclick = () => {
+                tooltip.style.display = 'none';
+                showScreen('story-screen');
+                exploreRegion(region.id);
+            };
+
+            tooltip.style.display = 'block';
+            let tx = e.clientX + 20;
+            let ty = e.clientY + 20;
+            if (tx + 300 > window.innerWidth) tx = e.clientX - 320;
+            if (ty + 200 > window.innerHeight) ty = e.clientY - 220;
+            
+            tooltip.style.position = 'fixed';
+            tooltip.style.left = tx + 'px';
+            tooltip.style.top = ty + 'px';
+            tooltip.style.zIndex = '9999';
+            
+            circle.setAttribute('r', '18');
+        };
+
+        circle.onmouseleave = () => {
+            circle.setAttribute('r', '14');
+        };
+
+        group.appendChild(circle);
+    });
+
+    document.getElementById('map-screen').onclick = (e) => {
+        if (e.target.id === 'map-screen' || e.target.tagName === 'svg') {
+            document.getElementById('map-tooltip').style.display = 'none';
+        }
+    };
 }
 
 // ============================================================
 // NEW RPG SCREENS: Quests, Shop, Skills
 // ============================================================
+
+function showSkillsScreen() {
+    clearNarrative();
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;">MARTIAL LIBRARY</b>', 'System', null, false, true);
+    
+    if (!state.player.skills || state.player.skills.length === 0) {
+        narrate("Your library is empty. Learn techniques by progressing and breakthroughs.", "System");
+    } else {
+        state.player.skills.forEach(sId => {
+            const s = window.SKILLS.techniques[sId];
+            if (s) {
+                const typeColor = s.passive ? '#00e5a0' : '#d4af37';
+                narrate(`<span style="color:${typeColor};font-weight:bold;">[${s.passive ? 'PASSIVE' : 'ACTIVE'}] ${s.name}</span><br><small>${s.desc}</small>`, 'System', null, false, true);
+            }
+        });
+    }
+
+    setChoices([{ text: 'Return to Crossroads', callback: hubLoop }]);
+}
 
 function showQuestLog() {
     clearNarrative();

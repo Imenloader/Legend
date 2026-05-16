@@ -12,6 +12,31 @@ window.CULTIVATION = {
         { name: 'Nascent Soul', requiredPill: 'nascent_soul_elixir', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
     ],
 
+    // --- Cultivation Methods (Manuals) ---
+    methods: {
+        'jade_body': { 
+            id: 'jade_body', 
+            name: 'Jade Body Refinement', 
+            desc: 'Focus on physical toughness. +25% Max HP, +10% Defense.',
+            bonus: { maxHp: 0.25, def: 0.1, atk: -0.05 },
+            unlocked: true 
+        },
+        'sword_heart': { 
+            id: 'sword_heart', 
+            name: 'Sword Heart Manual', 
+            desc: 'Unmatched offensive power. +30% Attack, +5% Crit Rate.',
+            bonus: { atk: 0.3, critRate: 0.05, maxHp: -0.1 },
+            unlocked: false 
+        },
+        'desert_wind': { 
+            id: 'desert_wind', 
+            name: 'Desert Wind Qi', 
+            desc: 'Faster XP gain and MP recovery. +15% XP Gain, +20% MP Regen.',
+            bonus: { xpGain: 0.15, mpRegen: 0.2, atk: -0.1 },
+            unlocked: false 
+        }
+    },
+
     meditate(state) {
         // Restore HP and MP
         state.player.hp = Math.min(state.player.maxHp, state.player.hp + (state.player.maxHp * 0.1));
@@ -32,10 +57,16 @@ window.CULTIVATION = {
             state.player.lvl++;
             state.player.cultivation.stageLevel++;
             state.player.maxXp = Math.floor(state.player.maxXp * 2.1); // HELL SCALING
-            state.player.maxHp += 15;
-            state.player.maxMp += 8;
-            state.player.atk += 3;
-            state.player.hp = state.player.maxHp;
+            
+            // Store permanent cultivation bonuses
+            if (!state.player.cultivation.cultivationBonuses) {
+                state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
+            }
+            const cb = state.player.cultivation.cultivationBonuses;
+            cb.hp += 15;
+            cb.mp += 8;
+            cb.atk += 3;
+            
             message += `<br><br><span class="loot-epic">🌟 LEVEL UP! You are now Level ${state.player.lvl}. Your Qi foundation deepens.</span>`;
 
             if (state.player.cultivation.stageLevel >= 10) {
@@ -78,10 +109,13 @@ window.CULTIVATION = {
         state.player.cultivation.stageLevel = 1;
         state.player.cultivation.breakthroughReady = false;
 
-        state.player.maxHp += nextStage.bonus.hp;
-        state.player.maxMp += nextStage.bonus.mp;
-        state.player.atk += nextStage.bonus.atk;
-        state.player.hp = state.player.maxHp;
+        if (!state.player.cultivation.cultivationBonuses) {
+            state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
+        }
+        const cb = state.player.cultivation.cultivationBonuses;
+        cb.hp += nextStage.bonus.hp || 0;
+        cb.mp += nextStage.bonus.mp || 0;
+        cb.atk += nextStage.bonus.atk || 0;
 
         return `The heavens tremble as your soul crystallizes. You have ascended to the <b>${nextStage.name}</b> realm!`;
     }

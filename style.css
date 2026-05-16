@@ -441,6 +441,11 @@ input[type="text"]:focus {
     text-align: left;
 }
 
+/* --- Map Headers --- */
+.map-header { text-align: center; margin-bottom: 25px; }
+.map-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--secondary); margin-bottom: 5px; }
+.map-subtitle { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-dim); }
+
 .management-stat-row {
     display: flex;
     justify-content: space-between;
@@ -476,3 +481,76 @@ input[type="text"]:focus {
     50% { opacity: 0.6; }
     100% { opacity: 1; }
 }
+/* --- World Map Premium Styles --- */
+.map-canvas-wrapper {
+    background: rgba(0,0,0,0.4);
+    border: 2px solid #2a2010;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+#world-map-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.map-node {
+    filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4));
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.map-node:hover {
+    r: 16;
+    filter: drop-shadow(0 0 15px #d4af37);
+    stroke: #fff;
+    stroke-width: 2px;
+}
+
+.map-legend {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.map-tooltip {
+    position: absolute;
+    background: rgba(15, 12, 8, 0.95);
+    border: 1px solid var(--secondary);
+    border-radius: 8px;
+    padding: 15px;
+    width: 280px;
+    pointer-events: auto;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+}
+
+.status-unlocked { color: #00e5a0; background: rgba(0, 229, 160, 0.1); border: 1px solid #00e5a0; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+.status-locked { color: #ff4d4d; background: rgba(255, 77, 77, 0.1); border: 1px solid #ff4d4d; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+
+.map-status-badge { font-weight: bold; letter-spacing: 1px; }

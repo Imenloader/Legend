@@ -7,6 +7,7 @@
 window.COMBAT = {
 
     // Initialize combat state variables
+    // Initialize combat state variables
     initCombatState(state) {
         state.combatState = 'enemy_prep';
         state.momentum = 0; // -100 to 100
@@ -14,7 +15,11 @@ window.COMBAT = {
         state.enemyStaggered = false;
         state.playerGuardBroken = false;
         
-        // Reset old buffs
+        // Reset old buffs/debuffs
+        state.activeBuffs = [];
+        state.enemyDebuffs = [];
+        state.dotEffects = []; // { type: 'burn', dmg: 10, duration: 3 }
+        
         state.playerDmgBonus = 1;
         state.enemyAtkDebuff = 1;
 
@@ -25,13 +30,63 @@ window.COMBAT = {
         }
     },
 
+    // Process status effects at the start of turn
+    processTurnEffects(state, enemy) {
+        let msg = '';
+        
+        // 1. Process DOTs
+        state.dotEffects = (state.dotEffects || []).filter(dot => {
+            const dmg = Math.floor(dot.dmg);
+            enemy.hp = Math.max(0, enemy.hp - dmg);
+            msg += `<br><span style="color:var(--danger)">${enemy.name} takes ${dmg} ${dot.type} damage!</span>`;
+            dot.duration--;
+            return dot.duration > 0;
+        });
+
+        // 2. Process Buffs
+        state.activeBuffs = (state.activeBuffs || []).filter(buff => {
+            buff.duration--;
+            if (buff.duration <= 0 && buff.onExpire) buff.onExpire(state);
+            return buff.duration > 0;
+        });
+
+        // 3. Process Debuffs
+        state.enemyDebuffs = (state.enemyDebuffs || []).filter(debuff => {
+            debuff.duration--;
+            return debuff.duration > 0;
+        });
+
+        // 4. Player Regens
+        if (state.player.hpRegen > 0) {
+            const hReg = Math.floor(state.player.maxHp * state.player.hpRegen);
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + hReg);
+            if (hReg > 0) msg += `<br><span style="color:var(--secondary)">You regenerate ${hReg} HP.</span>`;
+        }
+        if (state.player.mpRegen > 0) {
+            const mReg = Math.floor(state.player.maxMp * state.player.mpRegen);
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + mReg);
+            if (mReg > 0) msg += `<br><span style="color:var(--jade)">You regenerate ${mReg} Qi.</span>`;
+        }
+
+        // 5. Stun recovery
+        if (state.enemyStunned) {
+            msg += `<br><b>${enemy.name} is stunned and cannot move!</b>`;
+            state.enemyStunned = false; 
+            state.skipEnemyTurn = true;
+        } else {
+            state.skipEnemyTurn = false;
+        }
+
+        return msg;
+    },
+
     useCompanionAbility(state, enemy) {
         const activeComp = window.COMPANIONS?.getActive(state);
         if (!activeComp || !activeComp.uniqueAbility) return { success: false, message: 'No active companion ability.' };
         
         const ability = activeComp.uniqueAbility;
         const compState = state.companions[activeComp.id];
-        const affinityMult = 1 + (compState.affinity / 100); // 1.0 to 2.0 multiplier
+        const affinityMult = 1 + (compState.affinity / 100); 
 
         let msg = `<b>${activeComp.name}</b> uses <b>${ability.name}</b>!`;
         let success = true;
@@ -86,9 +141,9 @@ window.COMBAT = {
         return { success, message: msg };
     },
 
-    // Retrieve specific moves available for a given form
-    getActionsForForm(form) {
-        const moves = {
+    // Retrieve specific moves available for a given form + learned techniques
+    getActionsForForm(form, state) {
+        const baseMoves = {
             water: [
                 { id: 'deflect', name: 'Deflect (Counter Heavy)', type: 'deflect', cost: 0 },
                 { id: 'slipstream', name: 'Slipstream (Counter Fast)', type: 'evade', cost: 0 }
@@ -102,12 +157,24 @@ window.COMBAT = {
                 { id: 'qi_blade', name: 'Qi Blade (Ignore Armor)', type: 'magic', cost: 20 }
             ]
         };
-        return moves[form] || [];
+        
+        const actions = [...(baseMoves[form] || [])];
+        
+        // Add learned skills
+        if (state.player.skills) {
+            state.player.skills.forEach(sId => {
+                const s = window.SKILLS.techniques[sId];
+                if (s && !s.passive) {
+                    actions.push({ ...s, cost: s.mpCost });
+                }
+            });
+        }
+        
+        return actions;
     },
 
     // ── ENEMY MEMORY & AI ──
     selectEnemyMove(enemy) {
-        // AI: Check enemy archetype. Archetypes dictate preference.
         const archetype = enemy.archetype || 'balanced';
         let options = [];
         
@@ -122,7 +189,6 @@ window.COMBAT = {
     },
 
     getTelegraph(enemy, moveType) {
-        // Subtle tells instead of obvious alerts
         const tells = {
             heavy: `${enemy.name} plants their feet, shifting weight entirely backward.`,
             fast: `${enemy.name} lowers their center of gravity, blade twitching.`,
@@ -140,7 +206,7 @@ window.COMBAT = {
         let pDmg = 0;
         let eDmg = 0;
         let msg = '';
-        let mom = 0; // Momentum shift (+ is good for player)
+        let mom = 0; 
         let spec = null;
 
         // Taming Logic
@@ -152,10 +218,51 @@ window.COMBAT = {
                 mom = 100;
             } else {
                 msg = `${enemy.name} snarls at your attempts to bind it!`;
-                eDmg = eBaseDmg;
+                eDmg = enemyAtk;
                 mom = -30;
             }
             return { playerDmg: 0, enemyDmg: eDmg, resultText: msg, special: spec, momentumShift: mom };
+        }
+
+        // --- Handle Learned Skills Specifically ---
+        const skill = window.SKILLS.techniques[playerMoveId];
+        if (skill) {
+            msg = `You unleash <b>${skill.name}</b>! `;
+            pDmg = Math.floor(playerAtk * (skill.power || 1));
+            
+            if (skill.heal) {
+                const h = Math.floor(state.player.maxHp * skill.heal);
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + h);
+                msg += `Restored ${h} HP. `;
+            }
+            
+            if (skill.stunChance && Math.random() < skill.stunChance) {
+                state.enemyStunned = true;
+                msg += `Enemy is STUNNED! `;
+            }
+            
+            if (skill.dot) {
+                state.dotEffects.push({ ...skill.dot, type: 'burn' });
+                msg += `The enemy is set ablaze! `;
+            }
+            
+            if (skill.effect) {
+                state.activeBuffs.push({ ...skill.effect });
+                msg += `Your spirit energy surges! `;
+            }
+
+            if (skill.debuff) {
+                state.enemyDebuffs.push({ ...skill.debuff });
+                msg += `${enemy.name} is weakened by your spell! `;
+            }
+
+            if (skill.hpCost) {
+                const cost = Math.floor(state.player.maxHp * skill.hpCost);
+                state.player.hp = Math.max(1, state.player.hp - cost);
+                msg += `(Paid ${cost} Life Essence) `;
+            }
+
+            return { playerDmg: pDmg, enemyDmg: Math.floor(enemyAtk * 0.5), resultText: msg, special: 'skill', momentumShift: 20 };
         }
 
         // Base damage calculation
@@ -168,7 +275,7 @@ window.COMBAT = {
             msg = `<b>FATAL STRIKE!</b> You unleash everything on the staggered enemy!`;
             spec = 'execution';
             state.enemyStaggered = false;
-            state.momentum = 0; // Reset after execution
+            state.momentum = 0; 
             return { playerDmg: pDmg, enemyDmg: 0, resultText: msg, special: spec, momentumShift: 0 };
         }
 
@@ -181,7 +288,6 @@ window.COMBAT = {
         }
 
         // Action Matrix (The Flow)
-        // Water Form (deflect, evade)
         if (playerMoveId === 'deflect') {
             if (enemyMoveType === 'heavy') {
                 msg = `You perfectly deflect their massive blow, letting their own weight throw them off balance!`;
@@ -206,7 +312,6 @@ window.COMBAT = {
                 mom = 10;
             }
         }
-        // Mountain Form (earthshatter, absorb)
         else if (playerMoveId === 'earthshatter') {
             if (enemyMoveType === 'guard' || enemyMoveType === 'deflect') {
                 msg = `Your earth-shattering blow crushes right through their defense!`;
@@ -231,7 +336,6 @@ window.COMBAT = {
                 mom = 0;
             }
         }
-        // Wind Form (gale_strike, qi_blade)
         else if (playerMoveId === 'gale_strike') {
             if (enemyMoveType === 'magic') {
                 msg = `You dash forward faster than the wind, interrupting their spell casting!`;
@@ -260,7 +364,6 @@ window.COMBAT = {
         pDmg = Math.floor(pDmg);
         eDmg = Math.floor(eDmg);
 
-        // Form passives
         if (state.playerForm === 'water' && pDmg > 0) {
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 5);
             msg += ` (Water restores 5 Qi)`;

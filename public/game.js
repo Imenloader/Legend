@@ -102,10 +102,12 @@ let state = {
             necklace: null,
             ring: null
         },
+        currentRegion: 'crossroads',
         cultivation: {
             stage: 'Qi Condensation',
             stageLevel: 1,
-            breakthroughReady: false
+            breakthroughReady: false,
+            cultivationBonuses: { hp: 0, mp: 0, atk: 0, def: 0 }
         }
     },
     companion: null,
@@ -418,20 +420,34 @@ function hubLoop() {
         }
     }
     clearNarrative();
+    const regionId = state.player.currentRegion || 'crossroads';
+    const region = window.LORE && window.LORE.REGIONS ? window.LORE.REGIONS[regionId] : null;
+    const regionName = region ? region.name : "Unknown Realm";
+
     const comp = window.COMPANIONS ? window.COMPANIONS.getActive(state) : null;
     if (comp) {
         const greeting = window.COMPANIONS.getDialogue(state, state.companion, 'greet');
         if (greeting) narrate(greeting, comp.name, comp.sprite, false);
     }
-    narrate(`You stand at the City of Crossroads. The air is thick with spirit-energy.`);
+
+    narrate(`<b style="font-size:1.4em;letter-spacing:2px;color:var(--secondary);">${regionName.toUpperCase()}</b>`, 'System', null, false, true);
+    if (region) narrate(`<i style="color:var(--text-dim);">${region.subtitle}</i><br>${region.description}`, 'System', null, false, true);
+
     const choices = [];
     if (typeof showWorldMap === 'function') choices.push({ text: "🗺️ Open World Map", callback: showWorldMap });
-    if (typeof showQuestLog === 'function') choices.push({ text: "📜 Mission Board", callback: showQuestLog });
-    if (typeof showMarket === 'function') choices.push({ text: "⚖️ Crossroads Market", callback: showMarket });
-    if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ Sect Auction House", callback: showAuctionHouse });
-    if (typeof showSkillTree === 'function') choices.push({ text: "☯️ Martial Techniques", callback: showSkillTree });
-    if (typeof showPropertiesScreen === 'function') choices.push({ text: "👤 View Properties", callback: showPropertiesScreen });
-    if (typeof showManagementScreen === 'function') choices.push({ text: "👨‍👩‍👧‍👦 Manage Family & Sect", callback: showManagementScreen });
+    
+    // Exploration
+    choices.push({ text: `⚔️ Explore ${regionName}`, callback: () => exploreRegion(regionId) });
+
+    if (regionId === 'crossroads') {
+        if (typeof showQuestLog === 'function') choices.push({ text: "📜 Mission Board", callback: showQuestLog });
+        if (typeof showMarket === 'function') choices.push({ text: "⚖️ Crossroads Market", callback: showMarket });
+        if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ Sect Auction House", callback: showAuctionHouse });
+        if (typeof showManagementScreen === 'function') choices.push({ text: "👨‍👩‍👧‍👦 Manage Family & Sect", callback: showManagementScreen });
+    } else if (regionId === 'jade_peak') {
+        choices.push({ text: "🏯 Jade Summit Sect Pagoda", callback: () => narrate("The Sect elders are in deep meditation.", "System") });
+        choices.push({ text: "🗡️ Sword Intent Cliff", callback: () => narrate("You feel a sharp intent in the air.", "System") });
+    }
     
     if (state.player.lvl >= 10) {
         choices.push({ text: "✨ Hall of Transmigration", callback: showRebirthScreen });
@@ -447,6 +463,7 @@ function hubLoop() {
     if (typeof showAlchemyScreen === 'function') choices.push({ text: "⚗️ Alchemy Furnace", callback: showAlchemyScreen });
     if (typeof showForgeScreen === 'function') choices.push({ text: "🔨 Spirit Forge", callback: showForgeScreen });
     
+    choices.push({ text: "📜 Martial Library (Skills)", callback: showSkillsScreen });
     choices.push({ text: "🎒 Inventory & Karma", callback: showInventory });
     choices.push({ text: "🧘 Meditate (Restore)", callback: () => {
         state.player.hp = state.player.maxHp; state.player.mp = state.player.maxMp;
@@ -475,16 +492,19 @@ function showCompanionScreen() {
 
 // --- Combat Integration ---
 function exploreRegion(regionId) {
-    if (!window.LORE || !window.LORE.REGIONS[regionId]) {
+    if (!window.LORE || !window.LORE.REGIONS || !window.LORE.REGIONS[regionId]) {
         narrate("This region is lost in the mists of time.", "System");
         hubLoop();
         return;
     }
     const region = window.LORE.REGIONS[regionId];
-    const enemies = window.LORE.getAllEnemies ? Object.values(window.LORE.getAllEnemies()).filter(e => e.region === regionId) : [];
+    state.player.currentRegion = regionId;
+    
+    // Get enemies using the more robust helper
+    const enemies = window.LORE.getRegionEnemies ? window.LORE.getRegionEnemies(regionId) : [];
     
     if (enemies.length === 0) {
-        narrate(`You wander the ${region.name}, but find only silence.`, "System");
+        narrate(`You wander the ${region.name}, but the paths are currently quiet. Perhaps you should return later.`, "System");
         setTimeout(hubLoop, 2000);
         return;
     }
@@ -532,32 +552,42 @@ function startCombat(enemy) {
 function combatLoop() {
     if (state.player.hp <= 0) { handleDefeat(); return; }
     if (state.currentEnemy.hp <= 0) { handleVictory(); return; }
+    
     const enemy = state.currentEnemy;
-    enemy.nextMove = window.COMBAT ? window.COMBAT.selectEnemyMove(enemy) : 'heavy';
-    narrate(window.COMBAT ? window.COMBAT.getTelegraph(enemy, enemy.nextMove) : 'Enemy attacks!', enemy.name, enemy.sprite, true);
+    
+    // 1. Process turn effects (DOTs, Buffs, Stuns)
+    const effectMsg = window.COMBAT ? window.COMBAT.processTurnEffects(state, enemy) : '';
+    if (effectMsg) narrate(effectMsg, "System", null, false, true);
+    
+    if (enemy.hp <= 0) { setTimeout(handleVictory, 1000); return; }
+
+    // 2. Enemy turn (if not stunned)
+    if (!state.skipEnemyTurn) {
+        enemy.nextMove = window.COMBAT ? window.COMBAT.selectEnemyMove(enemy) : 'heavy';
+        narrate(window.COMBAT ? window.COMBAT.getTelegraph(enemy, enemy.nextMove) : 'Enemy attacks!', enemy.name, enemy.sprite, true);
+    } else {
+        narrate(`${enemy.name} is recovering from the stun...`, "System");
+    }
+
     setTimeout(() => {
-        const moves = window.COMBAT ? window.COMBAT.getActionsForForm(state.playerForm) : [];
+        // 3. Player choices
+        const moves = window.COMBAT ? window.COMBAT.getActionsForForm(state.playerForm, state) : [];
         const choices = moves.map(m => ({
-            text: m.name + (m.cost > 0 ? ` (${m.cost} Qi)` : ''),
+            text: m.name + (m.cost > 0 ? ` (${m.cost} Qi)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} HP)` : ''),
             callback: () => {
-                if (m.cost > (state.player.mp || 0)) {
-                    narrate("Not enough Qi for this move!", "System");
-                    combatLoop();
-                    return;
-                }
+                if (m.cost > (state.player.mp || 0)) { narrate("Not enough Qi!", "System"); combatLoop(); return; }
+                if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("Not enough Life Essence!", "System"); combatLoop(); return; }
+                
                 if (m.cost > 0) state.player.mp -= m.cost;
                 resolveCombatTurn(m.id);
             }
         }));
         
-        // Add form switching if it's the start of turn (optional logic expansion)
-        choices.push({ text: "🌊 Switch to Water", callback: () => { state.playerForm = 'water'; combatLoop(); }});
-        choices.push({ text: "🏔️ Switch to Mountain", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
-        choices.push({ text: "🌪️ Switch to Wind", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
+        choices.push({ text: "🌊 Water Form", callback: () => { state.playerForm = 'water'; combatLoop(); }});
+        choices.push({ text: "🏔️ Mountain Form", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
+        choices.push({ text: "🌪️ Wind Form", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
         
-        if (enemy.archetype === 'beast') {
-            choices.push({ text: "🐾 Attempt Taming", callback: () => resolveCombatTurn('tame') });
-        }
+        if (enemy.archetype === 'beast') choices.push({ text: "🐾 Attempt Taming", callback: () => resolveCombatTurn('tame') });
 
         setChoices(choices);
     }, 1000);
@@ -628,6 +658,15 @@ function calculateTotalStats() {
     const baseMaxMp = 50 + (state.player.lvl - 1) * 10;
     let bAtk = 0, bDef = 0, bHp = 0, bMp = 0;
 
+    // Add Cultivation specific permanent bonuses
+    if (state.player.cultivation && state.player.cultivation.cultivationBonuses) {
+        const cb = state.player.cultivation.cultivationBonuses;
+        bAtk += cb.atk || 0;
+        bDef += cb.def || 0;
+        bHp += cb.hp || 0;
+        bMp += cb.mp || 0;
+    }
+
     // Faction Benefits
     if (state.player.faction === 'Jade Summit Sect') {
         bAtk += (baseAtk * 0.1 * (state.player.factionRank || 1));
@@ -639,6 +678,9 @@ function calculateTotalStats() {
     if (window.SKILLS) {
         const skillBonuses = window.SKILLS.getPassiveBonuses(state);
         if (skillBonuses.atk) bAtk += baseAtk * skillBonuses.atk;
+        if (skillBonuses.def) bDef += baseDef * skillBonuses.def;
+        state.player.hpRegen = skillBonuses.hpRegen || 0;
+        state.player.mpRegen = skillBonuses.mpRegen || 0;
     }
 
     // Karma Divine Bonuses
@@ -668,6 +710,19 @@ function calculateTotalStats() {
         if (petBonus.def) bDef += baseDef * petBonus.def;
         if (petBonus.hp) bHp += petBonus.hp;
         if (petBonus.mp) bMp += petBonus.mp;
+    }
+
+    // --- Cultivation Method (Manual) Bonuses ---
+    if (state.player.cultivation && state.player.cultivation.activeMethod && window.CULTIVATION) {
+        const method = window.CULTIVATION.methods[state.player.cultivation.activeMethod];
+        if (method && method.bonus) {
+            if (method.bonus.maxHp) bHp += baseMaxHp * method.bonus.maxHp;
+            if (method.bonus.atk) bAtk += baseAtk * method.bonus.atk;
+            if (method.bonus.def) bDef += baseDef * method.bonus.def;
+            if (method.bonus.mpRegen) state.player.mpRegenBonus = method.bonus.mpRegen;
+            if (method.bonus.xpGain) state.player.xpGainBonus = method.bonus.xpGain;
+            if (method.bonus.critRate) state.player.critRate += method.bonus.critRate;
+        }
     }
 
     Object.values(state.player.equipment).forEach(item => {
