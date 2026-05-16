@@ -52,9 +52,23 @@ let state = {
 // --- DOM Elements ---
 const narrativeWindow = document.getElementById('narrative-window');
 const choiceEngine = document.getElementById('choice-engine');
+const UI_ELEMENTS = {};
+
+function initUIElements() {
+    UI_ELEMENTS.storyPlayerName = document.getElementById('story-player-name');
+    UI_ELEMENTS.storyHp = document.getElementById('story-hp');
+    UI_ELEMENTS.storyMp = document.getElementById('story-mp');
+    UI_ELEMENTS.storyHpBar = document.getElementById('story-hp-bar');
+    UI_ELEMENTS.enemyContainer = document.getElementById('story-enemy-stats-container');
+    UI_ELEMENTS.storyEnemyName = document.getElementById('story-enemy-name');
+    UI_ELEMENTS.storyEnemyHp = document.getElementById('story-enemy-hp');
+    UI_ELEMENTS.storyEnemyHpBar = document.getElementById('story-enemy-hp-bar');
+}
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
+    initUIElements();
+
     // Generate UUID if first time
     if (!localStorage.getItem('rpg_player_id')) {
         localStorage.setItem('rpg_player_id', state.playerId);
@@ -157,19 +171,20 @@ function setChoices(choicesArray) {
 }
 
 function updateTopBar() {
-    document.getElementById('story-player-name').innerText = `${state.player.name} (Lvl ${state.player.lvl})`;
-    document.getElementById('story-hp').innerText = state.player.hp;
-    document.getElementById('story-mp').innerText = state.player.mp;
-    document.getElementById('story-hp-bar').style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
+    if (!UI_ELEMENTS.storyPlayerName) return; // Failsafe if DOM not ready
+
+    UI_ELEMENTS.storyPlayerName.innerText = `${state.player.name} (Lvl ${state.player.lvl})`;
+    UI_ELEMENTS.storyHp.innerText = state.player.hp;
+    UI_ELEMENTS.storyMp.innerText = state.player.mp;
+    UI_ELEMENTS.storyHpBar.style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
     
-    const enemyContainer = document.getElementById('story-enemy-stats-container');
     if (state.currentEnemy) {
-        enemyContainer.style.display = 'block';
-        document.getElementById('story-enemy-name').innerText = state.currentEnemy.name;
-        document.getElementById('story-enemy-hp').innerText = state.currentEnemy.hp;
-        document.getElementById('story-enemy-hp-bar').style.width = `${(state.currentEnemy.hp / state.currentEnemy.maxHp) * 100}%`;
+        UI_ELEMENTS.enemyContainer.style.display = 'block';
+        UI_ELEMENTS.storyEnemyName.innerText = state.currentEnemy.name;
+        UI_ELEMENTS.storyEnemyHp.innerText = state.currentEnemy.hp;
+        UI_ELEMENTS.storyEnemyHpBar.style.width = `${(state.currentEnemy.hp / state.currentEnemy.maxHp) * 100}%`;
     } else {
-        enemyContainer.style.display = 'none';
+        UI_ELEMENTS.enemyContainer.style.display = 'none';
     }
 }
 
