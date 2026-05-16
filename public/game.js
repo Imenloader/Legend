@@ -1,3 +1,24 @@
+async function loadGameCloud() {
+    const saved = localStorage.getItem('legend_rpg_state');
+    if (saved) {
+        try {
+            const loadedState = JSON.parse(saved);
+            // Merge loaded state with current state template
+            Object.assign(state, loadedState);
+            console.log('Game loaded from localStorage.');
+            return true;
+        } catch (e) {
+            console.error('Failed to parse save data', e);
+        }
+    }
+    return false;
+}
+
+function saveGame() {
+    localStorage.setItem('legend_rpg_state', JSON.stringify(state));
+    console.log('Game saved to localStorage.');
+}
+
 // Supabase Configuration
 const SUPABASE_URL = 'https://zdgyluzcfcenszqtqkrm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkZ3lsdXpjZmNlbnN6cXRxa3JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjczNDIsImV4cCI6MjA5MzEwMzM0Mn0.W4h91ashw4TQoWzU5TU8SJhctyv3JG4Veec_lbPIMDE';
@@ -1102,6 +1123,4 @@ function showInventory() {
     switchSatchelTab('consumables');
     document.getElementById('back-hub-btn').onclick = () => { showScreen('story-screen'); hubLoop(); };
 }
-
-
 

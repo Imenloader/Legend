@@ -1,4 +1,4 @@
-// ============================================================
+ï»¿// ============================================================
 // STORY.JS â€” Part 1: Acts I & II â€” The 5-Act Narrative Tree
 // "Legends of the Jade and Sand: The Immortal Codex"
 // ============================================================
@@ -880,7 +880,7 @@ He waits.`,
 });
 
 // ============================================================
-// ACT V — FINAL ENDING NODES (completing the three paths)
+// ACT V ï¿½ FINAL ENDING NODES (completing the three paths)
 // ============================================================
 Object.assign(window.STORY.nodes, {
 
@@ -890,9 +890,9 @@ Object.assign(window.STORY.nodes, {
         speaker: 'System',
         narration: `The title is given in both courts on the same day, at the same hour, read aloud in two languages simultaneously.
 
-In the Eastern Heavens: The Jade Emperor's own herald proclaims you Bridge Immortal before the assembled celestial host. A jade seal is pressed into your hand — not as a symbol of ownership, but of passage.
+In the Eastern Heavens: The Jade Emperor's own herald proclaims you Bridge Immortal before the assembled celestial host. A jade seal is pressed into your hand ï¿½ not as a symbol of ownership, but of passage.
 
-In the Western Spirit World: The Divine Council reads your name in Arabic, each syllable carrying the weight of Qadar — destiny that was always going to arrive, even when the path to it was not visible.
+In the Western Spirit World: The Divine Council reads your name in Arabic, each syllable carrying the weight of Qadar ï¿½ destiny that was always going to arrive, even when the path to it was not visible.
 
 You stand between both ceremonies, belonging fully to neither, accepted by both.
 
@@ -910,9 +910,9 @@ She looks at you.
 
 It is the first question she has asked that she does not already know the answer to.
 
-The Crossroads is yours. The roads between worlds are open. The journey continues — it simply changes what it means.`,
+The Crossroads is yours. The roads between worlds are open. The journey continues ï¿½ it simply changes what it means.`,
         choices: [
-            { text: 'Continue — the world is open', next: null, returnToHub: true, storyFlag: 'ending_bridge' }
+            { text: 'Continue ï¿½ the world is open', next: null, returnToHub: true, storyFlag: 'ending_bridge' }
         ]
     },
 
@@ -931,7 +931,7 @@ And now you want to go home.
 
 Scheherazade stands from the fountain.
 
-"I want you to know," she says, "that in all the versions of this story I have told — the ones where the hero chooses power, the ones where they ascend beyond names, the ones where they fail — this ending is the rarest."
+"I want you to know," she says, "that in all the versions of this story I have told ï¿½ the ones where the hero chooses power, the ones where they ascend beyond names, the ones where they fail ï¿½ this ending is the rarest."
 
 She tilts her head.
 
@@ -941,7 +941,7 @@ She pauses for a long time.
 
 "The ones who don't are usually the ones who already know who they are."
 
-She reaches into her robes and produces a small jade token — not the political seal of the Jade Peak, not the rank marker of the Sufi Order. Just a small piece of jade, unremarkable except for a tiny crack running through it that has been sealed with gold.
+She reaches into her robes and produces a small jade token ï¿½ not the political seal of the Jade Peak, not the rank marker of the Sufi Order. Just a small piece of jade, unremarkable except for a tiny crack running through it that has been sealed with gold.
 
 Kintsugi. The Japanese art of repairing with gold. Making the broken place the most beautiful part.
 
@@ -962,7 +962,7 @@ The sensation is not dramatic. There is no explosion of light, no cosmic fanfare
 
 And you...
 
-You are in all of it. And none of it. You have not disappeared — you have distributed. The Dao and Tawhid were never going to resolve into a single word. They resolved into something that has no word, and you have become the space where that resolution lives.
+You are in all of it. And none of it. You have not disappeared ï¿½ you have distributed. The Dao and Tawhid were never going to resolve into a single word. They resolved into something that has no word, and you have become the space where that resolution lives.
 
 Al-Khidr releases your hand. He looks, for a moment, like he is going to say something profound.
 
@@ -974,7 +974,7 @@ Instead he says: "I told you most people refuse."
 
 He walks away, and you are everywhere he walks.
 
-Scheherazade finishes her tea at the fountain. She sets down her cup. She looks around — not at anything specific, but at all of it.
+Scheherazade finishes her tea at the fountain. She sets down her cup. She looks around ï¿½ not at anything specific, but at all of it.
 
 "Hm," she says softly.
 
@@ -986,7 +986,7 @@ She picks up her cup and begins a new story. The first words are familiar. The e
 });
 
 // ============================================================
-// BALANCE CONSTANTS — Final pass on all stats
+// BALANCE CONSTANTS ï¿½ Final pass on all stats
 // ============================================================
 window.BALANCE = {
     // Stage-based stat scaling
@@ -1008,7 +1008,7 @@ window.BALANCE = {
         return 1 + (delta * 0.10);
     },
 
-    // XP rewards — scales with enemy level
+    // XP rewards ï¿½ scales with enemy level
     xpForEnemy: (enemyStageMin) => Math.floor(30 + (enemyStageMin * 18)),
 
     // Karma thresholds
@@ -1037,4 +1037,5 @@ window.BALANCE = {
     }
 };
 
-window.STORY = Object.assign(window.STORY || {}, { STORY_NODES, ...STORY_ENGINE_HELPERS });
+const STORY_ENGINE_HELPERS = {}; window.STORY = Object.assign(window.STORY || {}, { STORY_NODES, ...STORY_ENGINE_HELPERS });
+

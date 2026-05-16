@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --primary: #8a1c1c; /* Deep Crimson */
     --primary-glow: rgba(138, 28, 28, 0.6);
     --secondary: #d4af37; /* Metallic Gold */
@@ -1021,3 +1021,35 @@ input[type="text"]:focus {
     border-radius: 10px;
 }
 
+
+/* Momentum Bar Glow */
+#momentum-bar-fill {
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    position: relative;
+}
+
+#momentum-bar-fill::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: momentumGlow 2s infinite linear;
+}
+
+@keyframes momentumGlow {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
+
+/* Tribulation Warning */
+.tribulation-warning {
+    color: #e040fb;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(224, 64, 251, 0.8);
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 0.6; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.05); }
+}

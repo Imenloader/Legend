@@ -373,6 +373,8 @@ const CHINESE_ENEMIES = {
     }
 };
 
-window.LORE = Object.assign(window.LORE || {}, { REGIONS, CHINESE_HEROES, ARABIAN_HEROES, NPC_ENGINE, ENEMIES });
-
-window.LORE = Object.assign(window.LORE || {}, { REGIONS, CHINESE_HEROES, ARABIAN_HEROES, NPC_ENGINE, ENEMIES });
+window.LORE = Object.assign(window.LORE || {}, { 
+    REGIONS, 
+    CHINESE_HEROES, 
+    CHINESE_ENEMIES 
+});

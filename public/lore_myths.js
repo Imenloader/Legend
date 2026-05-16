@@ -101,37 +101,7 @@ const MYTH_HEROES = {
         }
     },
     // ── ARABIAN / ISLAMIC HEROES (expanded) ──
-    saladin: {
-        id: 'saladin',
-        name: 'Salah ad-Din',
-        title: 'Sultan of Egypt and Syria, Lion of Islam',
-        origin: 'empty_quarter',
-        sprite: 'assets/desert_ghoul_1778872388305.png',
-        alignment: 'lawful_good',
-        karmaRequirement: 30,
-        affinity: 50,
-        personality: 'noble',
-        description: 'He defeated Crusader armies and recaptured Jerusalem — but was equally famous for his mercy to his enemies. Saladin gave his own personal horse to King Richard when the Crusader\'s mount was killed in battle. Chivalry incarnate.',
-        dialogue: {
-            greet: [
-                '"True strength is mercy. But do not mistake my mercy for weakness — I have ended sieges that others said were impossible."',
-                '"I have crossed deserts that swallow armies. Where do you lead us, wanderer?"'
-            ],
-            battle_cry: ['"By the grace of Allah — forward!"', '"Honor demands we fight — and win!"'],
-            victory: ['"Treat the defeated with dignity. That is the mark of a true warrior."'],
-            defeat: ['"Retreat is not defeat. We regroup, and we return stronger."']
-        },
-        passiveBuff: {
-            label: '+10 DEF, enemy surrender triggers at 30% HP instead of 40% (Sultan\'s Mercy)',
-            effect: (state) => { state.player.def += 10; }
-        },
-        uniqueAbility: {
-            name: "The Sultan's Command",
-            mpCost: 25,
-            effect: 'honorable_surrender',
-            description: 'Demands the weakened enemy stand down. Works when enemy HP is below 40%.'
-        }
-    },
+    // Saladin and Sinbad moved to lore_part2.js for consistency
     ali_baba: {
         id: 'ali_baba',
         name: 'Ali Baba',
@@ -396,19 +366,16 @@ const ENEMY_ARCHETYPES = {
     balanced: { label: 'Balanced', hint: 'Mixed tactics. Read the telegraph carefully.' }
 };
 
-// ── MERGE INTO WINDOW.LORE ──
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.LORE) {
-        // Merge all new heroes
-        const allNewHeroes = { ...MYTH_HEROES, ...EXTRA_ARABIAN_HEROES };
-        Object.assign(window.LORE.CHINESE_HEROES, allNewHeroes);
-        
-        // Update getAllHeroes to include new heroes
-        const _orig = window.LORE.getAllHeroes;
-        window.LORE.getAllHeroes = () => ({ ...MYTH_HEROES, ...EXTRA_ARABIAN_HEROES, ..._orig() });
-        
-        // Add archetypes and equipment stats to lore
-        window.LORE.ENEMY_ARCHETYPES = ENEMY_ARCHETYPES;
-        window.LORE.EQUIPMENT_STATS = EQUIPMENT_STATS;
-    }
-});
+// --- MERGE INTO WINDOW.LORE ---
+if (window.LORE) {
+    const allMythHeroes = { ...MYTH_HEROES, ...EXTRA_ARABIAN_HEROES };
+    window.LORE.MYTH_HEROES = MYTH_HEROES;
+    window.LORE.EXTRA_HEROES = EXTRA_ARABIAN_HEROES;
+    
+    // Add to ARABIAN_HEROES or CHINESE_HEROES as appropriate, 
+    // or just let getAllHeroes handle them.
+    Object.assign(window.LORE.ARABIAN_HEROES, EXTRA_ARABIAN_HEROES);
+    
+    window.LORE.EQUIPMENT_STATS = Object.assign(window.LORE.EQUIPMENT_STATS || {}, EQUIPMENT_STATS);
+    window.LORE.ENEMY_ARCHETYPES = ENEMY_ARCHETYPES;
+}

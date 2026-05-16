@@ -125,19 +125,21 @@ const ARABIAN_HEROES = {
     antar_ibn_shaddad: {
         id: 'antar_ibn_shaddad',
         name: 'Antar ibn Shaddad',
-        title: 'The Pre-Islamic Champion of Arabia',
-        origin: 'empty_quarter',
+        title: 'The Black Knight of the Desert',
+        origin: 'crossroads',
         sprite: 'assets/desert_knight_1778872351281.png',
-        alignment: 'chaotic_good',
-        karmaRequirement: -30,
+        alignment: 'lawful_good',
+        karmaRequirement: 0,
         affinity: 0,
-        personality: 'warrior_poet',
-        description: 'Born a slave, died a legend. He wrote fine pre-Islamic poetry and fought with unmatched ferocity. He challenges every worthy fighter he meets — out of respect.',
+        personality: 'fearless_warrior',
+        description: 'Born a slave, he earned his freedom and the love of Abla through ten thousand feats of arms. He is the greatest poet-warrior of pre-Islamic Arabia.',
         dialogue: {
-            greet: ['"They said I was nothing because of my blood. So I made my name worth more than any bloodline."'],
-            duel_challenge: '"Before we speak of alliance, we duel. Not to the death — to understanding."',
-            post_duel_win: '"Good. You have spirit. I can work with spirit."',
-            battle_cry: ['"For Abla! For honor!"']
+            greet: [
+                '"My sword and my poems are for those who deserve them. Which are you?"',
+                '"I have faced lions and armies alone. This quest is but a walk in the garden."'
+            ],
+            battle_cry: ['"FOR ABLA! FOR HONOR!"', '"The desert remembers my name!"'],
+            high_affinity: '"I would write a poem for you, but only your enemies\' blood will suffice today."'
         },
         passiveBuff: { stat: 'atk', bonus: 0.15, label: '+15% Attack. War poems reduce enemy morale.' },
         uniqueAbility: {
@@ -145,9 +147,84 @@ const ARABIAN_HEROES = {
             mpCost: 20,
             description: 'Reduces enemy attack by 30% and grants the player +20% damage for 2 turns.',
             effect: 'debuff_enemy_buff_player'
+        }
+    },
+    harun_al_rashid: {
+        id: 'harun_al_rashid',
+        name: 'Harun al-Rashid',
+        title: 'The Wise Caliph of the Golden Age',
+        origin: 'crossroads',
+        sprite: 'assets/sufi_mystic_1778872363338.png',
+        alignment: 'lawful_neutral',
+        karmaRequirement: 0,
+        affinity: 0,
+        personality: 'just_ruler',
+        description: 'The most famous caliph of the Abbasid dynasty, patron of the House of Wisdom. He rules with a balance of cold logic and deep spiritual insight.',
+        dialogue: {
+            greet: [
+                '"The ink of a scholar is more holy than the blood of a martyr. Remember that before you draw your sword."',
+                '"Welcome to the Golden Age. Do not break anything."'
+            ],
+            high_affinity: '"I have many advisors, but few friends. You have earned your seat at my table."'
         },
-        questArc: 'The Unfinished Poem',
-        secretMotivation: 'He never finished his greatest poem about Abla, his love. He needs the player to help him find the right ending.'
+        passiveBuff: { stat: 'xp', bonus: 0.15, label: '+15% XP Gain from all sources.' },
+        uniqueAbility: {
+            name: 'House of Wisdom Insight',
+            mpCost: 35,
+            description: 'Reveal all enemy moves and reduce their defenses by 20%.',
+            effect: 'reveal_all_enemy_moves'
+        }
+    },
+    ibn_battuta: {
+        id: 'ibn_battuta',
+        name: 'Ibn Battuta',
+        title: 'The Greatest Traveler of the Middle Ages',
+        origin: 'crossroads',
+        sprite: 'assets/sufi_mystic_1778872363338.png',
+        alignment: 'true_neutral',
+        karmaRequirement: -100,
+        affinity: 0,
+        personality: 'curious_explorer',
+        description: 'He traveled more than 75,000 miles, visiting nearly every Islamic country and many beyond. He knows the secret paths between realms.',
+        dialogue: {
+            greet: [
+                '"Traveling — it leaves you speechless, then turns you into a storyteller."',
+                '"I have seen the end of the world. It looks a lot like this city, actually."'
+            ],
+            high_affinity: '"Of all the travelers I have met, you have the most interesting dust on your boots."'
+        },
+        passiveBuff: { stat: 'speed', bonus: 0.1, label: 'Reduced chance of being ambushed. Unlocks hidden shortcuts.' },
+        uniqueAbility: {
+            name: 'World-Traveler Step',
+            mpCost: 30,
+            description: 'Dodge the next 2 enemy attacks completely.',
+            effect: 'perfect_dodge_2'
+        }
+    },
+    al_jazari: {
+        id: 'al_jazari',
+        name: 'Al-Jazari',
+        title: 'The Father of Robotics',
+        origin: 'crossroads',
+        sprite: 'assets/al_jazari.png',
+        alignment: 'neutral_good',
+        karmaRequirement: -100,
+        affinity: 0,
+        personality: 'inventive_engineer',
+        description: 'A mechanical genius who created automata, water clocks, and the crankshaft. He can repair nearly anything.',
+        dialogue: {
+            greet: [
+                '"All nature is a clockwork if you look closely enough."',
+                '"Need something fixed? I can even repair a broken spirit, given the right tools."'
+            ]
+        },
+        passiveBuff: { stat: 'def', bonus: 0.1, label: '+10% Defense & faster repair of items' },
+        uniqueAbility: {
+            name: 'Automaton Shield',
+            mpCost: 25,
+            description: 'Creates a mechanical shield that absorbs the next 30 damage.',
+            effect: 'damage_shield'
+        }
     },
     fatima_al_fihri: {
         id: 'fatima_al_fihri',
@@ -159,7 +236,7 @@ const ARABIAN_HEROES = {
         karmaRequirement: 10,
         affinity: 0,
         personality: 'scholarly_determined',
-        description: 'She built the world\'s first university. She does not fight with blades — she fights with knowledge. She unlocks the Alchemy Lab and Scholar path.',
+        description: 'She built the world\'s first university. She does not fight with blades — she fights with knowledge. She unlocks the Alchemy Lab.',
         dialogue: {
             greet: [
                 '"Knowledge is the only thing that cannot be taken by force. Shall I teach you?"',
@@ -172,11 +249,9 @@ const ARABIAN_HEROES = {
         uniqueAbility: {
             name: 'The Grand Library',
             mpCost: 30,
-            description: 'Research the current enemy, revealing all their moves and weaknesses for the rest of combat.',
+            description: 'Research the current enemy, revealing all their moves and weaknesses.',
             effect: 'reveal_all_enemy_moves'
-        },
-        questArc: 'The Lost Manuscripts',
-        secretMotivation: 'A set of her original manuscripts were stolen by a corrupt Qadi. She needs them back before their knowledge is weaponized.'
+        }
     }
 };
 
@@ -314,6 +389,22 @@ const LOOT_TABLES = {
 
 // --- PROCEDURAL NPC ENGINE DATA ---
 const NPC_ENGINE = {
+    fixed_npcs: {
+        ibrahim_blacksmith: {
+            id: 'ibrahim_blacksmith',
+            name: 'Ibrahim the Blacksmith',
+            title: 'The Master of Damascus Steel',
+            location: 'crossroads',
+            dialogue: '"Damascus steel isn\'t just metal, child. It\'s a song written in heat and cold. Bring me the right materials, and I\'ll show you."'
+        },
+        zubaida_alchemist: {
+            id: 'zubaida_alchemist',
+            name: 'Zubaida the Alchemist',
+            title: 'The Keeper of the Emerald Tablet',
+            location: 'crossroads',
+            dialogue: '"All things seek their original state. Alchemy is just the art of helping them get there faster. And avoiding explosions. Mostly."'
+        }
+    },
     chinese_names: ['Li Wei', 'Jin Hua', 'Bao Zhai', 'Chen Gong', 'Xue Yi', 'Elder Ma', 'Gui Ying', 'Feng Yun', 'Long Mei', 'Zi Xuan', 'Tian Bao', 'Shan Hu'],
     arabian_names: ['Tariq', 'Fatima', 'Zayd', 'Al-Hasan', 'Khadija', 'Harun', 'Rashid', 'Zainab', 'Layla', 'Umar', 'Saffiya', 'Bilal', 'Amr', 'Miriam'],
     chinese_titles: ['Foundation Establishment Alchemist', 'Nascent Soul Patriarch', 'Wandering Sword Saint', 'Outer Sect Elder', 'Rogue Cultivator', 'Demonic Path Inheritor', 'Body Tempering Champion'],
@@ -348,26 +439,25 @@ const NPC_ENGINE = {
 };
 
 // --- MASTER EXPORT — globally accessible to game.js ---
-window.LORE = {
-    REGIONS,
-    CHINESE_HEROES,
+window.LORE = Object.assign(window.LORE || {}, {
     ARABIAN_HEROES,
-    CHINESE_ENEMIES,
     ARABIAN_ENEMIES,
     LOOT_TABLES,
     NPC_ENGINE,
-    getAllHeroes: () => ({ ...CHINESE_HEROES, ...ARABIAN_HEROES }),
-    getAllEnemies: () => ({ ...CHINESE_ENEMIES, ...ARABIAN_ENEMIES }),
-    getRegionEnemies: (regionId) => {
-        const region = REGIONS[regionId];
+    getAllHeroes: function() { 
+        return { ...this.CHINESE_HEROES, ...this.ARABIAN_HEROES }; 
+    },
+    getAllEnemies: function() { 
+        return { ...this.CHINESE_ENEMIES, ...this.ARABIAN_ENEMIES }; 
+    },
+    getRegionEnemies: function(regionId) {
+        const region = this.REGIONS[regionId];
         if (!region) return [];
-        const all = { ...CHINESE_ENEMIES, ...ARABIAN_ENEMIES };
+        const all = this.getAllEnemies();
         return region.enemies.map(id => all[id]).filter(Boolean);
     },
-    getLootTable: (regionId) => {
-        const region = REGIONS[regionId];
-        return region ? LOOT_TABLES[region.lootTable] : LOOT_TABLES['crossroads_loot'];
+    getLootTable: function(regionId) {
+        const region = this.REGIONS[regionId];
+        return region ? this.LOOT_TABLES[region.lootTable] : this.LOOT_TABLES['crossroads_loot'];
     }
-};
-
-window.LORE = Object.assign(window.LORE || {}, { LOOT_TABLES, ...window.LORE_HELPERS });
+});
