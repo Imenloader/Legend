@@ -329,6 +329,7 @@ function hubLoop() {
     if (typeof showMarket === 'function') choices.push({ text: "⚖️ Crossroads Market", callback: showMarket });
     if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ Sect Auction House", callback: showAuctionHouse });
     if (typeof showSkillTree === 'function') choices.push({ text: "☯️ Martial Techniques", callback: showSkillTree });
+    if (typeof showPropertiesScreen === 'function') choices.push({ text: "👤 View Properties", callback: showPropertiesScreen });
     
     if (state.player.lvl >= 10) {
         choices.push({ text: "✨ Hall of Transmigration", callback: showRebirthScreen });

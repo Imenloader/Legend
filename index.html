@@ -211,6 +211,7 @@
                 <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">Hero</span> | HP: <span id="story-hp">100</span> | MP/Qi: <span id="story-mp">50</span> | Gold: <span id="story-gold" style="color:#f5c842">50</span> 
                 <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[muted]':'[sound on]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[sound on]</button>
                 <button onclick="exportCombatLog()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[export log]</button>
+                <button onclick="if(typeof showPropertiesScreen==='function')showPropertiesScreen()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[props]</button>
                 <div class="hp-bar-container" style="height: 6px; margin-top: 4px;"><div id="story-hp-bar" class="hp-bar"></div></div>
             </div>
             <div style="flex: 1; text-align: right; display: none;" id="story-enemy-stats-container">

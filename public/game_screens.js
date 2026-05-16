@@ -326,5 +326,60 @@ function showRebirthScreen() {
     setChoices([...choices, { text: "↩ Not Yet", callback: hubLoop }]);
 }
 
+function showPropertiesScreen() {
+    clearNarrative();
+    const p = state.player;
+    const stats = calculateTotalStats ? calculateTotalStats() : p; // Ensure fresh stats
+    
+    let alignmentTitle = "Neutral Wanderer";
+    if (p.karma >= 100) alignmentTitle = "Radiant Saint";
+    else if (p.karma >= 50) alignmentTitle = "Benevolent Disciple";
+    else if (p.karma <= -100) alignmentTitle = "Demonic Overlord";
+    else if (p.karma <= -50) alignmentTitle = "Shadow Path Cultivator";
+
+    let html = `
+        <div style="width:100%; text-align:left; font-family:'Inter', sans-serif;">
+            <h2 style="color:var(--secondary); text-align:center;">CHARACTER PROPERTIES</h2>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px; margin-top:20px;">
+                
+                <!-- Base Stats -->
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--primary);">
+                    <h3 style="margin-top:0; color:var(--text);">⚔️ COMBAT POTENTIAL</h3>
+                    <p style="margin:5px 0; text-align:left;">Attack: <b>${p.atk}</b></p>
+                    <p style="margin:5px 0; text-align:left;">Defense: <b>${p.def}</b></p>
+                    <p style="margin:5px 0; text-align:left;">Health: <b>${p.hp} / ${p.maxHp}</b></p>
+                    <p style="margin:5px 0; text-align:left;">Spirit Qi: <b>${p.mp} / ${p.maxMp}</b></p>
+                </div>
+
+                <!-- Spiritual Path -->
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--secondary);">
+                    <h3 style="margin-top:0; color:var(--text);">✨ SPIRITUAL PATH</h3>
+                    <p style="margin:5px 0; text-align:left;">Title: <b>${alignmentTitle}</b></p>
+                    <p style="margin:5px 0; text-align:left;">Karma: <b style="color:${p.karma >= 0 ? 'var(--jade)' : 'var(--danger)'}">${p.karma}</b></p>
+                    <p style="margin:5px 0; text-align:left;">Faction: <b>${p.faction || 'Unaffiliated'}</b></p>
+                </div>
+
+                <!-- Legacy & Rebirth -->
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--sapphire);">
+                    <h3 style="margin-top:0; color:var(--text);">⏳ LEGACY RECORD</h3>
+                    <p style="margin:5px 0; text-align:left;">Rebirths: <b>${state.legacy ? state.legacy.rebirthCount : 0}</b></p>
+                    <p style="margin:5px 0; text-align:left;">Ancestral Traits: <b>${state.legacy && state.legacy.traits.length ? state.legacy.traits.length : 'None'}</b></p>
+                </div>
+
+                <!-- Beast Pavilion -->
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--jade);">
+                    <h3 style="margin-top:0; color:var(--text);">🐾 BEAST COMPANION</h3>
+                    <p style="margin:5px 0; text-align:left;">Active Pet: <b>${p.activePet || 'None'}</b></p>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    narrate(html, "System", null, false, true);
+    setChoices([{ text: "↩ Return", callback: hubLoop }]);
+}
+
+
 
 
