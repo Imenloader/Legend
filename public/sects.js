@@ -15,9 +15,23 @@ window.SECTS = {
                 fame: 0,
                 disciples: [],
                 maxDisciples: 5,
-                treasury: 0
+                treasury: 0,
+                specialization: null, // Sword, Alchemy, Array
+                buildings: {
+                    'meditation_hall': { lvl: 1, name: 'Meditation Hall', bonus: 'XP' },
+                    'spirit_garden': { lvl: 0, name: 'Spirit Garden', bonus: 'Gold' }
+                }
             };
         }
+    },
+
+    setSpecialization(state, path) {
+        this.init(state);
+        state.sect.specialization = path;
+        // Apply immediate bonuses
+        if (path === 'Sword') state.player.atk += 10;
+        else if (path === 'Alchemy') state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 20;
+        return { success: true, message: `Your sect has chosen the <b>${path} Path</b>!` };
     },
 
     // Recruit a random disciple

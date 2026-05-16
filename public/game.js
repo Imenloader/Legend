@@ -192,7 +192,27 @@ function parsePerspective(text) {
     return text;
 }
 
-function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, isSystem = false) {
+function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, isSystem = false, bgImage = null) {
+    // Cinematic Mode logic
+    if (bgImage) {
+        const overlay = document.getElementById('cinematic-overlay');
+        const box = document.getElementById('novel-box');
+        const spk = document.getElementById('novel-speaker');
+        const cnt = document.getElementById('novel-content');
+        if (overlay && box && spk && cnt) {
+            overlay.style.backgroundImage = `url('${bgImage}')`;
+            overlay.classList.add('active');
+            spk.textContent = speaker || "???";
+            cnt.innerHTML = text;
+            // Hide standard UI to focus on cinematic
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            return;
+        }
+    } else {
+        const overlay = document.getElementById('cinematic-overlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
     const block = document.createElement('div');
     block.className = 'narrative-block';
     let contentHtml = '';
@@ -343,6 +363,7 @@ function initGame() {
 }
 
 function hubLoop() {
+    showScreen('story-screen'); // Ensure we are on the narrative/hub screen
     state.narrative_node = 'hub';
     state.currentEnemy = null;
     updateTopBar();

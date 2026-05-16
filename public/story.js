@@ -49,9 +49,17 @@ Your cry echoes in the room. A voice speaks — your father? Your mother? The en
         onEnter: (s) => {
             const bg = s.player.background || { name: 'Unknown' };
             const sys = s.player.system || { name: 'None' };
-            narrate(`<div style="background:rgba(255,255,255,0.05);padding:10px;margin-bottom:10px;border-left:4px solid var(--secondary);">
-                <b>LIFE ROLL:</b> You are a <b>${bg.name}</b> born with the <b>${sys.name}</b>.<br>
-                <i>${bg.desc}</i>
+            
+            // Dramatic Background Narrative
+            let introText = "";
+            if (bg.id === 'royal') introText = "You remember the smell of incense in the Forbidden City, the weight of silk, and the cold eyes of your tutors.";
+            else if (bg.id === 'beggar') introText = "You remember the bite of winter on the stone floors, the taste of stolen bread, and the hunger that never left.";
+            else introText = "The memories of your early years are a blur of hard work and simple dreams.";
+
+            narrate(`<div style="background:rgba(212, 175, 55, 0.1); padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--secondary);">
+                <i style="color:var(--secondary)">${introText}</i><br><br>
+                <b>ORIGIN:</b> You are a <b>${bg.name}</b> born with the <b>${sys.name}</b>.<br>
+                <small>${bg.desc}</small>
             </div>`, "System", null, false, true);
         },
         narration: `Years pass like sand through an hourglass. You are no longer a child. You find yourself at the City of Crossroads.
@@ -59,6 +67,7 @@ Your cry echoes in the room. A voice speaks — your father? Your mother? The en
 The minarets catch the last light of the sun. The air smells of frankincense and spirit-incense. You have arrived with the weight of your birthright — whether it be a golden crown or a beggar's bowl.
 
 A woman in storyteller's robes sits at the central fountain. She has been there, you sense, for a very long time.`,
+        bgImage: 'assets/mythology_bg_1778872403707.png',
         speaker: 'Scheherazade',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
         choices: [
@@ -563,7 +572,7 @@ window.STORY = {
         });
 
         // Narrate
-        narrateFn(node.narration, node.speaker || null, node.speakerSprite || null, false);
+        narrateFn(node.narration, node.speaker || null, node.speakerSprite || null, false, false, node.bgImage || null);
 
         // Build choices
         if (filteredChoices.length === 0) {

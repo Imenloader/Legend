@@ -183,7 +183,7 @@ function showWorldMap() {
     if (!group) return;
     group.innerHTML = '';
 
-    const backBtn = document.getElementById('return-map-btn');
+    const backBtn = document.getElementById('map-back-btn');
     if (backBtn) backBtn.onclick = hubLoop;
 
     if (window.LORE) {
@@ -403,37 +403,57 @@ function showManagementScreen() {
     }
     
     // Sect Section
-    html += `<h3 style="color:var(--jade); margin-top:20px;">🏛️ My Immortal Sect</h3>`;
+    html += `<h3 style="color:var(--jade); margin-top:15px; font-size:1rem;">🏛️ My Immortal Sect</h3>`;
     if (state.sect) {
-        html += `<p>Sect Name: <b>${state.sect.name}</b> (Lv. ${state.sect.level})</p>
-                 <p>Disciples: <b>${state.sect.disciples.filter(d=>d.alive).length} / ${state.sect.maxDisciples}</b></p>
-                 <p>Treasury: <b>${state.sect.treasury} Stones</b></p>`;
+        html += `<p style="font-size:0.9rem; margin:2px 0;">Sect: <b>${state.sect.name}</b> (Lv. ${state.sect.level}) | Treasury: <b>${state.sect.treasury}</b></p>`;
+        
+        if (state.sect.buildings) {
+            html += `<div style="margin:5px 0; padding:8px; background:rgba(0,168,107,0.1); border:1px solid rgba(0,168,107,0.2); border-radius:4px;">
+                <b style="font-size:0.7rem; text-transform:uppercase; color:var(--jade)">Infrastructure:</b><br>`;
+            Object.values(state.sect.buildings).forEach(b => {
+                html += `<small style="display:block; font-size:0.8rem;">${b.name} (Lv. ${b.lvl}) — <i>${b.bonus}</i></small>`;
+            });
+            html += `</div>`;
+        }
         
         // Diplomacy Sub-section
-        html += `<div style="margin-top:10px; padding:10px; background:rgba(255,255,255,0.05); border-radius:4px;">
-                    <b style="font-size:0.8rem; text-transform:uppercase;">Sect Diplomacy:</b><br>`;
+        html += `<div style="margin-top:5px; padding:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:4px;">
+                    <b style="font-size:0.7rem; text-transform:uppercase; color:var(--secondary)">Diplomacy:</b><br>`;
         if (window.SECTS && window.SECTS.rivalSects) {
             window.SECTS.rivalSects.forEach(r => {
-                const color = r.relation === 'Hostile' ? 'var(--danger)' : (r.relation === 'Ally' ? 'var(--success)' : 'var(--text-dim)');
-                html += `<small>${r.name}: <span style="color:${color}">${r.relation}</span></small><br>`;
+                const color = r.relation === 'Hostile' ? 'var(--danger)' : (r.relation === 'Ally' ? 'var(--success)' : (r.relation === 'War' ? 'var(--danger)' : 'var(--text-dim)'));
+                html += `<small style="display:inline-block; margin-right:10px; font-size:0.75rem;">${r.name}: <span style="color:${color}">${r.relation}</span></small>`;
             });
         }
         html += `</div>`;
     } else {
-        html += `<p>You have not founded a sect yet.</p>`;
+        html += `<p style="font-size:0.9rem;">You have not founded a sect yet.</p>`;
     }
     
     html += `</div>`;
     narrate(html, "System", null, false, true);
     
     const choices = [
-        { text: "🤝 Spend Time with Family", callback: () => { narrate("You spent time with your family, increasing affinity.", "System"); state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity+5)); showManagementScreen(); } },
-        { text: "💍 Seek Marriage (5000 Stones)", callback: () => { if(window.LIFE) { const res = window.LIFE.seekMarriage(state, narrate); narrate(res.message, "System"); showManagementScreen(); } } },
-        { text: "🏠 Found Sect (10,000 Stones)", callback: () => { if(state.player.gold >= 10000) { state.player.gold -= 10000; window.SECTS.init(state); showManagementScreen(); } } },
-        { text: "👤 Recruit Disciple", callback: () => { const res = window.SECTS.recruit(state); narrate(res.message, "System"); showManagementScreen(); } },
-        { text: "⚔️ Enter War Room", callback: showWarRoom },
-        { text: "↩ Return", callback: hubLoop }
+        { text: "🤝 Spend Time with Family", callback: () => { narrate("You spent time with your family, increasing affinity.", "System"); state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity+5)); showManagementScreen(); } }
     ];
+
+    if (!state.sect) {
+        choices.push({ text: "🏠 Found Sect (10,000 Stones)", callback: () => { if(state.player.gold >= 10000) { state.player.gold -= 10000; window.SECTS.init(state); showManagementScreen(); } } });
+    } else {
+        choices.push({ text: "📜 Choose Sect Path", callback: () => {
+            const paths = ["Sword", "Alchemy", "Array"];
+            setChoices(paths.map(p => ({ text: p + " Path", callback: () => { 
+                const res = window.SECTS.setSpecialization(state, p);
+                narrate(res.message, "System");
+                showManagementScreen();
+            }})));
+        }});
+        choices.push({ text: "👤 Recruit Disciple", callback: () => { const res = window.SECTS.recruit(state); narrate(res.message, "System"); showManagementScreen(); } });
+        choices.push({ text: "⚔️ Enter War Room", callback: showWarRoom });
+    }
+
+    choices.push({ text: "💍 Seek Marriage (5000 Stones)", callback: () => { if(window.LIFE) { const res = window.LIFE.seekMarriage(state, narrate); narrate(res.message, "System"); showManagementScreen(); } } });
+    choices.push({ text: "↩ Return", callback: hubLoop });
     
     setChoices(choices);
 }

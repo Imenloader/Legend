@@ -74,7 +74,13 @@ window.LIFE = {
             narrate(`<b>Family News</b>: Your ${member.relation} ${member.name} has reached a breakthrough in their own cultivation! Their affinity towards you grows as you share in the celebration.`, "Family");
             member.affinity = Math.min(100, member.affinity + 10);
             member.lvl++;
-        } else if (state.player.karma < -50 && roll < 0.9) {
+        } else if (roll < 0.85) {
+            // Family Crisis
+            const crisisType = Math.random() > 0.5 ? 'Kidnapped' : 'Sick';
+            narrate(`<b>CRISIS!</b>: Your ${member.relation} ${member.name} is ${crisisType === 'Kidnapped' ? 'being held for ransom by the Demon Blade Sect!' : 'suffering from a severe Qi-poisoning!'}`, "Family");
+            narrate(`You must act soon, or they will perish. (Manage this in the Family screen)`, "System");
+            member.crisis = crisisType;
+        } else if (state.player.karma < -50 && roll < 0.95) {
             // Karma Tribulation
             narrate(`<b>TRIBULATION WARNING</b>: The heavens frown upon your demonic deeds. A bolt of karmic lightning strikes your meditation chamber!`, "Heavenly Dao");
             state.player.hp = Math.max(1, Math.floor(state.player.hp * 0.7));
