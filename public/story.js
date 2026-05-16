@@ -337,7 +337,12 @@ The Jade Summit Sect is now your faction. The Sufi Order will be harder to acces
 Your cultivation accelerates. The Dragon Vein energy of the Jade Peak calls to your core.`,
         choices: [{ text: 'Continue', next: null, returnToHub: true }],
         storyFlag: 'jade_sect_member',
-        unlockRegion: 'jade_peak'
+        unlockRegion: 'jade_peak',
+        onEnter: (state) => {
+            state.player.faction = 'Jade Summit Sect';
+            state.player.factionRank = 1;
+            calculateTotalStats();
+        }
     },
 
     act2_join_sufi: {
@@ -353,7 +358,12 @@ The Sufi Order of the Empty Quarter is your faction. The Empty Quarter opens ful
 The desert calls to your spirit with a strange, resonant pull.`,
         choices: [{ text: 'Continue', next: null, returnToHub: true }],
         storyFlag: 'sufi_order_member',
-        unlockRegion: 'empty_quarter'
+        unlockRegion: 'empty_quarter',
+        onEnter: (state) => {
+            state.player.faction = 'Sufi Order of the Empty Quarter';
+            state.player.factionRank = 1;
+            calculateTotalStats();
+        }
     },
 
     act2_dual_alliance: {
@@ -499,6 +509,9 @@ window.STORY = {
         if (node.unlockRegion) this.unlockRegion(node.unlockRegion);
         if (node.unlockRegion2) this.unlockRegion(node.unlockRegion2);
 
+        // Execute onEnter if it exists
+        if (node.onEnter) node.onEnter(state);
+
         // Narrate
         narrateFn(node.narration, node.speaker || null, node.speakerSprite || null, false);
 
@@ -536,7 +549,7 @@ window.STORY = {
                 // Continue to next node or hub
                 if (c.next) {
                     setTimeout(() => this.runNode(c.next, state, narrateFn, setChoicesFn, onComplete), 600);
-                } else if (node.returnToHub && onComplete) {
+                } else if ((c.returnToHub || node.returnToHub) && onComplete) {
                     setTimeout(onComplete, 600);
                 }
             }

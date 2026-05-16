@@ -365,6 +365,14 @@ function calculateTotalStats() {
     const baseMaxHp = 100 + (state.player.lvl - 1) * 20;
     const baseMaxMp = 50 + (state.player.lvl - 1) * 10;
     let bAtk = 0, bDef = 0, bHp = 0, bMp = 0;
+
+    // Faction Benefits
+    if (state.player.faction === 'Jade Summit Sect') {
+        bAtk += (baseAtk * 0.1 * (state.player.factionRank || 1));
+    } else if (state.player.faction === 'Sufi Order of the Empty Quarter') {
+        bMp += (baseMaxMp * 0.1 * (state.player.factionRank || 1));
+    }
+
     Object.values(state.player.equipment).forEach(item => {
         if (item && item.stats) {
             bAtk += item.stats.atk || 0; bDef += item.stats.def || 0;
@@ -400,9 +408,13 @@ function unequipItem(slot) {
 function showInventory() {
     showScreen('inventory-screen');
     clearNarrative();
+    
+    const factionBenefit = state.player.faction === 'Jade Summit Sect' ? '+10% ATK' : '+10% Qi';
+    const factionText = state.player.faction ? `<br><b>Faction:</b> ${state.player.faction} (Rank ${state.player.factionRank})<br><small style="color:var(--jade)">Benefit: ${factionBenefit} per rank</small>` : '';
+
     narrate(`<div style="background:rgba(0,0,0,0.5);padding:15px;border-radius:10px;border:1px solid var(--secondary)">
         <b>Cultivator:</b> ${state.player.name} | Lvl ${state.player.lvl}<br>
-        <b>Gold:</b> ${state.player.gold} | <b>Karma:</b> ${state.player.karma}
+        <b>Gold:</b> ${state.player.gold} | <b>Karma:</b> ${state.player.karma}${factionText}
     </div>`, "System", null, false, true);
     
     const slots = Object.keys(state.player.equipment);
