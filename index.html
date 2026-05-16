@@ -184,7 +184,15 @@
 
             <!-- Bag / Items -->
             <div class="entity-panel" style="flex: 1;">
-                <h3 style="color: var(--secondary); margin-bottom: 20px;">Satchel</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--secondary); margin: 0;">Satchel</h3>
+                    <div id="satchel-tabs" style="display: flex; gap: 5px;">
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('consumables')">Consumables</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('equipment')">Equipment</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('materials')">Materials</button>
+                    </div>
+                </div>
+                
                 <div id="item-grid" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 250px; overflow-y: auto; width: 100%; justify-content: flex-start;">
                     <!-- Items rendered here by JS -->
                 </div>
@@ -194,16 +202,30 @@
     </div>
 
     <!-- Story Engine Screen -->
-    <div id="story-screen" class="screen" style="max-width: 900px; padding: 20px 40px;">
+    <div id="story-screen" class="screen" style="max-width: 900px; padding: 20px 40px; justify-content: flex-start;">
         <!-- Top Bar Stats -->
         <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">
             <div style="flex: 1; margin-right: 20px;">
-                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">Hero</span> | HP: <span id="story-hp">100</span> | MP/Qi: <span id="story-mp">50</span> <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[muted]':'[sound on]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[sound on]</button>
+                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">Hero</span> | HP: <span id="story-hp">100</span> | MP/Qi: <span id="story-mp">50</span> | Gold: <span id="story-gold" style="color:#f5c842">50</span> <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[muted]':'[sound on]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[sound on]</button>
                 <div class="hp-bar-container" style="height: 6px; margin-top: 4px;"><div id="story-hp-bar" class="hp-bar"></div></div>
             </div>
             <div style="flex: 1; text-align: right; display: none;" id="story-enemy-stats-container">
                 <span id="story-enemy-name" style="color: var(--danger); font-weight: bold;">Enemy</span> | HP: <span id="story-enemy-hp">50</span>
                 <div class="hp-bar-container" style="height: 6px; margin-top: 4px;"><div id="story-enemy-hp-bar" class="hp-bar" style="background: linear-gradient(90deg, #5e1313, #8a1c1c);"></div></div>
+            </div>
+        </div>
+
+        <!-- NEW: Momentum Bar and Stance Indicator (Hidden outside combat) -->
+        <div id="combat-momentum-container" style="display: none; width: 100%; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #333; border-radius: 4px; text-align: center;">
+            <div style="display: flex; justify-content: space-between; font-family: 'Cinzel', serif; font-size: 0.8rem; margin-bottom: 5px; color: #888;">
+                <span style="color: var(--danger)">ENEMY ADVANTAGE</span>
+                <span id="stance-indicator" style="color: var(--secondary); font-weight: bold;">STANCE: NONE</span>
+                <span style="color: var(--jade)">HERO ADVANTAGE</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: #222; border-radius: 4px; position: relative; overflow: hidden; border: 1px solid #000;">
+                <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #555; z-index: 10;"></div>
+                <!-- The actual momentum fill bar. 50% width means +100 momentum to right side, -100 to left side. -->
+                <div id="momentum-bar-fill" style="position: absolute; left: 50%; top: 0; height: 100%; width: 0%; background: linear-gradient(90deg, #d4af37, #00a86b); transition: all 0.3s ease;"></div>
             </div>
         </div>
 
@@ -299,13 +321,16 @@
 </div>
 
 <!-- GAME FILES -->
-<script type="module" src="/audio.js"></script>
-<script type="module" src="/lore.js"></script>
-<script type="module" src="/lore_part2.js"></script>
-<script type="module" src="/companions.js"></script>
-<script type="module" src="/story.js"></script>
-<script type="module" src="/combat.js"></script>
-<script type="module" src="/game.js"></script>
+<script src="/audio.js"></script>
+<script src="/lore.js"></script>
+<script src="/lore_part2.js"></script>
+<script src="/lore_myths.js"></script>
+<script src="/companions.js"></script>
+<script src="/story.js"></script>
+<script src="/combat.js"></script>
+<script src="/crafting.js"></script>
+<script src="/cultivation.js"></script>
+<script src="/game.js"></script>
 
 </body>
 </html>

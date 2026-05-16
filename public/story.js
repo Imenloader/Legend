@@ -1036,3 +1036,5 @@ window.BALANCE = {
         if (state.player.maxXp < b.maxXp) state.player.maxXp = b.maxXp;
     }
 };
+
+window.STORY = Object.assign(window.STORY || {}, { STORY_NODES, ...STORY_ENGINE_HELPERS });

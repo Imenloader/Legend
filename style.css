@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --primary: #8a1c1c; /* Deep Crimson */
     --primary-glow: rgba(138, 28, 28, 0.6);
     --secondary: #d4af37; /* Metallic Gold */
@@ -27,14 +27,17 @@
     outline-offset: 2px;
 }
 
-body {
+html, body {
     background: var(--bg-dark);
     color: var(--text);
     height: 100vh;
+    width: 100vw;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: fixed;
+    inset: 0;
 }
 
 #game-container {
@@ -434,7 +437,7 @@ input[type="text"]:focus {
 }
 
 .narrative-block {
-    opacity: 0;
+    opacity: 1;
     animation: fadeIn 0.5s ease-out forwards;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -796,6 +799,28 @@ input[type="text"]:focus {
     #inventory-screen .panel {
         width: 100% !important;
     }
+
+    /* Double Scrollbar Fix */
+    .screen {
+        overflow-y: hidden !important; /* Screen itself shouldn't scroll if children do */
+    }
+    .screen.active {
+        display: flex;
+    }
+    #narrative-window, .panel, .log-container {
+        overflow-y: auto !important;
+    }
+
+    /* Top Bar wrapping fix */
+    #story-screen > div:first-child > div:first-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+    #mute-btn {
+        margin-left: 0 !important;
+    }
 }
 
 @media (max-height: 700px) {
@@ -816,3 +841,183 @@ input[type="text"]:focus {
         padding: 12px !important;
     }
 }
+/* ============================================================
+   GAME EXPANSION: CSS ANIMATIONS & NEW FEATURE STYLES
+   ============================================================ */
+
+/* Momentum Bar pulse when at extremes */
+@keyframes momentum-danger {
+    0%, 100% { box-shadow: 0 0 8px rgba(138, 28, 28, 0.6); }
+    50% { box-shadow: 0 0 20px rgba(138, 28, 28, 1); }
+}
+@keyframes momentum-power {
+    0%, 100% { box-shadow: 0 0 8px rgba(0, 168, 107, 0.6); }
+    50% { box-shadow: 0 0 20px rgba(0, 168, 107, 1); }
+}
+@keyframes tribulation-warning {
+    0%, 100% { border-color: #5e1313; background: rgba(94,19,19,0.15); }
+    50% { border-color: #e040fb; background: rgba(224,64,251,0.25); box-shadow: 0 0 30px rgba(224,64,251,0.5); }
+}
+
+#combat-momentum-container {
+    transition: all 0.3s ease;
+}
+#combat-momentum-container.danger {
+    animation: momentum-danger 1s infinite;
+}
+#combat-momentum-container.power {
+    animation: momentum-power 1s infinite;
+}
+.tribulation-active {
+    animation: tribulation-warning 0.8s infinite !important;
+    border: 2px solid #e040fb !important;
+}
+
+/* Gold display in top bar */
+#story-gold {
+    color: #f5c842;
+    font-weight: bold;
+}
+
+/* Cultivation stage badge */
+.cultivation-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Choice button hover glow by type */
+.choice-btn[data-form="water"]:hover { box-shadow: 0 0 15px rgba(0, 168, 107, 0.5); border-color: #00a86b; }
+.choice-btn[data-form="mountain"]:hover { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); border-color: #d4af37; }
+.choice-btn[data-form="wind"]:hover { box-shadow: 0 0 15px rgba(100, 160, 255, 0.5); border-color: #64a0ff; }
+
+/* Satchel tab active state */
+#satchel-tabs .active-tab {
+    background: var(--secondary) !important;
+    color: var(--bg-dark) !important;
+}
+
+/* NPC encounter highlight */
+.npc-encounter-block {
+    border-left: 3px solid var(--jade);
+    padding-left: 15px;
+    margin: 10px 0;
+}
+
+/* Gold reward flash */
+@keyframes gold-flash {
+    0% { color: #f5c842; transform: scale(1); }
+    50% { color: #fff; transform: scale(1.1); }
+    100% { color: #f5c842; transform: scale(1); }
+}
+.gold-reward { animation: gold-flash 0.5s ease; }
+
+/* Mythic hero portrait border */
+.story-portrait.mythic-hero {
+    border: 2px solid #e040fb;
+    box-shadow: 0 0 20px rgba(224, 64, 251, 0.4);
+}
+
+/* Cultivation screen stage indicator */
+.cultivation-qi-condensation { color: #8888aa; }
+.cultivation-foundation { color: #00a86b; }
+.cultivation-core { color: #d4af37; }
+.cultivation-nascent { color: #e040fb; }
+
+
+/* --- Flowing Dao Combat UI Enhancements --- */
+#combat-momentum-container {
+    background: linear-gradient(180deg, rgba(20,20,25,0.8), rgba(10,10,12,0.95)) !important;
+    border: 1px solid rgba(212,175,55,0.3) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(212,175,55,0.05);
+    backdrop-filter: blur(10px);
+}
+
+#momentum-bar-fill {
+    box-shadow: 0 0 15px var(--jade), 0 0 5px var(--secondary);
+    border-radius: 4px;
+}
+
+#stance-indicator {
+    text-shadow: 0 0 10px var(--secondary-glow);
+    letter-spacing: 2px;
+}
+
+/* --- Hub Interaction Polish --- */
+.choice-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.choice-btn::before {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: 0.5s;
+}
+
+.choice-btn:hover::before {
+    left: 100%;
+}
+
+/* --- Tribulation Effects --- */
+.tribulation-warning {
+    animation: tribFlash 1.5s infinite;
+    color: var(--danger);
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 10px;
+    background: rgba(138, 28, 28, 0.1);
+    border: 1px solid var(--danger);
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+@keyframes tribFlash {
+    0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--danger); }
+    50% { opacity: 0.5; box-shadow: 0 0 20px var(--danger); }
+}
+
+/* --- Inventory Hover Stats --- */
+.inventory-slot[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #eee;
+    padding: 8px 12px;
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* --- Responsive Scroll Fix --- */
+.log-container {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary) transparent;
+}
+
+.log-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+    background-color: var(--secondary);
+    border-radius: 10px;
+}
+

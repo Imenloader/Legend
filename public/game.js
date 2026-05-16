@@ -1,4 +1,4 @@
-﻿// Supabase Configuration
+// Supabase Configuration
 const SUPABASE_URL = 'https://zdgyluzcfcenszqtqkrm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkZ3lsdXpjZmNlbnN6cXRxa3JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjczNDIsImV4cCI6MjA5MzEwMzM0Mn0.W4h91ashw4TQoWzU5TU8SJhctyv3JG4Veec_lbPIMDE';
 let supabaseClient = null;
@@ -28,15 +28,22 @@ let state = {
         def: 5,
         sprite: 'assets/sword_immortal_1778872325571.png',
         karma: 0, // -100 Demonic to 100 Righteous
+        gold: 50, // starting gold
         inventory: {
             potions: 2,
             elixirs: 0,
-            items: []
+            items: [],
+            materials: {}
         },
         equipment: {
             weapon: null,
             armor: null,
             relic: null
+        },
+        cultivation: {
+            stage: 'Qi Condensation',
+            stageLevel: 1,
+            breakthroughReady: false
         }
     },
     companion: null,
@@ -50,11 +57,12 @@ let state = {
 };
 
 // --- DOM Elements ---
-const narrativeWindow = document.getElementById('narrative-window');
-const choiceEngine = document.getElementById('choice-engine');
 const UI_ELEMENTS = {};
+let narrativeWindow, choiceEngine;
 
 function initUIElements() {
+    narrativeWindow = document.getElementById('narrative-window');
+    choiceEngine = document.getElementById('choice-engine');
     UI_ELEMENTS.storyPlayerName = document.getElementById('story-player-name');
     UI_ELEMENTS.storyHp = document.getElementById('story-hp');
     UI_ELEMENTS.storyMp = document.getElementById('story-mp');
@@ -63,6 +71,7 @@ function initUIElements() {
     UI_ELEMENTS.storyEnemyName = document.getElementById('story-enemy-name');
     UI_ELEMENTS.storyEnemyHp = document.getElementById('story-enemy-hp');
     UI_ELEMENTS.storyEnemyHpBar = document.getElementById('story-enemy-hp-bar');
+    UI_ELEMENTS.storyGold = document.getElementById('story-gold');
 }
 
 // --- Initialization ---
@@ -74,14 +83,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem('rpg_player_id', state.playerId);
     }
     
-    // Bind Start Button
+    // Bind Menu Start Button
     document.getElementById('start-btn').addEventListener('click', () => {
         const nameInput = document.getElementById('char-name').value;
         const perspective = document.getElementById('perspective-select').value;
-        if (nameInput) state.player.name = nameInput;
+        if (nameInput) {
+            state.player.name = nameInput;
+            const creationNameInput = document.getElementById('player-name');
+            if (creationNameInput) creationNameInput.value = nameInput;
+        }
         state.settings.perspective = perspective;
         
-        // Randomly assign class for testing if not set via UI (assuming base classes from previous turn)
+        showScreen('creation-screen');
+    });
+
+    // Bind Character Creation Button
+    document.getElementById('create-btn').addEventListener('click', () => {
+        const nameInput = document.getElementById('player-name').value;
+        if (nameInput) state.player.name = nameInput;
+
+        // Get selected class
+        const selectedCard = document.querySelector('.class-card.selected');
+        if (selectedCard) {
+            state.player.class = selectedCard.dataset.class;
+            state.player.sprite = selectedCard.dataset.sprite;
+            
+            // Set base stats based on class
+            if (state.player.class === 'Sword Immortal') {
+                state.player.atk += 5; state.player.crit = 0.15;
+            } else if (state.player.class === 'Medicine Cultivator') {
+                state.player.maxHp += 30; state.player.hp = state.player.maxHp;
+            } else if (state.player.class === 'Sufi Mystic') {
+                state.player.maxMp += 20; state.player.mp = state.player.maxMp;
+            }
+        }
+
         initGame();
     });
 
@@ -146,8 +182,8 @@ function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, is
     block.innerHTML = contentHtml;
     narrativeWindow.appendChild(block);
     
-    // Auto scroll
-    narrativeWindow.scrollTop = narrativeWindow.scrollHeight;
+    // Auto scroll to the latest message
+    block.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 function clearNarrative() {
@@ -177,6 +213,7 @@ function updateTopBar() {
     UI_ELEMENTS.storyHp.innerText = state.player.hp;
     UI_ELEMENTS.storyMp.innerText = state.player.mp;
     UI_ELEMENTS.storyHpBar.style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
+    if (UI_ELEMENTS.storyGold) UI_ELEMENTS.storyGold.innerText = state.player.gold || 0;
     
     if (state.currentEnemy) {
         UI_ELEMENTS.enemyContainer.style.display = 'block';
@@ -240,7 +277,7 @@ function hubLoop() {
         }
     }
 
-    // Karma alignment check — companion may leave
+    // Karma alignment check Ã¢â‚¬â€ companion may leave
     if (window.COMPANIONS) {
         const alignCheck = window.COMPANIONS.checkKarmaAlignment(state);
         if (alignCheck && alignCheck.leave) {
@@ -251,7 +288,7 @@ function hubLoop() {
         // Side quest trigger
         const quest = window.COMPANIONS.checkSideQuest(state);
         if (quest && quest.triggered) {
-            setTimeout(() => narrate(`📜 <b>${quest.title}:</b> ${quest.intro}`, "System", null, false, true), 1000);
+            setTimeout(() => narrate(`Ã°Å¸â€œÅ“ <b>${quest.title}:</b> ${quest.intro}`, "System", null, false, true), 1000);
         }
     }
 
@@ -271,7 +308,11 @@ function hubLoop() {
     }));
 
     setChoices([
+        ...regionChoices,
         { text: "Open World Map", callback: showWorldMap },
+        { text: "The Inner Sea (Cultivation)", callback: showCultivationScreen },
+        { text: "The Furnace of Heaven (Alchemy)", callback: showAlchemyScreen },
+        { text: "The Spirit Forge (Blacksmith)", callback: showForgeScreen },
         { text: "Manage Companion", callback: showCompanionScreen },
         { text: "🧘 Meditate (Restore HP & MP)", callback: () => {
             state.player.hp = state.player.maxHp;
@@ -290,14 +331,14 @@ function showCompanionScreen() {
     const available = window.COMPANIONS ? window.COMPANIONS.getAvailable(state) : [];
     const activeId = state.companion;
 
-    narrate(`<b>Companion Roster</b> — Your karma of <b>${state.player.karma}</b> unlocks ${available.length} companions. Choose who walks beside you.`, "System", null, false, true);
+    narrate(`<b>Companion Roster</b> Ã¢â‚¬â€ Your karma of <b>${state.player.karma}</b> unlocks ${available.length} companions. Choose who walks beside you.`, "System", null, false, true);
 
     if (activeId && window.COMPANIONS) {
         const activeComp = window.COMPANIONS.getActive(state);
         if (activeComp) {
             const compState = state.companions[activeId];
             const tier = window.COMPANIONS.getAffinityTier(compState.affinity);
-            narrate(`Current Companion: <b>${activeComp.name}</b> | Affinity: <span style="color:${tier.color}">${compState.affinity}/100 — ${tier.label}</span><br><em>${activeComp.passiveBuff.label}</em>`, "System", null, false, true);
+            narrate(`Current Companion: <b>${activeComp.name}</b> | Affinity: <span style="color:${tier.color}">${compState.affinity}/100 Ã¢â‚¬â€ ${tier.label}</span><br><em>${activeComp.passiveBuff.label}</em>`, "System", null, false, true);
         }
     }
 
@@ -306,7 +347,7 @@ function showCompanionScreen() {
         const tier = window.COMPANIONS.getAffinityTier(compState.affinity);
         const isActive = hero.id === activeId;
         return {
-            text: `${isActive ? '✅ ' : ''}${hero.name} | ${hero.passiveBuff.label} | Affinity: <span style="color:${tier.color}">${tier.label}</span>`,
+            text: `${isActive ? 'Ã¢Å“â€¦ ' : ''}${hero.name} | ${hero.passiveBuff.label} | Affinity: <span style="color:${tier.color}">${tier.label}</span>`,
             callback: () => {
                 window.COMPANIONS.activate(state, hero.id);
                 const greet = window.COMPANIONS.getDialogue(state, hero.id, 'greet');
@@ -319,41 +360,9 @@ function showCompanionScreen() {
         };
     });
 
-    setChoices([...choices, { text: "↩️ Return to Crossroads", callback: hubLoop }]);
+    setChoices([...choices, { text: "Ã¢â€ Â©Ã¯Â¸Â Return to Crossroads", callback: hubLoop }]);
 }
 
-function showInventory() {
-    let karmaText = "Neutral";
-    if (state.player.karma > 20) karmaText = "Righteous";
-    if (state.player.karma > 80) karmaText = "Saintly";
-    if (state.player.karma < -20) karmaText = "Corrupted";
-    if (state.player.karma < -80) karmaText = "Demonic Sovereign";
-
-    let invHtml = `<b>Karma:</b> ${state.player.karma} (${karmaText})<br><br><b>Inventory:</b><br>`;
-    invHtml += `- Recovery Potions: ${state.player.inventory.potions}<br>`;
-    invHtml += `- Spirit Elixirs: ${state.player.inventory.elixirs}<br>`;
-
-    if (state.player.inventory.items.length > 0) {
-        state.player.inventory.items.forEach(item => {
-            invHtml += `- <span class="${item.css}">${item.name}</span><br>`;
-        });
-    } else {
-        invHtml += "<i>Your pack is empty...</i>";
-    }
-
-    // Show active companion affinity
-    if (state.companion && window.COMPANIONS) {
-        const compState = state.companions[state.companion];
-        const comp = window.COMPANIONS.getActive(state);
-        if (compState && comp) {
-            const tier = window.COMPANIONS.getAffinityTier(compState.affinity);
-            invHtml += `<br><b>Companion:</b> ${comp.name}<br>Affinity: <span style="color:${tier.color}">${compState.affinity}/100 — ${tier.label}</span>`;
-        }
-    }
-
-    narrate(invHtml, "System", null, false, true);
-    setChoices([{ text: "↩️ Return", callback: hubLoop }]);
-}
 
 function exploreRegion(regionId) {
     state.narrative_node = `exploring_${regionId}`;
@@ -425,16 +434,18 @@ function generateEnemy(regionId = 'crossroads') {
         moves: base.moves,
         dialogue: base.dialogue,
         nextMove: null,
-        regionId
+        regionId,
+        archetype: base.archetype || 'balanced',
+        def: Math.floor(2 + scale * 1.5)
     };
 }
 
 // --- Dynamic Dialogue System ---
 function triggerDialogueEvent(npc) {
-    narrate(`You encounter ${npc.name}. They have ${npc.hook}. They observe you silently.`, "System");
+    narrate(`You encounter ${npc.name}. ${npc.hook || "They observe you silently."}`, "System");
     
     setChoices([
-        { text: "🙏 Greet them respectfully (Diplomatic)", callback: () => resolveDialogue(npc, 'greet') },
+        { text: "🤝 Greet them respectfully (Diplomatic)", callback: () => resolveDialogue(npc, 'greet') },
         { text: "👁️ Observe their aura (Cautious)", callback: () => resolveDialogue(npc, 'observe') },
         { text: "⚔️ Draw your weapon (Aggressive)", callback: () => startCombat(npc) }
     ]);
@@ -442,10 +453,11 @@ function triggerDialogueEvent(npc) {
 
 function resolveDialogue(npc, action) {
     if (action === 'greet') {
-        narrate(`"The Dao flows through us all, traveler," ${npc.name} replies warmly. They hand you a small vial before departing.`, npc.name, npc.sprite, false);
-        state.player.inventory.potions += 1;
+        narrate(`"The Dao flows through us all, traveler," ${npc.name} replies warmly. They hand you a small gift before departing.`, npc.name, npc.sprite, false);
+        const goldGift = 5 + Math.floor(Math.random() * 15);
+        state.player.gold = (state.player.gold || 0) + goldGift;
         state.player.karma += 5;
-        narrate("Obtained 1x Potion. Karma +5.", "System", null, false, true);
+        narrate(`Obtained ${goldGift} Gold. Karma +5.`, "System", null, false, true);
 
         // Companion reacts to good karma action
         if (window.COMPANIONS && state.companion) {
@@ -453,13 +465,11 @@ function resolveDialogue(npc, action) {
             if (line) setTimeout(() => narrate(line, window.COMPANIONS.getActive(state)?.name || 'Companion'), 800);
             window.COMPANIONS.adjustAffinity(state, state.companion, 5, 'Player chose diplomacy');
         }
-
         setChoices([{ text: "Continue", callback: hubLoop }]);
-        saveGame();
     } else if (action === 'observe') {
-        narrate(`You focus your spiritual sense. You realize they ${npc.secret}. They vanish, leaving behind a glowing stone.`, "System");
-        const regionId = (state.narrative_node || '').replace('exploring_', '') || 'crossroads';
-        generateLoot(regionId);
+        narrate(`You focus your inner eye. ${npc.name} seems to be ${npc.secret || "just a traveler"}.`, "System");
+        state.player.mp = Math.max(0, state.player.mp - 5);
+        updateTopBar();
         setChoices([{ text: "Continue", callback: hubLoop }]);
     }
 }
@@ -475,6 +485,7 @@ function triggerTreasureEvent() {
         }}
     ]);
 }
+
 
 function generateLoot(regionId = 'crossroads') {
     const table = window.LORE ? window.LORE.getLootTable(regionId) : null;
@@ -497,7 +508,7 @@ function generateLoot(regionId = 'crossroads') {
     if (selectedTier.rarity === 'Mythic' && !state.achievements.includes('First Mythic')) {
         if (window.AUDIO) window.AUDIO.playEffect('loot_mythic');
         state.achievements.push('First Mythic');
-        narrate("🏆 Achievement Unlocked: First Mythic Drop!", "System", null, false, true);
+        narrate("Ã°Å¸Ââ€  Achievement Unlocked: First Mythic Drop!", "System", null, false, true);
     }
     saveGame();
 }
@@ -511,39 +522,56 @@ const lootTiers = [
     { rarity: 'Mythic', css: 'loot-mythic', chance: 0.01, items: ['Tariq\'s Lost Scabbard', 'The Jade Emperor\'s Seal'] }
 ];
 
-// --- COMBAT ENGINE (powered by combat.js) ---
+// ============================================================
+// COMBAT ENGINE â€” The Flowing Dao (powered by combat.js)
+// ============================================================
+
+function updateMomentumUI() {
+    const bar = document.getElementById('momentum-bar-fill');
+    const indicator = document.getElementById('stance-indicator');
+    const container = document.getElementById('combat-momentum-container');
+    if (!bar) return;
+    const mom = state.momentum || 0;
+    // mom range -100 to +100; bar starts at 50% and grows right (positive) or left (negative)
+    if (mom >= 0) {
+        bar.style.left = '50%';
+        bar.style.width = (mom / 2) + '%';
+        bar.style.background = 'linear-gradient(90deg, #d4af37, #00a86b)';
+    } else {
+        const w = (-mom / 2);
+        bar.style.left = (50 - w) + '%';
+        bar.style.width = w + '%';
+        bar.style.background = 'linear-gradient(90deg, #8a1c1c, #d4af37)';
+    }
+    if (container) container.style.display = state.currentEnemy ? 'block' : 'none';
+    const formNames = { water: '?? WATER FORM', mountain: '?? MOUNTAIN FORM', wind: '?? WIND FORM' };
+    if (indicator) indicator.textContent = 'STANCE: ' + (formNames[state.playerForm] || 'NONE');
+}
+
 function startCombat(enemy) {
     state.currentEnemy = enemy;
-    state.combatState = 'enemy_prep';
-    
-    // Reset per-battle flags
+    state.momentum = 0;
+    state.playerForm = 'water';
+    state.enemyStaggered = false;
+    state.playerGuardBroken = false;
     state.nextEnemyAttackNegated = false;
-    state.enemyStunned = false;
-    state.enemyStunTurns = 0;
-    state.enemyMovesRevealed = false;
-    state.berserkerTurns = 0;
-    state.berserkerBonus = 1;
     state.playerDmgBonus = 1;
     state.enemyAtkDebuff = 1;
-    state.comboMultiplier = 1.0;
-    state.enemyStagger = 0;
-    
-    // Aura Suppression Logic
-    const playerStage = Math.floor(state.player.maxHp / 20); 
-    const enemyStage = enemy.baseHp ? Math.floor(enemy.baseHp / 25) : 3;
-    
-    if (playerStage > enemyStage + 2) {
-        state.enemyAtkDebuff = 0.8;
-        narrate(`Your towering Cultivation Aura suppresses the enemy. Their attacks are weakened.`, "System", null, false, true);
-    } else if (enemyStage > playerStage + 2) {
-        state.playerDmgBonus = 0.8;
-        narrate(`The enemy's oppressive Aura crushes your breath. Your attacks are weakened.`, "System", null, false, true);
+
+    // Aura suppression
+    const pStage = state.player.cultivation ? state.player.cultivation.stageLevel : 1;
+    const eStage = enemy.stageLevel || 1;
+    if (pStage > eStage + 2) {
+        state.enemyAtkDebuff = 0.7;
+        narrate('Your Cultivation Aura suppresses them. Their attacks are weakened.', 'System', null, false, true);
+    } else if (eStage > pStage + 2) {
+        state.playerDmgBonus = 0.7;
+        narrate("The enemy's overwhelming aura crushes your Qi flow.", 'System', null, false, true);
     }
 
     updateTopBar();
-
-    // Opening line
-    const openLine = enemy.dialogue || `${enemy.name} steps forward with killing intent.`;
+    updateMomentumUI();
+    const openLine = enemy.dialogue || `${enemy.name} steps forward, killing intent radiating like heat.`;
     narrate(openLine, enemy.name, enemy.sprite, true);
     setTimeout(combatLoop, 1800);
 }
@@ -552,494 +580,528 @@ function combatLoop() {
     if (state.player.hp <= 0) { handleDefeat(); return; }
     if (state.currentEnemy.hp <= 0) { handleVictory(); return; }
 
-    // Status effect tick
-    if (window.COMBAT) {
-        const msgs = window.COMBAT.tickStatusEffects(state);
-        msgs.forEach(m => narrate(m, 'System', null, false, true));
+    // Enemy telegraph
+    const enemy = state.currentEnemy;
+    enemy.nextMove = window.COMBAT ? window.COMBAT.selectEnemyMove(enemy) : ['heavy','fast','magic'][Math.floor(Math.random()*3)];
+    const telegraph = window.COMBAT ? window.COMBAT.getTelegraph(enemy, enemy.nextMove) : `${enemy.name} prepares to attack.`;
+    narrate(telegraph, enemy.name, enemy.sprite, true);
+
+    // If momentum >= 100, enemy is staggered
+    if (state.momentum >= 100) {
+        state.enemyStaggered = true;
+        state.momentum = 0;
+        narrate('<span class="loot-mythic">?? STAGGER BREAK! The enemy is wide open for an EXECUTION strike!</span>', 'System', null, false, true);
+    }
+    if (state.momentum <= -100) {
+        state.playerGuardBroken = true;
+        state.momentum = 0;
+        narrate('<span class="loot-common">?? YOUR GUARD IS BROKEN! You are exposed!</span>', 'System', null, false, true);
     }
 
-    if (state.enemyStunned) {
-        narrate(`${state.currentEnemy.name} is stunned and cannot act!`, 'System', null, false, true);
-        state.combatState = 'player_turn';
-        buildPlayerChoices();
-        return;
-    }
-
-    if (state.combatState === 'enemy_prep') {
-        const timesDefeated = window.COMBAT?.memory[state.currentEnemy.id]?.timesDefeated || 0;
-        state.currentEnemy.nextMove = window.COMBAT
-            ? window.COMBAT.selectEnemyMove(state.currentEnemy, timesDefeated)
-            : ['heavy','fast','magic'][Math.floor(Math.random()*3)];
-
-        // If moves are revealed, show exactly what's coming
-        const moveName = state.currentEnemy.moves?.[state.currentEnemy.nextMove]?.name || state.currentEnemy.nextMove;
-        const telegraph = window.COMBAT
-            ? window.COMBAT.getTelegraph(state.currentEnemy, state.currentEnemy.nextMove)
-            : `${state.currentEnemy.name} prepares to attack.`;
-
-        const revealText = state.enemyMovesRevealed
-            ? ` <em class="loot-rare">[Revealed: ${moveName}]</em>`
-            : '';
-
-        narrate(telegraph + revealText, state.currentEnemy.name, state.currentEnemy.sprite, true);
-        state.combatState = 'player_turn';
-        setTimeout(buildPlayerChoices, 1000);
-    }
+    updateMomentumUI();
+    state.combatState = 'player_turn';
+    setTimeout(buildFormSelection, 1000);
 }
 
-function buildPlayerChoices() {
-    if (!window.COMBAT) {
-        // Fallback
-        setChoices([
-            { text: '⚔️ Strike', callback: () => resolveCombatTurn('fast') },
-            { text: '🛡️ Guard', callback: () => resolveCombatTurn('guard') },
-            { text: '🌀 Dodge', callback: () => resolveCombatTurn('dodge') }
-        ]);
-        return;
+// Step 1: Choose your Form
+function buildFormSelection() {
+    const forms = [
+        { id: 'water', label: '?? Water Form', hint: 'Deflect heavies Â· Counter fasts Â· Regenerates Qi' },
+        { id: 'mountain', label: '?? Mountain Form', hint: 'Break guards Â· Absorb & counter physicals (15+ Qi)' },
+        { id: 'wind', label: '?? Wind Form', hint: 'Interrupt magic Â· Qi blade ignores armor (5+ Qi)' }
+    ];
+
+    const choices = forms.map(f => ({
+        text: `${f.label} <em style="font-size:0.8em;color:#888;">${f.hint}</em>`,
+        callback: () => {
+            state.playerForm = f.id;
+            updateMomentumUI();
+            buildActionChoices();
+        }
+    }));
+
+    // Always allow potion
+    if (state.player.inventory.potions > 0) {
+        choices.push({ text: `?? Use Potion (x${state.player.inventory.potions}) â€” Heals 40 HP, take a free hit`, callback: usePotion });
     }
 
-    const choices = window.COMBAT.getCombatChoices(
-        state,
-        (move) => resolveCombatTurn(move),
-        () => {
-            // Potion
-            state.player.inventory.potions--;
-            state.player.hp = Math.min(state.player.maxHp, state.player.hp + 40);
-            narrate('You consume a Recovery Potion — vital essence surges back.', 'System');
-            updateTopBar();
-            resolveCombatTurn('potion');
-        },
-        () => {
-            // Companion ability
-            const result = window.COMBAT.useCompanionAbility(state, state.currentEnemy);
-            if (result?.success) {
-                narrate(result.message, window.COMPANIONS.getActive(state)?.name, null, false, true);
-                updateTopBar();
-                if (state.currentEnemy.hp <= 0) { handleVictory(); return; }
-                state.combatState = 'enemy_prep';
-                setTimeout(combatLoop, 2000);
-            } else {
-                narrate(result?.message || 'Cannot use ability.', 'System');
-                buildPlayerChoices();
-            }
-        }
-    );
+    // Companion ability
+    const comp = window.COMPANIONS?.getActive(state);
+    if (comp?.uniqueAbility && state.player.mp >= comp.uniqueAbility.mpCost) {
+        choices.push({ text: `? ${comp.name.split(',')[0]}: ${comp.uniqueAbility.name} (${comp.uniqueAbility.mpCost} Qi)`, callback: useCompanionAbility });
+    }
+
     setChoices(choices);
 }
 
-function resolveCombatTurn(playerMove) {
-    const enemy = state.currentEnemy;
-    const enemyMove = enemy.nextMove;
+// Step 2: Choose your Action within the chosen Form
+function buildActionChoices() {
+    if (!window.COMBAT) { resolveCombatTurn('gale_strike'); return; }
+    const actions = window.COMBAT.getActionsForForm(state.playerForm);
+    const choices = actions
+        .filter(a => a.cost === 0 || state.player.mp >= a.cost)
+        .map(a => ({
+            text: `${a.name}${a.cost > 0 ? ` <em>(${a.cost} Qi)</em>` : ''}`,
+            callback: () => {
+                if (a.cost > 0) state.player.mp = Math.max(0, state.player.mp - a.cost);
+                resolveCombatTurn(a.id);
+            }
+        }));
 
-    if (window.COMBAT && playerMove !== 'potion') {
-        window.COMBAT.recordPlayerMove(enemy.id || enemy.name, playerMove);
-    }
+    choices.push({ text: '? Change Form', callback: buildFormSelection });
+    setChoices(choices);
+}
 
-    if (playerMove === 'potion') {
-        const dmg = Math.floor(enemy.atk * (state.enemyAtkDebuff || 1));
-        state.player.hp -= dmg;
-        narrate(`${enemy.name}'s attack lands while you drink! You take ${dmg} damage.`, 'System', null, false, true);
-        state.comboMultiplier = 1.0; 
+function usePotion() {
+    state.player.inventory.potions--;
+    state.player.hp = Math.min(state.player.maxHp, state.player.hp + 40);
+    const hitDmg = Math.floor(state.currentEnemy.atk * (state.enemyAtkDebuff || 1));
+    state.player.hp = Math.max(0, state.player.hp - hitDmg);
+    narrate(`You drink a potion (+40 HP) but ${state.currentEnemy.name} seizes the opening, hitting you for ${hitDmg} damage!`, 'System', null, false, true);
+    updateTopBar();
+    if (state.player.hp <= 0) { setTimeout(handleDefeat, 1200); return; }
+    state.combatState = 'enemy_prep';
+    setTimeout(combatLoop, 2000);
+}
+
+function useCompanionAbility() {
+    const result = window.COMBAT?.useCompanionAbility ? window.COMBAT.useCompanionAbility(state, state.currentEnemy) : null;
+    if (result?.success) {
+        narrate(result.message, window.COMPANIONS?.getActive(state)?.name || 'Companion', null, false, true);
         updateTopBar();
-        state.combatState = 'enemy_prep';
-        setTimeout(combatLoop, 1800);
-        return;
+        if (state.currentEnemy.hp <= 0) { handleVictory(); return; }
     }
+    state.combatState = 'enemy_prep';
+    setTimeout(combatLoop, 2000);
+}
+
+function resolveCombatTurn(playerMoveId) {
+    const enemy = state.currentEnemy;
+    const enemyMove = enemy.nextMove || 'heavy';
 
     let result;
-    if (window.COMBAT) {
-        const buffedAtk = Math.floor(state.player.atk * (state.berserkerBonus || 1) * (state.playerDmgBonus || 1));
-        const effectiveEnemyAtk = Math.floor(enemy.atk * (state.enemyAtkDebuff || 1));
-        result = window.COMBAT.resolveMove(playerMove, enemyMove, buffedAtk, effectiveEnemyAtk, enemy, state);
+    if (window.COMBAT && window.COMBAT.resolveMove) {
+        const pAtk = Math.floor(state.player.atk * (state.playerDmgBonus || 1));
+        const eAtk = Math.floor(enemy.atk * (state.enemyAtkDebuff || 1));
+        result = window.COMBAT.resolveMove(playerMoveId, enemyMove, pAtk, eAtk, enemy, state);
     } else {
-        result = { playerDmg: state.player.atk, enemyDmg: enemy.atk, resultText: 'You clash!', special: null };
+        result = { playerDmg: state.player.atk, enemyDmg: enemy.atk, resultText: 'You clash!', special: null, momentumShift: 0 };
     }
 
-    if (state.nextEnemyAttackNegated) {
-        result.enemyDmg = 0;
-        state.nextEnemyAttackNegated = false;
-        narrate(`${state.companion ? window.COMPANIONS.getActive(state)?.name : 'An ally'} negates the incoming attack!`, 'System');
-    }
-
+    // Apply damage
     enemy.hp = Math.max(0, enemy.hp - result.playerDmg);
     state.player.hp = Math.max(0, state.player.hp - result.enemyDmg);
 
-    narrate(result.resultText, 'System', null, false, true);
-    
-    if (state.comboMultiplier > 1.0) {
-        narrate(`🔥 Combo! Damage multiplier: <b>x${state.comboMultiplier.toFixed(1)}</b>`, 'System', null, false, true);
-    }
-    if (state.enemyStagger > 0 && state.enemyStagger < 3) {
-        narrate(`💢 Enemy Stagger: <b>${state.enemyStagger}/3</b>`, 'System', null, false, true);
-    }
+    // Apply momentum
+    state.momentum = Math.max(-100, Math.min(100, (state.momentum || 0) + (result.momentumShift || 0)));
 
-    if (result.playerDmg > 0) narrate(`You deal <b>${result.playerDmg}</b> damage.`, 'System', null, false, true);
+    // Narrate result
+    narrate(result.resultText, 'System', null, false, true);
+    if (result.playerDmg > 0) narrate(`<b>You deal ${result.playerDmg} damage.</b> Enemy HP: ${enemy.hp}/${enemy.maxHp}`, 'System', null, false, true);
+    if (result.enemyDmg > 0) narrate(`<b>You take ${result.enemyDmg} damage.</b> Your HP: ${state.player.hp}/${state.player.maxHp}`, 'System', null, true, true);
+
+    // Special effects
+    const specialLabels = {
+        perfect_counter: '<span class="loot-epic">? PERFECT COUNTER! Momentum surge!</span>',
+        execution: '<span class="loot-mythic" style="font-size:1.3em">?? EXECUTION STRIKE!</span>',
+        guard_broken: '<span class="loot-common">?? Guard Broken â€” you are exposed!</span>'
+    };
+    if (result.special && specialLabels[result.special]) narrate(specialLabels[result.special], 'System', null, false, true);
     if (window.AUDIO && result.playerDmg > 0) window.AUDIO.playEffect('combat_hit');
-    if (result.enemyDmg > 0) narrate(`You take <b>${result.enemyDmg}</b> damage.`, 'System', null, true, true);
-    if (result.special) {
-        if (window.AUDIO && result.special.includes('perfect')) window.AUDIO.playEffect('combat_block');
-        const specials = {
-            interrupt: '<span class="loot-rare">⚡ Interrupt! Spell cancelled.</span>',
-            perfect_block: '<span class="loot-epic">🛡️ Perfect Block! Riposte!</span>',
-            perfect_dodge: '<span class="loot-epic">💨 Perfect Dodge! Counter!</span>',
-            guard_crush: '<span class="loot-legendary">💥 Guard Crushed!</span>',
-            magic_burst: '<span class="loot-mythic">🔮 Spiritual Overpower!</span>',
-            guard_broken: '<span class="loot-common">💥 Guard Broken! Magic ignores armor!</span>',
-            interrupted: '<span class="loot-common">❌ Interrupted!</span>',
-            execution: '<span class="loot-mythic" style="font-size: 1.3em;">💀 EXECUTION!</span>'
-        };
-        if (specials[result.special]) narrate(specials[result.special], 'System', null, false, true);
-    }
 
     updateTopBar();
+    updateMomentumUI();
 
     if (state.player.hp <= 0) { setTimeout(handleDefeat, 1500); return; }
     if (enemy.hp <= 0) { setTimeout(handleVictory, 1500); return; }
 
-    state.combatState = 'enemy_prep';
-    setTimeout(combatLoop, 2500);
+    setTimeout(combatLoop, 2200);
 }
 
 function handleVictory() {
-    narrate(`${state.currentEnemy.name} collapses. The spiritual pressure lifts. Victory.`, "System");
+    narrate(`${state.currentEnemy.name} crumbles. The killing intent lifts from the air. Victory is yours.`, 'System');
+    if (window.COMBAT) { document.getElementById('combat-momentum-container').style.display = 'none'; }
 
-    // Companion combat-win interjection
     if (window.COMPANIONS) {
         const line = window.COMPANIONS.getInterjection(state, 'combat_win');
-        if (line) setTimeout(() => narrate(line, state.companion ? window.COMPANIONS.getActive(state)?.name : 'System'), 800);
-        // Victory increases affinity slightly
+        if (line) setTimeout(() => narrate(line, window.COMPANIONS.getActive(state)?.name || 'System'), 800);
         if (state.companion) window.COMPANIONS.adjustAffinity(state, state.companion, 3, 'Won a battle together');
     }
 
     const xpGained = state.currentEnemy.xpReward || 40;
     state.player.xp += xpGained;
-    narrate(`Gained ${xpGained} Experience.`, "System", null, false, true);
+    narrate(`Gained <b>${xpGained}</b> Experience.`, 'System', null, false, true);
+
+    // Gold reward
+    const goldGained = 10 + Math.floor(Math.random() * 20) + state.player.lvl * 3;
+    state.player.gold = (state.player.gold || 0) + goldGained;
+    narrate(`Gold earned: <b style="color:#f5c842">${goldGained} coins</b>. Total: ${state.player.gold}`, 'System', null, false, true);
+
+    // Materials drop
+    const matDrops = ['spirit_herb', 'iron_ore', 'monster_core'];
+    if (Math.random() < 0.6) {
+        const mat = matDrops[Math.floor(Math.random() * matDrops.length)];
+        state.player.inventory.materials[mat] = (state.player.inventory.materials[mat] || 0) + 1;
+        narrate(`Material Found: <span class="loot-rare">${mat.replace(/_/g,' ')}</span>`, 'System', null, false, true);
+    }
 
     if (state.player.xp >= state.player.maxXp) {
-        state.player.lvl++;
         state.player.xp -= state.player.maxXp;
-        state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 1.5));
-        state.player.maxHp += window.BALANCE ? window.BALANCE.hpPerLevel : 22;
-        state.player.hp = state.player.maxHp;
-        state.player.atk  += window.BALANCE ? window.BALANCE.atkPerLevel : 6;
-        narrate("🌟 BREAKTHROUGH! You have reached a new Stage of Cultivation!", "System", null, false, true);
-    if (window.AUDIO) window.AUDIO.playEffect('level_up');
+        state.player.lvl++;
+        state.player.cultivation.stageLevel++;
+        state.player.maxXp = Math.floor(state.player.maxXp * 1.5);
+        state.player.maxHp += 15; state.player.hp = state.player.maxHp;
+        state.player.atk += 4; state.player.def += 1;
+        narrate('?? <b>BREAKTHROUGH!</b> Your Cultivation deepens. Stats increased!', 'System', null, false, true);
+        if (window.AUDIO) window.AUDIO.playEffect('level_up');
+        if (state.player.cultivation.stageLevel >= 9) {
+            state.player.cultivation.breakthroughReady = true;
+            narrate('? <b>Your cultivation nears its peak.</b> Visit the Inner Sea to attempt a Major Breakthrough!', 'System', null, false, true);
+        }
     }
 
     const regionId = (state.narrative_node || '').replace('exploring_', '') || 'crossroads';
     generateLoot(regionId);
     state.currentEnemy = null;
+    updateTopBar();
     saveGame();
-    setChoices([{ text: "Continue", callback: hubLoop }]);
+
+    // Tribulation victory check
+    if (state._pendingBreakthroughStage) {
+        const bs = state._pendingBreakthroughStage;
+        state._pendingBreakthroughStage = null;
+        const msg = window.CULTIVATION ? window.CULTIVATION.completeBreakthrough(state, bs) : 'Breakthrough achieved!';
+        narrate(msg, 'System', null, false, true);
+        updateTopBar(); saveGame();
+        setChoices([{ text: 'Continue', callback: hubLoop }]);
+        return;
+    }
+
+    setChoices([{ text: 'Continue', callback: hubLoop }]);
 }
 
 function handleDefeat() {
-    // Companion defeat interjection
     if (window.COMPANIONS && state.companion) {
         const line = window.COMPANIONS.getInterjection(state, 'combat_lose');
         if (line) narrate(line, window.COMPANIONS.getActive(state)?.name || 'System');
         window.COMPANIONS.adjustAffinity(state, state.companion, -5, 'Fell in battle');
     }
-    narrate("Your vision fades to black as your life essence is drained. Your journey ends here... for now.", "System");
-    setChoices([{ text: "Reincarnate (Restart)", callback: () => { localStorage.removeItem('rpg_player_id'); location.reload(); }}]);
+    narrate('Your vision dims. The Dao does not end here â€” only this chapter does.', 'System');
+    setChoices([{ text: 'Reincarnate (Restart)', callback: () => { localStorage.removeItem('rpg_player_id'); location.reload(); } }]);
 }
 
-// --- Supabase Sync Engine ---
-async function saveGame() {
-    try {
-        localStorage.setItem('rpg_save', JSON.stringify(state));
-        
-        if (supabaseClient) {
-            const { error } = await supabaseClient
-                .from('game_saves')
-                .upsert({
-                    player_id: state.playerId,
-                    name: state.player.name,
-                    class: state.player.class,
-                    level: state.player.lvl,
-                    hp: state.player.hp,
-                    max_hp: state.player.maxHp,
-                    mp: state.player.mp,
-                    max_mp: state.player.maxMp,
-                    xp: state.player.xp,
-                    max_xp: state.player.maxXp,
-                    attack: state.player.atk,
-                    defense: state.player.def,
-                    companion: state.companion,
-                    inventory_items: state.player.inventory,
-                    equipment: state.player.equipment,
-                    karma: state.player.karma,
-                    achievements: state.achievements,
-                    relationships: state.relationships,
-                    narrative_node: state.narrative_node,
-                    perspective: state.settings.perspective
-                }, { onConflict: 'player_id' });
-
-            if (error) console.error("Cloud Save Error:", error);
-        }
-    } catch(e) {
-        console.error("Save failed", e);
+// ============================================================
+// CULTIVATION SCREEN â€” The Inner Sea
+// ============================================================
+// ============================================================
+// CULTIVATION SCREEN - The Inner Sea
+// ============================================================
+function showCultivationScreen() {
+    clearNarrative();
+    if (!state.player.cultivation) {
+        state.player.cultivation = { stage: 'Qi Condensation', stageLevel: 1, breakthroughReady: false };
     }
-}
+    const cult = state.player.cultivation;
+    const stageColors = { 'Qi Condensation': '#8888aa', 'Foundation Establishment': '#00a86b', 'Core Formation': '#d4af37', 'Nascent Soul': '#e040fb' };
+    const col = stageColors[cult.stage] || '#aaa';
 
-async function loadGameCloud() {
-    try {
-        if (!supabaseClient) {
-            loadGameLocal();
-            return;
-        }
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;">THE INNER SEA</b>', 'System', null, false, true);
+    narrate(`Your cultivation is in the <span style="color:${col};font-weight:bold;">${cult.stage}</span> realm, Level <b>${cult.stageLevel}</b>/9.`, 'System', null, false, true);
+    narrate(`HP: <b>${state.player.maxHp}</b> | Qi: <b>${state.player.maxMp}</b> | ATK: <b>${state.player.atk}</b> | DEF: <b>${state.player.def}</b>`, 'System', null, false, true);
+    narrate(`XP: <b>${state.player.xp}</b> / <b>${state.player.maxXp}</b> | Level: <b>${state.player.lvl}</b>`, 'System', null, false, true);
 
-        const { data, error } = await supabaseClient
-            .from('game_saves')
-            .select('*')
-            .eq('player_id', state.playerId)
-            .single();
-
-        if (error || !data) {
-            loadGameLocal();
-            return;
-        }
-
-        applyLoadData(data);
-    } catch(e) {
-        console.error("Cloud Load Error:", e);
-        loadGameLocal();
-    }
-}
-
-function loadGameLocal() {
-    const saved = localStorage.getItem('rpg_save');
-    if (saved) {
-        const parsed = JSON.parse(saved);
-        // Deep merge or overwrite state logic here. For brevity, simplistic overwrite:
-        state = { ...state, ...parsed };
-        
-        // Resume from narrative node
-        if (state.screen === 'story-screen') {
-            if (state.narrative_node === 'hub') {
-                showScreen('story-screen');
-                hubLoop();
-            } else {
-                // Failsafe
-                showScreen('story-screen');
-                hubLoop();
+    const choices = [
+        {
+            text: 'Deep Meditation (Gather Qi & XP)',
+            callback: () => {
+                const result = window.CULTIVATION ? window.CULTIVATION.meditate(state) : { success: true, message: 'You meditate, drawing in ambient Qi.' };
+                narrate(result.message, 'System', null, false, true);
+                updateTopBar(); saveGame();
+                setTimeout(showCultivationScreen, 2200);
             }
         }
-    }
-}
+    ];
 
-function applyLoadData(data) {
-    state.player.name = data.name;
-    state.player.class = data.class;
-    state.player.lvl = data.level;
-    state.player.hp = data.hp;
-    state.player.maxHp = data.max_hp;
-    state.player.mp = data.mp;
-    state.player.maxMp = data.max_mp;
-    state.player.xp = data.xp;
-    state.player.maxXp = data.max_xp;
-    state.player.atk = data.attack;
-    state.player.def = data.defense;
-    state.companion = data.companion;
-    
-    if (data.inventory_items) state.player.inventory = data.inventory_items;
-    if (data.equipment) state.player.equipment = data.equipment;
-    if (data.karma !== undefined) state.player.karma = data.karma;
-    if (data.achievements) state.achievements = data.achievements;
-    if (data.relationships) state.relationships = data.relationships;
-    if (data.perspective) state.settings.perspective = data.perspective;
-    
-    // Resume
-    if (state.screen === 'story-screen' || localStorage.getItem('rpg_save')) {
-        showScreen('story-screen');
-        hubLoop();
-    }
-}
-
-// -----------------------------------------------------------
-// WORLD MAP ENGINE
-// -----------------------------------------------------------
-
-// SVG coordinates for each region node
-const REGION_COORDS = {
-    crossroads:     { x: 400, y: 280, icon: '&#x2726;', color: '#d4af37' },
-    jade_peak:      { x: 590, y: 175, icon: '&#x2726;', color: '#00a86b' },
-    empty_quarter:  { x: 185, y: 360, icon: '&#x2726;', color: '#c8860a' },
-    abyssal_sea:    { x: 625, y: 370, icon: '&#x2726;', color: '#0f52ba' },
-    brass_city:     { x: 135, y: 195, icon: '&#x2726;', color: '#8a1c1c' },
-    celestial_court:{ x: 415, y: 72,  icon: '&#x2726;', color: '#e8d080' }
-};
-
-function showWorldMap() {
-    showScreen('map-screen');
-    renderMapRegions();
-    document.getElementById('map-tooltip').style.display = 'none';
-
-    document.getElementById('map-back-btn').onclick = () => {
-        showScreen('story-screen');
-        hubLoop();
-    };
-
-    document.getElementById('map-travel-btn').onclick = () => {
-        const rid = document.getElementById('map-travel-btn').dataset.region;
-        if (rid && window.LORE && window.LORE.REGIONS[rid]?.unlocked) {
-            showScreen('story-screen');
-            exploreRegion(rid);
-        }
-    };
-}
-
-function renderMapRegions() {
-    const svg = document.getElementById('map-regions-group');
-    if (!svg || !window.LORE) return;
-    svg.innerHTML = '';
-
-    const regions = window.LORE.REGIONS;
-    const currentRegion = (state.narrative_node || '').replace('exploring_', '');
-
-    Object.values(regions).forEach(region => {
-        const coord = REGION_COORDS[region.id];
-        if (!coord) return;
-
-        const unlocked = region.unlocked;
-        const isCurrent = region.id === currentRegion;
-        const nodeColor = unlocked ? coord.color : '#3a3a3a';
-        const ringColor = isCurrent ? '#00e5a0' : (unlocked ? coord.color : '#444');
-
-        // Build SVG group
-        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('class', `map-region-node${unlocked ? '' : ' locked'}`);
-        g.setAttribute('data-region', region.id);
-
-        // Pulse ring (only unlocked)
-        if (unlocked) {
-            const pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            pulse.setAttribute('cx', coord.x);
-            pulse.setAttribute('cy', coord.y);
-            pulse.setAttribute('r', '26');
-            pulse.setAttribute('fill', 'none');
-            pulse.setAttribute('stroke', nodeColor);
-            pulse.setAttribute('stroke-width', '1.5');
-            pulse.setAttribute('opacity', '0.4');
-            pulse.setAttribute('class', 'region-pulse');
-            g.appendChild(pulse);
-        }
-
-        // Outer ring
-        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        ring.setAttribute('cx', coord.x);
-        ring.setAttribute('cy', coord.y);
-        ring.setAttribute('r', '22');
-        ring.setAttribute('fill', `${nodeColor}22`);
-        ring.setAttribute('stroke', ringColor);
-        ring.setAttribute('stroke-width', isCurrent ? '2.5' : '1.5');
-        ring.setAttribute('class', 'region-ring');
-        ring.setAttribute('stroke-opacity', unlocked ? '0.8' : '0.3');
-        g.appendChild(ring);
-
-        // Inner filled circle
-        const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        inner.setAttribute('cx', coord.x);
-        inner.setAttribute('cy', coord.y);
-        inner.setAttribute('r', '14');
-        inner.setAttribute('fill', unlocked ? `${nodeColor}55` : '#1a1a1a');
-        g.appendChild(inner);
-
-        // Icon text
-        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        icon.setAttribute('x', coord.x);
-        icon.setAttribute('y', coord.y + 5);
-        icon.setAttribute('text-anchor', 'middle');
-        icon.setAttribute('font-size', '13');
-        icon.setAttribute('fill', unlocked ? nodeColor : '#555');
-        icon.setAttribute('filter', unlocked ? 'url(#glow-node)' : '');
-        icon.textContent = unlocked ? coord.icon : '??';
-        g.appendChild(icon);
-
-        // Region label
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', coord.x);
-        label.setAttribute('y', coord.y + 38);
-        label.setAttribute('text-anchor', 'middle');
-        label.setAttribute('font-size', '9');
-        label.setAttribute('font-family', 'Cinzel, serif');
-        label.setAttribute('fill', unlocked ? coord.color : '#555');
-        label.setAttribute('opacity', unlocked ? '0.9' : '0.4');
-        label.textContent = region.name.length > 18 ? region.name.slice(0,18)+'�' : region.name;
-        g.appendChild(label);
-
-        // Stage range badge
-        if (unlocked) {
-            const badge = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            badge.setAttribute('x', coord.x);
-            badge.setAttribute('y', coord.y - 30);
-            badge.setAttribute('text-anchor', 'middle');
-            badge.setAttribute('font-size', '8');
-            badge.setAttribute('font-family', 'Inter, sans-serif');
-            badge.setAttribute('fill', '#8a8a8a');
-            badge.textContent = `Stages ${region.stageRange[0]}�${region.stageRange[1]}`;
-            g.appendChild(badge);
-        }
-
-        // Click handler
-        g.addEventListener('click', () => showMapTooltip(region, unlocked, isCurrent));
-        svg.appendChild(g);
-    });
-}
-
-function showMapTooltip(region, unlocked, isCurrent) {
-    const tip = document.getElementById('map-tooltip');
-    document.getElementById('map-tooltip-name').textContent = region.name;
-    document.getElementById('map-tooltip-subtitle').textContent = region.subtitle;
-    document.getElementById('map-tooltip-desc').textContent = region.description;
-
-    // Status badge
-    const badge = document.getElementById('map-tooltip-status');
-    if (isCurrent) {
-        badge.textContent = 'Current';
-        badge.className = 'map-status-badge badge-current';
-    } else if (unlocked) {
-        badge.textContent = 'Unlocked';
-        badge.className = 'map-status-badge badge-unlocked';
-    } else {
-        badge.textContent = 'Locked';
-        badge.className = 'map-status-badge badge-locked';
-    }
-
-    // Enemy tags
-    const enemyBox = document.getElementById('map-tooltip-enemies');
-    enemyBox.innerHTML = '';
-    if (region.enemies && region.enemies.length) {
-        const allEnemies = window.LORE.getAllEnemies();
-        region.enemies.slice(0, 5).forEach(eid => {
-            const e = allEnemies[eid];
-            if (e) {
-                const tag = document.createElement('span');
-                tag.className = 'enemy-tag';
-                tag.textContent = e.name;
-                enemyBox.appendChild(tag);
+    if (cult.breakthroughReady) {
+        choices.push({
+            text: 'ATTEMPT MAJOR BREAKTHROUGH (Heavenly Tribulation!)',
+            callback: () => {
+                const res = window.CULTIVATION ? window.CULTIVATION.attemptBreakthrough(state) : { success: false, message: 'Cultivation module unavailable.' };
+                if (!res.success) {
+                    narrate(res.message, 'System', null, false, true);
+                    setTimeout(showCultivationScreen, 2000);
+                } else {
+                    narrate('The heavens darken. Nine thunderbolts crack across the sky. A Tribulation Beast descends!', 'System', null, false, true);
+                    narrate('<span style="color:#e040fb;font-size:1.2em;font-weight:bold;">HEAVENLY TRIBULATION INITIATED</span>', 'System', null, false, true);
+                    const tribBeast = {
+                        name: 'Heavenly Tribulation Beast',
+                        sprite: null,
+                        hp: 200 + state.player.lvl * 20,
+                        maxHp: 200 + state.player.lvl * 20,
+                        atk: 25 + state.player.lvl * 4,
+                        def: 5,
+                        stageLevel: 10,
+                        xpReward: 0,
+                        dialogue: 'The sky tears open. A divine beast of pure lightning crashes before you â€” this is your Heavenly Trial.',
+                        archetype: 'mage',
+                        nextMove: null
+                    };
+                    state._pendingBreakthroughStage = res.nextStage;
+                    setTimeout(() => startCombat(tribBeast), 1500);
+                }
             }
         });
     }
 
-    // Travel button
-    const travelBtn = document.getElementById('map-travel-btn');
-    travelBtn.dataset.region = region.id;
-    if (unlocked && !isCurrent) {
-        travelBtn.textContent = `?? Travel to ${region.name}`;
-        travelBtn.style.display = 'block';
-        travelBtn.disabled = false;
-        travelBtn.style.opacity = '1';
-    } else if (isCurrent) {
-        travelBtn.textContent = `? You are here`;
-        travelBtn.disabled = true;
-        travelBtn.style.opacity = '0.5';
-    } else {
-        const req = region.stageRange[0];
-        travelBtn.textContent = `?? Requires Stage ${req}`;
-        travelBtn.disabled = true;
-        travelBtn.style.opacity = '0.4';
+    choices.push({ text: 'Return to Crossroads', callback: hubLoop });
+    setChoices(choices);
+}
+
+// ============================================================
+// ALCHEMY SCREEN - The Furnace of Heaven
+// ============================================================
+function showAlchemyScreen() {
+    clearNarrative();
+    if (!state.player.inventory.materials) state.player.inventory.materials = {};
+    const mats = state.player.inventory.materials;
+    const matList = Object.entries(mats).filter(([,v]) => v > 0).map(([k,v]) => `${k.replace(/_/g,' ')}: <b>${v}</b>`).join(', ') || '<i>None</i>';
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;">THE FURNACE OF HEAVEN</b>', 'System', null, false, true);
+    narrate(`Materials: ${matList}`, 'System', null, false, true);
+    narrate('Combine spirit herbs, monster cores, and ores to craft potions, elixirs, and Breakthrough Pills.', 'System', null, false, true);
+
+    const choices = [];
+    if (window.CRAFTING) {
+        Object.entries(window.CRAFTING.alchemyRecipes).forEach(([id, r]) => {
+            const ingList = Object.entries(r.ingredients).map(([k,v]) => `${v}x ${k.replace(/_/g,' ')}`).join(', ');
+            const canCraft = Object.entries(r.ingredients).every(([k,v]) => (mats[k] || 0) >= v);
+            choices.push({
+                text: `${canCraft ? '[CRAFT]' : '[LOCKED]'} ${r.name} - ${r.desc} | Needs: ${ingList}`,
+                callback: canCraft ? () => {
+                    const res = window.CRAFTING.craftAlchemy(state, id);
+                    narrate(res.message, 'System', null, false, true);
+                    updateTopBar(); saveGame();
+                    setTimeout(showAlchemyScreen, 1500);
+                } : () => {
+                    narrate(`You need: ${ingList} to craft ${r.name}.`, 'System', null, false, true);
+                    setTimeout(showAlchemyScreen, 1500);
+                }
+            });
+        });
     }
 
-    tip.style.display = 'block';
+    if (!choices.length) {
+        narrate('No recipes are available. Gather materials by defeating enemies on the World Map.', 'System', null, false, true);
+    }
+
+    choices.push({ text: 'Return to Crossroads', callback: hubLoop });
+    setChoices(choices);
 }
+
+// ============================================================
+// BLACKSMITH SCREEN - The Spirit Forge
+// ============================================================
+function showForgeScreen() {
+    clearNarrative();
+    if (!state.player.inventory.materials) state.player.inventory.materials = {};
+    const eq = state.player.equipment;
+    const mats = state.player.inventory.materials;
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;">THE SPIRIT FORGE</b>', 'System', null, false, true);
+    narrate(`Weapon: <b>${eq.weapon || 'None'}</b> | Armor: <b>${eq.armor || 'None'}</b> | Relic: <b>${eq.relic || 'None'}</b>`, 'System', null, false, true);
+
+    const matLine = Object.entries(mats).filter(([,v]) => v > 0).map(([k,v]) => `${k.replace(/_/g,' ')}: ${v}`).join(' | ') || 'No materials';
+    narrate(`Materials: ${matLine}`, 'System', null, false, true);
+
+    const choices = [];
+    ['weapon','armor','relic'].forEach(slot => {
+        if (eq[slot]) {
+            choices.push({
+                text: `Upgrade ${slot}: ${eq[slot]}`,
+                callback: () => {
+                    const res = window.CRAFTING ? window.CRAFTING.upgradeEquipment(state, slot) : { success: false, message: 'Crafting module unavailable.' };
+                    narrate(res.message, 'System', null, false, true);
+                    updateTopBar(); saveGame();
+                    setTimeout(showForgeScreen, 1500);
+                }
+            });
+        }
+    });
+
+    if (!choices.length) {
+        narrate('You have no equipment to upgrade. Find gear by exploring regions and defeating enemies.', 'System', null, false, true);
+    }
+
+    choices.push({ text: 'Return to Crossroads', callback: hubLoop });
+    setChoices(choices);
+}
+
+// ============================================================
+// INVENTORY SCREEN - Satchel Tabs
+// ============================================================
+function recalculatePlayerStats() {
+    // Reset to base stats based on level
+    const lvl = state.player.lvl;
+    state.player.maxHp = 100 + (lvl - 1) * 15;
+    state.player.maxMp = 50 + (lvl - 1) * 5;
+    state.player.atk = 15 + (lvl - 1) * 3;
+    state.player.def = 5 + (lvl - 1) * 1;
+
+    // Apply Cultivation Realm bonuses
+    if (window.CULTIVATION && window.CULTIVATION.stages) {
+        const stageObj = window.CULTIVATION.stages.find(s => s.name === state.player.cultivation.stage);
+        if (stageObj) {
+            state.player.maxHp += stageObj.bonus.hp || 0;
+            state.player.maxMp += stageObj.bonus.mp || 0;
+            state.player.atk += stageObj.bonus.atk || 0;
+        }
+    }
+
+    // Apply Equipment bonuses
+    const eq = state.player.equipment;
+    const stats = window.LORE?.EQUIPMENT_STATS || {};
+    
+    Object.values(eq).forEach(itemName => {
+        if (itemName && stats[itemName]) {
+            const s = stats[itemName];
+            if (s.atk) state.player.atk += s.atk;
+            if (s.def) state.player.def += s.def;
+            if (s.hp) state.player.maxHp += s.hp;
+            if (s.mp) state.player.maxMp += s.mp;
+            if (s.allStats) {
+                state.player.atk += s.allStats;
+                state.player.def += s.allStats;
+                state.player.maxHp += s.allStats;
+            }
+        }
+    });
+
+    // Final clamps
+    state.player.hp = Math.min(state.player.hp, state.player.maxHp);
+    state.player.mp = Math.min(state.player.mp, state.player.maxMp);
+}
+
+function equipItem(itemName) {
+    const stats = window.LORE?.EQUIPMENT_STATS || {};
+    const item = stats[itemName];
+    if (!item) return;
+
+    const slot = item.slot;
+    const oldItem = state.player.equipment[slot];
+
+    // Unequip old item (add back to inventory items list if needed, 
+    // but for now we assume inv.items is the list of all owned items)
+    state.player.equipment[slot] = itemName;
+    
+    narrate(`Equipped <b>${itemName}</b> to ${slot} slot.`, 'System', null, false, true);
+    
+    recalculatePlayerStats();
+    updateTopBar();
+    showInventory(); // Refresh view
+}
+
+function switchSatchelTab(tab) {
+    const grid = document.getElementById('item-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const inv = state.player.inventory;
+    if (!inv.materials) inv.materials = {};
+
+    if (tab === 'consumables') {
+        const items = [
+            { id: 'potions', label: 'Recovery Potions', value: inv.potions, color: '#00a86b', hint: 'Heals 40 HP' },
+            { id: 'elixirs', label: 'Spirit Elixirs', value: inv.elixirs, color: '#d4af37', hint: 'Increases Max HP/MP' },
+            { id: 'gold', label: 'Gold Coins', value: state.player.gold || 0, color: '#f5c842', hint: 'Used for crafting' }
+        ];
+        items.forEach(it => {
+            const div = document.createElement('div');
+            div.className = 'inventory-slot';
+            div.style.cssText = 'width:auto;padding:12px 16px;text-align:center;min-width:120px;cursor:pointer;';
+            div.innerHTML = `<div style="font-size:0.75rem;color:#888;">${it.label}</div><div style="font-size:1.4rem;font-weight:bold;color:${it.color};">${it.value}</div><div style="font-size:0.65rem;color:#666;">${it.hint}</div>`;
+            div.onclick = () => {
+                if (it.id === 'potions' && inv.potions > 0) {
+                    state.player.hp = Math.min(state.player.maxHp, state.player.hp + 40);
+                    inv.potions--;
+                    narrate("You drink a Recovery Potion. (+40 HP)", "System", null, false, true);
+                    updateTopBar(); switchSatchelTab('consumables');
+                } else if (it.id === 'elixirs' && inv.elixirs > 0) {
+                    state.player.maxHp += 5; state.player.maxMp += 2;
+                    inv.elixirs--;
+                    narrate("You consume a Spirit Elixir. Your foundation grows stronger!", "System", null, false, true);
+                    updateTopBar(); switchSatchelTab('consumables');
+                }
+            };
+            grid.appendChild(div);
+        });
+    } else if (tab === 'equipment') {
+        const gear = (inv.items || []).filter(i => i && (typeof i === 'string' ? window.LORE?.EQUIPMENT_STATS[i] : i.rarity));
+        if (!gear.length) {
+            grid.innerHTML = '<div style="color:#555;padding:20px;"><i>No equipment. Explore regions to find gear.</i></div>';
+        } else {
+            gear.forEach(item => {
+                const itemName = typeof item === 'string' ? item : item.name;
+                const itemData = window.LORE?.EQUIPMENT_STATS[itemName] || item;
+                const div = document.createElement('div');
+                div.className = `inventory-slot ${item.css || ''}`;
+                div.style.cssText = 'width:auto;padding:10px 14px;cursor:pointer;min-width:120px;';
+                div.innerHTML = `<div style="font-weight:bold;">${itemName}</div><div style="font-size:0.75rem;color:#888;">${itemData.slot || item.rarity || 'Item'}</div>`;
+                div.onclick = () => {
+                    if (itemData.slot) {
+                        equipItem(itemName);
+                    } else {
+                        narrate(`You examine the ${itemName}. It's a fine piece of work.`, 'System', null, false, true);
+                    }
+                };
+                grid.appendChild(div);
+            });
+        }
+    } else if (tab === 'materials') {
+        const entries = Object.entries(inv.materials).filter(([,v]) => v > 0);
+        if (!entries.length) {
+            grid.innerHTML = '<div style="color:#555;padding:20px;"><i>No materials. Defeat enemies to gather resources.</i></div>';
+        } else {
+            entries.forEach(([k, v]) => {
+                const div = document.createElement('div');
+                div.className = 'inventory-slot';
+                div.style.cssText = 'width:auto;padding:10px 14px;min-width:100px;text-align:center;';
+                div.innerHTML = `<div style="font-size:0.8rem;text-transform:capitalize;">${k.replace(/_/g,' ')}</div><div style="font-size:1.3rem;font-weight:bold;color:#d4af37;">x${v}</div>`;
+                grid.appendChild(div);
+            });
+        }
+    }
+}
+
+function showInventory() {
+    const eq = state.player.equipment || {};
+    document.getElementById('eq-weapon-name').textContent = eq.weapon || 'None';
+    document.getElementById('eq-armor-name').textContent = eq.armor || 'Basic Robes';
+    document.getElementById('eq-relic-name').textContent = eq.relic || 'None';
+    document.getElementById('eq-weapon-stats').textContent = eq.weapon ? '+ATK' : '';
+    document.getElementById('eq-armor-stats').textContent = eq.armor ? '+DEF' : '+5 DEF';
+
+    let karmaText = 'Neutral';
+    if (state.player.karma > 20) karmaText = 'Righteous';
+    if (state.player.karma > 80) karmaText = 'Saintly';
+    if (state.player.karma < -20) karmaText = 'Corrupted';
+    if (state.player.karma < -80) karmaText = 'Demonic Sovereign';
+
+    showScreen('inventory-screen');
+    clearNarrative();
+    narrate(`<b>Karma:</b> ${state.player.karma} (${karmaText}) | <b>Gold:</b> ${state.player.gold || 0} coins`, 'System', null, false, true);
+    narrate(`<b>Cultivation:</b> ${state.player.cultivation?.stage || 'Qi Condensation'} Lv.${state.player.cultivation?.stageLevel || 1}`, 'System', null, false, true);
+
+    if (state.companion && window.COMPANIONS) {
+        const comp = window.COMPANIONS.getActive(state);
+        const compState = state.companions[state.companion];
+        if (comp && compState) {
+            const tier = window.COMPANIONS.getAffinityTier(compState.affinity);
+            narrate(`<b>Companion:</b> ${comp.name} | Affinity: <span style="color:${tier.color}">${compState.affinity}/100 (${tier.label})</span>`, 'System', null, false, true);
+        }
+    }
+
+    switchSatchelTab('consumables');
+    document.getElementById('back-hub-btn').onclick = () => { showScreen('story-screen'); hubLoop(); };
+}
+
+
+

@@ -369,3 +369,5 @@ window.LORE = {
         return region ? LOOT_TABLES[region.lootTable] : LOOT_TABLES['crossroads_loot'];
     }
 };
+
+window.LORE = Object.assign(window.LORE || {}, { LOOT_TABLES, ...window.LORE_HELPERS });

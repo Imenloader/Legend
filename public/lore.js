@@ -372,3 +372,7 @@ const CHINESE_ENEMIES = {
         dialogue: '"I was supposed to be a genius. I was supposed to reach the heavens."'
     }
 };
+
+window.LORE = Object.assign(window.LORE || {}, { REGIONS, CHINESE_HEROES, ARABIAN_HEROES, NPC_ENGINE, ENEMIES });
+
+window.LORE = Object.assign(window.LORE || {}, { REGIONS, CHINESE_HEROES, ARABIAN_HEROES, NPC_ENGINE, ENEMIES });
