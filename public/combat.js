@@ -143,7 +143,22 @@ window.COMBAT = {
         let mom = 0; // Momentum shift (+ is good for player)
         let spec = null;
 
-        // Base damage calculation (using Atk vs Def loosely)
+        // Taming Logic
+        if (playerMoveId === 'tame') {
+            const chance = (enemy.hp / enemy.maxHp < 0.3) ? 0.8 : 0.2;
+            if (Math.random() < chance) {
+                spec = 'tamed';
+                msg = `You perform the spirit-binding mudra. ${enemy.name} yields!`;
+                mom = 100;
+            } else {
+                msg = `${enemy.name} snarls at your attempts to bind it!`;
+                eDmg = eBaseDmg;
+                mom = -30;
+            }
+            return { playerDmg: 0, enemyDmg: eDmg, resultText: msg, special: spec, momentumShift: mom };
+        }
+
+        // Base damage calculation
         const pBaseDmg = Math.max(1, playerAtk - (enemy.def || 0));
         const eBaseDmg = Math.max(1, enemyAtk - (state.player.def || 0));
 

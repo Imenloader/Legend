@@ -224,6 +224,15 @@ function updateTopBar() {
     } else {
         UI_ELEMENTS.enemyContainer.style.display = 'none';
     }
+    updateAuras();
+}
+
+function updateAuras() {
+    const portrait = document.querySelector('.portrait-container');
+    if (!portrait) return;
+    portrait.classList.remove('aura-saintly', 'aura-demonic');
+    if (state.player.karma >= 50) portrait.classList.add('aura-saintly');
+    else if (state.player.karma <= -50) portrait.classList.add('aura-demonic');
 }
 
 function showScreen(screenId) {
@@ -252,6 +261,27 @@ function initGame() {
         }
     }
     state.lastLogin = now;
+
+    // --- AUCTION HEARTBEAT ---
+    setInterval(() => {
+        if (state.activeAuction && !state.activeAuction.isClosed) {
+            state.activeAuction.timeLeft--;
+            if (window.AUCTION) window.AUCTION.processNPCs(state);
+            
+            if (state.activeAuction.timeLeft <= 0) {
+                state.activeAuction.isClosed = true;
+                const a = state.activeAuction;
+                if (a.highestBidder === state.player.name) {
+                    state.player.inventory.items.push({...a.item});
+                    narrate(`SOLD! You won the ${a.item.name}!`, "Auction");
+                } else {
+                    narrate(`SOLD! ${a.highestBidder} won the ${a.item.name}.`, "Auction");
+                }
+                state.activeAuction = null;
+                updateTopBar();
+            }
+        }
+    }, 1000);
 
     showScreen('story-screen');
     if (window.AUDIO) { window.AUDIO.init(); window.AUDIO.playRegion('crossroads'); }
@@ -297,7 +327,12 @@ function hubLoop() {
     if (typeof showWorldMap === 'function') choices.push({ text: "🗺️ Open World Map", callback: showWorldMap });
     if (typeof showQuestLog === 'function') choices.push({ text: "📜 Mission Board", callback: showQuestLog });
     if (typeof showMarket === 'function') choices.push({ text: "⚖️ Crossroads Market", callback: showMarket });
+    if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ Sect Auction House", callback: showAuctionHouse });
     if (typeof showSkillTree === 'function') choices.push({ text: "☯️ Martial Techniques", callback: showSkillTree });
+    
+    if (state.player.lvl >= 10) {
+        choices.push({ text: "✨ Hall of Transmigration", callback: showRebirthScreen });
+    }
     
     if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 Cultivate Qi", callback: showCultivationScreen });
     if (typeof showAlchemyScreen === 'function') choices.push({ text: "⚗️ Alchemy Furnace", callback: showAlchemyScreen });
@@ -380,6 +415,10 @@ function combatLoop() {
         choices.push({ text: "🌊 Switch to Water", callback: () => { state.playerForm = 'water'; combatLoop(); }});
         choices.push({ text: "🏔️ Switch to Mountain", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
         choices.push({ text: "🌪️ Switch to Wind", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
+        
+        if (enemy.archetype === 'beast') {
+            choices.push({ text: "🐾 Attempt Taming", callback: () => resolveCombatTurn('tame') });
+        }
 
         setChoices(choices);
     }, 1000);
@@ -388,6 +427,15 @@ function combatLoop() {
 function resolveCombatTurn(moveId) {
     const enemy = state.currentEnemy;
     const result = window.COMBAT ? window.COMBAT.resolveMove(moveId, enemy.nextMove, state.player.atk, enemy.atk, enemy, state) : { playerDmg: 10, enemyDmg: 5, resultText: 'Clash!' };
+    
+    // Handle Tamed result
+    if (result.special === 'tamed') {
+        narrate(result.resultText, "System");
+        if (window.PETS) window.PETS.tame(state, enemy.id);
+        setTimeout(handleVictory, 1500);
+        return;
+    }
+
     enemy.hp = Math.max(0, enemy.hp - result.playerDmg);
     state.player.hp = Math.max(0, state.player.hp - result.enemyDmg);
     state.momentum = Math.max(-100, Math.min(100, (state.momentum || 0) + (result.momentumShift || 0)));
@@ -434,6 +482,27 @@ function calculateTotalStats() {
         const skillBonuses = window.SKILLS.getPassiveBonuses(state);
         if (skillBonuses.atk) bAtk += baseAtk * skillBonuses.atk;
         if (skillBonuses.mpRegen) { /* Handled in turn recovery */ }
+    }
+
+    // Karma Divine Bonuses
+    if (state.player.karma >= 50) bHp += baseMaxHp * 0.15; // Saintly HP bonus
+    if (state.player.karma <= -50) bAtk += baseAtk * 0.1; // Demonic ATK bonus
+
+    // Legacy (Rebirth) Bonuses
+    if (state.legacy) {
+        const leg = state.legacy.permanentStats || {};
+        bAtk += leg.atk || 0; bDef += leg.def || 0;
+        bHp += leg.hp || 0; bMp += leg.mp || 0;
+
+        if (window.REBIRTH) {
+            (state.legacy.traits || []).forEach(tId => {
+                const trait = window.REBIRTH.traits[tId];
+                if (trait && trait.bonus) {
+                    if (trait.bonus.hp) bHp += baseMaxHp * trait.bonus.hp;
+                    if (trait.bonus.crit) { /* Handled in combat logic if needed */ }
+                }
+            });
+        }
     }
 
     Object.values(state.player.equipment).forEach(item => {
@@ -547,4 +616,12 @@ function switchSatchelTab(tab) {
         });
     }
 }
-
+function exportCombatLog() {
+    const log = document.getElementById('narrative-window').innerText;
+    const blob = new Blob([log], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Legend_Log_${Date.now()}.txt`;
+    a.click();
+}

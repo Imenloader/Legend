@@ -11,13 +11,15 @@ window.CRAFTING = {
             name: 'Minor Health Potion',
             desc: 'Restores 40 HP.',
             ingredients: { 'spirit_herb': 2 },
-            type: 'potion'
+            type: 'potion',
+            effect: { hp: 40 }
         },
         'foundation_pill': {
             name: 'Foundation Pill',
             desc: 'Required to breakthrough to Foundation Establishment.',
             ingredients: { 'spirit_herb': 5, 'monster_core': 2 },
-            type: 'special'
+            type: 'special',
+            effect: { breakthrough: true }
         }
     },
 
@@ -99,25 +101,43 @@ window.CRAFTING = {
         };
     },
 
-    craftAlchemy(state, recipeId) {
+    brewAlchemy(state, recipeId, stability = 75) {
         const recipe = this.alchemyRecipes[recipeId];
         if (!recipe) return { success: false, message: "Unknown recipe." };
 
+        // Check ingredients
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
             if (current < count) return { success: false, message: `Not enough ${item.replace(/_/g,' ')}.` };
         }
 
+        // Consume
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             state.player.inventory.materials[item] -= count;
         }
 
-        if (recipe.type === 'potion') {
-            state.player.inventory.potions++;
-        } else if (recipe.type === 'special') {
-            state.player.inventory.items.push({ name: recipe.name, type: 'consumable' });
-        }
+        let quality = 'Normal';
+        let mult = 1;
+        let success = true;
 
-        return { success: true, message: `The furnace hums with divine Qi. Successfully brewed ${recipe.name}!` };
+        if (stability >= 90) { quality = 'Perfect'; mult = 2; }
+        else if (stability >= 50) { quality = 'Normal'; mult = 1; }
+        else { quality = 'Failed'; success = false; }
+
+        if (success) {
+            const newItem = {
+                name: `${quality === 'Normal' ? '' : quality + ' '}${recipe.name}`,
+                type: 'consumable',
+                effect: { ...recipe.effect }
+            };
+            if (newItem.effect.hp) newItem.effect.hp *= mult;
+            if (newItem.effect.mp) newItem.effect.mp *= mult;
+
+            if (!state.player.inventory.items) state.player.inventory.items = [];
+            state.player.inventory.items.push(newItem);
+            return { success: true, message: `Created a ${quality} ${recipe.name}!`, item: newItem };
+        } else {
+            return { success: false, message: "The Qi fluctuates wildly! The brew is ruined." };
+        }
     }
 };

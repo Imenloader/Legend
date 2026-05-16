@@ -512,17 +512,24 @@ window.STORY = {
         // Execute onEnter if it exists
         if (node.onEnter) node.onEnter(state);
 
+        // Build choices with karma filtering
+        const filteredChoices = (node.choices || []).filter(c => {
+            if (c.karmaReq > 0) return (state.player.karma || 0) >= c.karmaReq;
+            if (c.karmaReq < 0) return (state.player.karma || 0) <= c.karmaReq;
+            return true;
+        });
+
         // Narrate
         narrateFn(node.narration, node.speaker || null, node.speakerSprite || null, false);
 
         // Build choices
-        if (!node.choices || node.choices.length === 0) {
+        if (filteredChoices.length === 0) {
             setChoicesFn([]); // Clear previous choices
             if (node.returnToHub && onComplete) { setTimeout(onComplete, 1500); }
             return;
         }
 
-        const choiceObjects = node.choices.map(c => ({
+        const choiceObjects = filteredChoices.map(c => ({
             text: c.text,
             callback: () => {
                 // Apply karma

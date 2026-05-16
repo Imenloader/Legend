@@ -70,6 +70,47 @@ function showCultivationScreen() {
 // ============================================================
 // ALCHEMY SCREEN - The Furnace of Heaven
 // ============================================================
+
+function startStabilityMiniGame(callback) {
+    clearNarrative();
+    narrate("<b>Qi Condensation Phase</b><br>Stop the fluctuations at their peak stability!", "System", null, false, true);
+    
+    const container = document.createElement('div');
+    container.style.cssText = 'width:100%; height:30px; background:#222; border:1px solid #444; border-radius:15px; position:relative; overflow:hidden; margin:20px 0;';
+    
+    const target = document.createElement('div');
+    target.style.cssText = 'position:absolute; left:45%; width:10%; height:100%; background:var(--jade); opacity:0.5;';
+    
+    const bar = document.createElement('div');
+    bar.style.cssText = 'position:absolute; left:0; width:4px; height:100%; background:#fff; box-shadow:0 0 10px #fff;';
+    
+    container.appendChild(target);
+    container.appendChild(bar);
+    document.getElementById('narrative-window').appendChild(container);
+
+    let pos = 0;
+    let dir = 1;
+    let animId;
+
+    const loop = () => {
+        pos += 2 * dir;
+        if (pos >= 100 || pos <= 0) dir *= -1;
+        bar.style.left = pos + '%';
+        animId = requestAnimationFrame(loop);
+    };
+    loop();
+
+    setChoices([{
+        text: "⚡ CONDENSE QI",
+        callback: () => {
+            cancelAnimationFrame(animId);
+            const dist = Math.abs(pos - 50);
+            const stability = Math.max(0, 100 - (dist * 2));
+            callback(stability);
+        }
+    }]);
+}
+
 function showAlchemyScreen() {
     clearNarrative();
     const mats = state.player.inventory.materials || {};
@@ -83,13 +124,17 @@ function showAlchemyScreen() {
         Object.entries(window.CRAFTING.alchemyRecipes).forEach(([id, r]) => {
             const ingList = Object.entries(r.ingredients).map(([k,v]) => `${v}x ${k.replace(/_/g,' ')}`).join(', ');
             const canCraft = Object.entries(r.ingredients).every(([k,v]) => (mats[k] || 0) >= v);
+            
             choices.push({
-                text: `${canCraft ? '⚗️ ' : '[LOCKED] '}Craft ${r.name} | Needs: ${ingList}`,
+                text: `${canCraft ? '⚗️ ' : '[LOCKED] '}Brew ${r.name} | Needs: ${ingList}`,
                 callback: () => {
-                    const res = window.CRAFTING.craftAlchemy(state, id);
-                    narrate(res.message, 'System', null, false, true);
-                    updateTopBar(); saveGame();
-                    setTimeout(showAlchemyScreen, 1500);
+                    if (!canCraft) return;
+                    startStabilityMiniGame((stability) => {
+                        const res = window.CRAFTING.brewAlchemy(state, id, stability);
+                        narrate(res.message, 'System', null, false, true);
+                        updateTopBar(); saveGame();
+                        setTimeout(showAlchemyScreen, 2000);
+                    });
                 }
             });
         });
@@ -226,4 +271,60 @@ function showSkillTree() {
     }
     setChoices([{ text: "↩ Return", callback: hubLoop }]);
 }
+
+function showAuctionHouse() {
+    clearNarrative();
+    if (!state.activeAuction) {
+        narrate("<b>Sect Auction House</b><br>The hall is quiet. No auctions are currently active.", "System", null, false, true);
+        setChoices([
+            { text: "⏳ Request New Auction", callback: () => { window.AUCTION.start(state); showAuctionHouse(); } },
+            { text: "↩ Return", callback: hubLoop }
+        ]);
+        return;
+    }
+
+    const a = state.activeAuction;
+    narrate(`<b>BIDDING FOR: ${a.item.name}</b>`, "Auction", null, false, true);
+    narrate(`${a.item.desc}<br><br>
+        Current Bid: <b style="color:var(--secondary)">${a.currentBid} Stones</b><br>
+        Highest Bidder: <b>${a.highestBidder}</b><br>
+        Time Remaining: <b>${a.timeLeft}s</b>`, "Auction", null, false, true);
+
+    const bid1 = Math.floor(a.currentBid * 1.1);
+    const bid2 = Math.floor(a.currentBid * 1.5);
+
+    setChoices([
+        { text: `Bid ${bid1} Stones`, callback: () => { if(state.player.gold >= bid1) { window.AUCTION.placeBid(state, state.player.name, bid1); state.player.gold -= bid1; showAuctionHouse(); } } },
+        { text: `Outbid with ${bid2} Stones`, callback: () => { if(state.player.gold >= bid2) { window.AUCTION.placeBid(state, state.player.name, bid2); state.player.gold -= bid2; showAuctionHouse(); } } },
+        { text: "🔄 Refresh", callback: showAuctionHouse },
+        { text: "↩ Return", callback: hubLoop }
+    ]);
+}
+
+function showRebirthScreen() {
+    clearNarrative();
+    narrate("<b>THE HALL OF TRANSMIGRATION</b>", "System", null, false, true);
+    narrate("You have reached the pinnacle of your current life. Will you shed your mortal coil and transcend into a new existence?", "System", null, false, true);
+    
+    if (state.player.lvl < 10) {
+        narrate("<span style='color:var(--danger)'>You must reach Level 10 to Transmigrate.</span>");
+        setChoices([{ text: "↩ Return", callback: hubLoop }]);
+        return;
+    }
+
+    const choices = Object.values(window.REBIRTH.traits).map(t => ({
+        text: `Choose ${t.name} (${t.desc})`,
+        callback: () => {
+            const success = window.REBIRTH.perform(state, t.id);
+            if (success) {
+                narrate("Your soul drifts through the void... and awakens anew.", "System");
+                setTimeout(hubLoop, 2000);
+            }
+        }
+    }));
+    
+    setChoices([...choices, { text: "↩ Not Yet", callback: hubLoop }]);
+}
+
+
 
