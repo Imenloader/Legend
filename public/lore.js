@@ -15,7 +15,8 @@ const REGIONS = {
         ambientColor: '#8a4a00',
         enemies: ['silk_road_bandit', 'corrupted_merchant', 'street_ghost'],
         npcs: ['scheherazade', 'harun_al_rashid', 'li_bai'],
-        lootTable: 'crossroads_loot'
+        lootTable: 'crossroads_loot',
+        x: 400, y: 280
     },
     jade_peak: {
         id: 'jade_peak',
@@ -27,7 +28,8 @@ const REGIONS = {
         ambientColor: '#00a86b',
         enemies: ['corrupted_taoist', 'hungry_ghost', 'dragon_carp', 'fallen_disciple', 'jade_golem'],
         npcs: ['guan_yu', 'ne_zha', 'nuwa', 'zhuge_liang', 'dugu_qiubai'],
-        lootTable: 'jade_loot'
+        lootTable: 'jade_loot',
+        x: 590, y: 175
     },
     empty_quarter: {
         id: 'empty_quarter',
@@ -39,7 +41,8 @@ const REGIONS = {
         ambientColor: '#c8860a',
         enemies: ['desert_ghoul', 'ifrit', 'whispering_shaitan', 'sand_wraith', 'marid_soldier'],
         npcs: ['al_khidr', 'sinbad', 'antar_ibn_shaddad', 'fatima_al_fihri'],
-        lootTable: 'arabian_loot'
+        lootTable: 'arabian_loot',
+        x: 185, y: 360
     },
     abyssal_sea: {
         id: 'abyssal_sea',
@@ -51,7 +54,8 @@ const REGIONS = {
         ambientColor: '#0f52ba',
         enemies: ['sea_dragon_young', 'drowned_immortal', 'qi_leech', 'phantom_admiral', 'celestial_crab'],
         npcs: ['sinbad', 'nuwa'],
-        lootTable: 'sea_loot'
+        lootTable: 'sea_loot',
+        x: 625, y: 370
     },
     brass_city: {
         id: 'brass_city',
@@ -63,7 +67,8 @@ const REGIONS = {
         ambientColor: '#8a1c1c',
         enemies: ['brass_guardian', 'marid_king_guard', 'corrupted_jinn', 'iron_ghoul', 'shaitan_elder'],
         npcs: ['marid_king_murkabad', 'scheherazade'],
-        lootTable: 'brass_loot'
+        lootTable: 'brass_loot',
+        x: 135, y: 195
     },
     celestial_court: {
         id: 'celestial_court',
@@ -75,7 +80,8 @@ const REGIONS = {
         ambientColor: '#d4af37',
         enemies: ['heavenly_guard', 'fallen_immortal_patriarch', 'jade_emperor_guardian', 'divine_council_enforcer'],
         npcs: ['jade_emperor', 'al_khidr', 'nuwa', 'sun_wukong'],
-        lootTable: 'celestial_loot'
+        lootTable: 'celestial_loot',
+        x: 415, y: 72
     }
 };
 
@@ -378,3 +384,30 @@ window.LORE = Object.assign(window.LORE || {}, {
     CHINESE_HEROES, 
     CHINESE_ENEMIES 
 });
+
+// ============================================================
+// EQUIPMENT DATA - The Immortal Armory
+// ============================================================
+window.EQUIPMENT_DATA = {
+    // Weapons
+    spirit_scimitar: { id: 'spirit_scimitar', name: 'Spirit Scimitar', slot: 'weapon', quality: 'Normal', stats: { atk: 12 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'A standard blade tempered with a small amount of spiritual Qi.' },
+    blade_of_badr: { id: 'blade_of_badr', name: 'Blade of Badr', slot: 'weapon', quality: 'Elite', stats: { atk: 45, karma: 5 }, reqLevel: 10, reqStage: 'Foundation Establishment', desc: 'A blessed blade that shines with the resolve of the faithful.' },
+    heaven_cleaving_sword: { id: 'heaven_cleaving_sword', name: 'Heaven-Cleaving Sword', slot: 'weapon', quality: 'Super', stats: { atk: 120 }, reqLevel: 30, reqStage: 'Core Formation', desc: 'An immortal relic said to have been used to divide the clouds of the five heavens.' },
+    
+    // Head
+    spirit_turban: { id: 'spirit_turban', name: 'Spirit Turban', slot: 'head', quality: 'Refined', stats: { def: 5, mp: 10 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'A silk turban woven with protective sutras.' },
+    imamah_of_light: { id: 'imamah_of_light', name: 'Imamah of Divine Light', slot: 'head', quality: 'Elite', stats: { def: 15, mp: 40 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'A radiant head covering that clarifies the mind and strengthens the soul.' },
+
+    // Body
+    robe_of_zuhd: { id: 'robe_of_zuhd', name: 'Robe of Zuhd', slot: 'body', quality: 'Refined', stats: { def: 12, hp: 20 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'A simple, humble robe that offers surprising protection through detachment.' },
+    cloak_of_the_dervish: { id: 'cloak_of_the_dervish', name: 'Cloak of the Whirling Dervish', slot: 'body', quality: 'Unique', stats: { def: 25, evade: 5 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'Flows like the wind, making it difficult for enemies to land a solid blow.' },
+    ihram_of_purity: { id: 'ihram_of_purity', name: 'Ihram of Purity', slot: 'body', quality: 'Super', stats: { def: 60, hp: 150, karma: 20 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'The ultimate armor for a righteous cultivator, vibrating with the power of Hajj.' },
+
+    // Relics
+    dhikr_beads_iron: { id: 'dhikr_beads_iron', name: 'Iron Dhikr Beads', slot: 'relic', quality: 'Normal', stats: { mp: 15 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'Heavy beads that help ground your Qi during meditation.' },
+    misbaha_of_the_saints: { id: 'misbaha_of_the_saints', name: 'Misbaha of the Saints', slot: 'relic', quality: 'Super', stats: { mp: 100, atk: 20 }, reqLevel: 20, reqStage: 'Foundation Establishment', desc: 'Ancient beads that have absorbed the prayers of generations of holy men.' },
+
+    // Accessories
+    seal_of_solomon: { id: 'seal_of_solomon', name: 'Seal of Solomon', slot: 'ring', quality: 'Elite', stats: { atk: 15, mp: 20 }, reqLevel: 18, reqStage: 'Foundation Establishment', desc: 'A legendary ring that grants dominion over jinn and elements.' },
+    sandals_of_buraq: { id: 'sandals_of_buraq', name: 'Sandals of Buraq', slot: 'boots', quality: 'Unique', stats: { def: 8, speed: 10 }, reqLevel: 10, reqStage: 'Qi Condensation', desc: 'Woven with the speed of the heavenly steed.' }
+};

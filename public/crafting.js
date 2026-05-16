@@ -11,35 +11,60 @@ window.CRAFTING = {
             name: 'Minor Health Potion',
             desc: 'Restores 40 HP.',
             ingredients: { 'spirit_herb': 2 },
-            type: 'potion',
-            resultItem: 'potion'
+            type: 'potion'
         },
         'foundation_pill': {
             name: 'Foundation Pill',
             desc: 'Required to breakthrough to Foundation Establishment.',
-            ingredients: { 'spirit_herb': 5, 'monster_core': 1 },
-            type: 'elixir',
-            resultItem: 'foundation_pill'
-        },
-        'iron_skin_elixir': {
-            name: 'Iron Skin Elixir',
-            desc: 'Permanently increases Defense by 2.',
-            ingredients: { 'iron_ore': 3, 'monster_core': 1 },
-            type: 'elixir',
-            resultItem: 'iron_skin_elixir'
+            ingredients: { 'spirit_herb': 5, 'monster_core': 2 },
+            type: 'special'
         }
     },
 
-    craftAlchemy(state, recipeId) {
-        const recipe = this.alchemyRecipes[recipeId];
+    // --- BLACKSMITH (The Spirit Forge) ---
+    forgeRecipes: {
+        'spirit_scimitar': { 
+            name: 'Spirit Scimitar', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 5, 'spirit_herb': 2 },
+            baseStats: { atk: 12 }
+        },
+        'spirit_turban': { 
+            name: 'Spirit Turban', 
+            slot: 'head', 
+            ingredients: { 'spirit_herb': 4 },
+            baseStats: { def: 5, mp: 10 }
+        },
+        'robe_of_zuhd': { 
+            name: 'Robe of Zuhd', 
+            slot: 'body', 
+            ingredients: { 'spirit_herb': 6, 'iron_ore': 2 },
+            baseStats: { def: 12, hp: 20 }
+        }
+    },
+
+    rollQuality() {
+        const roll = Math.random() * 100;
+        if (roll < 1) return 'Super';
+        if (roll < 5) return 'Elite';
+        if (roll < 15) return 'Unique';
+        if (roll < 40) return 'Refined';
+        return 'Normal';
+    },
+
+    getQualityMult(quality) {
+        const map = { 'Normal': 1, 'Refined': 1.2, 'Unique': 1.5, 'Elite': 2.0, 'Super': 3.0 };
+        return map[quality] || 1;
+    },
+
+    craftItem(state, recipeId) {
+        const recipe = this.forgeRecipes[recipeId];
         if (!recipe) return { success: false, message: "Unknown recipe." };
 
         // Check ingredients
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
-            if (current < count) {
-                return { success: false, message: `Not enough ${item}. Need ${count}.` };
-            }
+            if (current < count) return { success: false, message: `Not enough ${item.replace(/_/g,' ')}.` };
         }
 
         // Consume ingredients
@@ -47,66 +72,52 @@ window.CRAFTING = {
             state.player.inventory.materials[item] -= count;
         }
 
-        // Add result
-        if (recipe.type === 'potion') {
-            state.player.inventory.potions++;
-        } else if (recipe.type === 'elixir') {
-            state.player.inventory.elixirs++;
-            if (!state.player.inventory.items) state.player.inventory.items = [];
-            state.player.inventory.items.push(recipe.resultItem);
-        }
+        // Roll Quality
+        const quality = this.rollQuality();
+        const mult = this.getQualityMult(quality);
 
-        return { success: true, message: `Successfully crafted ${recipe.name}!` };
+        const newItem = {
+            id: `${recipeId}_${Date.now()}`,
+            name: `${quality === 'Normal' ? '' : quality + ' '}${recipe.name}`,
+            slot: recipe.slot,
+            quality: quality,
+            stats: {}
+        };
+
+        // Scale stats
+        Object.entries(recipe.baseStats).forEach(([stat, val]) => {
+            newItem.stats[stat] = Math.floor(val * mult);
+        });
+
+        if (!state.player.inventory.items) state.player.inventory.items = [];
+        state.player.inventory.items.push(newItem);
+
+        return { 
+            success: true, 
+            message: `The forge glows white-hot! You created a <b class="loot-${quality.toLowerCase()}">${newItem.name}</b>!`,
+            item: newItem
+        };
     },
 
-    // --- BLACKSMITH (The Spirit Forge) ---
-    upgradeCosts: {
-        1: { gold: 50, materials: { 'iron_ore': 2 } },
-        2: { gold: 100, materials: { 'iron_ore': 4, 'spirit_herb': 1 } },
-        3: { gold: 250, materials: { 'meteor_iron': 1, 'monster_core': 1 } }
-    },
+    craftAlchemy(state, recipeId) {
+        const recipe = this.alchemyRecipes[recipeId];
+        if (!recipe) return { success: false, message: "Unknown recipe." };
 
-    upgradeEquipment(state, slot) {
-        const eqId = state.player.equipment[slot];
-        if (!eqId) return { success: false, message: `No equipment in ${slot} slot.` };
-
-        // We assume eqId is like "iron_sword_1" where 1 is the level.
-        // If it's just "iron_sword", level is 0.
-        let baseId = eqId;
-        let currentLevel = 0;
-        const match = eqId.match(/(.*)_(\d+)$/);
-        if (match) {
-            baseId = match[1];
-            currentLevel = parseInt(match[2]);
-        }
-
-        const nextLevel = currentLevel + 1;
-        const cost = this.upgradeCosts[nextLevel];
-
-        if (!cost) return { success: false, message: "Equipment cannot be upgraded further." };
-
-        // Check gold (assuming karma acts as currency for now, or add gold)
-        // For simplicity, we'll just check materials
-        for (const [item, count] of Object.entries(cost.materials)) {
+        for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
-            if (current < count) {
-                return { success: false, message: `Not enough ${item}. Need ${count}.` };
-            }
+            if (current < count) return { success: false, message: `Not enough ${item.replace(/_/g,' ')}.` };
         }
 
-        // Consume materials
-        for (const [item, count] of Object.entries(cost.materials)) {
+        for (const [item, count] of Object.entries(recipe.ingredients)) {
             state.player.inventory.materials[item] -= count;
         }
 
-        // Upgrade
-        const newEqId = `${baseId}_${nextLevel}`;
-        state.player.equipment[slot] = newEqId;
+        if (recipe.type === 'potion') {
+            state.player.inventory.potions++;
+        } else if (recipe.type === 'special') {
+            state.player.inventory.items.push({ name: recipe.name, type: 'consumable' });
+        }
 
-        // Apply stat changes (In reality, we recalculate stats globally, but we'll bump a base stat here for effect)
-        if (slot === 'weapon') state.player.atk += 5;
-        if (slot === 'armor') state.player.def += 3;
-
-        return { success: true, message: `Upgraded ${slot} to +${nextLevel}!` };
+        return { success: true, message: `The furnace hums with divine Qi. Successfully brewed ${recipe.name}!` };
     }
 };

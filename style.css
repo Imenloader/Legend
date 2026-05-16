@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --primary: #8a1c1c; /* Deep Crimson */
     --primary-glow: rgba(138, 28, 28, 0.6);
     --secondary: #d4af37; /* Metallic Gold */
@@ -64,13 +64,15 @@ html, body {
 .screen {
     width: 90%;
     max-width: 1200px;
-    height: 85%;
+    height: auto;
+    min-height: 85vh;
+    max-height: 98vh;
     background: var(--glass);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
-    padding: 40px;
+    padding: 30px;
     display: none;
     flex-direction: column;
     align-items: center;
@@ -411,9 +413,10 @@ input[type="text"]:focus {
     border-radius: 6px;
     padding: 15px;
     overflow-y: auto;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--text-dim);
     line-height: 1.6;
+    margin-bottom: 15px;
 }
 
 /* --- Narrative Engine Styles --- */
@@ -1053,3 +1056,88 @@ input[type="text"]:focus {
     from { opacity: 0.6; transform: scale(1); }
     to { opacity: 1; transform: scale(1.05); }
 }
+
+/* --- Floating Text FX --- */
+.floating-text {
+    position: absolute;
+    pointer-events: none;
+    font-weight: 900;
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    text-shadow: 0 0 10px rgba(0,0,0,1), 0 0 20px currentColor;
+    z-index: 1000;
+    animation: floatUpAndFade 1.2s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
+}
+
+@keyframes floatUpAndFade {
+    0% { transform: translate(-50%, -20px) scale(0.5); opacity: 0; }
+    20% { transform: translate(-50%, -60px) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -150px) scale(1); opacity: 0; }
+}
+
+/* --- Elemental Auras --- */
+.aura-water { box-shadow: 0 0 30px var(--sapphire), inset 0 0 20px var(--sapphire) !important; border-color: var(--sapphire) !important; }
+.aura-mountain { box-shadow: 0 0 30px #8b4513, inset 0 0 20px #8b4513 !important; border-color: #8b4513 !important; }
+.aura-wind { box-shadow: 0 0 30px #f0f0f0, inset 0 0 20px #f0f0f0 !important; border-color: #f0f0f0 !important; }
+
+/* --- Cultivation Effects --- */
+.meditation-glow {
+    animation: qi-pulse 3s ease-in-out infinite;
+}
+
+@keyframes qi-pulse {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 10px var(--jade)); }
+    50% { filter: brightness(1.3) drop-shadow(0 0 40px var(--jade)); }
+}
+
+.qi-gathering {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, var(--jade) 0%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    animation: gather 1.5s ease-out;
+}
+
+@keyframes gather {
+    0% { transform: scale(3); opacity: 0; }
+    50% { opacity: 0.4; }
+    100% { transform: scale(0.1); opacity: 0; }
+}
+
+/* --- Quality Tiers (Conquer Online Style) --- */
+.loot-normal { color: #ffffff; text-shadow: 0 0 5px #ffffff88; }
+.loot-refined { color: #00ff00; text-shadow: 0 0 10px #00ff0088; }
+.loot-unique { color: #0088ff; text-shadow: 0 0 10px #0088ff88; }
+.loot-elite { color: #e040fb; text-shadow: 0 0 15px #e040fb88; font-weight: bold; }
+.loot-super { color: #f5c842; text-shadow: 0 0 20px #f5c842aa; font-weight: 900; animation: super-glow 2s infinite alternate; }
+
+@keyframes super-glow {
+    from { filter: brightness(1); }
+    to { filter: brightness(1.5) drop-shadow(0 0 10px #f5c842); }
+}
+
+/* --- Feedback Animations --- */
+.shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.damage-flash { animation: flash-red 0.5s; }
+@keyframes flash-red {
+    0% { box-shadow: inset 0 0 100px rgba(255,0,0,0); }
+    50% { box-shadow: inset 0 0 100px rgba(255,0,0,0.5); }
+    100% { box-shadow: inset 0 0 100px rgba(255,0,0,0); }
+}
+
+.heal-flash { animation: flash-green 0.5s; }
+@keyframes flash-green {
+    0% { box-shadow: inset 0 0 100px rgba(0,255,0,0); }
+    50% { box-shadow: inset 0 0 100px rgba(0,255,0,0.4); }
+    100% { box-shadow: inset 0 0 100px rgba(0,255,0,0); }
+}
+
+

@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // STORY.JS — Part 1: Acts I & II — The 5-Act Narrative Tree
 // "Legends of the Jade and Sand: The Immortal Codex"
 // ============================================================
@@ -504,6 +504,7 @@ window.STORY = {
 
         // Build choices
         if (!node.choices || node.choices.length === 0) {
+            setChoicesFn([]); // Clear previous choices
             if (node.returnToHub && onComplete) { setTimeout(onComplete, 1500); }
             return;
         }
