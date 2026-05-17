@@ -783,3 +783,242 @@ input[type="text"]:focus {
 .hub-choice-grid .choice-btn:active {
     transform: translateY(0);
 }
+
+/* ────────────────────────────────────────────────────────
+   CINEMATIC VISUAL NOVEL & PROGRESSION HUD STYLES
+   ──────────────────────────────────────────────────────── */
+
+/* Screen Shake Effect */
+@keyframes screenShake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(0px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(2px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(2px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.screen-shake {
+    animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Screen Flash Effects */
+.screen-flash-white, .screen-flash-jade {
+    position: absolute;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+}
+.screen-flash-white {
+    background: #ffffff;
+    animation: flashAnim 0.6s ease-out forwards;
+}
+.screen-flash-jade {
+    background: #00ffbb;
+    animation: flashAnim 0.8s ease-out forwards;
+}
+@keyframes flashAnim {
+    0% { opacity: 0.85; }
+    100% { opacity: 0; }
+}
+
+/* Cinematic Fullscreen Act Transition Overlays */
+.act-transition-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 8, 12, 0.98);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(20px);
+}
+.act-transition-overlay.active {
+    display: flex;
+    animation: fadeIn 0.8s ease-out forwards;
+}
+.act-transition-content {
+    text-align: center;
+    max-width: 600px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.act-transition-chapter {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    opacity: 0;
+    animation: slideDownFade 0.8s ease-out 0.2s forwards;
+}
+.act-transition-title {
+    font-size: 3rem;
+    font-family: 'Cinzel', serif;
+    color: #fff;
+    text-shadow: 0 0 20px var(--secondary-glow);
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: scaleUpFade 1s cubic-bezier(0.19, 1, 0.22, 1) 0.5s forwards;
+}
+.act-transition-desc {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 35px;
+    opacity: 0;
+    animation: fadeIn 1.5s ease-out 1.2s forwards;
+}
+.act-transition-progress-wrapper {
+    width: 250px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    animation: fadeIn 1s ease-out 1.8s forwards;
+}
+.act-transition-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary) 0%, var(--jade) 100%);
+    box-shadow: 0 0 10px var(--secondary-glow);
+    transition: width 2.2s cubic-bezier(0.1, 0.8, 0.25, 1);
+}
+
+/* Glassmorphic Immortal Chronicle Modal */
+.chronicle-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background: rgba(5, 7, 10, 0.85);
+    backdrop-filter: blur(15px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.chronicle-modal.active {
+    display: flex;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+.chronicle-modal-container {
+    background: var(--glass);
+    border: 1px solid var(--secondary);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 900px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0,0,0,0.9);
+    animation: scaleUp 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.chronicle-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 2.2rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s, transform 0.2s;
+}
+.chronicle-close-btn:hover {
+    color: var(--danger);
+    transform: scale(1.1);
+}
+.chronicle-layout {
+    display: flex;
+    gap: 25px;
+    margin-top: 10px;
+}
+@media (max-width: 768px) {
+    .chronicle-layout {
+        flex-direction: column;
+    }
+}
+.hud-story-progress:hover {
+    transform: translateY(-2px);
+    border-color: var(--secondary) !important;
+    box-shadow: 0 0 15px var(--secondary-glow) !important;
+}
+
+/* Chronicle Timeline Nodes */
+.timeline-node {
+    border-left: 2px solid var(--glass-border);
+    padding-left: 18px;
+    position: relative;
+    padding-bottom: 15px;
+    animation: slideRightFade 0.4s ease-out forwards;
+}
+.timeline-node::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    background: var(--secondary);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--secondary-glow);
+    border: 2px solid var(--bg-dark);
+}
+.timeline-node.demonic::before {
+    background: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
+}
+.timeline-node.saintly::before {
+    background: var(--jade);
+    box-shadow: 0 0 8px var(--jade);
+}
+
+/* Realtime Alignment Indicator Pointer */
+.karma-pointer {
+    box-shadow: 0 0 12px #fff, 0 0 4px var(--secondary);
+}
+.karma-pointer::after {
+    content: '▼';
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: #fff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideDownFade {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 0.8; }
+}
+@keyframes scaleUpFade {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+@keyframes scaleUp {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+@keyframes slideRightFade {
+    from { transform: translateX(-15px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+

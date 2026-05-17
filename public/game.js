@@ -297,11 +297,88 @@ function parsePerspective(text) {
     return text;
 }
 
+// Typewriter Animation State
+let currentTypewriteInterval = null;
+let currentTypewriteResolve = null;
+
+function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
+    if (currentTypewriteInterval) {
+        clearInterval(currentTypewriteInterval);
+        currentTypewriteInterval = null;
+    }
+    if (currentTypewriteResolve) {
+        currentTypewriteResolve();
+        currentTypewriteResolve = null;
+    }
+
+    // Separate HTML tags from text characters so tags render instantly
+    const tokens = [];
+    let i = 0;
+    while (i < textHtml.length) {
+        if (textHtml[i] === '<') {
+            let tag = '';
+            while (i < textHtml.length && textHtml[i] !== '>') {
+                tag += textHtml[i];
+                i++;
+            }
+            if (i < textHtml.length) {
+                tag += '>';
+                i++;
+            }
+            tokens.push({ type: 'tag', content: tag });
+        } else {
+            tokens.push({ type: 'text', content: textHtml[i] });
+            i++;
+        }
+    }
+
+    containerElement.innerHTML = '';
+    let tokenIndex = 0;
+
+    // Skip typing on click to let impatient players read quickly
+    const skipTyping = () => {
+        if (currentTypewriteInterval) {
+            clearInterval(currentTypewriteInterval);
+            currentTypewriteInterval = null;
+            containerElement.innerHTML = textHtml;
+            document.removeEventListener('click', skipTyping);
+            if (callback) callback();
+        }
+    };
+    
+    document.addEventListener('click', skipTyping);
+
+    currentTypewriteInterval = setInterval(() => {
+        if (tokenIndex >= tokens.length) {
+            clearInterval(currentTypewriteInterval);
+            currentTypewriteInterval = null;
+            document.removeEventListener('click', skipTyping);
+            if (callback) callback();
+            return;
+        }
+
+        while (tokenIndex < tokens.length && tokens[tokenIndex].type === 'tag') {
+            containerElement.innerHTML += tokens[tokenIndex].content;
+            tokenIndex++;
+        }
+
+        if (tokenIndex < tokens.length) {
+            containerElement.innerHTML += tokens[tokenIndex].content;
+            
+            // Subtle sound click every 4 characters to feel premium
+            if (tokenIndex % 4 === 0 && window.AUDIO) {
+                window.AUDIO.playEffect('menu_click');
+            }
+            tokenIndex++;
+        }
+    }, speed);
+}
+
 function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, isSystem = false, bgImage = null) {
     try {
         const safeText = text || '...';
         
-        // Cinematic Mode logic
+        // Cinematic Novel Mode logic
         if (bgImage) {
             const overlay = document.getElementById('cinematic-overlay');
             const box = document.getElementById('novel-box');
@@ -311,7 +388,10 @@ function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, is
                 overlay.style.backgroundImage = `url('${bgImage}')`;
                 overlay.classList.add('active');
                 spk.textContent = speaker || "???";
-                cnt.innerHTML = safeText;
+                
+                // Animate text typing
+                typewriteText(cnt, safeText, 12);
+                
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 return;
             }
@@ -348,14 +428,21 @@ function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, is
         }
         
         const finalText = isSystem ? safeText : parsePerspective(safeText);
-        contentHtml += `<p style="margin: 0; color: ${isSystem ? 'var(--secondary)' : 'var(--text)'};">${finalText}</p>`;
+        const paragraphId = 'narrative-text-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        contentHtml += `<p id="${paragraphId}" style="margin: 0; color: ${isSystem ? 'var(--secondary)' : 'var(--text)'};"></p>`;
         
         block.innerHTML = contentHtml;
         narrativeWindow.appendChild(block);
+        
+        const pElement = document.getElementById(paragraphId);
+        if (pElement) {
+            typewriteText(pElement, finalText, 6, () => {
+                block.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            });
+        }
         block.scrollIntoView({ behavior: 'smooth', block: 'end' });
     } catch (err) {
         console.error("Narrative Error:", err);
-        // Fallback: simple alert or toast if critical
         showToast("The Dao is clouded... (Rendering Error)");
     }
 }
@@ -373,16 +460,52 @@ function spawnFloatingText(text, x, y, color = '#fff') {
 }
 function triggerScreenShake() {
     const screen = document.querySelector('.screen.active');
-    if (screen) { screen.classList.add('shake'); setTimeout(() => screen.classList.remove('shake'), 400); }
+    if (screen) {
+        screen.classList.add('screen-shake');
+        setTimeout(() => screen.classList.remove('screen-shake'), 400);
+    }
 }
 function triggerFlash(type = 'damage') {
-    const screen = document.querySelector('.screen.active');
-    if (!screen) return;
-    const cls = type === 'damage' ? 'damage-flash' : 'heal-flash';
-    screen.classList.add(cls);
-    setTimeout(() => screen.classList.remove(cls), 500);
+    const activeScreen = document.querySelector('.screen.active') || document.getElementById('game-container');
+    if (!activeScreen) return;
+    const flash = document.createElement('div');
+    flash.className = (type === 'jade' || type === 'heal') ? 'screen-flash-jade' : 'screen-flash-white';
+    activeScreen.appendChild(flash);
+    setTimeout(() => flash.remove(), 800);
 }
-function clearNarrative() { narrativeWindow.innerHTML = ''; }
+function triggerActTransition(title, desc, onComplete) {
+    const overlay = document.getElementById('act-transition-overlay');
+    const titleEl = document.getElementById('act-transition-title');
+    const descEl = document.getElementById('act-transition-desc');
+    const bar = document.getElementById('act-transition-progress-bar');
+    
+    if (!overlay || !titleEl || !descEl || !bar) {
+        if (onComplete) onComplete();
+        return;
+    }
+    
+    if (window.AUDIO) {
+        window.AUDIO.playEffect('level_up');
+    }
+    
+    titleEl.textContent = title;
+    descEl.textContent = desc;
+    bar.style.width = '0%';
+    overlay.classList.add('active');
+    
+    setTimeout(() => {
+        bar.style.width = '100%';
+    }, 150);
+    
+    setTimeout(() => {
+        overlay.classList.remove('active');
+        if (onComplete) onComplete();
+    }, 2800);
+}
+function clearNarrative() {
+    const narrativeWindow = document.getElementById('narrative-window');
+    if (narrativeWindow) narrativeWindow.innerHTML = '';
+}
 function setChoices(choicesArray) {
     if (!choiceEngine) choiceEngine = document.getElementById('choice-engine');
     if (!choiceEngine) return;
@@ -584,7 +707,43 @@ function hubLoop() {
     state.narrative_node = 'hub';
     state.currentEnemy = null;
     updateTopBar();
+
+    if (typeof updateHubStoryProgress === 'function') {
+        updateHubStoryProgress(state);
+    }
+
     if (window.STORY) {
+        if (typeof window.STORY.validateCurrentState === 'function') {
+            window.STORY.validateCurrentState(state);
+        }
+
+        // Check for Act Transitions
+        const flags = state.storyFlags || {};
+        if (flags['act5_started'] && !flags['act5_transition_shown']) {
+            flags['act5_transition_shown'] = true;
+            saveGame();
+            triggerActTransition("ACT V: THE GREAT CONVERGENCE", "The final barrier shatters. Ascend, conquer, or walk the balanced path.", () => hubLoop());
+            return;
+        }
+        if (flags['act4_started'] && !flags['act4_transition_shown']) {
+            flags['act4_transition_shown'] = true;
+            saveGame();
+            triggerActTransition("ACT IV: SIEGE OF CROSSROADS", "Hold the gates. Secure the Silk Road from the wrath of the rogue sects.", () => hubLoop());
+            return;
+        }
+        if (flags['act3_started'] && !flags['act3_transition_shown']) {
+            flags['act3_transition_shown'] = true;
+            saveGame();
+            triggerActTransition("ACT III: THE MIRROR OF MEMORY", "Unveil the ancient path of the Fallen Immortal and your true origins.", () => hubLoop());
+            return;
+        }
+        if (flags['act2_started'] && !flags['act2_transition_shown']) {
+            flags['act2_transition_shown'] = true;
+            saveGame();
+            triggerActTransition("ACT II: CELESTIAL STRIFE", "Sufi and Jade gather like thunderclouds over the high pass.", () => hubLoop());
+            return;
+        }
+
         const beatId = window.STORY.getNextBeat(state);
         if (beatId) {
             clearNarrative();

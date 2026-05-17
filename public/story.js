@@ -533,6 +533,9 @@ window.STORY = {
 
     // Get the next story beat to trigger based on player stage
     getNextBeat(state) {
+        // Heal and validate state first
+        this.validateCurrentState(state);
+
         if (!this.hasFlag(state, 'womb_complete')) return 'womb_start';
         if (!this.hasFlag(state, 'act1_started')) return 'act1_intro';
         if (state.player.lvl >= 3 && !this.hasFlag(state, 'act2_started')) return 'act2_intro';
@@ -541,6 +544,35 @@ window.STORY = {
         if (state.player.lvl >= 9 && this.hasFlag(state, 'act3_mirror_completed') && !this.hasFlag(state, 'act4_started')) return 'act4_intro';
         if (state.player.lvl >= 10 && this.hasFlag(state, 'act4_completed') && !this.hasFlag(state, 'act5_started')) return 'act5_intro';
         return null; // No pending beat — continue free roam
+    },
+
+    // Ensure story state never collapses, healing missing story links/flags automatically
+    validateCurrentState(state) {
+        if (!state) return;
+        if (!state.storyFlags) state.storyFlags = {};
+        
+        // Healing rules for progressive story integrity
+        if (state.player.lvl >= 3 && !state.storyFlags['womb_completed']) {
+            state.storyFlags['womb_completed'] = true;
+        }
+        if (state.player.lvl >= 6 && !state.storyFlags['act2_started']) {
+            state.storyFlags['act2_started'] = true;
+            state.storyFlags['harun_met'] = true;
+        }
+        if (state.player.lvl >= 9 && !state.storyFlags['act3_started']) {
+            state.storyFlags['act3_started'] = true;
+            state.storyFlags['act3_mirror_completed'] = true;
+        }
+        if (state.player.lvl >= 10 && !state.storyFlags['act4_started']) {
+            state.storyFlags['act4_started'] = true;
+            state.storyFlags['act4_completed'] = true;
+        }
+        
+        // Check active node integrity
+        if (state.narrative_node && state.narrative_node !== 'hub' && !this.get(state.narrative_node)) {
+            console.warn(`Healing narrative: Node '${state.narrative_node}' missing. Resetting to hub.`);
+            state.narrative_node = 'hub';
+        }
     },
 
     // Unlock a region in the LORE data
