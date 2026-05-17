@@ -1232,3 +1232,89 @@ input[type="text"]:focus {
     box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
 }
 
+/* --- Premium Responsive Media Queries --- */
+@media (max-width: 768px) {
+    .screen {
+        width: 96%;
+        height: 96%;
+        padding: 20px;
+    }
+    .screen::before, .screen::after {
+        width: 15px;
+        height: 15px;
+        border-width: 2px;
+    }
+    h1 {
+        font-size: 2.2rem;
+    }
+    h2 {
+        font-size: 1.6rem;
+    }
+    .class-selector {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+        width: 100%;
+    }
+    .class-card {
+        padding: 10px;
+    }
+    .card-image-wrapper {
+        width: 75px;
+        height: 75px;
+    }
+    .class-card h3 {
+        font-size: 1rem;
+    }
+    .class-card p {
+        font-size: 0.8rem;
+        display: none; /* Hide descriptions on tablets for neatness */
+    }
+    .novel-text-box {
+        padding: 15px;
+        width: 96%;
+    }
+    .novel-text-box p {
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+}
+
+@media (max-width: 480px) {
+    .screen {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        padding: 15px;
+        border: none;
+    }
+    .screen::before {
+        top: 8px;
+        left: 8px;
+    }
+    .screen::after {
+        bottom: 8px;
+        right: 8px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    h2 {
+        font-size: 1.3rem;
+    }
+    .class-selector {
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+    }
+    .card-image-wrapper {
+        width: 65px;
+        height: 65px;
+    }
+    .btn {
+        padding: 10px 15px;
+        font-size: 0.95rem;
+    }
+    #game-container::after {
+        background: radial-gradient(circle at center, transparent 0%, rgba(5,8,12,0.9) 100%);
+    }
+}
+
