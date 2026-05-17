@@ -1,347 +1,348 @@
 // ============================================================
-// LORE.JS — Part 2: Arabian Heroes, Enemies, Loot & NPC Engine
+// LORE_PART2.JS — الجزء الثاني: أبطال الشرق، الأعداء، الغنائم ومحرك الشخصيات
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
-// --- ARABIAN & ISLAMIC LEGENDARY HEROES ---
+// --- أبطال ورفاق الشرق التاريخيين والأساطير ---
 const ARABIAN_HEROES = {
     tariq_ibn_ziyad: {
         id: 'tariq_ibn_ziyad',
-        name: 'Tariq ibn Ziyad',
-        title: 'Conqueror of the Pillars of Hercules',
+        name: 'طارق قائد الفرسان الأبي',
+        title: 'قائد غزاة الفجر ومحرق سفن التراجع',
         origin: 'crossroads',
         sprite: 'assets/tariq_ibn_ziyad.png',
         alignment: 'lawful_good',
         karmaRequirement: -100,
         affinity: 50,
         personality: 'fearless_commander',
-        description: 'He burned his own ships on the shore of Iberia so his army could not retreat. He fights not to survive, but to conquer.',
+        description: 'حرق سفن جيشه بالكامل على شطوط الأندلس عشان يمنع التراجع أو اليأس. مبيحاربش عشان يعيش وبس، بل عشان ينشر النور ويهزم الطغيان.',
         dialogue: {
             greet: [
-                '"The ships are burned. There is only forward. Are you with me?"',
-                '"I have crossed seas and broken kingdoms. What is one enemy to us?"'
+                '"السفن اتحرقت يا سالك. مفيش رجوع، السكة قدامنا وبس. إنت معايا؟"',
+                '"أنا عبرت بحار وكسرت حصون الملوك الطغاة. تفتكر كام عدو خايب هيوقفنا النهاردة؟!"'
             ],
-            battle_cry: ['"Burn the ships! FORWARD!"', '"Victory or martyrdom — both are honored!"'],
-            high_affinity: '"I have fought beside caliphs and kings. You fight with more purpose than any of them."',
-            burn_ships_use: '"We cannot go back. We do not want to. CHARGE!"'
+            battle_cry: ['"احرقوا السفن! للآمااام بالحق!"', '"النصر أو الشهادة والخلود — الطريقين فيهم شرف كبير!"'],
+            high_affinity: '"أنا حاربت مع ملوك وقادة جيوش.. إنت همتك ونية قلبك فيها شرف ونبل أكتر منهم كلهم."',
+            burn_ships_use: '"مفيش رجوع، ومبنتمناهوش أصلاً. هجووووم بالحق!"'
         },
-        passiveBuff: { stat: 'atk', bonus: 0.20, label: '+20% Attack. Cannot flee combat.' },
+        passiveBuff: { stat: 'atk', bonus: 0.20, label: '+20% هجوم أساسي. ممنوع الهروب من المعارك.' },
         uniqueAbility: {
-            name: 'Burn the Ships',
+            name: 'حرق سفن التراجع',
             mpCost: 0,
-            description: 'For 3 turns, all attacks deal +50% damage. You cannot flee or defend.',
+            description: 'لمدة 3 أدوار، كل ضرباتك بتسبب +50% ضرر، بس ممنوع الدفاع أو الهروب من ساحة القتال.',
             effect: 'berserker_mode'
         },
-        questArc: 'The Seventh Shore',
-        secretMotivation: 'He carries guilt for the soldiers lost in his campaigns and seeks one final victory that gives their deaths meaning.'
+        questArc: 'الشاطئ السابع والعهد الأخير',
+        secretMotivation: 'شايل في قلبه حزن على الفرسان اللي راحوا في الفتوحات القديمة، وبيدور على نصر أخير يعطي لموتهم معنى روحي خالد.'
     },
     al_khidr: {
         id: 'al_khidr',
-        name: 'Al-Khidr',
-        title: 'The Green One, The Immortal Guide',
+        name: 'الشيخ الخضر العارف',
+        title: 'صاحب عين البركة والهدى السحري الممتد',
         origin: 'empty_quarter',
         sprite: 'assets/al_khidr.png',
         alignment: 'true_neutral',
         karmaRequirement: -100,
         affinity: 0,
         personality: 'cryptic_sage',
-        description: 'He appears at rivers, crossroads, and moments of crisis. He does things that seem wrong — and are always right. He will never fully explain himself.',
+        description: 'بيظهر فجأة عند الأنهار، ومفترق الطرق، ولحظات الكوارث الكبرى. بيعمل حاجات تبان للناس العادية غلط — بس نهايتها دايماً خير وبركة ويقين. مبيشرحش نواياه لحد بسهولة.',
         dialogue: {
             greet: [
-                '"You will be angry at me before this is over. Come anyway."',
-                '"I have been waiting at this crossroads for eighty years. I knew you would come before you did."'
+                '"أنا عارف إنك هتغضب من أفعالي قبل ما الرحلة دي تخلص. بس كمل معايا برضه."',
+                '"أنا مستنيك هنا عند مفترق الطرق ده بقالي تمانين سنة. وعارف إنك جاي من قبل ما تولد أصلاً."'
             ],
             cryptic_prophecy: [
-                '"The wall that seems useless holds a treasure the orphan will need in thirty years. Leave it standing."',
-                '"That boat you want to destroy? Trust me."'
+                '"الجدار اللي باين ملوش لازمة ومكسور، تحته كنز كبير ليتيمين في المدينة بعد تلاتين سنة. سيبه واقف زي ما هو."',
+                '"المركب اللي إنت عايز تكسرها وتغرقها؟ ثق في التدبير الإلهي والبركة."'
             ],
-            high_affinity: '"Most who travel with me leave in anger. You began to understand. That is rare."',
-            appear_randomly: '"I appeared because you were about to make a very permanent mistake."'
+            high_affinity: '"معظم اللي مشيوا معايا سابوني في غضب وضيق. إنت بدأت تفهم وتصبر. وده نادر جداً في زماننا."',
+            appear_randomly: '"أنا ظهرت دلوقتي لأنك كنت على وشك تعمل غلطة أبدية تقفل قنوات نورك للأبد."'
         },
-        passiveBuff: { stat: 'all', bonus: 0, label: 'Appears randomly to prevent fatal mistakes. Gives quest hints.' },
+        passiveBuff: { stat: 'all', bonus: 0, label: 'بيظهر عشوائي لمنع الموت المفاجئ، وبيدي تلميحات أسطورية للمهام.' },
         uniqueAbility: {
-            name: 'The Living Water',
+            name: 'رِقية نبع الخلود الأبدي',
             mpCost: 50,
-            description: 'Fully restores the player and removes all curses. Usable once per act.',
+            description: 'بترجع الصحة والمانا بالكامل وبتشيل كل اللعنات عن السالك والرفيق. تستخدم مرة واحدة في Act.',
             effect: 'act_once_full_restore'
         },
-        questArc: 'Where the Two Seas Meet',
-        secretMotivation: 'He is testing if the player is worthy of receiving divine knowledge that could end — or ignite — the conflict between worlds.'
+        questArc: 'مجمع البحرين والسر الصافي',
+        secretMotivation: 'بيختبر نية وقلب السالك عشان يشوف هل يستحق يستلم علم البركة الأكبر اللي يقدر ينهي الحرب بين العوالم.'
     },
     sinbad: {
         id: 'sinbad',
-        name: 'Sinbad the Sailor',
-        title: 'Seven Voyages, Zero Regrets',
+        name: 'السندباد البحري',
+        title: 'صاحب الرحلات السبع وقاهر المحال والغيلان',
         origin: 'crossroads',
         sprite: 'assets/sinbad.png',
         alignment: 'chaotic_good',
         karmaRequirement: -100,
         affinity: 0,
         personality: 'adventurous_merchant',
-        description: 'He has ridden a giant roc, escaped a valley of diamonds, and traded with kings and monsters. He is the key to unlocking the Abyssal Sea region.',
+        description: 'ركب على ضهر طائر الرخ، وهرب من وادي الألماس، وتاجر مع الملوك والغيلان ومردة البحر. هو المفتاح لفتح منطقة بحر النور اللجي الأسطورية.',
         dialogue: {
-            greet: ['"Sit — let me tell you about the island that was a whale before I tell you where we\'re going."'],
-            unlock_sea: '"I know a route to the Abyssal Sea of Qi. Dangerous? Catastrophically. Are you in?"',
-            battle_cry: ['"Seventh voyage style!"', '"I\'ve fought bigger!"']
+            greet: ['"اقعد.. ارتاح واشرب شاي، وخليني أحكيلك عن الجزيرة اللي كانت حوت نايم قبل ما أقولك إحنا رايحين فين."'],
+            unlock_sea: '"أنا عارف سكة وبوابات بحر النور اللجي. خطيرة؟ جداً وبحد السيف. تحب تخوض التجربة معايا؟"',
+            battle_cry: ['"على طريقة الرحلة السابعة الأسطورية!"', '"أنا واجهت غيلان وحيتان أكبر من ده بكتير!"']
         },
-        passiveBuff: { stat: 'exploration', bonus: 0, label: 'Unlocks Abyssal Sea. Finds double loot on sea exploration.' },
+        passiveBuff: { stat: 'exploration', bonus: 0, label: 'بيفتح منطقة بحر النور. وبيزود غنائم الكشوفات البحرية للضعف.' },
         uniqueAbility: {
-            name: 'Roc Feather Summon',
+            name: 'استدعاء طائر الرخ الجبار',
             mpCost: 40,
-            description: 'Summons a giant roc to carry the player over an obstacle or deal massive area damage.',
+            description: 'بيستدعي طائر الرخ الأسطوري من السما عشان يشيلك فوق العقبات أو يضرب كل الأعداء بضرر هائل.',
             effect: 'area_damage_or_bypass'
         },
-        questArc: 'The Eighth Voyage',
-        secretMotivation: 'On his seventh voyage, Sinbad lost his closest friend to the sea. He has been searching for a way back ever since.'
+        questArc: 'الرحلة الثامنة والبر الثائر',
+        secretMotivation: 'في رحلته السابعة، السندباد خسر شريكه المقرب في أعماق البحر. وبيدور على طريقة سحرية عشان يرجعه من وقتها.'
     },
     saladin: {
         id: 'saladin',
-        name: 'Salah ad-Din Yusuf ibn Ayyub',
-        title: 'Saladin, Sultan of Honor',
+        name: 'السلطان صلاح الدين النبيل',
+        title: 'سلطان النخوة وشرف الفرسان الأبية',
         origin: 'empty_quarter',
         sprite: 'assets/saladin.png',
         alignment: 'lawful_good',
         karmaRequirement: 50,
         affinity: 0,
         personality: 'chivalrous_ruler',
-        description: 'He recaptured Jerusalem without massacring its people. He defines Furusiyya — the chivalric code — not as a rule but as a way of being.',
+        description: 'حرر الديار والقدس من غير ما يقتل أو يغدر بالضعفاء أو يمسك مدني بسوء. بيعرف نخوة وشرف الفرسان كمنهاج حياة وولاية إلهية كاملة.',
         dialogue: {
             greet: [
-                '"I do not measure a warrior by their victories. I measure them by how they treat those they have defeated."',
-                '"Suffering is a better teacher than triumph."'
+                '"أنا مبيقيس الفارس بانتصاراته وبس. أنا بقيسه بكيفية معاملته للأسرى والضعفاء اللي غلبهم."',
+                '"المحن والابتلاءات بتعلم النفوس الطيبة أكتر بكتير من التمكين والجاه."'
             ],
-            test_event: 'Saladin places a wounded enemy soldier at your feet and says nothing. How you treat them determines if he fights with you.',
-            high_affinity: '"You remind me of what I hoped I was in my youth. Fight on."'
+            test_event: 'السلطان صلاح الدين بيحط قدامك جندي عدو مصاب وتعبان ومبيقولش حاجة. معاملتك للجندي ده هي اللي هتحدد هل هينضم لرحلتك كحليف وفي ولا لأ.',
+            high_affinity: '"إنت بتفكرني باللي كنت بتمناه لنفسي في أيام شبابي. كمل على طريق الخير والعدل."'
         },
-        passiveBuff: { stat: 'karma', bonus: 10, label: '+10 Karma per battle. Unlocks Furusiyya honor moves.' },
+        passiveBuff: { stat: 'karma', bonus: 10, label: '+10 نقاط كارما وبركة مع كل معركة قتالية. بيفتح مهارات نخوة الفرسان.' },
         uniqueAbility: {
-            name: 'The Chivalric Demand',
+            name: 'نداء شرف الفرسان والنخوة',
             mpCost: 25,
-            description: 'Demand surrender by Furusiyya code. Low-morale enemies stand down. Grants bonus karma.',
+            description: 'نداء بعهد الشرف بيخلي الأعداء ضعاف الهمة يستسلموا فوراً ويديك نقاط كارما وبركة إضافية.',
             effect: 'honorable_surrender'
         },
-        questArc: 'The Unbroken Covenant',
-        secretMotivation: 'Haunted by one battle where he could not prevent a massacre. He needs one righteous act to balance that weight.'
+        questArc: 'العهد الميثاقي الذي لا ينكسر',
+        secretMotivation: 'حزين بسبب معركة قديمة مقدرش يمنع فيها الغدر والدمار. ومحتاج عمل صالح عظيم يرجع السكينة لقلبه الصافي.'
     },
     antar_ibn_shaddad: {
         id: 'antar_ibn_shaddad',
-        name: 'Antar ibn Shaddad',
-        title: 'The Black Knight of the Desert',
+        name: 'عنترة الفارس المغوار',
+        title: 'سيف البادية الصامد وشاعر الحرب والجسارة',
         origin: 'crossroads',
         sprite: 'assets/desert_knight_1778872351281.png',
         alignment: 'lawful_good',
         karmaRequirement: 0,
         affinity: 0,
         personality: 'fearless_warrior',
-        description: 'Born a slave, he earned his freedom and the love of Abla through ten thousand feats of arms. He is the greatest poet-warrior of pre-Islamic Arabia.',
+        description: 'اتولد عبد بسيط، بس كسب حريته وود عبلة بعشرة آلاف غزوة وموقف نخوة وجسارة. هو أعظم شاعر وفارس قتالي في تاريخ البادية العريقة.',
         dialogue: {
             greet: [
-                '"My sword and my poems are for those who deserve them. Which are you?"',
-                '"I have faced lions and armies alone. This quest is but a walk in the garden."'
+                '"سيفي وقصايدي معمولين للي يستحقهم ونصرة المظلوم. تفتكر إنت مين فيهم؟"',
+                '"أنا واجهت أسود وكتائب لوحدي في واد الرمال. الرحلة دي بالنسبة لينا زي النزهة الفخمة ببستان النور."'
             ],
-            battle_cry: ['"FOR ABLA! FOR HONOR!"', '"The desert remembers my name!"'],
-            high_affinity: '"I would write a poem for you, but only your enemies\' blood will suffice today."'
+            battle_cry: ['"عشان عبلة! عشان الشرف والكرامة!"', '"البادية والصحرا حافظة اسم عنترة وسيفه البتار!"'],
+            high_affinity: '"أنا كان نفسي أكتب قصيدة فخر في جدعنتك، بس دم العدو على سيفك النهاردة أحلى وأبلغ من أي كلام!"'
         },
-        passiveBuff: { stat: 'atk', bonus: 0.15, label: '+15% Attack. War poems reduce enemy morale.' },
+        passiveBuff: { stat: 'atk', bonus: 0.15, label: '+15% هجوم إضافي. قصائد الحماسة بتهز أعصاب وهمة الأعداء.' },
         uniqueAbility: {
-            name: 'The War Poem',
+            name: 'قصيدة الحماسة والجسارة',
             mpCost: 20,
-            description: 'Reduces enemy attack by 30% and grants the player +20% damage for 2 turns.',
+            description: 'بتقلل هجوم الأعداء بـ 30% وتديك +20% زيادة ضرر وضياء لمدتين كاملين.',
             effect: 'debuff_enemy_buff_player'
         }
     },
     harun_al_rashid: {
         id: 'harun_al_rashid',
-        name: 'Harun al-Rashid',
-        title: 'The Wise Caliph of the Golden Age',
+        name: 'الخليفة هارون الرشيد',
+        title: 'سلطان الحكمة والعصر الذهبي للأنوار',
         origin: 'crossroads',
         sprite: 'assets/sufi_mystic_1778872363338.png',
         alignment: 'lawful_neutral',
         karmaRequirement: 0,
         affinity: 0,
         personality: 'just_ruler',
-        description: 'The most famous caliph of the Abbasid dynasty, patron of the House of Wisdom. He rules with a balance of cold logic and deep spiritual insight.',
+        description: 'أشهر خلفاء ديوان الحكمة وبغداد العظمى، راعي بيت العلوم والأنوار الروحية. بيحكم بذكاء عالي، وجمع بين المنطق الروحي والحكمة الإلهية.',
         dialogue: {
             greet: [
-                '"The ink of a scholar is more holy than the blood of a martyr. Remember that before you draw your sword."',
-                '"Welcome to the Golden Age. Do not break anything."'
+                '"حبر العلماء والكتب الروحية أطهر عند الله من دم الفرسان. افتكر ده كويس قبل ما تسحب سيفك."',
+                '"أهلاً بيك في ديوان العصر الذهبي. حاول متكسرش أي تميمة أو إناء علم هنا."'
             ],
-            high_affinity: '"I have many advisors, but few friends. You have earned your seat at my table."'
+            high_affinity: '"أنا عندي مستشارين كتير بيكدبوا، بس الأصحاب الحقيقيين قليلين. إنت كسبت مقامك ومقعدك في ديواني."'
         },
-        passiveBuff: { stat: 'xp', bonus: 0.15, label: '+15% XP Gain from all sources.' },
+        passiveBuff: { stat: 'xp', bonus: 0.15, label: '+15% زيادة في كسب الخبرة والبركة الروحية من كل المصادر.' },
         uniqueAbility: {
-            name: 'House of Wisdom Insight',
+            name: 'بصيرة بيت الحكمة الكبرى',
             mpCost: 35,
-            description: 'Reveal all enemy moves and reduce their defenses by 20%.',
+            description: 'بيقرأ ويكشف كل حركات وخطط ورموز العدو ويقلل دفاعهم وقوتهم بـ 20% بالكامل.',
             effect: 'reveal_all_enemy_moves'
         }
     },
     ibn_battuta: {
         id: 'ibn_battuta',
-        name: 'Ibn Battuta',
-        title: 'The Greatest Traveler of the Middle Ages',
+        name: 'ابن بطوطة الرحالة',
+        title: 'طائف الآفاق ومكتشف أسرار العوالم والطرق',
         origin: 'crossroads',
         sprite: 'assets/sufi_mystic_1778872363338.png',
         alignment: 'true_neutral',
         karmaRequirement: -100,
         affinity: 0,
         personality: 'curious_explorer',
-        description: 'He traveled more than 75,000 miles, visiting nearly every Islamic country and many beyond. He knows the secret paths between realms.',
+        description: 'عبر أكتر من 75,000 ميل، وزار كل بلد وواحة وطريقة روحية في أنحاء المعمورة. عارف كل السكك الضيقة والممرات السرية بين الأقاليم.',
         dialogue: {
             greet: [
-                '"Traveling — it leaves you speechless, then turns you into a storyteller."',
-                '"I have seen the end of the world. It looks a lot like this city, actually."'
+                '"السفر والرحلة.. بيسيبوك مذهول وساكت الأول، وبعدين بيحولك لراوي حكايات حكيم."',
+                '"أنا شفت آخر العالم وقمم السحاب. وشكلها مش مختلف كتير عن الواحة الجميلة دي."'
             ],
-            high_affinity: '"Of all the travelers I have met, you have the most interesting dust on your boots."'
+            high_affinity: '"من وسط كل السالكين اللي قابلتهم، جزمتك عليها تراب سكة غريب وجميل أوي. وراك حكاية."'
         },
-        passiveBuff: { stat: 'speed', bonus: 0.1, label: 'Reduced chance of being ambushed. Unlocks hidden shortcuts.' },
+        passiveBuff: { stat: 'speed', bonus: 0.1, label: 'تقليل فرصة وقوعك في فخ أو كمين بري، وفتح طرق وممرات سرية مختصرة.' },
         uniqueAbility: {
-            name: 'World-Traveler Step',
+            name: 'خطوة طائف الآفاق السريعة',
             mpCost: 30,
-            description: 'Dodge the next 2 enemy attacks completely.',
+            description: 'تأمل وحركة خاطفة بتخليك تفادي وتتجنب هجمات العدو بالكامل لمدتين ورا بعض.',
             effect: 'perfect_dodge_2'
         }
     },
     al_jazari: {
         id: 'al_jazari',
-        name: 'Al-Jazari',
-        title: 'The Father of Robotics',
+        name: 'الحكيم الجزري المهندس',
+        title: 'صانع العجائب النحاسية ومحرك التماثيل الروحية',
         origin: 'crossroads',
         sprite: 'assets/al_jazari.png',
         alignment: 'neutral_good',
         karmaRequirement: -100,
         affinity: 0,
         personality: 'inventive_engineer',
-        description: 'A mechanical genius who created automata, water clocks, and the crankshaft. He can repair nearly anything.',
+        description: 'عبقري الميكانيكا والآلات الأثرية النحاسية. اخترع الساعات المائية، والتماثيل الآلية اللي بتتحرك بنور المانا والتروس الروحية. يقدر يصلح أي سلاح مكسور.',
         dialogue: {
             greet: [
-                '"All nature is a clockwork if you look closely enough."',
-                '"Need something fixed? I can even repair a broken spirit, given the right tools."'
+                '"الكون كله والبرية شغالين بتروس منظمة زي الساعة لو بصيت من قريب."',
+                '"عايز تصلح تميمة أو سلاح؟ أنا أقدر أصلح حتى النواة الروحانية المنكسرة لو معايا التروس الصح."'
             ]
         },
-        passiveBuff: { stat: 'def', bonus: 0.1, label: '+10% Defense & faster repair of items' },
+        passiveBuff: { stat: 'def', bonus: 0.1, label: '+10% دفاع دايم وتصليح مجاني وتطوير أسرع للعتاد بالمسبك.' },
         uniqueAbility: {
-            name: 'Automaton Shield',
+            name: 'درع التروس النحاسية الحامي',
             mpCost: 25,
-            description: 'Creates a mechanical shield that absorbs the next 30 damage.',
+            description: 'بيصنع درع ترس نحاسي ميكانيكي أوتوماتيكي بيمتص الـ 30 ضربة وجرح جايين بالكامل.',
             effect: 'damage_shield'
         }
     },
     fatima_al_fihri: {
         id: 'fatima_al_fihri',
-        name: 'Fatima al-Fihri',
-        title: 'Founder of Al-Qarawiyyin, Mother of Knowledge',
+        name: 'الشيخة فاطمة القروية',
+        title: 'أم المعارف ومؤسسة ديوان الكيمياء والعلوم الروحية',
         origin: 'crossroads',
         sprite: 'assets/sufi_mystic_1778872363338.png',
         alignment: 'lawful_good',
         karmaRequirement: 10,
         affinity: 0,
         personality: 'scholarly_determined',
-        description: 'She built the world\'s first university. She does not fight with blades — she fights with knowledge. She unlocks the Alchemy Lab.',
+        description: 'بنت أول جامعة ومدرسة علوم وصومعة للطب بالمعمورة. مبتحاربش بالسيوف الحادة — هي بتحارب بالبصيرة والعلم الإلهي النقي. بتفتح ورشة الكيمياء والأعشاب.',
         dialogue: {
             greet: [
-                '"Knowledge is the only thing that cannot be taken by force. Shall I teach you?"',
-                '"The pen is mightier than the sword. Though sometimes you need the sword first."'
+                '"العلم واليقين هما الحاجة الوحيدة اللي مفيش مخلوق يقدر ياخدها منك بالقوة. تحب أعلمك؟"',
+                '"ريشة الكاتب والفقيه أمضى وأبقى بكتير من سيف الفارس. ولو إن السيف ساعات بيبقى مطلوب الأول للعدل."'
             ],
-            unlock_alchemy: '"I have catalogued every medicinal herb on the Silk Road. Let me show you how to combine them."',
-            high_affinity: '"You ask better questions each time we meet. That is all education truly is."'
+            unlock_alchemy: '"أنا دونت وكتبت خواص كل عشبة نور ونبتة سحرية في طريق الحرير. تعال أعلمك تطبخم سوا."',
+            high_affinity: '"أسئلتك بقت أعمق وأحسن في كل مرة بنتقابل. ده دليل إن روحك بدأت ترتقي للعلم الصافي."'
         },
-        passiveBuff: { stat: 'mp', bonus: 0.25, label: '+25% Max MP. Unlocks Alchemy Lab crafting.' },
+        passiveBuff: { stat: 'mp', bonus: 0.25, label: '+25% مانا روحية قصوى. تفتح وصفات كيميائية نادرة بموقد الكيمياء.' },
         uniqueAbility: {
-            name: 'The Grand Library',
+            name: 'بصيرة ديوان المعارف الأكبر',
             mpCost: 30,
-            description: 'Research the current enemy, revealing all their moves and weaknesses.',
+            description: 'دراسة سريعة للعدو بتكشف كل حركاته ورموزه ونقاط ضعفه وقنوات طاقته بالكامل.',
             effect: 'reveal_all_enemy_moves'
         }
     }
 };
 
-// --- ARABIAN ENEMY ROSTER ---
+// --- قائمة غيلان وأعداء الصحراء والجن ---
 const ARABIAN_ENEMIES = {
     desert_ghoul: {
         id: 'desert_ghoul',
-        name: 'Desert Ghoul (Ghul)',
+        name: 'غيلان الربع الخالي',
         region: 'empty_quarter',
         sprite: 'assets/desert_ghoul_1778872388305.png',
         baseHp: 70, baseAtk: 16, xpReward: 55,
-        description: 'A shapeshifter that feasts on the dead. It has taken the shape of a fallen traveler and walks among the living.',
+        description: 'مخلوقات برية مسخوطة بتاكل لحم الموتى والتايهين. تقدر تتشكل في صورة سالك وفيّ ضال عشان تغدر بيك وسط الرمل.',
         moves: {
-            heavy: { name: 'Grave Crush', text: 'The Ghul drops its disguise and slams you with arms that can crack stone.' },
-            fast: { name: 'Shapeshifter Lunge', text: 'It takes the face of someone you trust and slips past your guard.' },
-            magic: { name: 'Death Mimicry', text: 'It replicates your ally\'s voice, causing a split-second distraction.' }
+            heavy: { name: 'هبدة كسر العظام الصحراوية', text: 'الغول بيشيل قناعه ويضربك بقبضة خشنة بتكسر دروعك الفانية.' },
+            fast: { name: 'اندفاعة مخالب الغدر الخاطفة', text: 'بيظهر فجأة بوش صاحب قديم ليك عشان يعدي دفاعك ويسرق دمك.' },
+            magic: { name: 'تقليد صرخة الأرواح', text: 'بيقلد صوت حد وفي ليك، فبيشتت تركيزك ويخليك تفوت دورك.' }
         },
         weakness: 'spiritual_sense_reveals_disguise',
         loot: ['Ghul\'s Shed Skin', 'Stolen Traveler\'s Ring', 'Shapeshifter Core'],
-        dialogue: '"(It speaks in your mother\'s voice.) Come closer. I won\'t hurt you."'
+        dialogue: '"(بيقلد صوت والدتك الحنين..) تعال يا بني.. ارتاح هنا في حضني.. أنا مش هأذيك..."'
     },
     ifrit: {
         id: 'ifrit',
-        name: 'Ifrit of the Smokeless Flame',
+        name: 'عفريت النيران المتمرد الجبار',
         region: 'empty_quarter',
         sprite: 'assets/desert_ghoul_1778872388305.png',
         baseHp: 140, baseAtk: 28, xpReward: 110,
-        description: 'Born from smokeless fire, older than any human civilization. It is not evil — it is ancient and does not like being disturbed.',
+        description: 'اتخلق من نار السموم والكبريت الحامي من قبل عهد البشر بآلاف السنين. مش شرير بطبعه — بس قديم وغاضب ومبيحبش حد يزعج صومعته.',
         moves: {
-            heavy: { name: 'Pillar of Fire', text: 'It draws a column of smokeless flame from the earth directed at your feet.' },
-            fast: { name: 'Ember Rush', text: 'It dissolves into embers and reforms directly inside your guard.' },
-            magic: { name: 'Binding Contract', text: 'It attempts to trap your soul in a spiritual contract. Agree and you owe a favor; refuse and suffer backlash.' }
+            heavy: { name: 'إعصار جحيم النيران الماحي', text: 'بيسحب عمود من نار الكبريت من باطن الأرض مباشرة تحت رجلك.' },
+            fast: { name: 'ومضة لهب الكبريت المباغتة', text: 'بيتحول لشرارات لهب طايرة ويظهر فجأة وراك جوة درعك الحامي.' },
+            magic: { name: 'طلسم عقد عهد الجن الأزرق', text: 'بيحاول يقيد روحك بطلسم عهد جن ملعون: لو وافقت بتكسب مانا بس بتخسر بركة وكارما.' }
         },
         weakness: 'zamzam_water_or_water_qi',
-        nonCombatOption: 'Offer a binding gift or invoke a Name of Power. Requires Sufi Mystic class or high karma.',
+        nonCombatOption: 'قدم ليه ماء بئر زمزم الروحي النقي أو تميمة جلال طيبة. بيطلب مهارة السالك المتصوف أو كارما عالية جداً لتهديته بسلام.',
         loot: ['Smokeless Flame Ember', 'Ifrit\'s Binding Ring', 'Jinn-Sealed Vessel'],
-        dialogue: '"YOU DISTURB A BEING OLDER THAN YOUR CIVILIZATION. Explain yourself — quickly."'
+        dialogue: '"أنت تتحدى كائناً أقدم من سلالتك الفانية بالكامل! اشرح نيتك فوراً — وإلا ستحترق حطباً!"'
     },
     whispering_shaitan: {
         id: 'whispering_shaitan',
-        name: 'The Whispering Shaitan',
+        name: 'شياطين الوسواس الخناس بالبرية',
         region: 'empty_quarter',
         sprite: 'assets/desert_ghoul_1778872388305.png',
         baseHp: 60, baseAtk: 20, xpReward: 65,
-        description: 'You cannot see it. You can only hear it. It speaks your deepest insecurities and uses them against you.',
+        description: 'متقدرش تشوفه بعينك الفانية. بتسمع وسوسته وهمسه في ودانك بس. بيقولك كلام يهد عزمك ويشكك في إيمانك ونورك الروحي.',
         moves: {
-            heavy: { name: 'Crushing Doubt', text: '"You were never good enough." Your attack drops by half for one turn.' },
-            fast: { name: 'Paranoid Vision', text: 'It shows your companion\'s face on the enemy. Strike wrong and lose your turn.' },
-            magic: { name: 'Temptation Offer', text: 'Accept: gain 50 HP but lose 20 Karma. Refuse: it recoils in pain.' }
+            heavy: { name: 'ثقل وسواس الشك والندم', text: '"إنت فاشل وعمرك ما هترتقي للولاية." هجومك بيقل للنص لدور كامل من الإحباط.' },
+            fast: { name: 'خيال خيانة الأصحاب والرفاق', text: 'بيوريك ورموز وش أصحابك كأنهم أعداء، فتضرب غلط وتضيع دورك.' },
+            magic: { name: 'عقد وساوس الجاه والذهب', text: 'بيعرض عليك جاه زائف: لو قبلت بتاخد صحة بس بتخسر 20 نقطة كارما وبركة.' }
         },
         weakness: 'dhikr_chanting_or_high_karma',
         loot: ['Whisper Fragment', 'Corrupted Thought Shard'],
-        dialogue: '"You know what you really are. I\'m the only one honest enough to say it."'
+        dialogue: '"إنت عارف حقيقتك الطينية الضعيفة كويس.. أنا الوحيد الجدع اللي بقولهالك في وشك وبصراحة!"'
     },
     marid_soldier: {
         id: 'marid_soldier',
-        name: 'Marid Palace Guard',
+        name: 'حارس ديوان مردة البحر الأزرق',
         region: 'brass_city',
         sprite: 'assets/desert_ghoul_1778872388305.png',
         baseHp: 110, baseAtk: 24, xpReward: 85,
-        description: 'A Jinn of the water-type, bound in service to the Marid King. It carries a trident of crystallized ocean pressure.',
+        description: 'جن مائي قوي من مردة الأعماق، مربوط بعهد طاعة أزلي لحماية ديوان ملك المردة القديم مُرقَباد. ماسك حربة نحاسية مباركة بضغط المحيط الرهيب.',
         moves: {
-            heavy: { name: 'Tidal Slam', text: 'The guard plunges its trident — a shockwave of pressurized water erupts outward.' },
-            fast: { name: 'Current Step', text: 'It flows around your attack like water and strikes from the blind side.' },
-            magic: { name: 'Marid Bond', text: 'A binding water chain restricts your movement and drains HP each turn.' }
+            heavy: { name: 'دكة طوفان المحيط الجبارة', text: 'بيهبد حافته النحاسية في الأرض، وبيطلق موجة ضغط مائي بتهد دروعك.' },
+            fast: { name: 'خطوة تيار الماء المتدفق الخاطفة', text: 'بيتحرك بخفة المية حوالين ضربتك ويطعنك من الزاوية الميتة.' },
+            magic: { name: 'عقد قيد الأمواج الزرقاء', text: 'سلسلة مية سحرية بتلف حوالين رجلك وقنوات مانا روحك وتسحب طاقتك تلقائي.' }
         },
         weakness: 'earth_qi_or_interrupt',
         loot: ['Marid Guard Trident Fragment', 'Ocean Pressure Crystal', 'Jinn Binding Chain'],
-        dialogue: '"By order of the Marid King Murkabad — you shall not pass."'
+        dialogue: '"بأمر ملك المردة المعظم مُرقَباد — خطوتك اتقطعت هنا وممنوع تعدي البوابات دي للأبد."'
     },
     sand_wraith: {
         id: 'sand_wraith',
-        name: 'Sand Wraith',
+        name: 'أطياف رمال الصحراء التائهة',
         region: 'empty_quarter',
         sprite: 'assets/desert_ghoul_1778872388305.png',
         baseHp: 50, baseAtk: 15, xpReward: 40,
-        description: 'The spirit of a traveler who died alone in the desert. It seeks to drag others into the same fate — not out of malice, but loneliness.',
+        description: 'طيف سالك ضاع ومات وحيد في الصحرا الكبيرة بسبب حر الشمس والعطش. عايز يسحب أي سالك تاني لنفس نهايته الموحشة عشان يونس وحدته بس.',
         moves: {
-            heavy: { name: 'Dune Burial', text: 'The sand rises up and tries to swallow you whole.' },
-            fast: { name: 'Mirage Dash', text: 'It becomes a heat haze, striking from an impossible angle.' },
-            magic: { name: 'Desert\'s Despair', text: 'Unbearable heat and thirst — MP drains as your will weakens.' }
+            heavy: { name: 'طمر الكثبان الرملية القاسية', text: 'بيتحكم في الرمل ويحاول يدفن رجلك ويهد هيكلك الطيني.' },
+            fast: { name: 'ومضة سراب الكثبان الرملية', text: 'بيتحول لسراب هوا سخن ويضربك من زاوية خيالية صعبة الصد.' },
+            magic: { name: 'عطش وحيرة ليل الصحراء الصامت', text: 'هجير ونشفان ريق رهيب بيخلي مانا روحك تتسرب وهمتك تقع.' }
         },
         weakness: 'water_or_speak_their_name',
-        nonCombatOption: 'Identify their lost name from environment clues to put them to rest peacefully for bonus karma.',
+        nonCombatOption: 'لو قرأت مذكرات رحال قديم وعرفت اسمه وندهت عليه، الطيف بيهدى ويروح لربنا بسلام ويديك كنز روحي وكارما عالية.',
         loot: ['Sand Wraith Essence', 'Lost Traveler\'s Journal'],
-        dialogue: '"...don\'t leave... please... don\'t leave me here alone..."'
+        dialogue: '"...متمشيش وتسبني... أرجوك... الصحرا ضلمة أوي بليل والوحدة بتموت..."'
     }
 };
 
-// --- TIERED LOOT TABLES BY REGION ---
+// --- جداول الغنائم والكنوز الموزعة حسب الأقاليم ---
 const LOOT_TABLES = {
     crossroads_loot: [
         { rarity: 'Common', css: 'loot-common', chance: 0.55, items: ['Iron Merchant\'s Sword', 'Road-worn Amulet', 'Sack of Silk Coins'] },
@@ -387,58 +388,58 @@ const LOOT_TABLES = {
     ]
 };
 
-// --- PROCEDURAL NPC ENGINE DATA ---
+// --- محرك توليد الشخصيات العشوائية وعابري السبيل بالبرية ---
 const NPC_ENGINE = {
     fixed_npcs: {
         ibrahim_blacksmith: {
             id: 'ibrahim_blacksmith',
-            name: 'Ibrahim the Blacksmith',
-            title: 'The Master of Damascus Steel',
+            name: 'المعلم إبراهيم الحداد',
+            title: 'شيخ طائفة صناع الفولاذ الدمشقي العريق',
             location: 'crossroads',
-            dialogue: '"Damascus steel isn\'t just metal, child. It\'s a song written in heat and cold. Bring me the right materials, and I\'ll show you."'
+            dialogue: '"الفولاذ الدمشقي مش مجرد حديد ناشف يا بني. ده كتابة ونقوش بتتكتب بالنار والتلج والبركة الروحية. هاتلي خامات صح وهوريك العجب!"'
         },
         zubaida_alchemist: {
             id: 'zubaida_alchemist',
-            name: 'Zubaida the Alchemist',
-            title: 'The Keeper of the Emerald Tablet',
+            name: 'الشيخة زبيدة العارفة بالله',
+            title: 'حامية سر لوح الكيمياء والأنوار الزمردية',
             location: 'crossroads',
-            dialogue: '"All things seek their original state. Alchemy is just the art of helping them get there faster. And avoiding explosions. Mostly."'
+            dialogue: '"كل حاجة في الدنيا بتدور على أصلها ونقاء جوهرها. الكيمياء والطب هما بس الطرق اللي بتسرع الرحلة دي. وتمنع فرقعة الإناء برضه. غالباً يعني!"'
         }
     },
-    chinese_names: ['Li Wei', 'Jin Hua', 'Bao Zhai', 'Chen Gong', 'Xue Yi', 'Elder Ma', 'Gui Ying', 'Feng Yun', 'Long Mei', 'Zi Xuan', 'Tian Bao', 'Shan Hu'],
-    arabian_names: ['Tariq', 'Fatima', 'Zayd', 'Al-Hasan', 'Khadija', 'Harun', 'Rashid', 'Zainab', 'Layla', 'Umar', 'Saffiya', 'Bilal', 'Amr', 'Miriam'],
-    chinese_titles: ['Foundation Establishment Alchemist', 'Nascent Soul Patriarch', 'Wandering Sword Saint', 'Outer Sect Elder', 'Rogue Cultivator', 'Demonic Path Inheritor', 'Body Tempering Champion'],
-    arabian_titles: ['Wandering Murid', 'Desert Faris (Knight)', 'Corrupt Qadi', 'Sufi Order Initiate', 'Jinn-Binder Scholar', 'Sand Merchant Prince', 'Traveling Hakeem (Physician)'],
+    chinese_names: ['لي وي', 'جين هوا', 'باو تشاي', 'تشن غونغ', 'شيويه يي', 'الشيخ ما', 'غوي ينغ', 'فينغ يون', 'لونغ مي', 'زي شوان', 'تيان باو', 'شان هو'],
+    arabian_names: ['طارق', 'فاطمة', 'زيد', 'الحسن', 'خديجة', 'هارون', 'رشيد', 'زينب', 'ليلى', 'عمر', 'صفية', 'بلال', 'عمرو', 'مريم'],
+    chinese_titles: ['خيميائي مريد بمقام التمكين الروحي', 'معلم طريقة مقام الروح اللطيفة', 'سالك السيف الطائر الهائم بالبراري', 'شيخ خلوة صومعة جبل الطور', 'سالك حر من شيوخ البرزخ المتمردين', 'صاحب أوراد طائفة الفراغ المظلمة', 'بطل تطهير الجسد والهيكل الفولاذي'],
+    arabian_titles: ['المريد الهائم بطريق السكينة والذكر', 'فارس الصحراء المغوار حارس القافلة', 'القاضي الفاسد الجشع بالبازار', 'درويش سالك بالربع الخالي العظيم', 'عارف بالله صاحب تمائم ربط الجان المطيع', 'أمير بازار القوافل الأثرية النحاسية', 'الحكيم الطبيب الجوال بطريق الحرير الروحي'],
     visual_hooks: [
-        'eyes like polished obsidian, reflecting light they should not see',
-        'a cloak woven from spun gold and desert sand that never wrinkles',
-        'skin scarred in lightning-shaped patterns from a Heavenly Tribulation',
-        'carrying a misbaha whose beads hum with barely contained power',
-        'floating precisely three inches above the ground at all times',
-        'a sword so worn its handle is smooth as river stone from ten thousand draws',
-        'wearing both a Taoist robe and a kufiya, as if belonging to both worlds',
-        'jade embedded directly into their knuckles, glowing with each heartbeat',
-        'prayer marks on their forehead, but their shadow moves independently'
+        'عيونه بتلمع زي السَبج والحديد المصقول، وبتعكس أنوار سحرية غريبة مش من دنيتنا',
+        'لابس عباية منسوجة بخيوط دهب ونور ورمل الصحرا المبروك اللي عمره ما يتكسر أو يوسخ',
+        'جلده مليان ندوب على شكل بروق وصواعق من أثر اختبار وتجربة رعد السماء القديمة',
+        'ماسك في إيديه مسبحة عود معطرة حباتها بتهمس وتسبح لوحدها بقوة روحانية جبارة',
+        'بيطير فوق الأرض وخطوته مرتفعة تلات صوابع بالتمام والكمال كأولياء الله الصالحين',
+        'شايل سيف قديم وعريق يد مقبضه ممسوحة وناعمة من كتر سحبه وحسم المعارك بالحق والعدل',
+        'لابس عباءة متصوف خشنة وفي نفس الوقت عمامة خضراء فخمة كأنه بينتمي لعالمين مع بعض',
+        'زرع بلورات يشم وزمرد في عقلة صوابعه، بتنور مع كل نبضة قلب وحركة يد روحية',
+        'في جبهته أثر سجود ونور، بس ظله بيتحرك لوحده على الحيطة بنقاء وبصيرة غامضة'
     ],
     secrets: [
-        'is secretly hunting the cultivator who destroyed their village.',
-        'is suppressing a demonic bloodline curse that resurfaces at night.',
-        'knows the location of a lost Sufi shrine worth a Legendary loot drop.',
-        'is an illusion cast by a greater Marid testing nearby mortals.',
-        'carries a letter they cannot deliver because the recipient has been dead for 200 years.',
-        'is actually a Dragon in human form, deeply bored with immortality.',
-        'was the abandoned student of one of your companions.',
-        'is working for the corrupt Qadi and will betray the player if not identified.'
+        'بيدور في السر على السالك الشرير اللي دمر خلوته وصومعة أهله زمان.',
+        'بيحارب جواه لعنة دم جن أزرق ملعونة بتثور عليه بليل ولازم يكتمها بالأذكار.',
+        'عارف مكان وراي بئر بركة الخضر السري اللي فيه غنائم أسطورية مباركة.',
+        'هو في الحقيقة مارد جن متشكل في صورة بشر عشان يختبر شرف ونخوة السالكين الأبرار.',
+        'شايل وصية وعهد قديم مش قادر يسلمه لأن اللي مكتوب باسمه مات من 200 سنة.',
+        'هو في الأصل تنين رمل عتيق متشكل في زي درويش بسبب زهقه الشديد من الخلود الصامت.',
+        'كان المريد المقرب اللي هرب وغدر بأحد رفاقك الخالدين زمان وحاسس بالذنب.',
+        'شغال جاسوس لحساب القاضي الفاسد وهيغدر بالقافلة لو سالكك مكشفوش وعاقبه.'
     ],
     motivations_hostile: [
-        'wants to steal your cultivation base to repair their shattered meridians.',
-        'has been paid by a rival sect to intercept travelers on this road.',
-        'is under a Jinn contract compelling them to fight any who pass.',
-        'mistook you for someone who wronged their family generations ago.'
+        'عايز يسرق نواتك الروحية وقناتك النورانية عشان يصلح قنواته اللي فرقعت زمان.',
+        'مأجور من صومعة شريرة منافسة عشان يقطع طريق السالكين والزهاد بالواحة.',
+        'مربوط بعهد دم جن أزرق ملعون بيجبره يحارب أي سالك نوراني يمر من الممر ده.',
+        'افتكرك بغباء وبدون تثبت الشخص الشرير اللي دمر عيلته وغدر بيهم زمان وعايز ينتقم.'
     ]
 };
 
-// --- MASTER EXPORT — globally accessible to game.js ---
+// --- التصدير العام والد مج لمحرك الأساطير ---
 window.LORE = Object.assign(window.LORE || {}, {
     ARABIAN_HEROES,
     ARABIAN_ENEMIES,

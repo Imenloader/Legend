@@ -1,6 +1,6 @@
 // ============================================================
-// COMPANIONS.JS — Affinity, Memory & Emotional Arc System
-// "Legends of the Jade and Sand: The Immortal Codex"
+// COMPANIONS.JS — نظام المودة والروابط الروحية والقصصية للرفاق
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.COMPANIONS = {
@@ -61,11 +61,11 @@ window.COMPANIONS = {
 
     // Get affinity tier label
     getAffinityTier(affinity) {
-        if (affinity >= 90) return { label: 'Sworn Bond', color: 'var(--secondary)' };
-        if (affinity >= 70) return { label: 'Deep Trust', color: '#9b59b6' };
-        if (affinity >= 50) return { label: 'Respected Ally', color: 'var(--jade)' };
-        if (affinity >= 30) return { label: 'Cautious Partner', color: 'var(--text-dim)' };
-        return { label: 'Strained', color: 'var(--danger)' };
+        if (affinity >= 90) return { label: 'عهد الدم والوفاء الأبدي', color: 'var(--secondary)' };
+        if (affinity >= 70) return { label: 'ثقة روحية عميقة', color: '#9b59b6' };
+        if (affinity >= 50) return { label: 'حليف مبجل ومحترم', color: 'var(--jade)' };
+        if (affinity >= 30) return { label: 'شريك حذر ومترقب', color: 'var(--text-dim)' };
+        return { label: 'علاقة متوترة وباردة', color: 'var(--danger)' };
     },
 
     // Get contextual dialogue based on affinity + memories
@@ -127,11 +127,11 @@ window.COMPANIONS = {
 
         // Companions with positive requirement leave if karma drops too low
         if (req > 0 && karma < req - 40) {
-            return { leave: true, id: state.companion, reason: `${comp.name} cannot follow a path this dark.` };
+            return { leave: true, id: state.companion, reason: `<b>${comp.name}</b> مش قادر يكمل معاك في طريق ضلمة ومليان سيئات زي ده.` };
         }
         // Companions with negative requirement leave if karma rises too high (demons won't follow saints)
         if (req < -50 && karma > 60) {
-            return { leave: true, id: state.companion, reason: `${comp.name} disappears — your righteousness blinds them.` };
+            return { leave: true, id: state.companion, reason: `<b>${comp.name}</b> اختفى فجأة في الضلال — النور والصفاء والخير بتوعك بيعموا عينيه.` };
         }
         return null;
     },
@@ -161,26 +161,26 @@ window.COMPANIONS = {
 
         const interjections = {
             combat_win: [
-                `${comp.name} nods with quiet approval.`,
-                `"${comp.name.split(',')[0]} grins: Not bad. Keep that up."`,
-                `${comp.name} sheathes their weapon without a word — which, from them, is high praise.`
+                `${comp.name} هز راسه برضا صامت وتأييد.`,
+                `"${comp.name.split(',')[0]} ابتسم وقال: مش بطال يا بطل. كمل على كده!"`,
+                `${comp.name} غمد سيفه من غير ولا كلمة — وده في حد ذاته مدح كبير منه لينا.`
             ],
             combat_lose: [
-                `${comp.name} catches you before you fall. "Not yet," they say. "Not here."`,
-                `${comp.name} stands over you. "Get up. This is not your end."`,
-                `"${comp.name.split(',')[0]} looks away — you can't tell if it's disappointment or grief."`
+                `${comp.name} لحقك وسندك قبل ما تقع الأرض. "مش دلوقتي،" قال بصوت خافت. "مش هنا."`,
+                `${comp.name} وقف فوق راسك وسندك. "قوم على حيلك. دي مش نهايتك يا بطل!"`,
+                `"${comp.name.split(',')[0]} بَص الناحية التانية — ومش عارف ده زعل وحزن ولا خيبة أمل."`
             ],
             loot_mythic: [
-                `${comp.name} stares at the item in silence for a long moment. "...I've heard stories about that."`,
-                `"${comp.name.split(',')[0]}: Where did THAT come from?!"`
+                `${comp.name} بحلق وبص للحاجة دي بذهول صامت. "...أنا سمعت حكايات وأساطير عن الكنز ده زمان."`,
+                `"${comp.name.split(',')[0]}: يا خبر! الكنز الأسطوري ده جه منين؟! وعرفته إزاي؟!"`
             ],
             good_karma: [
-                `${comp.name} seems lighter somehow. The air between you warms.`,
-                `"${comp.name.split(',')[0]} says quietly: That was the right thing. I won't forget it."`
+                `${comp.name} حس براحة وهدوء. الجو والود والأنوار بينكم بقت دافية.`,
+                `"${comp.name.split(',')[0]} قال بصوت هادي: ده كان التصرف الصح والجدعنة. مش هنسالك الموقف ده."`
             ],
             evil_karma: [
-                `${comp.name} says nothing. But their hand moves slightly away from yours.`,
-                `"${comp.name.split(',')[0]} watches what you did, expression unreadable. Something has shifted."`
+                `${comp.name} مسكتش بس خطوته بعدت عنك شوية ووشه اتغير بريبة.`,
+                `"${comp.name.split(',')[0]} بصلك وإنت بتعمل كده بملامح غامضة وغاضبة. في حاجة جواه اتغيرت تجاهك."`
             ]
         };
 
@@ -201,7 +201,7 @@ window.COMPANIONS = {
             return {
                 triggered: true,
                 title: comp.questArc,
-                intro: `${comp.name} pulls you aside with unusual solemnity. "There is something I have not told you. Something I need your help with. It concerns... ${comp.secretMotivation}"`
+                intro: `${comp.name} خدك على جنب بهيبة ووقار غريب. "في حاجة مخبيها عليك ومقولتهاش من زمان. ومحتاج مساعدتك وجدعنتك فيها. الموضوع بيخص... ${comp.secretMotivation}"`
             };
         }
         return null;

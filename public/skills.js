@@ -1,33 +1,33 @@
 // ============================================================
-// SKILLS.JS — Martial Arts & Spiritual Techniques
-// "Legends of the Jade and Sand: The Immortal Codex"
+// SKILLS.JS — الفنون الروحية والقتالية لفرسان الشرق
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.SKILLS = {
     // Database of learnable techniques
     techniques: {
-        // --- Martial Techniques (Active) ---
-        'lotus_strike': { id: 'lotus_strike', name: 'Lotus Strike', desc: 'A rapid flurry of strikes.', mpCost: 10, power: 1.5, type: 'fast', reqLvl: 1 },
-        'mountain_peak_cleave': { id: 'mountain_peak_cleave', name: 'Mountain Peak Cleave', desc: 'A heavy blow that breaks guard.', mpCost: 20, power: 2.2, type: 'heavy', reqLvl: 5 },
-        'shadow_step': { id: 'shadow_step', name: 'Shadow Step', desc: 'Increase dodge chance by 20% for 3 turns.', mpCost: 15, effect: { dodge: 0.2, duration: 3 }, type: 'buff', reqLvl: 3 },
-        'earth_shatter': { id: 'earth_shatter', name: 'Earth Shatter', desc: 'Massive impact with a 30% stun chance.', mpCost: 25, power: 2.5, stunChance: 0.3, type: 'heavy', reqLvl: 8 },
-        'blood_qi_burst': { id: 'blood_qi_burst', name: 'Blood Qi Burst', desc: 'Sacrifice 10% HP for a 50% ATK boost next turn.', mpCost: 0, hpCost: 0.1, effect: { atkBuff: 1.5, duration: 2 }, type: 'buff', reqLvl: 12 },
-        'dragon_roar': { id: 'dragon_roar', name: 'Roar of the Azure Dragon', desc: 'Stun all enemies and deal 3x damage.', mpCost: 50, power: 3.0, stunChance: 1.0, type: 'heavy', reqLvl: 18 },
-        'void_step': { id: 'void_step', name: 'Void Flicker Step', desc: 'Become untargetable for 1 turn.', mpCost: 45, effect: { invulnerable: true, duration: 1 }, type: 'buff', reqLvl: 22 },
+        // --- الفنون الجسدية والقتالية الفعالة (Martial Techniques - Active) ---
+        'lotus_strike': { id: 'lotus_strike', name: 'ضربة الياسمين الوهيجة', desc: 'وابل من الضربات السريعة والمتتالية بسيفك.', mpCost: 10, power: 1.5, type: 'fast', reqLvl: 1 },
+        'mountain_peak_cleave': { id: 'mountain_peak_cleave', name: 'شطر الصخرة والقمم الفولاذي', desc: 'ضربة ثقيلة بتكسر دروع وحماية العدو تماماً.', mpCost: 20, power: 2.2, type: 'heavy', reqLvl: 5 },
+        'shadow_step': { id: 'shadow_step', name: 'خطوة الطيف الصحراوي', desc: 'بتزود فرصة تفادي وتجنب الضربات بـ 20% لـ 3 أدوار.', mpCost: 15, effect: { dodge: 0.2, duration: 3 }, type: 'buff', reqLvl: 3 },
+        'earth_shatter': { id: 'earth_shatter', name: 'زوبعة دكة الأرض الرهيبة', desc: 'هبدة جبارة في الأرض مع فرصة 30% لشل حركة العدو برعب.', mpCost: 25, power: 2.5, stunChance: 0.3, type: 'heavy', reqLvl: 8 },
+        'blood_qi_burst': { id: 'blood_qi_burst', name: 'غليان عروق الفرسان الحامية', desc: 'بتضحي بـ 10% من صحتك عشان تاخد +50% هجوم في دورك الجاي.', mpCost: 0, hpCost: 0.1, effect: { atkBuff: 1.5, duration: 2 }, type: 'buff', reqLvl: 12 },
+        'dragon_roar': { id: 'dragon_roar', name: 'صرخة مارد النار الزاجر', desc: 'بتشل حركة الأعداء برعب هائل وتسبب تلات أضعاف الضرر.', mpCost: 50, power: 3.0, stunChance: 1.0, type: 'heavy', reqLvl: 18 },
+        'void_step': { id: 'void_step', name: 'ومضة تلاشي السالك المباغتة', desc: 'بتختفي تماماً وتخفي هالتك عشان مفيش هجوم يلمسك لدور كامل.', mpCost: 45, effect: { invulnerable: true, duration: 1 }, type: 'buff', reqLvl: 22 },
         
-        // --- Spiritual Spells (Active) ---
-        'badr_blessing': { id: 'badr_blessing', name: 'Blessing of Badr', desc: 'Holy light restores 30% HP.', mpCost: 30, heal: 0.3, type: 'magic', reqLvl: 3 },
-        'heavenly_rain': { id: 'heavenly_rain', name: 'Heavenly Sword Rain', desc: 'Multiple hits of spirit blades.', mpCost: 40, power: 3.5, type: 'magic', reqLvl: 15 },
-        'sun_incineration': { id: 'sun_incineration', name: 'Nine Suns Incineration', desc: 'Immortal Spell: Massive burn damage over 5 turns.', mpCost: 60, power: 5.0, dot: { dmg: 0.5, duration: 5 }, type: 'magic', reqLvl: 25 },
-        'phoenix_rebirth': { id: 'phoenix_rebirth', name: 'Ascension of the Phoenix', desc: 'Fully restore HP and gain 25% ATK/DEF for 3 turns.', mpCost: 80, heal: 1.0, effect: { atkBuff: 1.25, defBuff: 1.25, duration: 3 }, type: 'magic', reqLvl: 35 },
-        'heaven_seal': { id: 'heaven_seal', name: 'Great Heaven Seal', desc: 'Immortal Spell: Reduce enemy ATK/DEF by 40%.', mpCost: 75, debuff: { atk: -0.4, def: -0.4, duration: 5 }, type: 'magic', reqLvl: 30 },
+        // --- الأوراد والأذكار الروحية الفعالة (Spiritual Spells - Active) ---
+        'badr_blessing': { id: 'badr_blessing', name: 'رِقية النور والبركة الصافية', desc: 'نور روحي صافي من صومعتك بيرجع 30% من صحتك القصوى.', mpCost: 30, heal: 0.3, type: 'magic', reqLvl: 3 },
+        'heavenly_rain': { id: 'heavenly_rain', name: 'عاصفة السيوف السلطانية الهابطة', desc: 'إعصار من شظايا السيوف النورانية المنهمرة على الأعداء.', mpCost: 40, power: 3.5, type: 'magic', reqLvl: 15 },
+        'sun_incineration': { id: 'sun_incineration', name: 'لهب البروق السبعة المحرق', desc: 'ورد سحري جبار: بيحرق العدو بلهب مستمر وصعب يطفي لـ 5 أدوار.', mpCost: 60, power: 5.0, dot: { dmg: 0.5, duration: 5 }, type: 'magic', reqLvl: 25 },
+        'phoenix_rebirth': { id: 'phoenix_rebirth', name: 'انبعاث طائر العنقاء من الرماد', desc: 'ترقية أسطورية: بترجع صحتك بالكامل وتديك +25% هجوم ودفاع لـ 3 أدوار.', mpCost: 80, heal: 1.0, effect: { atkBuff: 1.25, defBuff: 1.25, duration: 3 }, type: 'magic', reqLvl: 35 },
+        'heaven_seal': { id: 'heaven_seal', name: 'ختم الملكوت العالي الحافظ', desc: 'طلسم أسطوري: بيشل هالة الأعداء ويقلل هجومهم ودفاعهم بـ 40%.', mpCost: 75, debuff: { atk: -0.4, def: -0.4, duration: 5 }, type: 'magic', reqLvl: 30 },
 
-        // --- Passive Techniques ---
-        'spirit_surge': { id: 'spirit_surge', name: 'Spirit Surge', desc: 'Passive: +10% MP recovery.', passive: true, stat: 'mpRegen', bonus: 0.1, reqLvl: 10 },
-        'iron_bone_body': { id: 'iron_bone_body', name: 'Iron Bone Body', desc: 'Passive: +15% Max HP.', passive: true, stat: 'maxHp', bonus: 0.15, reqLvl: 12 },
-        'sword_intent': { id: 'sword_intent', name: 'Sword Intent', desc: 'Passive: +20% Critical Damage.', passive: true, stat: 'critDmg', bonus: 0.2, reqLvl: 18 },
-        'unending_dao': { id: 'unending_dao', name: 'Concept of the Unending Dao', desc: 'Passive: +25% Qi Gain and +10% to all stats.', passive: true, stat: 'allStats', bonus: 0.1, reqLvl: 40 },
-        'eternal_breath': { id: 'eternal_breath', name: 'Eternal Breath', desc: 'Passive: Recover 5% HP every turn in combat.', passive: true, stat: 'hpRegen', bonus: 0.05, reqLvl: 22 }
+        // --- القدرات الروحية الكامنة (Passive Techniques) ---
+        'spirit_surge': { id: 'spirit_surge', name: 'فيض مانا الصومعة', desc: 'قدرة كامنة: +10% سرعة استرجاع مانا تأمل الروح.', passive: true, stat: 'mpRegen', bonus: 0.1, reqLvl: 10 },
+        'iron_bone_body': { id: 'iron_bone_body', name: 'هيكل الحديد والصلابة الصخرية', desc: 'قدرة كامنة: +15% زيادة للصحة والتحمل الأقصى.', passive: true, stat: 'maxHp', bonus: 0.15, reqLvl: 12 },
+        'sword_intent': { id: 'sword_intent', name: 'روح السيف الدمشقي العازمة', desc: 'قدرة كامنة: +20% ضرر للضربات القاضية البديعة.', passive: true, stat: 'critDmg', bonus: 0.2, reqLvl: 18 },
+        'unending_dao': { id: 'unending_dao', name: 'فلسفة البقاء الأزلي وسر النور', desc: 'قدرة كامنة: +25% سرعة كسب النور الروحي، و +10% لكل إحصائيات الجسد.', passive: true, stat: 'allStats', bonus: 0.1, reqLvl: 40 },
+        'eternal_breath': { id: 'eternal_breath', name: 'الأنفاس المباركة الممتدة', desc: 'قدرة كامنة: بترجع 5% من صحتك وجروحك تلقائي مع كل دور في المعركة.', passive: true, stat: 'hpRegen', bonus: 0.05, reqLvl: 22 }
     },
 
     // Get passive bonuses
@@ -57,7 +57,7 @@ window.SKILLS = {
             if (state.player.lvl >= skill.reqLvl && !state.player.skills.includes(skill.id)) {
                 state.player.skills.push(skill.id);
                 if (typeof narrate === 'function') {
-                    narrate(`<b>New Technique Learned:</b> ${skill.name}!`, "System");
+                    narrate(`<b>تم تعلم مهارة وفن جديد:</b> ${skill.name}!`, "النظام الروحي");
                 }
             }
         });

@@ -1,14 +1,14 @@
 // ============================================================
-// PETS.JS — The Beast Pavilion & Spirit Taming
-// "Legends of the Jade and Sand: The Immortal Codex"
+// PETS.JS — ديوان ترويض وحوش الجان والدواب الشرقية المباركة
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.PETS = {
-    // Database of tamable beasts
+    // قاعدة بيانات الوحوش القابلة للترويض
     beasts: {
-        'desert_jinn': { id: 'desert_jinn', name: 'Desert Jinn', rarity: 'Rare', type: 'Spirit', bonus: { atk: 0.1, mp: 20 }, skill: 'Spirit Whirl', desc: 'A swirling vortex of sand and soul.' },
-        'jade_qilin': { id: 'jade_qilin', name: 'Jade Qilin', rarity: 'Mythic', type: 'Divine', bonus: { def: 0.15, hp: 50 }, skill: 'Heavenly Gaze', desc: 'An auspicious beast that brings peace.' },
-        'shadow_stalker': { id: 'shadow_stalker', name: 'Shadow Stalker', rarity: 'Uncommon', type: 'Beast', bonus: { crit: 0.1 }, skill: 'Shadow Pounce', desc: 'It hunts where the light does not reach.' }
+        'desert_jinn': { id: 'desert_jinn', name: 'عفريت الصحراء المطيع', rarity: 'نادر', type: 'روحاني', bonus: { atk: 0.1, mp: 20 }, skill: 'إعصار رمال الروح', desc: 'دوامة روحية من الرمل والمانا السحرية الحامية في جوف الصحراء.' },
+        'jade_qilin': { id: 'jade_qilin', name: 'البراق المجنح الأسطوري', rarity: 'أسطوري', type: 'مقدس', bonus: { def: 0.15, hp: 50 }, skill: 'النظرة السماوية المباركة', desc: 'دابة مباركة بتهبط من الملكوت لتجلب النصر والسكينة لصاحبها.' },
+        'shadow_stalker': { id: 'shadow_stalker', name: 'فهد الظلال الصحراوية الغادر', rarity: 'غير مألوف', type: 'وحش كاسر', bonus: { crit: 0.1 }, skill: 'وثبة الطيف المباغتة', desc: 'بيصطاد ويراقب الأعداء في هدوء تام من الأماكن اللي مبيوصلهاش أي ضوء.' }
     },
 
     // Initialize state
@@ -21,16 +21,16 @@ window.PETS = {
     tame(state, beastId) {
         this.init(state);
         const beast = this.beasts[beastId];
-        if (!beast) return { success: false, message: "Beast not found." };
+        if (!beast) return { success: false, message: "الوحش ده مش موجود في سجلات البرية." };
         
         if (state.player.pets.some(p => p.id === beastId)) {
-            return { success: false, message: "You already have this companion." };
+            return { success: false, message: "الوحش ده مروض وموجود معاك في صومعتك بالفعل!" };
         }
 
         state.player.pets.push({ ...beast, xp: 0, level: 1 });
         if (!state.player.activePet) state.player.activePet = beastId;
         
-        return { success: true, message: `Successfully tamed ${beast.name}!` };
+        return { success: true, message: `مبروك! روضت <b>${beast.name}</b> وبقى دابتك الوفية بنجاح!` };
     },
 
     // Get active pet data

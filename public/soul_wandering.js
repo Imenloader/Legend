@@ -1,13 +1,13 @@
 // ============================================================
-// SOUL_WANDERING.JS — Background Auto-Adventure Engine
-// "Legends of the Jade and Sand: The Immortal Codex"
+// SOUL_WANDERING.JS — محرك السفر والتأمل الروحي الهائم في البرية
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.SOUL_WANDERING = {
     regions: {
-        'crossroads': { name: 'Crossroads Outskirts', minLvl: 1, monsters: ['Sand Jackal', 'Desert Bandit', 'Scorpion'], mats: ['spirit_herb', 'iron_ore'] },
-        'empty_quarter': { name: 'The Empty Quarter', minLvl: 5, monsters: ['Jinn Wraith', 'Oasis Serpent', 'Sandstorm Elemental'], mats: ['monster_core', 'spirit_herb'] },
-        'shadow_peaks': { name: 'Shadow Peaks', minLvl: 12, monsters: ['Demon Cultist', 'Void Raven', 'Abyssal Tiger'], mats: ['dragon_vein_shard', 'monster_core'] }
+        'crossroads': { name: 'ضواحي واحة القوافل', minLvl: 1, monsters: ['ذئب الصحراء الكاسر', 'صعلوك القافلة الشرير', 'عقرب الرمال المسموم'], mats: ['spirit_herb', 'iron_ore'] },
+        'empty_quarter': { name: 'الربع الخالي العظيم', minLvl: 5, monsters: ['طيف الجان الهائم', 'أفعى الواحة الرهيبة', 'مارد العواصف الرملية'], mats: ['monster_core', 'spirit_herb'] },
+        'shadow_peaks': { name: 'جبال الظلال الوعرة', minLvl: 12, monsters: ['كاهن الطائفة السوداء', 'غراب الفراغ المظلم', 'نمر البرزخ الرهيب'], mats: ['dragon_vein_shard', 'monster_core'] }
     },
 
     init(state) {
@@ -33,35 +33,35 @@ window.SOUL_WANDERING = {
         const sw = state.soulWandering;
 
         if (sw.active) {
-            return { success: false, message: "Your soul is already wandering!" };
+            return { success: false, message: "روحك هائمة في الغيب بالفعل حالياً!" };
         }
 
         const r = this.regions[regionId];
-        if (!r) return { success: false, message: "Invalid wilderness region." };
+        if (!r) return { success: false, message: "منطقة برية غير صالحة للسفر." };
 
         if ((state.player.lvl || 1) < r.minLvl) {
-            return { success: false, message: `Your cultivation is too weak! Requires Level ${r.minLvl}.` };
+            return { success: false, message: `مقام وتأملك الروحي ضعيف جداً! محتاج على الأقل مستوى ${r.minLvl}.` };
         }
 
         sw.active = true;
         sw.regionId = regionId;
         sw.ticksRemaining = ticks;
         sw.totalTicks = ticks;
-        sw.log = [`[Journey Started] Your soul exits your mortal body and drifts towards the ${r.name}...`];
+        sw.log = [`[بداية السفر الروحي] خرجت روحك من جسدك الفاني وبدأت تطوف نحو ${r.name}...`];
         sw.loots = { gold: 0, xp: 0, items: [], materials: {} };
 
-        return { success: true, message: `Your soul has departed to wander the ${r.name} for ${ticks} cycles.` };
+        return { success: true, message: `رحلت روحك وطافت نحو ${r.name} لـ ${ticks} دورات روحية.` };
     },
 
     stop(state) {
         this.init(state);
         const sw = state.soulWandering;
-        if (!sw.active) return { success: false, message: "Your soul is not wandering." };
+        if (!sw.active) return { success: false, message: "روحك مش هائمة في البرزخ حالياً." };
 
         // Force stop: claim whatever has been accumulated so far
         sw.ticksRemaining = 0;
         this.complete(state);
-        return { success: true, message: "You forcibly recalled your soul back to your vessel!" };
+        return { success: true, message: "استدعيت روحك بالقوة ورجعتها لجسدك الفاني بنجاح!" };
     },
 
     process(state) {
@@ -82,14 +82,21 @@ window.SOUL_WANDERING = {
         sw.loots.xp += xpGained;
         sw.loots.gold += goldGained;
 
-        let roundMsg = `[Round ${sw.totalTicks - sw.ticksRemaining}] Defeated <b>${monster}</b>. Gained +${xpGained} XP, +${goldGained} Stones.`;
+        let roundMsg = `[دورة ${sw.totalTicks - sw.ticksRemaining}] هزمت <b>${monster}</b>. كسبت +${xpGained} نور، +${goldGained} دينار.`;
+
+        const matMap = {
+            'spirit_herb': 'عشبة النور الروحية',
+            'iron_ore': 'خام الحديد الدمشقي',
+            'monster_core': 'نواة الوحش السحرية',
+            'dragon_vein_shard': 'شظية ينابيع النور الروحانية'
+        };
 
         // Resource Drop Roll (50% chance)
         if (Math.random() < 0.5) {
             const mat = r.mats[Math.floor(Math.random() * r.mats.length)];
             sw.loots.materials[mat] = (sw.loots.materials[mat] || 0) + 1;
-            const matName = mat.replace(/_/g, ' ').toUpperCase();
-            roundMsg += ` Found: <span style="color:var(--secondary)">${matName}</span>.`;
+            const matName = matMap[mat] || mat.replace(/_/g, ' ').toUpperCase();
+            roundMsg += ` لاقيت: <span style="color:var(--secondary)">${matName}</span>.`;
         }
 
         // Equipment Drop Roll (15% chance)
@@ -100,7 +107,7 @@ window.SOUL_WANDERING = {
                 const newItem = { ...proto, id: `${proto.id}_${Date.now()}` };
                 sw.loots.items.push(newItem);
                 const qClass = `loot-${proto.quality.toLowerCase()}`;
-                roundMsg += ` Discovered: <b class="${qClass}">[${proto.name}]</b>!`;
+                roundMsg += ` اكتشفت كنزاً: <b class="${qClass}">[${proto.name}]</b>!`;
             }
         }
 
@@ -142,7 +149,7 @@ window.SOUL_WANDERING = {
             }
         }
 
-        sw.log.unshift(`<b style="color:var(--jade)">[Journey Complete] Your soul returns to your physical meridians. Gained ${sw.loots.gold} Spirit Stones and ${sw.loots.xp} XP total!</b>`);
+        sw.log.unshift(`<b style="color:var(--jade)">[نهاية السفر الروحي] رجعت روحك لجسدك وقنواتك الروحية بنجاح. كسبت إجمالي ${sw.loots.gold} دينار و ${sw.loots.xp} نور!</b>`);
         
         calculateTotalStats();
         if (typeof updateTopBar === 'function') updateTopBar();

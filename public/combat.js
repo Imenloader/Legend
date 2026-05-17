@@ -1,17 +1,16 @@
 // ============================================================
-// COMBAT.JS — Phase 4: "The Flowing Dao" Engine
-// Momentum, Forms (Stances), and execution Staggers
+// COMBAT.JS — محرك السلوك الروحي والقتال الصحراوي العظيم
 // "Legends of the Jade and Sand: The Immortal Codex"
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.COMBAT = {
 
     // Initialize combat state variables
-    // Initialize combat state variables
     initCombatState(state) {
         state.combatState = 'enemy_prep';
         state.momentum = 0; // -100 to 100
-        state.playerForm = 'water'; // water, mountain, wind
+        state.playerForm = 'water'; // water, mountain, wind (الماء، الجبل، الرياح)
         state.enemyStaggered = false;
         state.playerGuardBroken = false;
         
@@ -38,7 +37,7 @@ window.COMBAT = {
         state.dotEffects = (state.dotEffects || []).filter(dot => {
             const dmg = Math.floor(dot.dmg);
             enemy.hp = Math.max(0, enemy.hp - dmg);
-            msg += `<br><span style="color:var(--danger)">${enemy.name} takes ${dmg} ${dot.type} damage!</span>`;
+            msg += `<br><span style="color:var(--danger)">${enemy.name} يتلقى ${dmg} ضرر ${dot.type === 'burn' ? 'لهب حارق' : dot.type}!</span>`;
             dot.duration--;
             return dot.duration > 0;
         });
@@ -60,17 +59,17 @@ window.COMBAT = {
         if (state.player.hpRegen > 0) {
             const hReg = Math.floor(state.player.maxHp * state.player.hpRegen);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + hReg);
-            if (hReg > 0) msg += `<br><span style="color:var(--secondary)">You regenerate ${hReg} HP.</span>`;
+            if (hReg > 0) msg += `<br><span style="color:var(--secondary)">تجدد جسدك ونور حياتك بـ ${hReg} نقاط حياة.</span>`;
         }
         if (state.player.mpRegen > 0) {
             const mReg = Math.floor(state.player.maxMp * state.player.mpRegen);
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + mReg);
-            if (mReg > 0) msg += `<br><span style="color:var(--jade)">You regenerate ${mReg} Qi.</span>`;
+            if (mReg > 0) msg += `<br><span style="color:var(--jade)">تجدد يقينك الروحي والمانا بـ ${mReg} نقاط مانا.</span>`;
         }
 
         // 5. Stun recovery
         if (state.enemyStunned) {
-            msg += `<br><b>${enemy.name} is stunned and cannot move!</b>`;
+            msg += `<br><b>${enemy.name} دايخ ومغمى عليه بالكامل وميقدرش يتحرك اللفة دي!</b>`;
             state.enemyStunned = false; 
             state.skipEnemyTurn = true;
         } else {
@@ -82,13 +81,13 @@ window.COMBAT = {
 
     useCompanionAbility(state, enemy) {
         const activeComp = window.COMPANIONS?.getActive(state);
-        if (!activeComp || !activeComp.uniqueAbility) return { success: false, message: 'No active companion ability.' };
+        if (!activeComp || !activeComp.uniqueAbility) return { success: false, message: 'مفيش قدرة رفيق نشطة حالياً.' };
         
         const ability = activeComp.uniqueAbility;
         const compState = state.companions[activeComp.id];
         const affinityMult = 1 + (compState.affinity / 100); 
 
-        let msg = `<b>${activeComp.name}</b> uses <b>${ability.name}</b>!`;
+        let msg = `<b>${activeComp.name}</b> بيستدعي ويشغل <b>${ability.name}</b>!`;
         let success = true;
 
         switch(ability.effect) {
@@ -96,43 +95,43 @@ window.COMBAT = {
                 const dmg = Math.floor(state.player.atk * 3 * affinityMult);
                 enemy.hp = Math.max(0, enemy.hp - dmg);
                 state.momentum = Math.min(100, state.momentum + 40);
-                msg += `<br>${activeComp.name} strikes for ${dmg} damage and stuns the enemy!`;
+                msg += `<br>${activeComp.name} بيضرب بكل قوته بـ ${dmg} ضرر وبيدوخ العدو تماماً!`;
                 state.enemyStaggered = true;
                 break;
             case 'full_party_heal':
                 state.player.hp = state.player.maxHp;
                 state.player.mp = state.player.maxMp;
-                msg += `<br>A divine light restores your health and Qi to full!`;
+                msg += `<br>نور الهي طاهر نزل من الملكوت ورجع دمك وقوات المانا بتاعتك كاملة مكملة!`;
                 break;
             case 'honorable_surrender':
                 if (enemy.hp <= enemy.maxHp * 0.4) {
                     enemy.hp = 0;
-                    msg += `<br>${enemy.name} is moved by your honor and surrenders!`;
+                    msg += `<br>${enemy.name} اتأثر بشرفك وعهدك وعزتك وأعلن استسلامه ورمى سيفه في الرمل!`;
                 } else {
-                    msg += `<br>${enemy.name} scoffs at your request for surrender. They are still too strong!`;
+                    msg += `<br>${enemy.name} ضحك باستهزاء على طلبك للاستسلام. لسة قوته جبارة ومستحيل يستسلم دلوقتي!`;
                     success = false;
                 }
                 break;
             case 'reveal_all_enemy_moves':
                 state.enemyMovesRevealed = true;
-                msg += `<br>All of ${enemy.name}'s combat patterns are now visible to you!`;
+                msg += `<br>كل حركات وتكتيكات القتال بتاعة ${enemy.name} بقت مكشوفة قدام عنيك وجاهزة!`;
                 break;
             case 'debuff_enemy_buff_player':
                 state.enemyAtkDebuff = 0.7;
                 state.playerDmgBonus = 1.2 * affinityMult;
-                msg += `<br>${enemy.name}'s attack is lowered, and your power surges!`;
+                msg += `<br>قوة هجوم ${enemy.name} ضعفت وانهارت، وقوتك وموجات الأنوار واليقين انفجرت!`;
                 break;
             case 'area_damage_or_bypass':
                 const areaDmg = Math.floor(state.player.atk * 2 * affinityMult);
                 enemy.hp = Math.max(0, enemy.hp - areaDmg);
-                msg += `<br>A massive strike deals ${areaDmg} damage, ignoring defenses!`;
+                msg += `<br>ضربة قاضية أسطورية سببت ${areaDmg} ضرر متجاهلة الدروع وجدران المانا بالكامل!`;
                 break;
             case 'bluff_stun':
                 state.enemyStaggered = true;
-                msg += `<br>The enemy is completely entranced and wide open!`;
+                msg += `<br>العدو واقف متثبت ومذهول بالكامل وضهره مكشوف لسيوفك الدمشقية!`;
                 break;
             default:
-                msg += `<br>The ability activates but has no combat effect.`;
+                msg += `<br>القدرة اشتغلت بس ملهاش أي تأثير في ساحة القتال دي.`;
         }
 
         // Spend Qi
@@ -145,16 +144,16 @@ window.COMBAT = {
     getActionsForForm(form, state) {
         const baseMoves = {
             water: [
-                { id: 'deflect', name: 'Deflect (Counter Heavy)', type: 'deflect', cost: 0 },
-                { id: 'slipstream', name: 'Slipstream (Counter Fast)', type: 'evade', cost: 0 }
+                { id: 'deflect', name: 'صد ضربة ثقيلة (مضاد للثقيل)', type: 'deflect', cost: 0 },
+                { id: 'slipstream', name: 'مراوغة سلسة (مضاد للسريع)', type: 'evade', cost: 0 }
             ],
             mountain: [
-                { id: 'earthshatter', name: 'Earthshatter (Break Guard)', type: 'heavy', cost: 15 },
-                { id: 'mountain_stance', name: 'Mountain Stance (Absorb & Strike)', type: 'absorb', cost: 10 }
+                { id: 'earthshatter', name: 'زلزال الحجر (يدمر الدفاع)', type: 'heavy', cost: 15 },
+                { id: 'mountain_stance', name: 'وضعية الجبل (امتصاص وضرب)', type: 'absorb', cost: 10 }
             ],
             wind: [
-                { id: 'gale_strike', name: 'Gale Strike (Interrupt Magic)', type: 'fast', cost: 5 },
-                { id: 'qi_blade', name: 'Qi Blade (Ignore Armor)', type: 'magic', cost: 20 }
+                { id: 'gale_strike', name: 'ضربة العاصفة (يقطع السحر)', type: 'fast', cost: 5 },
+                { id: 'qi_blade', name: 'سيف الأنوار واليقين (يتجاهل الدروع)', type: 'magic', cost: 20 }
             ]
         };
         
@@ -190,14 +189,14 @@ window.COMBAT = {
 
     getTelegraph(enemy, moveType) {
         const tells = {
-            heavy: `${enemy.name} plants their feet, shifting weight entirely backward.`,
-            fast: `${enemy.name} lowers their center of gravity, blade twitching.`,
-            magic: `The air around ${enemy.name} grows unnaturally cold as they step back.`,
-            guard: `${enemy.name} raises their weapon close to their chest, eyes scanning.`,
-            deflect: `${enemy.name} stands completely relaxed, weapon hanging loosely.`,
-            evade: `${enemy.name} stays light on their toes, ready to spring.`
+            heavy: `${enemy.name} بيثبت رجله في الأرض، وبيرجع كتافه ووزنه لورا لضربة غاشمة ثقيلة.`,
+            fast: `${enemy.name} بيوطي جسمه وجاذبيته، وسيفه بيترعش ويلمع لضربة سريعة وخاطفة.`,
+            magic: `الهوا حوالين ${enemy.name} بقى ساقع وبرد جداً وهو بيرجع خطوتين لورا عشان يحضر تعويذة سحرية.`,
+            guard: `${enemy.name} بيرفع سيفه وسلاحه قريب من صدره، وعنيه بتلف وتراقب حركتك للحماية والدفاع.`,
+            deflect: `${enemy.name} واقف بكل هدوء واسترخاء تماماً، وسيفه متدلي ومستني أي هجوم عشان يصده بالملي.`,
+            evade: `${enemy.name} واقف خفيف جداً على طراطيف صوابعه، وجاهز ينط ويطير في الهوا للمراوغة السريعة.`
         };
-        return tells[moveType] || `${enemy.name} watches you closely.`;
+        return tells[moveType] || `${enemy.name} بيراقب خطواتك وعنيك بتركيز شديد.`;
     },
 
     // ── THE FLOWING DAO RESOLUTION ENGINE ──
@@ -214,10 +213,10 @@ window.COMBAT = {
             const chance = (enemy.hp / enemy.maxHp < 0.3) ? 0.8 : 0.2;
             if (Math.random() < chance) {
                 spec = 'tamed';
-                msg = `You perform the spirit-binding mudra. ${enemy.name} yields!`;
+                msg = `عملت حركة ترويض الأرواح المباركة بإيدك. ${enemy.name} خضع وأطاع إرادتك بالكامل!`;
                 mom = 100;
             } else {
-                msg = `${enemy.name} snarls at your attempts to bind it!`;
+                msg = `${enemy.name} كشر عن أنيابه وصرخ رافضاً محاولاتك لترويضه ولجمه بقسوة!`;
                 eDmg = enemyAtk;
                 mom = -30;
             }
@@ -227,39 +226,39 @@ window.COMBAT = {
         // --- Handle Learned Skills Specifically ---
         const skill = window.SKILLS.techniques[playerMoveId];
         if (skill) {
-            msg = `You unleash <b>${skill.name}</b>! `;
+            msg = `أطلقت وفجرت مهارة <b>${skill.name}</b>! `;
             pDmg = Math.floor(playerAtk * (skill.power || 1));
             
             if (skill.heal) {
                 const h = Math.floor(state.player.maxHp * skill.heal);
                 state.player.hp = Math.min(state.player.maxHp, state.player.hp + h);
-                msg += `Restored ${h} HP. `;
+                msg += `رجعت وشفت ${h} من نقاط حياتك ببركتك. `;
             }
             
             if (skill.stunChance && Math.random() < skill.stunChance) {
                 state.enemyStunned = true;
-                msg += `Enemy is STUNNED! `;
+                msg += `العدو واقف دايخ ومغمى عليه ومبيتحركش! `;
             }
             
             if (skill.dot) {
                 state.dotEffects.push({ ...skill.dot, type: 'burn' });
-                msg += `The enemy is set ablaze! `;
+                msg += `العدو ولع وجسده اتحرق بنار هائلة! `;
             }
             
             if (skill.effect) {
                 state.activeBuffs.push({ ...skill.effect });
-                msg += `Your spirit energy surges! `;
+                msg += `موجات طاقة يقينك انفجرت وزادت بقوة! `;
             }
-
+            
             if (skill.debuff) {
                 state.enemyDebuffs.push({ ...skill.debuff });
-                msg += `${enemy.name} is weakened by your spell! `;
+                msg += `${enemy.name} ضعف وانهار تحت تأثير تعويذتك وسحرك! `;
             }
 
             if (skill.hpCost) {
                 const cost = Math.floor(state.player.maxHp * skill.hpCost);
                 state.player.hp = Math.max(1, state.player.hp - cost);
-                msg += `(Paid ${cost} Life Essence) `;
+                msg += `(دفع ${cost} من جوهر الحياة الجسدية) `;
             }
 
             return { playerDmg: pDmg, enemyDmg: Math.floor(enemyAtk * 0.5), resultText: msg, special: 'skill', momentumShift: 20 };
@@ -272,7 +271,7 @@ window.COMBAT = {
         // Execution logic (Staggered state)
         if (state.enemyStaggered) {
             pDmg = pBaseDmg * 3;
-            msg = `<b>FATAL STRIKE!</b> You unleash everything on the staggered enemy!`;
+            msg = `<b>ضربة قاضية قاتلة!</b> أطلقت كل سحرك وسيفك وسحقت العدو الدايخ بالكامل!`;
             spec = 'execution';
             state.enemyStaggered = false;
             state.momentum = 0; 
@@ -281,7 +280,7 @@ window.COMBAT = {
 
         if (state.playerGuardBroken) {
             eDmg = eBaseDmg * 2;
-            msg = `Your guard is broken! You take a devastating hit!`;
+            msg = `دفاعك ودرعك اتدمر واتكسر بالكامل! وتلقيت ضربة مدمرة هزت عظامك!`;
             state.playerGuardBroken = false;
             state.momentum = 0;
             return { playerDmg: 0, enemyDmg: eDmg, resultText: msg, special: 'guard_broken', momentumShift: 0 };
@@ -290,73 +289,73 @@ window.COMBAT = {
         // Action Matrix (The Flow)
         if (playerMoveId === 'deflect') {
             if (enemyMoveType === 'heavy') {
-                msg = `You perfectly deflect their massive blow, letting their own weight throw them off balance!`;
+                msg = `صديت ضربته الغاشمة الثقيلة بالملي بالدقة، وخلت توازنه ووزنه يرموه على الأرض!`;
                 mom = 30; spec = 'perfect_counter'; pDmg = pBaseDmg * 1.5;
             } else if (enemyMoveType === 'magic') {
-                msg = `You try to deflect spiritual energy with steel. It fails horribly.`;
+                msg = `حاولت تصد طاقة الأنوار وسحره بسيفك الدمشقي العادي. وفشلت فشل ذريع وضربك بقوة!`;
                 mom = -20; eDmg = eBaseDmg * 1.5;
             } else {
-                msg = `You deflect a regular strike, mitigating damage.`;
+                msg = `صديت ضربة عادية، وقللت الضرر الواقع عليك ببركة حركتك.`;
                 mom = 5; eDmg = Math.floor(eBaseDmg * 0.3);
             }
         } 
         else if (playerMoveId === 'slipstream') {
             if (enemyMoveType === 'fast') {
-                msg = `You slip past their flurry like water through fingers, striking their exposed flank!`;
+                msg = `عديت وانسحبت من وسط ضرباته السريعة زي المية بين الصوابع، وضربت ضهره المكشوف بالكامل!`;
                 mom = 30; spec = 'perfect_counter'; pDmg = pBaseDmg * 1.5;
             } else if (enemyMoveType === 'heavy') {
-                msg = `You evade, but the shockwave of their heavy blow catches you.`;
+                msg = `حاولت تزيح وتراوغ، بس موجة الصدمة لضربته الثقيلة جابتك وضربتك على الأرض بقسوة.`;
                 mom = -10; eDmg = eBaseDmg;
             } else {
-                msg = `You dodge the attack, looking for an opening.`;
+                msg = `راوغت هجومه بسلام، وبتدور على فرصة وضهر مكشوف للضرب.`;
                 mom = 10;
             }
         }
         else if (playerMoveId === 'earthshatter') {
             if (enemyMoveType === 'guard' || enemyMoveType === 'deflect') {
-                msg = `Your earth-shattering blow crushes right through their defense!`;
+                msg = `ضربتك الزلزالية الجبارة دشدشت وكسرت دفاعه ودرعه بالكامل بدون رحمة!`;
                 mom = 30; spec = 'perfect_counter'; pDmg = pBaseDmg * 2;
             } else if (enemyMoveType === 'evade') {
-                msg = `Your heavy blow smashes the ground where they used to be. You are wide open!`;
+                msg = `ضربتك الثقيلة نزلت في الرمل الفاضي وبوظت توازنك. وضهرك بقى مكشوف للضرب بالكامل!`;
                 mom = -30; eDmg = eBaseDmg * 1.5;
             } else {
-                msg = `You trade blows, but your mountain force hits harder.`;
+                msg = `تبادلتوا ضربات الحديد والسيوف، بس قوة جبل الطور بتاعتك نزلت أقوى وهزته بعنف.`;
                 mom = 10; pDmg = pBaseDmg * 1.2; eDmg = eBaseDmg * 0.8;
             }
         }
         else if (playerMoveId === 'mountain_stance') {
             if (enemyMoveType === 'fast' || enemyMoveType === 'heavy') {
-                msg = `You absorb the physical blow with your body, using the kinetic energy to strike back twice as hard!`;
+                msg = `امتصيت ضربته الجسدية كلها بجسدك الصلب، واستعملت طاقته الحركية عشان تضربه بضعف القوة!`;
                 mom = 20; eDmg = Math.floor(eBaseDmg * 0.5); pDmg = pBaseDmg * 2;
             } else if (enemyMoveType === 'magic') {
-                msg = `Mountain stance cannot absorb spiritual fire! It burns through you.`;
+                msg = `وضعية الجبل والصلابة مقدرتش تمتص نار وسحر الأنوار اللاهب! حرقتك وسممت عظامك.`;
                 mom = -20; eDmg = eBaseDmg * 1.5;
             } else {
-                msg = `You stand firm, but no physical blow comes.`;
+                msg = `وقفت ثابت زي الجبل الشامخ، بس مجاش أي هجوم جسدي عليك في اللحظة دي.`;
                 mom = 0;
             }
         }
         else if (playerMoveId === 'gale_strike') {
             if (enemyMoveType === 'magic') {
-                msg = `You dash forward faster than the wind, interrupting their spell casting!`;
+                msg = `طرت وجريت قدام أسرع من الريح، وقطعت عليه سحره وتحضير التعويذة في ثانية!`;
                 mom = 30; spec = 'perfect_counter'; pDmg = pBaseDmg;
             } else if (enemyMoveType === 'heavy') {
-                msg = `Your fast strike bounces off their heavy wind-up. They crush you.`;
+                msg = `ضربتك السريعة طارت وارتدت من درعه وجسده الثقيل. ونزل عليك بكل هيبته وسحقك بقوة.`;
                 mom = -20; eDmg = eBaseDmg * 1.5;
             } else {
-                msg = `A flurry of quick exchanges.`;
+                msg = `تبادلتوا ضربات سريعة وخاطفة زي البرق في الهوا.`;
                 mom = 5; pDmg = pBaseDmg * 0.8; eDmg = eBaseDmg * 0.8;
             }
         }
         else if (playerMoveId === 'qi_blade') {
             if (enemyMoveType === 'guard' || enemyMoveType === 'deflect') {
-                msg = `Your blade of pure Qi phases right through their physical defense!`;
+                msg = `سيفك من مانا الأنوار واليقين الصافي عدي واخترق درعه ودفاعه الجسدي بالملي!`;
                 mom = 30; spec = 'perfect_counter'; pDmg = pBaseDmg * 1.5;
             } else if (enemyMoveType === 'fast') {
-                msg = `They move too fast, interrupting your Qi flow!`;
+                msg = `تحرك بسرعة البرق وقطع تدفق مانا الأنوار واليقين في عروقك في ثانية!`;
                 mom = -20; eDmg = eBaseDmg * 1.2;
             } else {
-                msg = `The spiritual blade connects deeply.`;
+                msg = `السيف الروحي واليقين ضرب ووجع قنواته الروحية من جوة بنجاح.`;
                 mom = 15; pDmg = pBaseDmg * 1.2; eDmg = eBaseDmg * 0.5;
             }
         }
@@ -373,18 +372,18 @@ window.COMBAT = {
                 if (state.player.familyPagodaLevel >= 3) critMult += 0.15;
                 
                 pDmg = Math.floor(pDmg * critMult);
-                msg += ` <span style="color:#ffcc00; font-weight:bold; text-shadow: 0 0 5px #ffcc00;">✨ CRITICAL STRIKE!</span>`;
+                msg += ` <span style="color:#ffcc00; font-weight:bold; text-shadow: 0 0 5px #ffcc00;">✨ ضربة قاضية خارقة (كريتيكال)!</span>`;
             }
         }
 
         if (state.player.system && state.player.system.id === 'sword_saint' && pDmg > 0) {
             pDmg *= 2;
-            msg += ` <span style="color:var(--secondary); font-weight:bold;">[Sword Immortal 2x Damage]</span>`;
+            msg += ` <span style="color:var(--secondary); font-weight:bold;">[بركة خالد السيف الأسطوري: 2x ضرر هائل]</span>`;
         }
 
         if (state.playerForm === 'water' && pDmg > 0) {
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 5);
-            msg += ` (Water restores 5 Qi)`;
+            msg += ` (وضعية المية السلسة رجعتلك 5 مانا)`;
         }
 
         return { playerDmg: pDmg, enemyDmg: eDmg, resultText: msg, special: spec, momentumShift: mom };

@@ -1,85 +1,129 @@
 // ============================================================
-// CRAFTING.JS — Phase 4: Equipment & Alchemy Engine
-// "Legends of the Jade and Sand: The Immortal Codex"
+// CRAFTING.JS — محرك الخيمياء ومسبك الفولاذ الدمشقي العتيق
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.CRAFTING = {
 
-    // --- ALCHEMY (The Furnace of Heaven) ---
+    // --- ALCHEMY (موقد الكيمياء لجابر بن حيان) ---
     alchemyRecipes: {
         'minor_health_potion': {
-            name: 'Minor Health Potion',
-            desc: 'Restores 40 HP.',
+            name: 'إكسير الصحة البسيط',
+            desc: 'بيرجع 40 نقطة صحة.',
             ingredients: { 'spirit_herb': 2 },
             type: 'potion',
             effect: { hp: 40 }
         },
         'foundation_pill': {
-            name: 'Foundation Pill',
-            desc: 'Required to breakthrough to Foundation Establishment.',
+            name: 'إكسير التمكين والولاية',
+            desc: 'مطلوب لتخطي وعقبة مقام التمكين والولاية.',
             ingredients: { 'spirit_herb': 5, 'monster_core': 2 },
             type: 'special',
             effect: { breakthrough: true }
         },
         'golden_core_pill': {
-            name: 'Golden Core Pill',
-            desc: 'Required to breakthrough to Core Formation.',
+            name: 'حبة الجوهر الصافي الروحانية',
+            desc: 'مطلوبة لتخطي وعقبة مقام تجلي الجوهر الروحي.',
             ingredients: { 'spirit_herb': 8, 'monster_core': 4 },
             type: 'special',
             effect: { breakthrough: true }
         },
         'nascent_pill': {
-            name: 'Nascent Soul Pill',
-            desc: 'A divine pill that stabilizes the nascent spirit.',
+            name: 'إكسير الروح النورانية السحري',
+            desc: 'حبة أثرية بتثبت الروح اللطيفة وتمنع الهلاك.',
             ingredients: { 'spirit_herb': 15, 'dragon_vein_shard': 1 },
             type: 'special',
             effect: { breakthrough: true, maxHp: 100 }
         },
         'immortal_elixir': {
-            name: 'Immortal Essence Elixir',
-            desc: 'Grants permanent +10 ATK and full recovery.',
+            name: 'إكسير الخلود والجوهر الأعظم',
+            desc: 'بيدي +10 هجوم دايم وبيشفي جروح الجسد بالكامل.',
             ingredients: { 'celestial_silk': 2, 'dragon_vein_shard': 2 },
             type: 'permanent',
             effect: { atk: 10, fullHeal: true }
         }
     },
 
-    // --- BLACKSMITH (The Spirit Forge) ---
+    // --- BLACKSMITH (مسبك الفولاذ وورشة صناعة الجن) ---
     forgeRecipes: {
         'spirit_scimitar': { 
-            name: 'Spirit Scimitar', 
+            name: 'سيف الفارس المبتدئ الروحاني الأصيل', 
             slot: 'weapon', 
             ingredients: { 'iron_ore': 5, 'spirit_herb': 2 },
-            baseStats: { atk: 12 }
+            baseStats: { atk: 12 },
+            set: 'xianxia'
         },
         'spirit_turban': { 
-            name: 'Spirit Turban', 
+            name: 'عمامة الفرسان المطرزة بالآيات الروحية', 
             slot: 'head', 
             ingredients: { 'spirit_herb': 4 },
-            baseStats: { def: 5, mp: 10 }
+            baseStats: { def: 5, mp: 10 },
+            set: 'xianxia'
         },
         'robe_of_zuhd': { 
-            name: 'Robe of Zuhd', 
+            name: 'عباءة الزهد والصفاء الروحي الخشنة', 
             slot: 'body', 
             ingredients: { 'spirit_herb': 6, 'iron_ore': 2 },
-            baseStats: { def: 12, hp: 20 }
+            baseStats: { def: 12, hp: 20 },
+            set: 'xianxia'
+        },
+        'mantra_beads': {
+            name: 'خرز الذكر وتركيز الأنوار الروحانية',
+            slot: 'weapon',
+            ingredients: { 'wood': 15, 'monster_core': 6 },
+            baseStats: { atk: 45, mp: 40 },
+            set: 'vedic'
+        },
+        'dhoti_of_enlightenment': {
+            name: 'خرقة اليقين والتجلي النوراني البديع',
+            slot: 'body',
+            ingredients: { 'spirit_herb': 12, 'monster_core': 4 },
+            baseStats: { def: 25, hp: 80 },
+            set: 'vedic'
+        },
+        'dune_crest_scimitar': {
+            name: 'سيف هلال الكثبان الدمشقي العريق',
+            slot: 'weapon',
+            ingredients: { 'iron_ore': 15, 'monster_core': 5 },
+            baseStats: { atk: 55 },
+            set: 'silk_road'
+        },
+        'nomad_tunic': {
+            name: 'سترة الفارس البدوي الحصينة الفخمة',
+            slot: 'body',
+            ingredients: { 'spirit_herb': 10, 'wood': 10 },
+            baseStats: { def: 35, hp: 60 },
+            set: 'silk_road'
         },
         'jade_emperor_plate': {
-            name: 'Jade Emperor Plate',
+            name: 'درع سليمان الأسطوري النحاسي البديع',
             slot: 'body',
             ingredients: { 'iron_ore': 20, 'dragon_vein_shard': 5 },
-            baseStats: { def: 80, hp: 200 }
+            baseStats: { def: 80, hp: 200 },
+            set: 'mythology'
         },
         'phoenix_crown': {
-            name: 'Phoenix Crown',
+            name: 'تاج الملكوت المنسوج بريش العنقاء المضيء',
             slot: 'head',
             ingredients: { 'spirit_herb': 10, 'celestial_silk': 3 },
-            baseStats: { def: 30, mp: 100, mpRegen: 5 }
+            baseStats: { def: 30, mp: 100, mpRegen: 5 },
+            set: 'mythology'
+        },
+        'heavenly_halberd': {
+            name: 'حربة البريق السماوي الجبارة المصقولة',
+            slot: 'weapon',
+            ingredients: { 'iron_ore': 30, 'celestial_silk': 5, 'dragon_vein_shard': 8 },
+            baseStats: { atk: 120 },
+            set: 'mythology'
         }
     },
 
-    rollQuality() {
-        const roll = Math.random() * 100;
+    rollQuality(state) {
+        const hammerLvl = state?.player?.forgeHammerLevel || 1;
+        const bonuses = [0, 0, 5, 12, 20];
+        const bonus = bonuses[hammerLvl] || 0;
+
+        const roll = Math.random() * 100 - bonus;
         if (roll < 1) return 'Super';
         if (roll < 5) return 'Elite';
         if (roll < 15) return 'Unique';
@@ -94,12 +138,22 @@ window.CRAFTING = {
 
     craftItem(state, recipeId) {
         const recipe = this.forgeRecipes[recipeId];
-        if (!recipe) return { success: false, message: "Unknown recipe." };
+        if (!recipe) return { success: false, message: "وصفة مجهولة وغير معروفة للمسبك." };
+
+        const matMap = {
+            'spirit_herb': 'عشبة النور الروحية',
+            'monster_core': 'نواة الوحش السحرية',
+            'dragon_vein_shard': 'شظية ينابيع النور الروحانية',
+            'celestial_silk': 'حرير الملكوت السحري',
+            'iron_ore': 'خام الحديد الدمشقي',
+            'wood': 'خشب الصنوبر الأثري'
+        };
 
         // Check ingredients
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
-            if (current < count) return { success: false, message: `Not enough ${item.replace(/_/g,' ')}.` };
+            const matName = matMap[item] || item.replace(/_/g, ' ');
+            if (current < count) return { success: false, message: `معندكش ${matName} كفاية في صومعتك.` };
         }
 
         // Consume ingredients
@@ -108,14 +162,19 @@ window.CRAFTING = {
         }
 
         // Roll Quality
-        const quality = this.rollQuality();
+        const quality = this.rollQuality(state);
         const mult = this.getQualityMult(quality);
+
+        const qualMap = { 'Normal': 'عادي', 'Refined': 'مصقول', 'Unique': 'نادر', 'Elite': 'نخبة', 'Super': 'أسطوري' };
+        const qualName = qualMap[quality] || quality;
+        const finalName = quality === 'Normal' ? recipe.name : `${recipe.name} (${qualName})`;
 
         const newItem = {
             id: `${recipeId}_${Date.now()}`,
-            name: `${quality === 'Normal' ? '' : quality + ' '}${recipe.name}`,
+            name: finalName,
             slot: recipe.slot,
             quality: quality,
+            set: recipe.set,
             stats: {}
         };
 
@@ -129,19 +188,29 @@ window.CRAFTING = {
 
         return { 
             success: true, 
-            message: `The forge glows white-hot! You created a <b class="loot-${quality.toLowerCase()}">${newItem.name}</b>!`,
+            message: `المسبك شغال نار والحديد داب! صممت <b class="loot-${quality.toLowerCase()}">${newItem.name}</b> بنجاح!`,
             item: newItem
         };
     },
 
     brewAlchemy(state, recipeId, stability = 75) {
         const recipe = this.alchemyRecipes[recipeId];
-        if (!recipe) return { success: false, message: "Unknown recipe." };
+        if (!recipe) return { success: false, message: "وصفة مجهولة ومستعصية على إناء الكيمياء." };
+
+        const matMap = {
+            'spirit_herb': 'عشبة النور الروحية',
+            'monster_core': 'نواة الوحش السحرية',
+            'dragon_vein_shard': 'شظية ينابيع النور الروحانية',
+            'celestial_silk': 'حرير الملكوت السحري',
+            'iron_ore': 'خام الحديد الدمشقي',
+            'wood': 'خشب الصنوبر الأثري'
+        };
 
         // Check ingredients
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
-            if (current < count) return { success: false, message: `Not enough ${item.replace(/_/g,' ')}.` };
+            const matName = matMap[item] || item.replace(/_/g, ' ');
+            if (current < count) return { success: false, message: `معندكش ${matName} كفاية للطبخ.` };
         }
 
         // Consume
@@ -158,9 +227,13 @@ window.CRAFTING = {
         else { quality = 'Failed'; success = false; }
 
         if (success) {
+            const qualMap = { 'Perfect': 'مثالي', 'Normal': 'عادي' };
+            const qualName = qualMap[quality] || quality;
+            const finalName = quality === 'Normal' ? recipe.name : `${recipe.name} (${qualName})`;
+
             const newItem = {
                 id: recipeId,
-                name: `${quality === 'Normal' ? '' : quality + ' '}${recipe.name}`,
+                name: finalName,
                 type: 'consumable',
                 effect: { ...recipe.effect }
             };
@@ -169,9 +242,9 @@ window.CRAFTING = {
 
             if (!state.player.inventory.items) state.player.inventory.items = [];
             state.player.inventory.items.push(newItem);
-            return { success: true, message: `Created a ${quality} ${recipe.name}!`, item: newItem };
+            return { success: true, message: `طبخت <b>${newItem.name}</b> بنجاح داخل موقد الكيمياء!`, item: newItem };
         } else {
-            return { success: false, message: "The Qi fluctuates wildly! The brew is ruined." };
+            return { success: false, message: "المانا والأنوار اضطربت فجأة في الإناء! المشروب باظ تماماً واتخرّب." };
         }
     }
 };

@@ -1,26 +1,26 @@
 // ============================================================
-// SHOP.JS — Economy & Sect Markets
-// "Legends of the Jade and Sand: The Immortal Codex"
+// SHOP.JS — اقتصاد سوق القوافل والبازارات والمتاجر الشريرة
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.SHOP = {
-    // Current stock for different shop types
+    // مخزون المتاجر الحالية لمختلف الأسواق والبازارات
     stocks: {
         crossroads_market: [
-            { id: 'iron_ore', name: 'Iron Ore', price: 10, type: 'material', desc: 'Basic forging material.' },
-            { id: 'spirit_herb', name: 'Spirit Herbs', price: 15, type: 'material', desc: 'Used for basic alchemy.' },
-            { id: 'healing_ointment', name: 'Healing Ointment', price: 50, type: 'consumable', desc: 'Restores 50 HP.', effect: { hp: 50 } },
-            { id: 'spirit_water', name: 'Spirit Water', price: 40, type: 'consumable', desc: 'Restores 30 Qi.', effect: { mp: 30 } }
+            { id: 'iron_ore', name: 'خام الحديد الدمشقي العتيق', price: 10, type: 'material', desc: 'مادة أساسية لصناعة الفولاذ والأسلحة بمسبك الجان.' },
+            { id: 'spirit_herb', name: 'أعشاب النور الروحية الطازجة', price: 15, type: 'material', desc: 'تستخدم في طبخ الإكسير والحبوب بموقد الكيمياء.' },
+            { id: 'healing_ointment', name: 'مرهم الشفاء المبارك والبركة', price: 50, type: 'consumable', desc: 'مرهم طبيعي بيرجع 50 نقطة صحة.', effect: { hp: 50 } },
+            { id: 'spirit_water', name: 'ماء بئر زمزم الروحي النقي', price: 40, type: 'consumable', desc: 'ماء نقي ومبارك بيرجع 30 نقطة مانا ونور روحي.', effect: { mp: 30 } }
         ],
         jade_sect_shop: [
-            { id: 'foundation_pill', name: 'Foundation Pill', price: 1000, type: 'consumable', desc: 'Required for Foundation Establishment.' },
-            { id: 'jade_charm', name: 'Jade Charm', price: 500, type: 'relic', slot: 'relic', stats: { def: 15, mp: 20 }, desc: 'A basic protective charm.' },
-            { id: 'disciple_sword', name: 'Disciple Sword', price: 800, type: 'weapon', slot: 'weapon', stats: { atk: 25 }, desc: 'Standard issue jade sect blade.' }
+            { id: 'foundation_pill', name: 'إكسير التمكين والولاية السحري', price: 1000, type: 'consumable', desc: 'مطلوب لتخطي وعقبة مقام التمكين والولاية الروحية.' },
+            { id: 'jade_charm', name: 'تميمة العقيق الأخضر الحارسة للبركة', price: 500, type: 'relic', slot: 'relic', stats: { def: 15, mp: 20 }, desc: 'تميمة بسيطة وجميلة للحماية من ضربات الأشرار.' },
+            { id: 'disciple_sword', name: 'سيف المريد الحديدي المصقول البديع', price: 800, type: 'weapon', slot: 'weapon', stats: { atk: 25 }, desc: 'السيف المعتمد والمنشور لمريدي صومعة جبل الطور.' }
         ],
         sufi_bazaar: [
-            { id: 'empty_quarter_dates', name: 'Sacred Dates', price: 60, type: 'consumable', desc: 'Restores 40 HP and 20 Qi.', effect: { hp: 40, mp: 20 } },
-            { id: 'prayer_beads', name: 'Tasbih of Peace', price: 600, type: 'relic', slot: 'relic', stats: { mp: 50, def: 10 }, desc: 'Beads that calm the spirit.' },
-            { id: 'sufi_tunic', name: 'Woolen Tunic', price: 450, type: 'body', slot: 'body', stats: { def: 20, hp: 30 }, desc: 'Simple but resilient clothing.' }
+            { id: 'empty_quarter_dates', name: 'تمر المدينة المبارك السكري', price: 60, type: 'consumable', desc: 'ثمرة مباركة بترجع 40 نقطة صحة و 20 نقطة مانا.', effect: { hp: 40, mp: 20 } },
+            { id: 'prayer_beads', name: 'مسبحة الخشب والسكينة للذكر', price: 600, type: 'relic', slot: 'relic', stats: { mp: 50, def: 10 }, desc: 'مسبحة من خشب العود المعطر بتجلب السكينة وتثبت الأنوار بالقلب.' },
+            { id: 'sufi_tunic', name: 'عباءة الصوف الخشنة للزاهدين الأحرار', price: 450, type: 'body', slot: 'body', stats: { def: 20, hp: 30 }, desc: 'ملابس زهد وبساطة خشنة بس متينة جداً وبتحمي من الأذى.' }
         ]
     },
 
@@ -28,10 +28,10 @@ window.SHOP = {
     buy(state, shopId, itemId) {
         const shop = this.stocks[shopId];
         const item = shop.find(i => i.id === itemId);
-        if (!item) return { success: false, message: "Item not found." };
+        if (!item) return { success: false, message: "الحاجة دي مش موجودة في السوق حالياً." };
         
         if (state.player.gold < item.price) {
-            return { success: false, message: "Not enough Spirit Stones." };
+            return { success: false, message: "معندكش دنانير روحيّة كفاية في كيسك!" };
         }
 
         state.player.gold -= item.price;
@@ -43,18 +43,18 @@ window.SHOP = {
             state.player.inventory.items.push({ ...item });
         }
         
-        return { success: true, message: `Purchased ${item.name}!` };
+        return { success: true, message: `مبروك! اشتريت <b>${item.name}</b> بنجاح!` };
     },
 
     // Sell an item (standard 50% price)
     sell(state, itemIndex) {
         const item = state.player.inventory.items[itemIndex];
-        if (!item) return { success: false, message: "Item not found in inventory." };
+        if (!item) return { success: false, message: "الحاجة دي مش موجودة في شنطة تأملك الروحي." };
         
         const price = Math.floor((item.price || 50) * 0.5);
         state.player.gold += price;
         state.player.inventory.items.splice(itemIndex, 1);
         
-        return { success: true, message: `Sold ${item.name} for ${price} Spirit Stones.` };
+        return { success: true, message: `بعت <b>${item.name}</b> مقابل <b>${price} دينار روحي</b> بنجاح.` };
     }
 };

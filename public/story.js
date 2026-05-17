@@ -1,6 +1,6 @@
 // ============================================================
-// STORY.JS — Part 1: Acts I & II — The 5-Act Narrative Tree
-// "Legends of the Jade and Sand: The Immortal Codex"
+// STORY.JS — الجزء الأول والثاني: الفصول 1-5 ومحرك السلوك الروحي والبرزخ
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 const STORY_NODES = {
@@ -11,29 +11,29 @@ const STORY_NODES = {
     womb_start: {
         id: 'womb_start',
         act: 0,
-        title: 'The Great Dark',
-        narration: `The world is only warmth and the steady drumbeat of a heart that is not yours. You are a soul waiting for a vessel. The Great Dao flows around you, offering gifts before you enter the mortal coil. 
+        title: 'الظلام العظيم والبرزخ',
+        narration: `العالم كله مجرد دفا ونبضات قلب منتظمة لجسد مش بتاعك. إنت روح هائمة ومستنية جسد يحتويها في عالم الفناء. طاقة الأنوار وطريق السلوك بتدفق حواليك، وبتعرض عليك نفحات وبركات وهدايا قبل ما تنزل لعالم البشر الفاني.
 
-What will you grasp in the silence?`,
+هتختار وتتمسك بإيه في وسط السكون والملكوت ده؟`,
         choices: [
-            { text: '☀️ Grasp the light (Atk focus)', next: 'womb_birth', onEnter: (s) => { s.player.atk += 10; s._wombGift = 'Strength'; s.player.wombGift = 'Strength'; } },
-            { text: '🌊 Flow with the energy (HP focus)', next: 'womb_birth', onEnter: (s) => { s.player.maxHp += 50; s.player.hp = s.player.maxHp; s._wombGift = 'Vitality'; s.player.wombGift = 'Vitality'; } },
-            { text: '🧘 Quietly observe (Karma/Qi focus)', next: 'womb_birth', onEnter: (s) => { s.player.karma += 20; s.player.maxMp += 30; s.player.mp = s.player.maxMp; s._wombGift = 'Spirituality'; s.player.wombGift = 'Spirituality'; } }
+            { text: '☀️ امسك خيط النور الساطع (يركز على الهجوم والقتال)', next: 'womb_birth', onEnter: (s) => { s.player.atk += 10; s._wombGift = 'Strength'; s.player.wombGift = 'Strength'; } },
+            { text: '🌊 تدفق مع طاقة الأرواح المباركة (يركز على الحيوية والدم)', next: 'womb_birth', onEnter: (s) => { s.player.maxHp += 50; s.player.hp = s.player.maxHp; s._wombGift = 'Vitality'; s.player.wombGift = 'Vitality'; } },
+            { text: '🧘 تأمل في سكون وعمق (يركز على ميزان التقوى والمانا)', next: 'womb_birth', onEnter: (s) => { s.player.karma += 20; s.player.maxMp += 30; s.player.mp = s.player.maxMp; s._wombGift = 'Spirituality'; s.player.wombGift = 'Spirituality'; } }
         ]
     },
 
     womb_birth: {
         id: 'womb_birth',
         act: 0,
-        title: 'The First Cry',
-        narration: `Sudden cold. Blinding light. The roar of a world that does not care for your comfort. You feel your spirit anchoring into a body.
+        title: 'الصرخة الأولى في الدنيا',
+        narration: `برد مفاجئ. نور ساطع بيخطف العين. دوشة وضوضاء لدنيا غريبة مش مهتمة براحتك ولا هدوءك. بتحس بروحك وهي بتثبت وتتربط في جسد بشري جديد.
 
-Your cry echoes in the room. A voice speaks — your father? Your mother? The environment around you begins to take shape.`,
+صرختك الأولى بترن في المكان وتعلن مولدك. صوت حنين بيتكلم حواليك — أبوك؟ أمك؟ المعالم والدنيا حواليك بدأت تتكون وتظهر ملامحها.`,
         onEnter: (s) => {
             if (window.LIFE) window.LIFE.rollLife(s);
         },
         choices: [
-            { text: 'Open your eyes to your new life', next: 'act1_intro', storyFlag: 'womb_complete' }
+            { text: 'افتح عينك وابدأ حياتك وعهدك الجديد كبطل سالك', next: 'act1_intro', storyFlag: 'womb_complete' }
         ]
     },
 
@@ -45,88 +45,88 @@ Your cry echoes in the room. A voice speaks — your father? Your mother? The en
     act1_intro: {
         id: 'act1_intro',
         act: 1,
-        title: 'The Crossroads Awakening',
+        title: 'يقظة واحة القوافل الكبرى',
         onEnter: (s) => {
-            const bg = s.player.background || { name: 'Unknown' };
-            const sys = s.player.system || { name: 'None' };
+            const bg = s.player.background || { name: 'مجهول النسبة' };
+            const sys = s.player.system || { name: 'لا يوجد' };
             
             // Dramatic Background Narrative
             let introText = "";
-            if (bg.id === 'royal') introText = "You remember the smell of incense in the Forbidden City, the weight of silk, and the cold eyes of your tutors.";
-            else if (bg.id === 'beggar') introText = "You remember the bite of winter on the stone floors, the taste of stolen bread, and the hunger that never left.";
-            else introText = "The memories of your early years are a blur of hard work and simple dreams.";
+            if (bg.id === 'royal') introText = "فاكر كويس ريحة البخور الملكي في غرف القصر الفخم، وتقل الحرير على كتافك، ونظرات شيوخ ومؤدبي البلاط الباردة.";
+            else if (bg.id === 'beggar') introText = "فاكر وجع وقرصة البرد القاسي على بلاط الواحة الناشف، وطعم رغيف العيش اللي سرقته عشان تعيش، والجوع اللي مسبش بطنك للحظة.";
+            else introText = "ذكريات طفولتك وصباحك الأولى عبارة عن شغل شاق وطلبات تجار وأحلام بسيطة وطيبة.";
 
             narrate(`<div style="background:rgba(212, 175, 55, 0.1); padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--secondary);">
                 <i style="color:var(--secondary)">${introText}</i><br><br>
-                <b>ORIGIN:</b> You are a <b>${bg.name}</b> born with the <b>${sys.name}</b>.<br>
+                <b>النسب والمولد:</b> إنت <b>${bg.name}</b> اتولدت مع بركة وميزة قدر <b>${sys.name}</b>.<br>
                 <small>${bg.desc}</small>
-            </div>`, "System", null, false, true);
+            </div>`, "النظام الروحي", null, false, true);
         },
-        narration: `Years pass like sand through an hourglass. You are no longer a child. You find yourself at the City of Crossroads.
+        narration: `السنين بتعدي زي حبات الرمل في الساعة الرملية. مبقتش طفل صغير خلاص، ولقيت نفسك كبرت وبقيت في واحة القوافل والمدينة الكبرى المليانة ناس من كل فج.
         
-The minarets catch the last light of the sun. The air smells of frankincense and spirit-incense. You have arrived with the weight of your birthright — whether it be a golden crown or a beggar's bowl.
+مآذن المساجد والصوامع بتعكس آخر خيوط ضوء الشمس الدافية وهي بتغرب. الهوا ريحته بخور العود والأنوار الشرقية. وصلت ومعاك حمل وهيبة نشأتك ومولدك — سواء كنت وارث تاج الملوك والأمراء أو كشكول الدراويش والفقراء الغلابة.
 
-A woman in storyteller's robes sits at the central fountain. She has been there, you sense, for a very long time.`,
+في وسط الواحة وجنب النافورة الكبرى، قاعدة ست بملابس الحكايات وحكايات زمان. بتحس بقلبك إنها قاعدة في المكان ده بقالها آلاف السنين، مستنية حضورك.`,
         bgImage: 'assets/mythology_bg_1778872403707.png',
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
         choices: [
-            { text: '🙏 Approach her respectfully', next: 'act1_scheherazade_meet', karmaChange: 3 },
-            { text: '👁️ Observe from a distance first', next: 'act1_scheherazade_cautious', karmaChange: 0 },
-            { text: '🚶 Walk past — you have your own path', next: 'act1_scheherazade_ignore', karmaChange: -2 }
+            { text: '🙏 قرب منها باحترام وأدب شديد', next: 'act1_scheherazade_meet', karmaChange: 3 },
+            { text: '👁️ راقبها من بعيد الأول بحذر وفطانة', next: 'act1_scheherazade_cautious', karmaChange: 0 },
+            { text: '🚶 عدي من جنبها — إنت ليك طريقك الخاص ومشوارك', next: 'act1_scheherazade_ignore', karmaChange: -2 }
         ]
     },
 
     act1_scheherazade_meet: {
         id: 'act1_scheherazade_meet',
         act: 1,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `She looks up before you reach her. Her eyes are the color of candlelight through amber.
+        narration: `بصت ورفعت راسها قبل ما توصل ليها بالظبط. عنيها ليها لون ضوء الشموع الدافية وهي بتعكس الكهرمان الأصفر النادر.
 
-"Ah. You came." She says it as though she has been expecting you for years. "Sit. Every great story begins with someone who doesn't yet know they are the main character."
+"أهلاً بيك. أخيراً جيت،" قالتها بنبرة كأنها مستنياك بقالها سنين طوال. "اتفضل اقعد وارتاح على الدكة. كل قصة عظيمة وعهد كبير بيبدأ بشخص لسة ميعرفش إنه البطل الحقيقي للرواية."
 
-She pours tea from a brass pot that wasn't there a moment ago.
+وصبت كوباية شاي بالنعناع من براد نحاسي مكنش موجود من ثانية واحدة على الطربيزة.
 
-"There is a fracture forming. Between the Eastern Heavens and the Western Spirit World. Something old is waking in the desert — something that was buried for a reason. And you, traveler, are standing precisely at the point where both stories will collide."`,
+"في فجوة وفتنة كبيرة بدأت تتكون وتنشق بين صوامع جبل الطور وجماعات ودراويش الربع الخالي. في سر قديم وعظيم بدأ يصحى في قلب الصحراء — سر اندفن وصدر عليه حكم الكتمان لسبب قوي. وإنت يا مسافر، واقف بالظبط في النقطة اللي القصتين والعالمين هيتصادموا فيها بالكامل."`,
         choices: [
-            { text: '"What do you need me to do?"', next: 'act1_accept_call', karmaChange: 2 },
-            { text: '"Why me? I\'m no one."', next: 'act1_doubt', karmaChange: 0 },
-            { text: '"How do you know all this?"', next: 'act1_question_scheherazade', karmaChange: 1 }
+            { text: '"قوليلي محتاجة مني أعمل إيه بالظبط؟"', next: 'act1_accept_call', karmaChange: 2 },
+            { text: '"ليه أنا بالذات؟ أنا مجرد شخص عادي ملوش وزن ولا قيمة."', next: 'act1_doubt', karmaChange: 0 },
+            { text: '"إنتِ عرفتي كل الكلام ده منين وكيف؟"', next: 'act1_question_scheherazade', karmaChange: 1 }
         ]
     },
 
     act1_scheherazade_cautious: {
         id: 'act1_scheherazade_cautious',
         act: 1,
-        speaker: 'System',
-        narration: `You watch her from behind a merchant's stall. She does not look up. But she speaks — loud enough for only you to hear.
+        speaker: 'النظام الروحي',
+        narration: `بتراقبها من ورا دكان تاجر قوافل كبير في زاوية السوق. هي مبصتش ناحيتك خالص، بس اتكلمت بصوت مسموع وواضح كأنه بيرن في ودنك إنت وبس:
 
-"You can keep watching if you like. I have a thousand and one nights of patience."
+"تقدر تفضل تتفرج عليا من بعيد لو حابب يا بطل. أنا عندي صبر الحكايات وألف ليلة وليلة من الانتظار."
 
-You feel your cover evaporate. The storyteller smiles at her tea.`,
+حسيت إن مكانك وسرك اتكشف بالكامل. الحكواتية شهرزاد ابتسمت وهي بتشرب الشاي بتاعها بوقار وسكينة.`,
         choices: [
-            { text: 'Walk over and sit', next: 'act1_scheherazade_meet', karmaChange: 1 },
-            { text: 'Leave entirely', next: 'act1_scheherazade_ignore', karmaChange: -3 }
+            { text: 'عدي واقعد جنبها على الدكة بكل ثقة', next: 'act1_scheherazade_meet', karmaChange: 1 },
+            { text: 'امشي وسيب المكان خالص ومشوارها', next: 'act1_scheherazade_ignore', karmaChange: -3 }
         ]
     },
 
     act1_scheherazade_ignore: {
         id: 'act1_scheherazade_ignore',
         act: 1,
-        speaker: 'System',
-        narration: `You walk past. Behind you, Scheherazade's voice drifts like smoke:
+        speaker: 'النظام الروحي',
+        narration: `عديت من جنبها ومشيت في طريقك. وراك، صوت الست شهرزاد طار زي الدخان الخفيف في الهوا:
 
-"The story finds its protagonist whether they like it or not. It always does."
+"القصة والقدر بيلاقوا بطلهم الحقيقي أياً كان، سواء حب كده أو رفض. القدر ملوش عزيز."
 
-Three streets later, a Silk Road Bandit King steps out of an alley directly in front of you. He has six men behind him.
+بعد تلات شوارع بالظبط في قلب سوق واحة القوافل، طلعلك زعيم صعاليك طريق الحرير من حارة ضلمة ووقف قدامك بالظبط. وراه ستة رجالة شايلين سيوف وجنازير بيمضغو التبغ.
 
-"Wallet or blood, stranger. Your choice."
+"فلوسك ودنانيرك يا إما دمك ورأسك يا غريب. اختار بسرعة عشان رجالتنا جعانة وسيوفهم عطشانة."
 
-The city's first test has found you regardless.`,
+أول اختبار وفتنة في الواحة والمدينة لاقاك أهو، هربت منه ولا مهربتوش.`,
         choices: [
-            { text: '⚔️ Fight them', next: 'act1_bandit_combat', karmaChange: 0 },
-            { text: '💰 Try to negotiate', next: 'act1_bandit_negotiate', karmaChange: 2 }
+            { text: '⚔️ حاربهم وسن سيفك الدمشقي!', next: 'act1_bandit_combat', karmaChange: 0 },
+            { text: '💰 حاول تتفاوض معاهم بالود وعقل التجار الفطين', next: 'act1_bandit_negotiate', karmaChange: 2 }
         ],
         triggerCombat: 'silk_road_bandit'
     },
@@ -134,19 +134,19 @@ The city's first test has found you regardless.`,
     act1_accept_call: {
         id: 'act1_accept_call',
         act: 1,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `She nods slowly, as though your answer was the correct one.
+        narration: `هزت راسها ببطء ووقار، كأن إجابتك هي بالظبط اللي كانت مستنياها وعارفاها بقلبها.
 
-"First — survive. The Silk Road is not gentle to those without power. Build your strength. When you reach your third stage of cultivation, come back to me."
+"أول خطوة — عيش واحمي نفسك. طريق الحرير والصحراء مبيسموش على الغلابة والضعاف اللي معندهمش قوة وتجلي روحي. قوي مقاماتك وبنية مانا روحك. لما توصل للمرتبة والمستوى التالت في التأمل، ارجعلي هنا عند النافورة."
 
-She stands, and you realize she is taller than she appeared.
+وقفت على طولها، وحسيت إن قوامها مهيب وأطول بكتير مما كانت باينة وهي قاعدة.
 
-"One more thing. There are two powers that will each want to claim you. The Jade Peak Immortal Sects — and the Sufi Orders of the Empty Quarter. Neither is purely good. Neither is purely corrupt. Choose carefully. Or don't choose at all, and let fate make the choice for you."
+"حاجة أخيرة. في قوتين كبار أسياد كل واحدة فيهم هتحاول تضمك لصفها وتحت جناحها. صوامع جبل الطور الأثرياء بفرسانهم — والزوايا والطرق الصوفية في الربع الخالي العظيم بدراويشهم وزهادهم. لا دول خير مطلق، ولا دول شر مطلق. فكر واختار كويس بقلبك وعقلك. أو متختارش خالص، وسيب القدر والميزان يختارلك ويحدد عهدك."
 
-She folds into the crowd and is simply... gone.`,
+ولفت وسط زحمة الناس في السوق واختفت كأنها مكنتش موجودة أصلاً...`,
         choices: [
-            { text: 'Begin your cultivation journey', next: 'act1_hub_open', karmaChange: 0 }
+            { text: 'ابدأ رحلتك وتأملك الروحي العظيم في عوالم الشرق', next: 'act1_hub_open', karmaChange: 0 }
         ],
         unlockRegion: 'crossroads',
         storyFlag: 'act1_started'
@@ -155,43 +155,43 @@ She folds into the crowd and is simply... gone.`,
     act1_doubt: {
         id: 'act1_doubt',
         act: 1,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `"'I am no one' is the most common beginning of every great story I have ever told." She sips her tea. "No one becomes someone. That is the entire point."
+        narration: `"'عبارة أنا مجرد شخص عادي ملوش وزن هي البداية الحقيقية لكل قصة أسطورية حكيتها في حياتي،' وشربت بوقار من الشاي بالنعناع. 'الشخص العادي بيبني نفسه ويبقى بطل يهز الجبال بالجهاد والتأمل والسلوك. ده سر الحكاية كله.'
 
-She sets her cup down with finality.
+وحطت الكوباية على الطربيزة النحاس بحسم.
 
-"The question is not whether you are ready. The question is whether you will reach for it when the moment arrives. Most don't."`,
+"السؤال الحقيقي مش هل إنت جاهز ولا لاء. السؤال هو هل هتمد إيدك وتمسك بزمام القدر لما اللحظة الحاسمة تيجي وتناديك؟ أغلب الناس بيترعبوا ويهربوا للسلامة الفانية."`,
         choices: [
-            { text: '"I will reach for it."', next: 'act1_accept_call', karmaChange: 5 },
-            { text: '"I need to think."', next: 'act1_hub_open', karmaChange: 0 }
+            { text: '"أنا همد إيدي وهمسك زمام قدري!"', next: 'act1_accept_call', karmaChange: 5 },
+            { text: '"أنا محتاج وقت أفكر وأتأمل الموقف."', next: 'act1_hub_open', karmaChange: 0 }
         ]
     },
 
     act1_question_scheherazade: {
         id: 'act1_question_scheherazade',
         act: 1,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `She smiles for the first time — genuinely, not performatively.
+        narration: `ابتسمت لأول مرة بجد وصفاء، من غير تمثيل أو استعراض الحكايات المعتاد.
 
-"A questioner. Good. The ones who don't ask questions are the most dangerous kind of hero."
+"سائل باحث عن الحقيقة. ده شيء عظيم يا بني. الأبطال اللي مبيسألوش ومبيشكوش هما أخطر نوع من البشر على نفسهم وعلينا."
 
-"I know because I have been telling this story for a very long time. I know every version of it. I know the version where you refuse. I know the version where you succeed beyond any expectation. I know the version where you break something that cannot be repaired."
+"أنا عارفة الكلام ده لأني بحكي القصة دي وبشوف عهودها من زمان جداً. عارفة كل رواية ونسخة ليها. عارفة النسخة اللي رفضت فيها تكمل طريقك. وعارفة النسخة اللي نجحت فيها وعديت كل التوقعات والحدود. وعارفة النسخة اللي دمرت فيها شيء غالي وعظيم في الكون مبقاش ينفع يتصلح بعدها."
 
-"I am here to try to steer us toward the last option not happening."`,
+"وأنا هنا عشان أحاول مع بعض نوصل للنسخة الأفضل والأنور وميحصلش أي خراب في واحة القوافل."`,
         choices: [
-            { text: '"That\'s not ominous at all. Fine. What do I do?"', next: 'act1_accept_call', karmaChange: 3 }
+            { text: '"كلام غامض ومخيف... ماشي يا ستي. قوليلي أبدأ منين وبإيه؟"', next: 'act1_accept_call', karmaChange: 3 }
         ]
     },
 
     act1_hub_open: {
         id: 'act1_hub_open',
         act: 1,
-        speaker: 'System',
-        narration: `The City of Crossroads opens before you. The Jade Peak looms to the east, and the Empty Quarter shimmers beyond the western gate. Your journey begins here.
+        speaker: 'النظام الروحي',
+        narration: `شوارع وأسرار واحة القوافل الكبرى والمدينة بتفتح بواباتها قدامك. جبال صومعة جبل الطور بتلوح في الأفق الشرقي، وبحر رمال الربع الخالي بينادي خطواتك ورا البوابة الغربية. رحلتك وسلوكك الروحي بيبدأ دلوقتي حالا.
 
-Reach Stage 3 to trigger Act II.`,
+ارتقي لمقام وتأمل المستوى التالت عشان تفتح أحداث الفصل التاني.`,
         choices: [],
         returnToHub: true,
         storyFlag: 'act1_hub_open'
@@ -201,34 +201,34 @@ Reach Stage 3 to trigger Act II.`,
     act1_bandit_intro: {
         id: 'act1_bandit_intro',
         act: 1,
-        speaker: 'Silk Road Bandit King',
+        speaker: 'زعيم صعاليك طريق الحرير',
         speakerSprite: 'assets/corrupted_taoist_1778872375046.png',
-        narration: `He is larger than he needs to be. A scar runs from his left ear to his chin. His men fan out behind him with practiced ease — this is not their first ambush.
+        narration: `حجمه ضخم وجسمه مليان هيبة مرعبة. في جرح قديم وندبة كبيرة واخدة من ودنه الشمال لحد دقنه. رجالته اتوزعوا وراك وقدامك بخبرة وحرفية — واضح إن ده مش أول فخ ولا أول كمين يعملوه في واحة القوافل.
 
-"I heard there was a new cultivator in town. Young. Inexperienced. Exactly the kind we welcome to the Crossroads." He grins. "Welcome tax. Everything in your pockets."`,
+"سمعت إن في سالك جديد وتاجر مبتدئ لسة واصل المدينة. صغير، وقلة خبرة. بالظبط نوعية الضيوف اللي بنحب نرحب بيهم في واحة القوافل،" وضحك بوقاحة وهيبة. "ضريبة الترحيب والأمان يا شاطر. كل اللي في جيوبك ودنانيرك تطلع هنا فوراً من غير شوشرة."`,
         choices: [
-            { text: '⚔️ "I don\'t pay taxes to bandits."', next: null, triggerCombat: 'silk_road_bandit', karmaChange: 0 },
-            { text: '🧠 "What if I offered you something worth more?"', next: 'act1_bandit_negotiate', karmaChange: 2 },
-            { text: '💀 "I am more dangerous than I look."', next: 'act1_bandit_bluff', karmaChange: -1 }
+            { text: '⚔️ "أنا مبدفعش مليم لصعاليك وحرامية الصحراء."', next: null, triggerCombat: 'silk_road_bandit', karmaChange: 0 },
+            { text: '🧠 "إيه رأيك لو عرضت عليك حاجة تسوى دهب وأكتر من الدنانير الفانية؟"', next: 'act1_bandit_negotiate', karmaChange: 2 },
+            { text: '💀 "أنا أخطر بكتير مما تتخيل يا صعلوك، بلاش تلعب معايا."', next: 'act1_bandit_bluff', karmaChange: -1 }
         ]
     },
 
     act1_bandit_negotiate: {
         id: 'act1_bandit_negotiate',
         act: 1,
-        speaker: 'Silk Road Bandit King',
+        speaker: 'زعيم صعاليك طريق الحرير',
         speakerSprite: 'assets/corrupted_taoist_1778872375046.png',
-        narration: `He pauses. Negotiations interest him — they are rarer than fights.
+        narration: `وقف وبص لرجاله بتردد. المفاوضات والعقل بتشده وبتعجبه — دي حاجة نادرة يقابلوها في مهنتهم دي.
 
-"Talk fast. My patience is short and my men are hungry."
+"اتكلم بسرعة وبوقار. صبري قليل ورجالتي جعانين وسيوفهم عطشانة."
 
-You offer your skills as a cultivator, or information about a rival gang, or simply a future favor from someone who might be powerful one day.
+عرضت عليه تشغل مهاراتك وقدراتك الروحية لخدمته، أو تديه معلومات سرية ومهمة عن عصابة تانية منافسة ليهم في طرق التجارة، أو توعده بجميل ومعونة كبيرة لما شأنك يعلى وتبقى بطل صاحب كلمة في المدينة.
 
-He squints for a long moment. Then he laughs — a genuine one.
+بحلق فيك ووشه كرمش لثواني طويلة وهو بيفكر بعمق. وفجأة فقع ضحكة عالية وصافية رنت في السوق.
 
-"You've got stones. Alright. I'll remember you. If you become worth anything, maybe I'll collect that favor. If you become nothing..." He shrugs. "I'll find you anyway."
+"قلبك ميت بجد وعندك شجاعة عيال رجالة. خلاص. أنا هفتكر وشك ده كويس. لو بقيت صاحب قيمة واسم في الدنيا، هنيجي نطالبك بالجميل والمعونة ده. ولو طلعت فشنك وملقتش قيمة..." وهز كتافه ببرود. "هلاقيك برضه وأخلص عليك."
 
-He waves his men off. They melt back into the alleys.`,
+وشاور لرجاله يرجعوا سيوفهم. ودابوا في شوارع الواحة الضيقة بسرعة.`,
         choices: [
             { text: 'Continue', next: 'act1_hub_open', karmaChange: 3 }
         ],
@@ -239,14 +239,14 @@ He waves his men off. They melt back into the alleys.`,
     act1_bandit_bluff: {
         id: 'act1_bandit_bluff',
         act: 1,
-        speaker: 'System',
-        narration: `He looks you up and down. Then he looks at his men. Then he looks back at you.
+        speaker: 'النظام الروحي',
+        narration: `بص عليك من فوق لتحت بتمعن. وبص لرجاله وضحكوا باستهزاء. وبعدين بص في عينك تاني وقال بحسم:
 
-"Kill them."
+"خلصوا عليه يا رجالة."
 
-The bluff didn't work. Time to make it true.`,
+الفهلوة والبلف منفعش مع صعاليك الجبل. جه الوقت تخلي كلامك حقيقة بالسيوف والدم!`,
         choices: [
-            { text: '⚔️ Fight', next: null, triggerCombat: 'silk_road_bandit', karmaChange: -2 }
+            { text: '⚔️ قتال ودفاع عن النفس!', next: null, triggerCombat: 'silk_road_bandit', karmaChange: -2 }
         ]
     },
 
@@ -258,22 +258,22 @@ The bluff didn't work. Time to make it true.`,
     act2_intro: {
         id: 'act2_intro',
         act: 2,
-        title: 'The Two Worlds at War',
+        title: 'فتنة العوالم والأنوار',
         requiredStage: 3,
         requiredFlag: 'act1_started',
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `She is at the fountain again, as though she never left.
+        narration: `لاقيتها واقفة جنب النافورة والماء الجاري تاني، كأنها مسبتش مكانها للحظة واحدة.
 
-"You have grown. Good." She stands. "Act II begins, whether you are ready or not."
+"مقامات روحك وتجليك قويت وزادت ببركة وفيرة. ممتاز،" وقفت وبصت في عينك بوقار. "أحداث الفصل التاني هتبدأ دلوقتي حالا، سواء كنت جاهز أو لاء."
 
-"Two delegations arrived this week. The first — Elder Zhao of the Jade Summit Sect, who has not left the Jade Peak in sixty years. The second — Sheikh Mahmoud of the Sufi Order of the Empty Quarter, who has never before come to the Crossroads."
+"في وفدين كبار وصلوا واحة القوافل الأسبوع ده. الوفد الأول — الشيخ الجليل والفقيه صاحب صومعة جبل الطور، اللي مسبش قمة الجبل بقاله ستين سنة طوال. الوفد التاني — درويش وشيخ طريقة زاوية الربع الخالي العظيم، اللي عمره ما نزل واحة القوافل ولا دخل مدينة قبل كده."
 
-"Both of them are here for you. Both of them are being corroded from within by something they do not understand. And both of them believe the other side is responsible."
+"الاتنين جايين عشانك إنت بالذات. والاتنين قنواتهم الروحية وقلوبهم بتتآكل من جوة بمرض وظلام هما مش فاهمين سببه إيه. وكل طرف فيهم مقتنع وعنده يقين إن الطرف التاني هو اللي ورا المصيبة والشر ده."
 
-Her voice drops.
+ووطت صوتها وهمست بحذر:
 
-"They are both wrong. There is a third party."`,
+"الاتنين عميان وغلطانين. في طرف تالت غامض وشرير بيلعب بيهم وبينا."`,
         choices: [
             { text: 'Meet Elder Zhao first (Chinese path)', next: 'act2_meet_elder_zhao', karmaChange: 0 },
             { text: 'Meet Sheikh Mahmoud first (Arabian path)', next: 'act2_meet_sheikh', karmaChange: 0 },
@@ -285,21 +285,21 @@ Her voice drops.
     act2_third_party_hint: {
         id: 'act2_third_party_hint',
         act: 2,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `"Clever. Most heroes charge directly into the conflict."
+        narration: `"'فطين وذكي بجد. أغلب الأبطال المتهورين بيجروا بفرسهم مباشرة لوسط النار والخناقة من غير تفكير.'
 
-She lowers her voice to nearly nothing.
+ووطت صوتها ووشوشتك في ودنك:
 
-"Once, long ago, a disciple of the Jade Emperor crossed into the Islamic spirit world on a diplomatic mission. He saw the divine light of Tawhid — the oneness of the Supreme — and it shattered everything he believed about the Dao. He returned... changed. Broken. He spent a thousand years trying to reconcile two truths that he felt could not coexist."
+"من زمان جداً، في سالك وبطل عظيم من صوامع الشرق عدي ودخل عوالم الروح في الغرب وصحراء الرمال في مهمة ودية. وهناك، شاف نور التوحيد البهي والصفاء الروحي الأسمى — والنور ده دمر وفكك كل عقائده القديمة عن المانا وطريق السلوك. رجع لبلده وجماعته... مكسور الوجدان. قعد ألف سنة كاملة يحاول يربط ويوحد بين حقيقتين حس إنهم مستحيل يعيشوا مع بعض في نفس الكون."
 
-"He failed. And in his failure, he chose to destroy both rather than live with the contradiction."
+"وفشل في الآخر. وفي قمة فشله ويأسه، قرر يدمر ويحرق العالمين والصومعتين بالكامل بدل ما يعيش في صراع الشك والوجع الداخلي ده."
 
-"He is called the Fallen Immortal. And he has been quietly poisoning both the Jade Sects and the Sufi Orders from the inside, making each believe the other is the enemy."
+"بينادوه بـ الخالد الساقط المكسور. وبقاله قرون طويلة بيسم وبيلوث عوالم جبل الطور وطرق الصوفية بالراحة ومن سكات من جوة، وبيخلي كل طرف يفتكر إن التاني هو عدوه الأصيل."
 
-She looks at you directly.
+وبصت في عينك مباشرة وبقوة.
 
-"Now you know. The question is whether knowing makes you more careful — or more reckless."`,
+"دلوقتي بقيت عارف السر العظيم. السؤال هو: هل المعرفة دي هتخليك حذر وفطين في خطواتك — ولا هتخليك متهور وتاخدك نار الفتنة؟"`,
         choices: [
             { text: 'Meet Elder Zhao', next: 'act2_meet_elder_zhao', karmaChange: 0 },
             { text: 'Meet Sheikh Mahmoud', next: 'act2_meet_sheikh', karmaChange: 0 }
@@ -309,86 +309,86 @@ She looks at you directly.
     act2_meet_elder_zhao: {
         id: 'act2_meet_elder_zhao',
         act: 2,
-        speaker: 'Elder Zhao',
+        speaker: 'الشيخ الجليل صاحب الصومعة',
         speakerSprite: 'assets/corrupted_taoist_1778872375046.png',
-        narration: `He is ancient. The kind of ancient where age becomes presence rather than frailty. His white robes are immaculate. His beard reaches his belt.
+        narration: `رجل طاعن في السن بشكل مهيب. من نوع السن اللي بيديك وقار وهيبة ترعب القلوب بدل الضعف والمرض. هدومه البيضاء ناصعة ومطرزة بالذهب. ولحيته البيضاء واصلة لحد حزامه.
 
-"Cultivator." He does not bow, but he inclines his head — which, from an Elder of his standing, is significant. "I have watched your progress from the Jade Peak. You have talent, but no foundation. We offer you both."
+"يا سالك الأنوار،" مهزش راسه، بس مال بكتفه ووقاره ليك — وحاجة زي دي من فقيه وجليل مقامه وعزوته تعتبر تقدير كبير جداً. "أنا راقبت سلوكك وصعود مقاماتك الروحية من فوق جبل الطور. عندك موهبة فطرية نادرة، بس معندكش أساس متين وسند قوي. إحنا بنعرض عليك الاتنين ببركة أسرارنا."
 
-He produces a jade token — the seal of the Jade Summit Sect.
+وطلع تميمة نحاسية أثرية — ختم الولاية والولاية الروحية لصومعة جبل الطور.
 
-"Join us. Train on the Peak. In exchange, help us find the source of the darkness that is corrupting our junior disciples. Three of them have had their meridians shattered from the inside. Something is targeting us."
+"انضم لينا وشاركنا السلوك والجهاد. اتدرب وارتري في مقامات الجبل الشاهق. وفي المقابل، ساعدنا نكشف ونبتر منبع الظلمة والفساد اللي بيسم جذور تلاميذنا الصغار في الخلوة. في تلاتة من أحبابنا اتدمرت قنواتهم الروحية تماماً من جوة من غير لمسة واحدة. في شر مجهول بيستهدفنا."
 
-His eyes are clear. He genuinely does not know it is the Fallen Immortal.`,
+عنيه كانت صافية ورايقة بجد. هو فعلاً ميعرفش ولا يتخيل إن الخالد الساقط المكسور هو اللي بيلعب بيهم من ورا الستار.`,
         choices: [
-            { text: '🏔️ Accept — join the Jade Summit Sect', next: 'act2_join_jade', karmaChange: 5, storyFlag: 'aligned_jade' },
-            { text: '🤝 "I will help, but I join no one."', next: 'act2_neutral_jade', karmaChange: 2 },
-            { text: '👁️ "I need to hear the other side first."', next: 'act2_meet_sheikh', karmaChange: 1 }
+            { text: '🏔️ وافق — انضم لفرسان صومعة جبل الطور الأوفياء', next: 'act2_join_jade', karmaChange: 5, storyFlag: 'aligned_jade' },
+            { text: '🤝 "أنا هساعدكم بكل طاقتي بروحي، بس هفضل حر ومستقل."', next: 'act2_neutral_jade', karmaChange: 2 },
+            { text: '👁️ "أنا لازم أسمع كلام ووجهة نظر الطرف التاني الأول قبل ما أقرر."', next: 'act2_meet_sheikh', karmaChange: 1 }
         ]
     },
 
     act2_meet_sheikh: {
         id: 'act2_meet_sheikh',
         act: 2,
-        speaker: 'Sheikh Mahmoud',
+        speaker: 'شيخ طريقة الربع الخالي',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `He sits cross-legged on a prayer rug in the courtyard, utterly calm despite the noise of the city around him. His robes are simple white wool. His misbaha moves through his fingers like water.
+        narration: `قاعد مربع رجله بوقار وتواضع على سجادة صلاة قديمة في حوش المسجد، هادي ورايق تماماً رغم الدوشة والزحمة اللي مالية السوق برا السور. هدومه عبارة عن جلباب صوف أبيض بسيط جداً. ومسبحته الخشبية بتتحرك بين صوابعه بسلاسة ونور زي المية الجارية.
 
-"Sit." It is an invitation, not a command.
+"اتفضل اقعد وارتاح،" قالها بنبرة دعوة حنينة، مش أمر أسياد ورؤساء.
 
-"I did not travel to this city lightly. Something is wrong in the Empty Quarter. The Jinn who have been our silent neighbors for centuries are becoming hostile. Our Murids who go to meditate at the desert shrines are not returning."
+"أنا مسافرتش وجيت المدينة دي بالساهل يا ابني. في شر وفساد كبير بيحصل في رمال الربع الخالي العظيم. الجان الصالحين اللي عايشين جنبنا في سلام وبنحترمهم من قرون بدأوا يتحولوا لمردة أشرار ويهاجموا القوافل. وتلاميذنا اللي بيروحوا يتأملوا ويزهدوا في المقامات الصحراوية القديمة مبيرجعوش بالأسابيع."
 
-He opens his eyes. They are the color of the desert at dawn.
+وفتح عنيه النورانية الدافية. عنيه كانت بلون رمال الصحراء الذهبية وقت الفجر الدافئ.
 
-"We believe it is the Chinese cultivators — their dragon-lines are disrupting the spiritual ecology of the desert. But I am told by those I trust that the truth is more complicated." He pauses. "Are you one who can find what is complicated and not flinch from it?"`,
+"شيوخنا مقتنعين إن فرسان صومعة جبل الطور هما السبب — بمانا السيف وسحرهم الشرقي اللي بيقطع خطوط طاقة الأرض في الصحراء. بس في ناس ثقة قالولي إن الحقيقة أعقد وأعمق من الخناقة دي بكتير." وسكت لثواني. "هل إنت بقى من الرجال السالكين اللي يقدروا يواجهوا الحقيقة المعقدة من غير ما يخافوا أو يرجعوا لورا؟"`,
         choices: [
-            { text: '🌙 Accept — join the Sufi Order', next: 'act2_join_sufi', karmaChange: 5, storyFlag: 'aligned_sufi' },
-            { text: '🤝 "I will help, but I remain independent."', next: 'act2_neutral_sufi', karmaChange: 2 },
-            { text: '"I already know who is behind this."', next: 'act2_reveal_fallen_early', karmaChange: 0 }
+            { text: '🌙 وافق — انضم لطريقة دراويش الربع الخالي الصوفية الأحرار', next: 'act2_join_sufi', karmaChange: 5, storyFlag: 'aligned_sufi' },
+            { text: '🤝 "أنا هساعدكم وأقف معاكم، بس هفضل بطل مستقل ومش تابع لأي طريقة."', next: 'act2_neutral_sufi', karmaChange: 2 },
+            { text: '"أنا عارف ومتاكد بالظبط مين اللي ورا الفتنة والشرور دي كلها يا شيخنا."', next: 'act2_reveal_fallen_early', karmaChange: 0 }
         ]
     },
 
     act2_reveal_fallen_early: {
         id: 'act2_reveal_fallen_early',
         act: 2,
-        speaker: 'Sheikh Mahmoud',
+        speaker: 'شيخ طريقة الربع الخالي',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `He goes very still.
+        narration: `اتسمر في مكانه والمسبحة وقفت بين صوابعه النورانية بذهول.
 
-"Say that again."
+"قول الكلام ده تاني كدة وبصوت واضح وقوي."
 
-You tell him about the Fallen Immortal — a disciple of the Jade Emperor who was broken by the encounter with Islamic divine light, and has been corrupting both sides ever since.
+حكيتله بالتفصيل عن الخالد الساقط المكسور — السالك اللي انهار وجدانه وقنواته الروحية بسبب عدم قدرته على الجمع بين مانا الشرق ونور التوحيد في الغرب، وبقى بيسم العالمين وينشر الفتنة والكره عشان كل طرف يظن إن التاني هو الفاعل والعدو.
 
-A long silence. The misbaha stops moving.
+سكون طويل وصمت مهيب ساد الحوش. والمسبحة فضلت واقفة.
 
-"That would explain..." He exhales slowly. "That would explain a great deal. A being in spiritual crisis does not destroy what threatens them. They destroy everything, so that their crisis has company."
+"ده يفسر... يفسر حاجات كتيرة جداً غابت عن عقولنا وتأملنا،" وطلع تنهيدة دافية وطويلة من قلبه. "الروح المكسورة المليانة بالمرارة واليأس مبتدمرش اللي بيهددها بس. بتدمر الدنيا كلها حواليها، عشان تلاقي ونس وشريك في صراعها وانهيارها الداخلي والروحي."
 
-He stands. "If you are right, this is larger than a territorial conflict. This is a soul in collapse trying to bring the world down with it."
+ووقف بوقار وهيبة. "لو كان كلامك وتجليك ده صح، الفتنة دي أكبر بكتير من مجرد خلاف على واحة أو أرض. ده انهيار كامل لروح عظيمة بتحاول تسحب الكون كله معاها للقاع والخراب."
 
-His expression hardens into something like resolve.
+وملامح وشه الدافية بانت عليها شجاعة وعزيمة رجالة صلبة.
 
-"Then we must find it. Together."`,
+"إذن لازم نلاقيه ونوقفه عند حده. إيدي في إيدك يا بطل ونوحد القلوب."`,
         choices: [
-            { text: 'Form an alliance between both factions', next: 'act2_dual_alliance', karmaChange: 10, storyFlag: 'dual_alliance' }
+            { text: 'اعقد صلح وتحالف أسطوري فريد بين الصومعة والدراويش الأحرار', next: 'act2_dual_alliance', karmaChange: 10, storyFlag: 'dual_alliance' }
         ]
     },
 
     act2_join_jade: {
         id: 'act2_join_jade',
         act: 2,
-        speaker: 'System',
-        narration: `You take the jade token. Elder Zhao's approval registers as the faintest softening of his expression.
+        speaker: 'النظام الروحي',
+        narration: `أخذت التميمة ورمز الصومعة النحاسي الأثري. علامات الرضا والقبول بانت على ملامح الشيخ الجليل ووقاره بابتسامة خفيفة ومهيبة.
 
-"Report to the Jade Peak. Your training begins at dawn."
+"اطلع جبل الطور وابدأ مشوارك. تدريبك وسلوكك الروحي بيبدأ مع خيوط الفجر الأولى."
 
-The Jade Summit Sect is now your faction. The Sufi Order will be harder to access, though not impossible. Some doors close; others open.
+صومعة جبل الطور بقت طائفتك وعزوتك الرسمية دلوقتي. الانضمام للدراويش بقى أصعب ومحتاج حذر، بس مستحيل. في بوابات بتقفل وبوابات تانية بتفتح قدام عزمك ويقينك.
 
-Your cultivation accelerates. The Dragon Vein energy of the Jade Peak calls to your core.`,
+تدريبك وتأملك الروحي بيزيد ببركة وسرعة، وطاقة خطوط جبل الطور بتنادي قنواتك الروحية للتجلي الأكبر.`,
         choices: [{ text: 'Continue', next: null, returnToHub: true }],
         storyFlag: 'jade_sect_member',
         unlockRegion: 'jade_peak',
         onEnter: (state) => {
-            state.player.faction = 'Jade Summit Sect';
+            state.player.faction = 'صومعة جبل الطور الكبرى';
             state.player.factionRank = 1;
             calculateTotalStats();
         }
@@ -397,19 +397,19 @@ Your cultivation accelerates. The Dragon Vein energy of the Jade Peak calls to y
     act2_join_sufi: {
         id: 'act2_join_sufi',
         act: 2,
-        speaker: 'System',
-        narration: `You nod your acceptance. The Sheikh produces a green cord — the mark of a Murid initiate — and ties it around your wrist with a brief prayer.
+        speaker: 'النظام الروحي',
+        narration: `هزيت راسك بالموافقة الصافية. الشيخ محمود طلع خيط حرير أخضر مبارك — علامة المريد السالك المبتدي — وربطه حوالين معصمك مع دعاء قصير وبركة ورضا.
 
-"May your Ruh be clarified by what you find."
+"ربنا ينور بصيرتك وروحك باللي هتلاقيه وتكشفه في طريق السلوك والجهاد يا بني."
 
-The Sufi Order of the Empty Quarter is your faction. The Empty Quarter opens fully to you. The Jade Sects will require more careful navigation.
+طريقة دراويش الربع الخالي بقت زاويتك وطائفتك الرسمية. الربع الخالي فتح أبوابه وأسراره بالكامل لخطواتك. التعامل مع صومعة جبل الطور هيبقى محتاج منك فطنة وذكاء سياسي.
 
-The desert calls to your spirit with a strange, resonant pull.`,
+الصحراء الشاسعة بتنادي روحك وسلوكك بنداء غامض وجميل بيهز وجدانك ويبعث فيك الأمل.`,
         choices: [{ text: 'Continue', next: null, returnToHub: true }],
         storyFlag: 'sufi_order_member',
         unlockRegion: 'empty_quarter',
         onEnter: (state) => {
-            state.player.faction = 'Sufi Order of the Empty Quarter';
+            state.player.faction = 'طريقة دراويش الربع الخالي';
             state.player.factionRank = 1;
             calculateTotalStats();
         }
@@ -418,14 +418,14 @@ The desert calls to your spirit with a strange, resonant pull.`,
     act2_dual_alliance: {
         id: 'act2_dual_alliance',
         act: 2,
-        speaker: 'System',
-        narration: `You have done what neither faction thought possible: convinced both Elder Zhao and Sheikh Mahmoud that their true enemy is not each other.
+        speaker: 'النظام الروحي',
+        narration: `عملت المعجزة اللي الطرفين كانوا شايفينها مستحيلة وخيال: أقنعت الشيخ الجليل لفرسان الطور والشيخ محمود لدراويش الربع الخالي إن عدوهم الحقيقي هو الخالد الساقط المكسور مش بعض.
 
-A fragile, tense, historically unprecedented alliance forms in the courtyard of the City of Crossroads. Two elders who have never sat at the same table now share tea — badly — and argue about everything except the thing that matters.
+تحالف تاريخي هش وتنسيق عسكري غير مسبوق اتأسس في حوش المدينة الكبرى وواحة القوافل. شيخين كبار عمرهم ما قعدوا على طربيزة واحدة، بيشربوا شاي مع بعض بصعوبة وبيمهدوا الطريق لإنقاذ الناس وحقن الدماء.
 
-They agree on one thing: the Fallen Immortal must be found.
+الاتنين اتفقوا على حاجة واحدة بس: الخالد الساقط المكسور لازم نلاقيه ونبتر شره بالكامل.
 
-Both regions unlock simultaneously. Both factions trust you — which means both factions will ask things of you that conflict with each other. Choose carefully.`,
+المنطقتين وجبل الطور والربع الخالي اتفتحوا قدامك في نفس الوقت. الطائفتين بيثقوا فيك — وده معناه إن الطرفين هيطلبوا منك مهمات وتفاني ممكن يضرب مصالح بعض. فكر واختار خطواتك بذكاء الفرسان والسالكين الأوفياء.`,
         choices: [{ text: 'Continue', next: null, returnToHub: true }],
         storyFlag: 'dual_alliance',
         unlockRegion: 'jade_peak',
@@ -437,19 +437,17 @@ Both regions unlock simultaneously. Both factions trust you — which means both
         act: 2,
         requiredFlag: 'act2_started',
         requiredStage: 4,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `"The Caliph Harun al-Rashid is dying."
+        narration: `الخليفة هارون الرشيد بيموت.
 
-Scheherazade delivers the news without preamble.
+الست شهرزاد قالتلك الخبر الصادم ده من غير أي مقدمات ولا تمهيد.
 
-"He has been poisoned — not with something from a market stall, but with a spiritual toxin. Something that is dissolving his Ruh from within. His physicians are baffled. His court is fracturing."
+"اتسم بـ سم روحي خبيث — مش سم تجار حرامية من السوق، سم بيدوب مانا روحه وجسده من جوة بالراحة في قنواته الروحية. أطباء القصر ودكاترة المدينة عاجزين ومذهولين تماماً. وحاشية البلاط بدأت تنقسم وتتخانق على الورث والسيطرة.
 
-"He has asked for you specifically. Apparently word travels quickly in this city."
+وهو طلب يشوفك إنت بالذات يا بطل. واضح إن سيرتك وبطولاتك بتطير في الواحة والبلاد بسرعة البرق.
 
-She pauses.
-
-"I should tell you — Harun is not a simple man. He is sometimes just, sometimes cruel, sometimes both in the same afternoon. But he is the linchpin of the Crossroads. If he dies, the political structure that keeps the city neutral collapses. The Jade Sects and the Sufi Orders will no longer have a reason to tolerate each other here."`,
+ولازم تعرف — الخليفة هارون الرشيد مش راجل بسيط ولا سهل. ساعات بيبقى عادل وطيب، وساعات بيبقى شديد وباطش في نفس اليوم. بس هو صمام الأمان الحقيقي لواحة القوافل وطريق الحرير كله. لو مات، النظام السياسي والأمني اللي مأمن سلام وحياد الواحة هيتفرتك تماماً. فرسان الطور والدراويش مش هيلاقوا وازع يمنعهم من حرب طاحنة تاكل الأخضر واليابس هنا."`,
         choices: [
             { text: '🏃 Go to the Caliph immediately', next: 'act2_harun_palace', karmaChange: 3 },
             { text: '⏳ Finish other business first', next: null, returnToHub: true, storyFlag: 'harun_waiting' },
@@ -460,19 +458,15 @@ She pauses.
     act2_harun_refuse: {
         id: 'act2_harun_refuse',
         act: 2,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `Scheherazade's expression does not change. But something in the air does.
+        narration: `ملامح ووش الست شهرزاد متغيرتش خالص. بس الجو والنور حواليك هدي واتغير بهدوء مقلق.
 
-"I see." A pause. "Then let me tell you a version of the story where you made that choice. It is a shorter story than the other versions. It ends in rubble."
+"فهمت،" وسكتت لثواني بحزن. "إذن خليني أحكيلك قصة ورواية تانية للنسخة اللي اخترت فيها الاختيار ده وسيبته يموت. رواية قصيرة جداً ومأساوية. بتنتهي بخراب الواحة ودمار القصر وبيوت الناس وخراب طريق الحرير بالكامل.
 
-She gestures around at the city.
+كل بياع وطفل وشيخ سالك درويش موجود في أمان المكان ده لإن الخليفة هارون الرشيد حامي بابه وفاتحه للكل. من غير وقاره وهيبته، الواحة دي تتحول لساحة دم وتصفية حسابات طائفية في أقل من شهر.
 
-"Every person in this market. Every sect. Every order. They exist in this space because Harun holds it open. Without him, this city becomes a battlefield within a month."
-
-She tilts her head.
-
-"I am not telling you this to guilt you. I am telling you because I think you do not fully understand what you are refusing. Understanding it — and still refusing — is at least an honest choice."`,
+أنا مش بقولك الكلام ده عشان أوجع ضميرك يا بني. أنا بقوله لأنك لسة مش مستوعب حجم وخطورة رفضك ده. أنك ترفض وإنت فاهم حجم الكارثة... ده على الأقل يبقى اختيار صادق وشجاع لو كنت تقدر تعيش بنتايجه الصعبة."`,
         choices: [
             { text: '...Go to the Caliph', next: 'act2_harun_palace', karmaChange: 2 },
             { text: 'Still refuse', next: null, returnToHub: true, karmaChange: -15, storyFlag: 'harun_refused' }
@@ -482,19 +476,19 @@ She tilts her head.
     act2_harun_palace: {
         id: 'act2_harun_palace',
         act: 2,
-        speaker: 'Harun al-Rashid',
+        speaker: 'الخليفة هارون الرشيد',
         speakerSprite: 'assets/corrupted_taoist_1778872375046.png',
-        narration: `The Caliph's palace is quieter than you expected. Servants move in hushed urgency. Guards watch everything.
+        narration: `قصر الخليفة هارون الرشيد أهدى وأكيب بكتير مما كنت تتخيل. الحاشية والخدم بيتحركوا في صمت مطبق وخوف واضح. الحراس واقفين عينيهم بتاكل الصخور وبتفتش كل ركن.
 
-Harun al-Rashid lies propped on silk cushions, and even diminished by illness he carries an authority that fills the room.
+الخليفة هارون الرشيد راقد على سراير وسرير من الحرير والقطيفة الفخمة، ورغم المرض والضعف الشديد اللي باين عليه، لسة هيبته وسلطانه ماليين الأوضة بالكامل وبيرعبوا القلوب.
 
-"They told me you were coming." His voice is thinner than it should be. "Sit. I do not have energy to shout across a room."
+"قالوا ليا إنك جاي يا بطل،" صوته كان ضعيف ومهتز بس فيه نبرة الملوك الجبابرة. "اتفضل اقعد واقترب. معنديش مانا كفاية عشان أزعق وأتكلم بصوت عالي في القاعة الكبيرة."
 
-You sit. He studies you with the eyes of a man who has read thousands of people over a long reign.
+قعدت جنبه. بص ليك بتركيز وفحصك بعينين رجل حكم بلاد وشاف آلاف الرجال والفرسان في حياته الطويلة.
 
-"There is something in me that does not belong. I have felt it for six weeks — a coldness that is not cold, a silence that is louder than noise." He pauses. "My physicians say I have a year. My body says they are optimistic."
+"في حاجة ناصبة جوة روحي وجسدي مبتنتميش ليا. حاسس بيها بقالي ست أسابيع كاملة — برودة شديدة بتموت الخلايا، وسكوت رهيب صوته أعلى من الدوشة والصريخ،" وسكت ونهج بتعب. "دكاترة القصر بيقولوا قدامي سنة أعيشها. وجسدي بيقول إنهم متفائلين زيادة عن اللزوم وبيعشموني.
 
-"I will ask you what I have not asked anyone else, because everyone else has something to gain from my death or my survival." He looks at you steadily. "Can you find what is inside me?"`,
+أنا هطلب منك خدمة وسؤال مطلبتوش من أي كائن تاني في القصر والحاشية، لإن الكل هنا ليه مصلحة ومنفعة في موتي أو حياتي وعرشي،" وبص في عينك بطلب نجدة صادق ووقار. "هل تقدر تكشف وتحدد إيه اللي ناصب وبياكل في روحي وجسدي من جوة؟"`,
         choices: [
             { text: '🩺 "I will try to identify the spiritual toxin."', next: 'act2_harun_diagnosis', karmaChange: 3 },
             { text: '⚠️ "I suspect I know who did this."', next: 'act2_harun_fallen_reveal', karmaChange: 2 },
@@ -676,28 +670,28 @@ Object.assign(window.STORY.nodes, {
     act3_intro: {
         id: 'act3_intro',
         act: 3,
-        title: 'The Great Tribulation',
+        title: 'الابتلاء والفتنة الكبرى',
         requiredStage: 6,
         requiredFlag: 'act2_started',
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `She is not at the fountain.
+        narration: `مبقتش لاقي الست شهرزاد عند النافورة والماية الجارية زي عادتها.
 
-You find her at the western gate, looking out at the desert. The horizon glows an unnatural violet.
+لاقيتها عند البوابة الغربية للمدينة، واقفة بوقار بتبص برة ناحية الصحراء والرمال البعيدة. الأفق كان بيلمع ويتموج بنور بنفسجي غريب مش طبيعي بيهز السما.
 
-"It has begun." She does not turn around. "The Fallen Immortal has stopped hiding. He wanted enough corruption in place before he revealed himself — enough that both sides would be too fractured to unite."
+"البلا بدت علاماته والشرور طفحت،" قالتها من غير ما تلف وتبص وراها. "الخالد الساقط المكسور مبقاش مستخبي خلاص. كان عايز ينشر سمومه وظلاله بالكامل الأول في جذور الواحة والبلاد — عشان يضمن إن لما يكشف نفسه، تكون الصومعتين والطرفين منقسمين وبيتخانقوا وميقدروش يتحدوا ضده."
 
-She finally looks at you. Something in her expression is different. She looks... tired.
+وبصتلك أخيراً. ملامح وشها بانت عليها حاجة غريبة... تعب وأرق وقلق شديد على الناس.
 
-"A companion of yours may be in danger. The Fallen Immortal targets connections — he will try to use the people you care about as leverage or as weapons."
+"في رفيق ليك وصاحب عزيز في خطر كبير دلوقتي. الخالد الساقط بيستهدف القلوب — وهيحاول يستعمل الناس اللي بتودهم وتحبهم كرهائن أو أسلحة ضد يقينك وسلوكك ومقاومتك."
 
-"And the path forward goes through the Abyssal Sea of Qi. It is the only place where the border between the Jade Heavens and the Islamic spirit world is thin enough to cross."
+"والطريق اللي لازم تمشيه بيمر من بحر النور اللجي. ده المكان الوحيد اللي الباب فيه بين جبل الطور ورمال الربع الخالي رقيق جداً وينفع تعدي منه بالروح والجسد."
 
-She reaches into her robes and hands you a sealed letter.
+ومدت إيدها وادتلك جواب مقفول بختم شمع أزرق أثري.
 
-"From Al-Khidr. He appeared this morning. He said to give it to you and that you would know what it means."
+"ده من سيدنا الخضر. ظهر الصبح فجأة عندي في الخلوة. وقالي أديهولك أول ما تيجي وإنك هتفهم معناه لوحدك يا بطل."
 
-The letter contains a single line in Arabic: 'The wall you wanted to destroy holds everything.'`,
+الجواب كان فيه سطر واحد مكتوب بخط عربي شريف وواضح: 'الجدار الذي أردت هدمه يحمل كل شيء.'`,
         choices: [
             { text: 'Head to the Abyssal Sea', next: 'act3_sea_crossing', karmaChange: 0, unlockRegion: 'abyssal_sea' },
             { text: 'Find your companion first', next: 'act3_companion_danger', karmaChange: 3 }
@@ -708,16 +702,14 @@ The letter contains a single line in Arabic: 'The wall you wanted to destroy hol
     act3_companion_danger: {
         id: 'act3_companion_danger',
         act: 3,
-        speaker: 'System',
-        narration: `You find them — your companion — in a state you have never seen them in before. Cornered. Afraid. Behind them, painted in dark spiritual energy on a warehouse wall, is the sigil of the Fallen Immortal.
+        speaker: 'النظام الروحي',
+        narration: `لاقيت صاحبك ورفيقك العزيز في حالة عمرك ما شفته فيها قبل كده. محاصر... ومرعوب. وراه، مرسوم بطاقة روحية سودة وظلام على جدار البستان، رمز وتوقيع الخالد الساقط المكسور.
 
-"He came in the night," your companion says. "He knew things. Things I have never told anyone. Things I barely admitted to myself."
+"جالي في عز الليل وبث في قلبي الوجع،" رفيقك قال وصوته بيترعش من الخوف. "كان عارف أسرار. أسرار عمري ما حكيتها لكائن، حاجات كنت خايف أواجه بيها نفسي وعقلي."
 
-"He said you were going to fail. That every hero who has tried to stop him has been used as a tool against the people they tried to protect."
+"وقالي إنك هتفشل في طريقك وهتهلك في الفجوة. وإن كل بطل حاول يقف قدامه اتحول لأداة دمار ضد الناس اللي كان بيحاول يحميهم بالوفاء."
 
-They look at you. In their eyes: fear. And beneath the fear, something else. Trust.
-
-"He wanted me to deliver you a message: 'Come to the Abyssal Sea. Alone. Or I start with those who cannot defend themselves.'"`,
+وبص في عينك بدموع وخشية، وتحت الدموع دي بانت لمحة صدق ويقين عظيم. "سابلي رسالة ليك وقالي أوصلهالك: تعال لبحر النور اللجي. لوحدك. وإلا هبدأ بالناس الغلابة والرفاق اللي ملهمش حول ولا قوة هنا."`,
         choices: [
             { text: '⚔️ "We go together. No one comes for my people alone."', next: 'act3_sea_crossing', karmaChange: 5, storyFlag: 'companion_protected' },
             { text: '🛡️ "Stay here. I will go alone and end this."', next: 'act3_sea_alone', karmaChange: 0 }
@@ -727,21 +719,21 @@ They look at you. In their eyes: fear. And beneath the fear, something else. Tru
     act3_sea_crossing: {
         id: 'act3_sea_crossing',
         act: 3,
-        speaker: 'Sinbad',
+        speaker: 'السندباد البحري الأسطوري',
         speakerSprite: 'assets/sinbad.png',
-        narration: `Sinbad is already at the shore when you arrive — as though he knew.
+        narration: `السندباد البحري واقف مستنيك على الشط بالظبط — كأنه كان عارف بميعادك وقدرك.
 
-"I know that look," he says. "That's the look someone gets when they need to cross something impossible." He gestures at the roiling sea of liquid Qi before you. "Seventh voyage didn't kill me. This won't either."
+"أنا عارف النظرة دي كويس،" قال بضحكة وبص لرجاله والسفن. "دي النظرة اللي بتيجي للراجل لما يعوز يعدي بحر مستحيل يعديه مخلوق فاني." وشاور على بحر مانا الروح والأنوار الهائج قدامكم. "الرحلة السابعة مموتتنيش في أطراف الأرض. وبحر مانا الأرواح ده مش هيموتني برضه."
 
-"Probably."
+"غالباً يعني ببركة الله."
 
-The crossing takes three days. The Abyssal Sea is unlike anything in either world — pure spiritual energy in liquid form, shifting colors, containing drowned memories of cultivators who fell in and dissolved into pure experience.
+العدية والعبور أخدت تلات أيام كاملة. بحر النور اللجي مش شبه أي بحر شفته في حياتك — مانا روحية صافية سايلة، ألوانها بتتموج وتتغير بنقاء، وجواها ذكريات هائمة لأبطال وسالكين قدام غرقوا ودابوا في مقامات الحقيقة والشك.
 
-Sinbad navigates it by instinct and old songs.
+السندباد كان بيقود السفينة بالفطرة والأناشيد والمواويل القديمة والخبرة.
 
-On the third day, you see it: the border. A shimmering wall of light where two spiritual traditions meet and cannot fully merge.
+وفي اليوم التالت، شفته بعينك: الحاجز النوراني العظيم. جدار شاحب بيلمع بيتقابل فيه مقامات جبل الطور وزوايا الربع الخالي ومبيقدروش يندمجوا بالكامل.
 
-The Fallen Immortal is waiting on the other side.`,
+والخالد الساقط المكسور واقف مستنيك هناك على الناحية التانية بالظبط بهدوء مميت.`,
         choices: [
             { text: 'Cross into the border space', next: 'act3_fallen_confrontation', karmaChange: 0, unlockRegion: 'abyssal_sea' }
         ]
@@ -750,21 +742,21 @@ The Fallen Immortal is waiting on the other side.`,
     act3_fallen_confrontation: {
         id: 'act3_fallen_confrontation',
         act: 3,
-        speaker: 'The Fallen Immortal',
+        speaker: 'الخالد الساقط المكسور',
         speakerSprite: 'assets/corrupted_taoist_1778872375046.png',
-        narration: `He looks like a scholar. That is the most disorienting thing.
+        narration: `شكله شبه الفقهاء والعلماء الحكماء. دي كانت أكتر حاجة غريبة ومربكة في اللقاء.
 
-A man in torn Taoist robes with a misbaha tangled in his fingers, as though he could not decide which tradition to abandon. His eyes are the color of the border itself — two different lights trying to occupy the same space.
+رجل لابس جلابية صوف مقطعة ومسبحة خشبية متشابكة بين صوابعه وصوابع إيده، كأنه مش قادر يقرر يتخلى عن أنهي طريقة وعقيدة فيهم. عنيه بلون البرزخ نفسه — نورين مختلفين بيحاولوا يقفوا في نفس المكان بالظبط ويحرقوا بعض.
 
-"You are younger than I expected." His voice is calm. Eerily calm. "They always send young ones. The old ones know better than to come here."
+"أنت أصغر بكتير مما كنت أتخيل،" قال بصوت هادي ورايق تماماً... هدوء يرعب ويهز الثقة. "دايماً بيبعتوا الصغار اللي لسة فيهم حماسة. الكبار والفرسان العواجيز عارفين كويس إن الموت والهلاك مستنيهم هنا."
 
-"I assume you know who I am. What I am trying to do."
+"أظن إنك عارف مين أنا. وعارف أنا بحاول أعمل إيه بالظبط وعذابي."
 
-"I am not cruel. I want you to understand this. I am not destroying out of hatred. I am destroying because I sat for a thousand years with two truths that I was told could not coexist — and the pain of holding both was worse than anything I have experienced before or since."
+"أنا مش شرير ولا قاسي يا بني. أنا عايزك تفهم ده بقلبك. أنا مبدمرش من كتر الكره والغل. أنا بدمر لأني قعدت ألف سنة كاملة مع حقيقتين وصومعتين شيوخي قالولي إنهم مستحيل يعيشوا مع بعض في نفس الدنيا — ووجع صراع الشك والجمع بينهم كان أصعب وأقوى من أي عذاب شفته أو هشوفه."
 
-He looks at you with something that might be hope.
+وبص في عينك بلمحة أمل خافتة وشفافة.
 
-"Tell me I am wrong. If you can. I have been waiting a thousand years for someone to tell me I am wrong about this."`,
+"قولي إن كلامي وعذابي ده غلط. لو تقدر. بقالي ألف سنة مستني بطل سالك يجي ويقولي إني غلطان ويثبتلي ده بقلبه وجسده ويقينه."`,
         choices: [
             { text: '"The Dao and Tawhid are not opposites. Both point toward the same infinite."', next: 'act3_philosophical_resolution', karmaChange: 15 },
             { text: '"Your pain is real. But destruction is not an answer."', next: 'act3_empathy_path', karmaChange: 8 },
@@ -776,23 +768,23 @@ He looks at you with something that might be hope.
     act3_philosophical_resolution: {
         id: 'act3_philosophical_resolution',
         act: 3,
-        speaker: 'The Fallen Immortal',
+        speaker: 'الخالد الساقط المكسور',
         speakerSprite: 'assets/corrupted_taoist_1778872375046.png',
-        narration: `He goes very still.
+        narration: `وقف في مكانه ومتحركش تماماً.
 
-The border light behind him flickers.
+الضوء النوراني وراه اهتز وفضل يتردد ويتموج بذبذبات رايقة.
 
-"...Say that again."
+"...قول الكلام ده تاني كدة بكل وضوح."
 
-You say it again, differently. You speak of the Dao as the fabric — the is-ness of all things. And Tawhid as the source — the One from which the fabric emerges. Not opposites. Not even parallel. One is the song; the other is the singer.
+قولتهاله تاني، بس بنبرة وتجلي مختلف. كلمته عن مقامات السلوك والمانا كأنها النسيج والوجود والوعي للي خلق الدنيا. ونور التوحيد كأنه المصدر والواحد الأحد اللي خرج منه النسيج والأنوار دي كلها ببركته وقدرته. مش متناقضين. ولا متوازيين حتى. واحد هو اللحن؛ والتاني هو العازف وخالق اللحن العظيم.
 
-Something cracks in his face. Not breaks. Cracks — like light coming through.
+شيء اتكسر في ملامح وشه المجهدة الحزينة. مش انكسار ذل ومهانة. انكسار نور وشروق — كأن ضوء الفجر طلع فجأة بعد ليل طويل من الكوابيس.
 
-"I tried to reach this conclusion for a thousand years." His voice is barely above a whisper. "I could not get there alone."
+"أنا حاولت أوصل لليقين ده بقالي ألف سنة،" قال بصوت خافت كأنه همس طالع من أعماق قلبه. "بس مكنتش قادر أوصل لوحدي من غير رفيق وسالك أمين يوجه بصيرتي."
 
-The dark spiritual energy begins to recede.
+طاقة الظلام والفساد والسموم بدأت ترجع وتدوب في الهوا بسلام.
 
-"I can... I can stop. I can stop the corruption. But what has been poisoned will take time to heal. And I..." He looks at his hands. "I will need somewhere to go. I cannot simply cease to exist."`,
+"أنا... أقدر أوقف. أقدر أمنع انتشار السموم والفساد في الواحة. بس اللي اتسم وتلوث هيحتاج وقت وجهد كبير عشان يشفى بالبركة والأنوار. وأنا..." وبص لإيديه بحيرة وتوبة. "أنا هحتاج مكان يؤويني ويعلمني. مقدرش بكل بساطة أختفي من الوجود كأني مكنتش."`,
         choices: [
             { text: '"The Jade Peak can receive you."', next: 'act3_redemption_jade', karmaChange: 5, storyFlag: 'fallen_redeemed' },
             { text: '"The Sufi Order can give you a place."', next: 'act3_redemption_sufi', karmaChange: 5, storyFlag: 'fallen_redeemed' },
@@ -803,18 +795,18 @@ The dark spiritual energy begins to recede.
     act3_empathy_path: {
         id: 'act3_empathy_path',
         act: 3,
-        speaker: 'System',
-        narration: `He does not respond immediately. You can see him fighting something — the habit of a thousand years, the momentum of a plan already in motion.
+        speaker: 'النظام الروحي',
+        narration: `مردش عليك في ساعتها. شفته بعينك وهو بيحارب عادات وأفكار ألف سنة كاملة، وعزم خطة مرسومة ومبنية بقالها قرون في قلبه وعقله.
 
-"Pain as an excuse," he finally says. "I have told myself that. I know I have." A pause. "The worst part is that it is also true."
+"الخوف والوجع كعذر للدمار والخراب،" قال أخيراً بحزن وتنهيدة طويلة. "أنا قولت لنفسي الكلام ده كتير. وعارف إنه حقيقي برضه للأسف."
 
-He does not stand down. But he slows.
+مستسلمش ولا ساب سيفه بالكامل. بس حركته وبطشه هديوا بكتير.
 
-"If you can show me — not tell me, show me — that coexistence is possible. If you can reach the Celestial Court and broker actual peace between the Jade Emperor and the Divine Council..."
+"لو تقدر تثبتلي — مش بالكلام، بالفعل والبرهان القاطع — إن التعايش والتوازن ممكن بجد بين القوى. لو قدرت توصل للمحكمة السحرية العليا وتعقد صلح تاريخي وأمني بين صاحب عرش جبل الطور وشيوخ الدراويش بالكامل..."
 
-"Then I will stop. And I will spend whatever time I have left trying to undo what I have done."
+"ساعتها بس أنا هقف وأعلن توبتي. وهقضي اللي فاضل من عمري الفاني بحاول أصلح كل اللي بوظته ودمرته في قلوب وعوالم الناس."
 
-A conditional surrender. The hardest kind.`,
+استسلام مشروط بعهود شاقة وأعمال عظيمة. أصعب وأقوى أنواع العهود الروحية.`,
         choices: [
             { text: 'Accept this terms — reach the Celestial Court', next: 'act4_intro', karmaChange: 5, storyFlag: 'fallen_conditional', unlockRegion: 'brass_city' }
         ]
@@ -828,26 +820,26 @@ A conditional surrender. The hardest kind.`,
     act4_intro: {
         id: 'act4_intro',
         act: 4,
-        title: 'The Celestial Gate',
+        title: 'بوابة المحكمة العليا والملكوت',
         requiredStage: 9,
         requiredFlag: 'act3_started',
-        speaker: 'Nuwa',
+        speaker: 'الست نون المباركة (Nuwa)',
         speakerSprite: 'assets/nuwa.png',
-        narration: `She appears without announcement — simply there, in the center of the Brass City, as though she has been standing there for ten thousand years.
+        narration: `ظهرت قدامك فجأة من غير أي مقدمات أو صوت — واقفة بوقار وهيبة في وسط المدينة النحاسية الأسطورية، كأنها واقفة في المكان ده من عشرة آلاف سنة لحماية السر.
 
-"Child." Her voice carries the weight of geological time. "You have done something I did not expect. You reached the one who was broken and found a thread of him that was not."
+"يا ابني،" صوتها كان شايل هيبة وجلال تاريخ الأرض والجبال الشامخة. "إنت عملت معجزة مكنتش أتخيلها أبداً في حكاياتي. وصلت للشخص المكسور وصحيت جواه خيط نور ويقين كان مدفون وضاع في بحار الفتنة."
 
-"The Celestial Court will not receive you easily. The Jade Emperor is proud and does not admit crisis. The Divine Council is cautious and does not trust outsiders."
+"المحكمة السحرية العليا وعروش الملوك مش هيستقبلوك بالساهل والترحاب. صاحب عرش الصومعة راجل فخور وعنيد ومبيحبش يبان ضعيف أو مأزوم قدام عساكره. وشيوخ الزوايا حذرين جداً ومبيثقوش في الأغراب والسالكين الجداد بسهولة."
 
-"You will need to prove yourself to both. Not through power — you could have done that three acts ago. Through understanding."
+"إنت محتاج تثبت وتفرض وجودك وهيبتك عليهم. مش بالقوة والبطش بالسيف بس — إنت كنت تقدر تعمل ده من فصول فاتت. إنما بالحكمة والفهم والبركة وبياض النية."
 
-She places her palm flat against your chest. Something settles into alignment inside you — a cultivation breakthrough that was almost impossible at your current stage.
+وحطت كف إيدها الدافية على صدرك وجنب قلبك بالظبط. حسيت بذبذبات المانا والأنوار بتتوزع وتترتب جوة قنواتك الروحية — ارتقاء روحي عظيم وانفتاح مقامات كان شبه مستحيل توصله في سنك ومقامك ده بجهدك الفردي.
 
-"I am giving you a head start. The rest is yours."
+"أنا بديك نفحة وبركة البداية والخطوة الأولى. والباقي كله عليك وعلى يقينك وسلوكك."
 
-She looks at you for a long moment.
+وبصت في عينك بتركيز وحب كبير قبل ما تتلاشى.
 
-"I know how this ends. I will not tell you. But I will say this: every version of this story in which something good survives... you make the same choice at the final moment. Every single time."`,
+"أنا عارفة النهاية والرواية هتقفل على إيه. مش هقولك طبعاً عشان متكسلش. بس هقولك حاجة واحدة بس تفضل حفرها في عقلك وقلبك: كل نسخة من القصة دي بيفضل فيها خير وحياة ونور للناس... إنت بتختار فيها نفس الاختيار بالظبط في اللحظة الحاسمة الأخيرة. في كل مرة بالملي."`,
         choices: [
             { text: 'Enter the Celestial Court', next: 'act4_celestial_gate', karmaChange: 0, unlockRegion: 'celestial_court' }
         ],
@@ -857,19 +849,19 @@ She looks at you for a long moment.
     act4_celestial_gate: {
         id: 'act4_celestial_gate',
         act: 4,
-        speaker: 'System',
-        narration: `The Celestial Court sits above the clouds, reached by a staircase of compressed starlight. The Jade Emperor's hall is to the left. The Chamber of the Divine Council is to the right.
+        speaker: 'النظام الروحي',
+        narration: `المحكمة السحرية العليا وقاعة الملوك مبنية فوق السحاب الأبيض، بتوصلها بسلالم من ضوء النجوم المعصور ببركة سماوية وهيبة روحية. قاعة صاحب عرش الصومعة اليشمية على الشمال. وقاعة شيوخ الطرق والدراويش الأحرار على اليمين.
 
-Both doors are closed.
+الأبواب الكبرى للطرفين مقفولة تماماً بالحديد والنحاس المقوى بأشعة المانا.
 
-Between them, a massive Heavenly Guard bars your path — not hostile, but absolute. Behind them you can hear voices in urgent, dangerous debate.
+وفي النص بينهم، حارس سماوي ضخم من الجان المردة الأقوياء بيقفل الممر — مش بعداوة وغضب، بس بهيبة ومنع مطلق ومستحيل يتزحزح من مكانه. ورا البوابات، تقدر تسمع همس وخناقات شديدة ومخيفة بين الزعماء والفرسان.
 
-"The Eastern Heavens will not yield."
-"The Western Spirit World does not negotiate from weakness."
+"صومعة جبل الطور وجيش اليشم مش هيستسلم ولا هيخضع لأي شروط."
+"دراويش الربع الخالي مش هيمضوا على اتفاق وهما في موقف ضعف أو تهديد."
 
-The guard looks at you. "Prove you are worthy. Both doors will open for one who earns it."
+الحارس بصلك بوقار وصوت جهوري. "أثبت إنك سالك شجاع وتستاهل تدخل قاعة الحكم. الأبواب دي مش هتتفتح وتخضع غير للفرسان اللي يثبتوا نفسهم بالدم واليقين والاختبار."
 
-A gauntlet awaits.`,
+في اختبار قاسي ونزال موت مستنيك ليثبت معدنك.`,
         choices: [
             { text: '⚔️ Face the Heavenly Gauntlet', next: null, triggerCombat: 'heavenly_guard', karmaChange: 0 }
         ]
@@ -878,19 +870,19 @@ A gauntlet awaits.`,
     act4_after_gauntlet: {
         id: 'act4_after_gauntlet',
         act: 4,
-        speaker: 'The Jade Emperor',
+        speaker: 'صاحب العرش وصاحب الصومعة',
         speakerSprite: 'assets/corrupted_taoist_1778872375046.png',
-        narration: `Both doors open simultaneously.
+        narration: `البوابتين الكبار اتفتحوا في نفس اللحظة بهزّة كبيرة في الأرض وجدران القصر السحابي.
 
-The Jade Emperor and the leader of the Divine Council face each other across a chamber that should not be large enough to contain both their presences.
+صاحب عرش الصومعة وشيخ طريقة زاوية الربع الخالي واقفين بيبصوا لبعض بوقار وهيبة وعداوة قديمة في قاعة واسعة كأنها بتسع الكون كله بقوتهم وهيبتهم الروحية العظيمة.
 
-They both turn to look at you.
+الاتنين لفو وبصوا عليك إنت بالذات وباهتمام شديد لما دخلت الساحة.
 
-"Mortal." The Jade Emperor's voice is like struck jade. "You have climbed to a height that should have destroyed you three times over. That earns you the right to speak."
+"يا فاني سالك،" صاحب العرش قال وصوته قوي ومزلزل زي خبط اليشم النوراني الفخم. "إنت ارتقيت وطلعت لمقام ومكان كان المفروض يدمر قنواتك الروحية ويفنيك تلات مرات على الأقل. الشجاعة واليقين ده بيدوك الحق الكامل إنك تقف وتتكلم بوقار قدام عروشنا."
 
-A pause.
+وسكت لثواني وبص للشيخ التاني.
 
-"Speak, then. Say whatever it is you climbed this mountain to say."`,
+"قول كلامك إذن يا بطل. قول اللي صعدت الجبال وعبرت البحار والمخاطر من أجله عشان تقوله وتفرضه علينا."`,
         choices: [
             { text: '"Both worlds are being destroyed by a third party. Unite or lose both."', next: 'act4_unity_speech', karmaChange: 10 },
             { text: '"The Fallen Immortal is willing to stand down if you prove coexistence is possible."', next: 'act4_fallen_leverage', karmaChange: 5 },
@@ -907,27 +899,27 @@ A pause.
     act5_righteous_ending: {
         id: 'act5_righteous_ending',
         act: 5,
-        title: 'The Bridge Immortal',
+        title: 'الولي الخالد وجسر العهد',
         requiredFlag: 'reached_celestial_court',
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `She is at the fountain. She was always going to be at the fountain for this moment.
+        narration: `لاقيتها واقفة جنب النافورة والماية الجارية تاني في واحة القوافل الكبرى. شهرزاد كانت دايماً هتبقى واقفة في المكان ده بالظبط في اللحظة الحاسمة دي عشان تسجل العهد في حكاياتها.
 
-"You did it." She sounds genuinely surprised. "I have told this story in many versions. In most of them it ends differently."
+"عملتها ونجحت يا بني،" قالت ونبرة صوتها فيها دهشة وفرحة صادقة. "أنا حكيت القصة دي بألف رواية ونسخة طوال عمري. وفي أغلبهم كانت بتنتهي بخراب ودمار مختلف ودم كتير."
 
-The two worlds have not merged — they were never meant to. But the walls between them are now doors. Real ones, with handles.
+العالمين مماتوش ولا اندمجوا ببعض — هما أصلاً مكانش ليهم يندمجوا كطبيعة أرض. بس الحيطان والحدود اللي كانت بينهم بقت بوابات حقيقية وسهلة، بوابات ليها أوكر ومقابض ببركتك ويقينك الصافي.
 
-The Jade Emperor acknowledged the existence of a divine principle beyond his Heavenly Court. The Divine Council acknowledged that cultivation and spiritual discipline were not in contradiction.
+صاحب العرش اعترف وصدق بوجود سر الهي مبارك ونور أسمى برة قصر جبل الطور وجيش اليشم بتاعه. وشيوخ الدراويش أقروا وصدقوا إن مانا الروح وتأمل السلوك مش ضد اليقين والتقوى والتوحيد.
 
-The Fallen Immortal — freed of his thousand-year burden — wept. That was unexpected.
+والخالد الساقط المكسور — لما انزاح عنه حمل ووجع ألف سنة من الشك والظلال والخراب — بكى دموع فرحة وراحة حقيقية في خلوته. ودي كانت حاجة محدش يتخيلها.
 
-And you. You stand at the Crossroads, where you began, and you are not the person who arrived here.
+وإنت. واقف في واحة القوافل والمدينة الكبرى، بالظبط في النقطة اللي بدأت منها مشوارك، بس إنت دلوقتي مش نفس الشخص البسيط اللي وصل هنا أول يوم برجليه شايل سلاحه البسيط.
 
-"There is a title being argued about in both courts," Scheherazade says. "The Bridge Immortal. Someone who belongs to neither world completely, and therefore can move between both."
+"في اسم ولقب جديد شيوخ العالمين وكبار الصوامع بيتخانقوا عليه عشان يلقبوك بيه ويسجلوه في دفاترهم،" شهرزاد قالت بابتسامة دافية. "الولي الخالد وجسر العهد. السالك البطل اللي بينتمي لكلا العالمين وبيقدر يعدي ويمشي بينهم بسلام وبركة وأمان للناس."
 
-She looks at you.
+وبصت في عينك بتقدير وحب كبير.
 
-"It is yours if you want it. Or you can simply go home. Both are valid endings."`,
+"اللقب والعرش ده ملكك لو حابب تتربع عليه وتخدم الناس وتدير شؤون عوالمنا. أو تقدر بكل بساطة ترجع لبيتك وناسك الغلابة وتعيش في هدوء كإنسان بسيط. الحالتين نهايات عظيمة وصادقة لقصتك."`,
         choices: [
             { text: '🌉 Accept: Become the Bridge Immortal', next: 'act5_ascension_bridge', karmaChange: 0 },
             { text: '🏠 Return home — the world is saved, that is enough', next: 'act5_humble_end', karmaChange: 5 }
@@ -938,28 +930,28 @@ She looks at you.
     act5_demonic_ending: {
         id: 'act5_demonic_ending',
         act: 5,
-        title: 'The Dark Sovereign',
+        title: 'ملك الظلال والعدم المطلق',
         requiredFlag: 'reached_celestial_court',
-        speaker: 'System',
-        narration: `The Celestial Court burns.
+        speaker: 'النظام الروحي',
+        narration: `قصر المحكمة السحرية العليا بيتحرق بلهب أسود قاتم بيمحي الحجر.
 
-You did not come to negotiate. You came because you finally understood what the Fallen Immortal understood: that both courts were corrupt, both powers were self-serving, and no one was going to fix this from the outside.
+إنت مجيتش هنا عشان تتفاوض أو تعمل صلح هش أو ترجو السلام. إنت جيت لإنك فهمت واستوعبت اللي الخالد الساقط المكسور فهمه زمان: إن الصوامع والعهود دي كلها مليانة طمع وغرور ونفاق، وإن مفيش حد هيصلح الكون ده من برة بالرجاء والأدعية الضعيفة.
 
-So you fixed it from the inside.
+إذن إنت قررت تصلحه وتفرضه بقبضة إيدك الدمشقية وسيفك وقوتك الغاشمة من جوة وتعتلي العرش.
 
-The Jade Emperor fled. The Divine Council dissolved. The power vacuum left behind was immense — and you were standing in it.
+صاحب العرش هرب بجلده وجيش اليشم اتفرتك وتشتت. وشيوخ الدراويش اختفوا في رمال الصحراء خايفين. الفراغ والعرش الفاضي اللي سابوه وراهم كان عظيم ومهيب — وإنت واقف لوحدك في وسطه وسيفك بيسيل منه النور المظلم والشرر الأسود.
 
-The Crossroads is yours now. Both worlds will pay tribute or face the alternative.
+واحة القوافل والمدينة الكبرى بقت ملكك وتحت طوعك بالكامل دلوقتي. العالمين هيدفعوا الجزية والولاء ليك ورجلك فوق كتافهم أو يواجهوا الفناء والعدم والقتل.
 
-This is not the version Scheherazade was trying to steer you toward. You find her later, at what used to be the fountain, which is now broken.
+دي مش النسخة ولا النهاية اللي الست شهرزاد كانت بتحاول توديك وتوجهك ليها في حكاياتها الطيبة. قابلتها بعدين، عند أطلال النافورة والماية الجارية اللي اتكسرت واتدمرت بالكامل بقوتك وبطشك.
 
-She looks at you for a long time.
+بصت عليك لثواني طويلة وصامتة ونظراتها فيها حزن وأسى لا ينتهي وصدمة.
 
-"I have told this story before," she says finally. "This version is shorter than the others. Not because it ends soon. Because stories about fear are always shorter than stories about hope."
+"أنا حكيت النسخة دي قبل كده للناس،" قالت بصوت ضعيف وباهت ومرعوب. "النسخة دي دايماً أقصر بكتير من الروايات التانية. مش لإنها بتخلص بسرعة وبس. لإن القصص والروايات اللي بتتحكي عن الخوف والرعب دايماً أقصر بكتير من القصص والروايات المليانة أمل ويقين بالخير وبركة الله."
 
-She walks away.
+ولفت ومشيت بعيد عنك في صمت وعينيها مدمعة على حال البلاد.
 
-You have won everything. The silence of absolute power is louder than you expected.`,
+إنت كسبت وحكمت كل شيء ودمرت أعداءك. بس سكون وبرودة القوة المطلقة والعرش الأسود طلع صوته أعلى وأوحش بكتير مما كنت تتخيل في خلوتك الروحية.`,
         choices: [
             { text: 'Rule the combined realm as the Dark Sovereign', next: null, returnToHub: true }
         ],
@@ -969,27 +961,27 @@ You have won everything. The silence of absolute power is louder than you expect
     act5_ascension_ending: {
         id: 'act5_ascension_ending',
         act: 5,
-        title: 'Nameless Ascension',
+        title: 'الارتقاء الأسمى والتوحيد المطلق',
         requiredFlag: 'reached_celestial_court',
-        speaker: 'Al-Khidr',
+        speaker: 'سيدنا الخضر الجليل',
         speakerSprite: 'assets/al_khidr.png',
-        narration: `Al-Khidr appears one final time. He always does, at moments like this.
+        narration: `سيدنا الخضر ظهرلك لآخر مرة ببهائه ونورانيته. هو دايماً بيظهر في اللحظات العظيمة الحاسمة اللي زي دي للسالكين الصادقين.
 
-"You have a choice that no one else has been given. Not in my memory — and I remember a great deal."
+"قدامك اختيار وقدر معطاش لأي سالك قبلك في عهد البشر. مش في حدود ذاكرتي الطويلة — وذاكرتي طويلة جداً وشافت أجيال وأساطير وأنبياء."
 
-"Both courts want you to become something. A symbol. A weapon. A bridge. A sovereign."
+"الملوك والفقهاء في الصوامع والزوايا عايزينك تبقى حاجة تخدمهم وتثبت ملكهم. رمز ليهم. بطل حامي لسيوفهم. جسر يربطهم. أو ملك يحميهم بقوته وعساكره."
 
-He looks at you with eyes that have seen everything.
+وبص في عينك بعينين نورانية شافت ونورت الكون كله من بدايته ببركة الله.
 
-"But there is a third option. Beyond all of it. Beyond names and courts and mythology. Where the Dao and Tawhid both dissolve into something that has no human word."
+"بس في اختيار تالت وعهد أعظم بكثير. ورا كل المسميات والصوامع والأساطير والحدود البشرية الفانية. النقطة والبرزخ اللي بتدوب فيها طاقة المانا ونور التوحيد في سر الهي مبارك ملوش أي كلمة أو اسم بشري ينطق بيه اللسان."
 
-He extends his hand.
+ومد إيده الدافية النورانية الخضراء ليك بابتسامة راضية.
 
-"It requires you to leave everything behind. Every name. Every relationship. Every version of yourself you have built."
+"العهد ده محتاج منك تسيب وراك كل حاجة فانية. كل اسم وقبيلة ولقب تلقبت بيه. كل صاحب ورفيق وعلاقة أرضية. وكل نسخة من نفسك بنتها في رحلتك وجهادك وسلوكك."
 
-"Most people refuse. It is, I think, the correct choice to refuse. The world needs people in it."
+"أغلب السالكين والفرسان بيرفضوا العهد الأعظم ده وبيخافوا يسيبوا أساميهم وعروشهم الفانية. وأنا شايف إن الرفض هو الاختيار الصح والأحن ليهم. الدنيا محتاجة فرسان يفضلوا عايشين فيها عشان يعمروها بالخير والوفاء."
 
-He waits.`,
+ووقف مستني ردك ويقين قلبك بكل سكينة وهدوء الحكماء.`,
         choices: [
             { text: '🌌 Take his hand — ascend beyond all names', next: 'act5_true_ascension', karmaChange: 0 },
             { text: '❤️ "No. The world needs me in it."', next: 'act5_righteous_ending', karmaChange: 10 }
@@ -998,72 +990,70 @@ He waits.`,
 });
 
 // ============================================================
-// ACT V � FINAL ENDING NODES (completing the three paths)
+// ACT V — FINAL ENDING NODES (completing the three paths)
 // ============================================================
 Object.assign(window.STORY.nodes, {
 
     act5_ascension_bridge: {
         id: 'act5_ascension_bridge',
         act: 5,
-        speaker: 'System',
-        narration: `The title is given in both courts on the same day, at the same hour, read aloud in two languages simultaneously.
+        speaker: 'النظام الروحي',
+        narration: `اللقب والولاية الروحية الكبرى اتقروا في كلا العالمين والعرشين في نفس اليوم، في نفس الساعة بالظبط، وبصوتين ولغتين متناسقين في نفس الوقت ببركة إلهية عظيمة.
 
-In the Eastern Heavens: The Jade Emperor's own herald proclaims you Bridge Immortal before the assembled celestial host. A jade seal is pressed into your hand � not as a symbol of ownership, but of passage.
+في صوامع جبل الطور: منادي العرش وصاحب صومعة جبل الطور قرأ اسمك ولقبك الولي الخالد وجسر العهد قدام جيش اليشم والفرسان المجتمعين. واتختم على إيدك بختم نحاسي أثري مبارك — مش كرمز ملكية أو ولاء ليهم، كرمز للمرور العرشي والأمان الأبدي بين العالمين وسهولة السفر.
 
-In the Western Spirit World: The Divine Council reads your name in Arabic, each syllable carrying the weight of Qadar � destiny that was always going to arrive, even when the path to it was not visible.
+في زوايا الربع الخالي وطرق الصوفية: الشيوخ والدراويش الأحرار قرأوا اسمك ولقبك بخط عربي شريف ودعاء صادق، وصوتهم فيه خشوع ورضا بـ قضاء الله وقدره — القدر اللي كان دايماً هيوصل ويتحقق، حتى لما كانت السكك مش باينة والرمال مغطية الطريق بالكامل.
 
-You stand between both ceremonies, belonging fully to neither, accepted by both.
+إنت واقف دلوقتي في البرزخ بين كلا العهدين والمحفلتين، لا تنتمي بالكامل لأي طرف، ومقبول ومعظم ومبارك من الطرفين بالحب والوفاء والبركة.
 
-Scheherazade finds you that evening at the fountain. She is, for the first time, not telling a story. She is simply sitting.
+الست شهرزاد لاقتك وقت المغربية عند النافورة والماية الجارية اللي رجعت تتدفق بسلام ونور بعد طول كدر. ولأول مرة في حياتها وحكاياتها، مكنتش بتحكي قصة للناس. كانت قاعدة في هدوء وسكينة تامة وسعيدة.
 
-"It's done," she says.
+"كل شيء اكتمل وقفل بالخير والبركة،" قالت بابتسامة صافية.
 
-"Yes."
+"الحمد لله رب العالمين."
 
-"I have told this story one thousand and one times," she says quietly. "This is the first time it ended here."
+"أنا حكيت ورويت القصة دي ألف ومرة طوال حياتي يا بطل،" قالت بصوت حنين ودافئ. "بس دي أول مرة في تاريخ الحكايات تقفل الرواية والنهاية هنا بالجمال والبركة والنور ده."
 
-She looks at you.
+وبصت في عينك بفضول وبراءة الحكواتية الأبدية.
 
-"What do you do next?"
+"هتعمل إيه بعد كدة يا بطل القلوب؟"
 
-It is the first question she has asked that she does not already know the answer to.
+وده كان أول سؤال تسألهولك في حياتها وهي فعلاً ميعرفش إجابته ولا متوقعاه منها.
 
-The Crossroads is yours. The roads between worlds are open. The journey continues � it simply changes what it means.`,
+واحة القوافل والمدينة الكبرى تحت رعايتك وأمانك بالوفاء. الطرق والعهود بين العوالم مفتوحة بالخير والبركة. السلوك والجهاد لسة مستمر — بس معناه ومقامه اتغير للأبد لأعلى الدرجات الرفيعة.`,
         choices: [
-            { text: 'Continue � the world is open', next: null, returnToHub: true, storyFlag: 'ending_bridge' }
+            { text: 'Continue — the world is open', next: null, returnToHub: true, storyFlag: 'ending_bridge' }
         ]
     },
 
     act5_humble_end: {
         id: 'act5_humble_end',
         act: 5,
-        speaker: 'Scheherazade',
+        speaker: 'شهرزاد',
         speakerSprite: 'assets/sufi_mystic_1778872363338.png',
-        narration: `"You are going home."
+        narration: `\"إنت راجع لبيتك وأهلك وناسك الغلابة بسلام.\"
 
-It is not a question.
+قالتها شهرزاد وهي بتبتسم وبتبصلك، مش كسؤال شك، كيقين شافته في عينك المليانة حنين وهدوء وسكينة.
 
-You have saved two worlds. You negotiated a peace that scholars in both traditions will argue about for centuries. You faced the Fallen Immortal and chose understanding over annihilation. You climbed to the Celestial Court and said what needed to be said.
+إنت أنقذت العالمين من الفناء والضياع. وعقدت صلح تاريخي وأمني عظيم كبار الحكماء هيفضلوا يدرسوه ويتخانقوا في معناه لقرون طوال. ووقفت لوحدك بطل شجاع قدام الخالد الساقط المكسور واخترت طريق الفهم والرحمة بدل السيف والدم والتدمير. وطلعت لحد قصر المحكمة السحرية العليا وقولت كلمة الحق اللي غيرت القلوب وفتحت الأبواب المغلقة.
 
-And now you want to go home.
+ودلوقتي كل اللي بتتمناه وقلبك عايزه هو إنك ترجع لبيتك البسيط وناسك وتعيش في هدوء وسكينة كإنسان عادي.
 
-Scheherazade stands from the fountain.
+شهرزاد وقفت من على دكة النافورة وبصت للأفق البعيد براحة.
 
-"I want you to know," she says, "that in all the versions of this story I have told � the ones where the hero chooses power, the ones where they ascend beyond names, the ones where they fail � this ending is the rarest."
+"أنا عايزة أقولك حاجة تفضل فخورة بيها روحك وجسدك،" وقالت بصوت حنون، "في كل الروايات والنسخ اللي حكيتها للناس عن البطل ده — اللي البطل بيختار فيها العرش والقوة المطلقة والبطش، واللي بيرتقي فيها ورا المسميات وينسى الدنيا تماماً، واللي بيفشل ويموت فيها — النهاية الهادية والبسيطة بتاعتك دي هي أندر وأجمل نهاية على الإطلاق في سجلات الخلود."
 
-She tilts her head.
+ومالت براسها بوقار حكيم. "أغلب السالكين والفرسان لما بتجيلهم فرصة يبقوا أساطير وتتكتب أساميهم بدهب وتيجان، بيجروا عليها ويعموهم الطمع والغرور. والقلة النادرة اللي بترفض وتفضل ترجع للناس والهدوء والزهد الصادق..."
 
-"Most people, when given the chance to become a legend, take it. The ones who don't..."
+وسكتت لثواني وابتسمت بصفاء ونور.
 
-She pauses for a long time.
+"القلة دي هما الأبطال الحقيقيين اللي واجهوا وعارفين نفسهم كويس بجد ومش محتاجين تيجان ولا ملوك تثبت ده."
 
-"The ones who don't are usually the ones who already know who they are."
+ومدت إيدها وطلعت من جلبابها تميمة صغيرة وجميلة مصنوعة من اليشم والذهب — مش الختم السياسي لجبل الطور، ولا رتبة الدراويش. حتة يشم خضراء بسيطة وجميلة، بس فيها شرخ وكسر قديم ومتصالح ومتعالج بماء الذهب الخالص النقي اللامع.
 
-She reaches into her robes and produces a small jade token � not the political seal of the Jade Peak, not the rank marker of the Sufi Order. Just a small piece of jade, unremarkable except for a tiny crack running through it that has been sealed with gold.
+فن الكينتسوجي الأثري المبارك. فن تصليح الكسور بالذهب النقي. عشان يخلي الحتة اللي اتكسرت زمان هي أجمل وأنور وأقوى حتة في الشيء كله ببركته ويقينه وصبره.
 
-Kintsugi. The Japanese art of repairing with gold. Making the broken place the most beautiful part.
-
-"For your journey home," she says. "Whatever road you take."`,
+"عشان رحلتك لبيتك وناسك بسلامة الله،" قالت وهي بتقدمهالك باحترام، "أياً كان الطريق والتراب اللي هتمشي عليه خطواتك المباركة."`,
         choices: [
             { text: 'Accept and return home', next: null, returnToHub: true, storyFlag: 'ending_humble' }
         ]
@@ -1072,31 +1062,31 @@ Kintsugi. The Japanese art of repairing with gold. Making the broken place the m
     act5_true_ascension: {
         id: 'act5_true_ascension',
         act: 5,
-        speaker: 'Al-Khidr',
+        speaker: 'سيدنا الخضر الجليل',
         speakerSprite: 'assets/al_khidr.png',
-        narration: `You take his hand.
+        narration: `مسكت إيده النورانية الخضراء الدافية.
 
-The sensation is not dramatic. There is no explosion of light, no cosmic fanfare. The fountain in the Crossroads continues to run. A merchant argues with a customer two streets over. A child laughs somewhere.
+الإحساس مكنش فيه أي استعراض قتالي ولا دوشة بصرية ولا برق. مفيش انفجار أنوار ولا رعد الكهوف بيهز القصر السحابي. النافورة والماية الجارية في واحة القوافل لسة شغالة وبتنزل ميتها بسلام وهدوء مبارك. في تاجر غلبان بيتخانق مع زبون على تمن كيس بلح وسمن في الشارع ورا السور. في طفل صغير بيضحك ويلعب في حضن أمه البعيد الهادي.
 
-And you...
+وإنت...
 
-You are in all of it. And none of it. You have not disappeared � you have distributed. The Dao and Tawhid were never going to resolve into a single word. They resolved into something that has no word, and you have become the space where that resolution lives.
+إنت بقيت في كل التفاصيل البسيطة دي بالكامل. وفي نفس الوقت مفيش أي حاجة فانية ولا شك لمساك. إنت مختفيتش من الدنيا — إنت اتوزعت وبقيت بركة ونور ورضا بيسري في عروقها كلها بفضل الله. مقامات المانا والأنوار ونور التوحيد عمرهم ما كانوا هيدوبوا في كلمة أو اسم بشري واحد فاني. هما دابوا في سر عظيم إلهي ملوش كلمة تنطق، وإنت بقيت الفراغ والبرزخ النوراني الباقي اللي السر ده عايش وساكن فيه للأبد بالبركة والرضوان.
 
-Al-Khidr releases your hand. He looks, for a moment, like he is going to say something profound.
+سيدنا الخضر ساب إيدك وابتسم بوقار وهيبة ونور صافي يملأ وجودك بالكامل.
 
-Instead he says: "I told you most people refuse."
+وبصلك وقال بصوت دافي: "قولتلك إن أغلب الأبطال والسالكين بيرفضوا العهد الأعظم ده وبيخافوا يسيبوا أساميهم وعروشهم الفانية خوفاً من المجهول."
 
-"Why don't you?" you ask.
+"وليه إنت مر فضتوش يا شيخنا الجليل وسيدنا؟" سألته بهمس حنين طالع من عروق قلبك ونورك الجديد الباقي.
 
-"I did," he says. "The first time."
+"أنا رفضته زمان،" وبص للأفق البعيد بسلام دافئ ونور عظيم، "في المرة الأولى لما كنت لسة مبتدئ وبحاول أثبت نفسي."
 
-He walks away, and you are everywhere he walks.
+ومشي بهدوء وسكينة في طريق الصحراء الشاسعة، وإنت بقيت الرمال والضياء والأمان في كل خطوة بيمشيها في طريق الله وحفظه.
 
-Scheherazade finishes her tea at the fountain. She sets down her cup. She looks around � not at anything specific, but at all of it.
+الست شهرزاد شربت كوباية الشاي بالنعناع لآخر نقطة وحطت الكوباية النحاس على الطربيزة جنب النافورة وبستان البركة الواسع. وبصت حواليها بهدوء ورضا — مش على حاجة محددة، بصت على الهوا والرمال والورد والناس بابتسامة رايقة وصافية وسعيدة.
 
-"Hm," she says softly.
+"يا سلام على كرم الأقدار،" قالت بصوت واطي وناعم.
 
-She picks up her cup and begins a new story. The first words are familiar. The ending, for once, she does not know.`,
+وشالت كشكول حكاياتها الأثري وبدأت تكتب وتروي قصة وعهد جديد تماماً للناس والفرسان. الكلمات الأولى والبداية كانت مألوفة ودافية وبتتحب. والنهاية الكبرى الأبدية، ولأول مرة في تاريخ ألف ليلة وليلة... هي كمان مكنتش عارفاها وسايباها لبركة ونور الأقدار العظيمة الحبيبة من غير قيود.`,
         choices: [
             { text: 'Become part of the world', next: null, returnToHub: true, storyFlag: 'ending_ascension' }
         ]
@@ -1104,7 +1094,7 @@ She picks up her cup and begins a new story. The first words are familiar. The e
 });
 
 // ============================================================
-// BALANCE CONSTANTS � Final pass on all stats
+// BALANCE CONSTANTS — Final pass on all stats
 // ============================================================
 window.BALANCE = {
     // Stage-based stat scaling
@@ -1126,21 +1116,21 @@ window.BALANCE = {
         return 1 + (delta * 0.20); // 20% harder
     },
 
-    // XP rewards � scales with enemy level
+    // XP rewards — scales with enemy level
     xpForEnemy: (enemyStageMin) => Math.floor(30 + (enemyStageMin * 18)),
 
     // Karma thresholds
     karmaLabels: [
-        { min: 60,  max: 100,  label: 'Celestial Saint',     color: '#d4af37' },
-        { min: 25,  max: 59,   label: 'Righteous Cultivator', color: '#00e5a0' },
-        { min: -24, max: 24,   label: 'Wandering Sword',      color: '#8a9ab0' },
-        { min: -59, max: -25,  label: 'Gray Path Seeker',     color: '#c8a060' },
-        { min: -100,max: -60,  label: 'Demonic Sovereign',    color: '#8a1c1c' }
+        { min: 60,  max: 100,  label: 'الولي الصالح النوراني',     color: '#d4af37' },
+        { min: 25,  max: 59,   label: 'السالك الصالح المعتدل', color: '#00e5a0' },
+        { min: -24, max: 24,   label: 'السياف الهائم المعتدل',      color: '#8a9ab0' },
+        { min: -59, max: -25,  label: 'الباحث في دروب الظلال',     color: '#c8a060' },
+        { min: -100,max: -60,  label: 'ملك الظلال والعدم المطلق',    color: '#8a1c1c' }
     ],
 
     getKarmaLabel(karma) {
         return this.karmaLabels.find(k => karma >= k.min && karma <= k.max)
-            || { label: 'Unknown', color: '#888' };
+            || { label: 'مقام مجهول', color: '#888' };
     },
 
     // Apply balance to starting state
@@ -1202,4 +1192,3 @@ const STORY_ENGINE_HELPERS = {
 }; 
 
 window.STORY = Object.assign(window.STORY || {}, { STORY_NODES, ...STORY_ENGINE_HELPERS });
-

@@ -18,7 +18,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cairo', 'Inter', sans-serif;
 }
 
 html, body {
@@ -59,7 +59,7 @@ html, body {
 
 /* --- Typography --- */
 h1, h2, h3 {
-    font-family: 'Cinzel', serif;
+    font-family: 'El Messiri', 'Cinzel', serif;
     color: var(--secondary);
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -134,7 +134,7 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
 }
 
 .novel-text-box h4 {
-    font-family: 'Cinzel', serif;
+    font-family: 'El Messiri', 'Cinzel', serif;
     color: var(--secondary);
     font-size: 1.5rem;
     margin-bottom: 15px;
@@ -208,7 +208,7 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
     border: 1px solid var(--secondary-glow);
     border-radius: 4px;
     color: var(--text);
-    font-family: 'Cinzel', serif;
+    font-family: 'El Messiri', 'Cinzel', serif;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
@@ -404,7 +404,7 @@ input[type="text"]:focus {
 .narrative-speaker {
     font-weight: bold;
     color: var(--secondary);
-    font-family: 'Cinzel', serif;
+    font-family: 'El Messiri', 'Cinzel', serif;
     margin-bottom: 5px;
     display: block;
 }
@@ -473,7 +473,7 @@ input[type="text"]:focus {
 
 /* --- Map Headers --- */
 .map-header { text-align: center; margin-bottom: 25px; }
-.map-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--secondary); margin-bottom: 5px; }
+.map-title { font-family: 'El Messiri', 'Cinzel', serif; font-size: 1.8rem; color: var(--secondary); margin-bottom: 5px; }
 .map-subtitle { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-dim); }
 
 .management-stat-row {
@@ -864,7 +864,7 @@ input[type="text"]:focus {
 }
 .act-transition-title {
     font-size: 3rem;
-    font-family: 'Cinzel', serif;
+    font-family: 'El Messiri', 'Cinzel', serif;
     color: #fff;
     text-shadow: 0 0 20px var(--secondary-glow);
     margin-bottom: 18px;
@@ -1059,7 +1059,7 @@ input[type="text"]:focus {
     margin-bottom: 15px;
 }
 .act-transition-title {
-    font-family: 'Cinzel', serif;
+    font-family: 'El Messiri', 'Cinzel', serif;
     font-size: 2.2rem;
     color: #fff;
     text-shadow: 0 0 20px var(--secondary-glow);

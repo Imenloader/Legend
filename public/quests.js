@@ -1,34 +1,34 @@
 // ============================================================
-// QUESTS.JS — Missions, Bounties & Destiny
-// "Legends of the Jade and Sand: The Immortal Codex"
+// QUESTS.JS — المهام والعهود الروحية ومكافآت القدر
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.QUESTS = {
-    // Master database of all possible quests
+    // قاعدة بيانات المهام والعهود
     database: {
         'main_01': {
             id: 'main_01',
-            title: 'A Legend Begins',
-            desc: 'Meet Scheherazade at the Crossroads and begin your cultivation.',
-            objective: 'Reach Level 2',
+            title: 'بداية الأسطورة الكبرى والأنوار',
+            desc: 'قابل الست شهرزاد في واحة القوافل وابدأ طريق خلوتك وتأملك الروحي.',
+            objective: 'ارتقِ للمستوى الروحي الثاني (مستوى 2)',
             type: 'main',
             reward: { gold: 100, xp: 50 },
             isComplete: (state) => state.player.lvl >= 2
         },
         'sect_01': {
             id: 'sect_01',
-            title: 'Sect Trials',
-            desc: 'Prove your worth to your chosen faction.',
-            objective: 'Defeat 3 enemies in your faction territory.',
+            title: 'اختبارات الصومعة والطائفة الروحية',
+            desc: 'أثبت هيبتك وولائك لفرسان طائفتك وصومعتك الكبرى.',
+            objective: 'اهزم 3 أعداء في المعارك لتثبت جدارتك وقوتك.',
             type: 'sect',
             reward: { gold: 500, karma: 5 },
             isComplete: (state) => (state.player.kills || 0) >= 3
         },
         'daily_gathering': {
             id: 'daily_gathering',
-            title: 'Daily Gathering',
-            desc: 'The sect requires medicinal herbs.',
-            objective: 'Gather 5 Spirit Herbs.',
+            title: 'مهمة الجمع اليومية لخيرات الأرض',
+            desc: 'الصومعة والفرسان محتاجين أعشاب طبية نادرة لطبخ الإكسير الشافي.',
+            objective: 'اجمع 5 حزم من أعشاب النور الروحية.',
             type: 'daily',
             reward: { gold: 200, reputation: 10 },
             isComplete: (state) => {
@@ -81,7 +81,7 @@ window.QUESTS = {
 
         if (newlyCompleted.length > 0) {
             if (typeof narrate === 'function') {
-                newlyCompleted.forEach(title => narrate(`Quest Complete: ${title}! Rewards sealed in your soul.`, "System"));
+                newlyCompleted.forEach(title => narrate(`<b>تم إنجاز المهمة:</b> ${title}! البركة والمكافآت اتختمت في روحك وجسدك بنجاح.`, "النظام الروحي"));
             }
             // Trigger recalculation if rewards affected stats (xp/karma)
             if (typeof calculateTotalStats === 'function') calculateTotalStats();
@@ -98,4 +98,3 @@ window.QUESTS = {
         return true;
     }
 };
-

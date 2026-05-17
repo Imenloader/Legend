@@ -1,20 +1,20 @@
 // ============================================================
-// AUCTION.JS — Sect Auctions & Competitive Bidding
-// "Legends of the Jade and Sand: The Immortal Codex"
+// AUCTION.JS — المزاد العلني في سوق القوافل والمزايدات الشريرة
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.AUCTION = {
     items: [
-        { id: 'ancient_manual', name: 'Ancient Sword Manual', basePrice: 2000, desc: 'Unlocks the "Void Slash" technique.' },
-        { id: 'dragon_bone', name: 'True Dragon Bone', basePrice: 5000, desc: 'A mythic material for the Spirit Forge.' },
-        { id: 'nirvana_pill', name: 'Nirvana Pill', basePrice: 10000, desc: 'Guarantees success in the next breakthrough.' }
+        { id: 'ancient_manual', name: 'مخطوطة السيف العتيقة الأثرية', basePrice: 2000, desc: 'بتفتح طريقة وفن "ضربة الفناء الروحية" المدمرة بسيفك.' },
+        { id: 'dragon_bone', name: 'عظمة التنين الحقيقي الأثرية المباركة', basePrice: 5000, desc: 'مادة أسطورية نادرة جداً لمسبك الفولاذ وصناعة الأسلحة الفتاكة.' },
+        { id: 'nirvana_pill', name: 'حبة النيرفانا واليقين المطلق الروحية', basePrice: 10000, desc: 'بتضمن النجاح التام بنسبة 100% في طقس الارتقاء الروحي القادم.' }
     ],
 
-    // NPCs who might bid
+    // شخصيات المنافسين المزايدين (NPCs)
     rivals: [
-        { name: 'Elder Zhao', aggressive: 0.7, maxBidMult: 2.5 },
-        { name: 'Wandering Monk', aggressive: 0.3, maxBidMult: 1.5 },
-        { name: 'Sect Heiress', aggressive: 0.9, maxBidMult: 4.0 }
+        { name: 'الشيخ زهران العارف', aggressive: 0.7, maxBidMult: 2.5 },
+        { name: 'الدرويش الجوال البسيط', aggressive: 0.3, maxBidMult: 1.5 },
+        { name: 'أميرة طائفة السيوف الصحراوية', aggressive: 0.9, maxBidMult: 4.0 }
     ],
 
     // Start a new auction
@@ -23,7 +23,7 @@ window.AUCTION = {
         state.activeAuction = {
             item: item,
             currentBid: item.basePrice,
-            highestBidder: 'House',
+            highestBidder: 'دار المزاد العلني',
             timeLeft: 30, // seconds
             isClosed: false
         };
@@ -37,7 +37,7 @@ window.AUCTION = {
         
         // Defensive check for player bidding
         if (bidderName === state.player.name && (state.player.gold || 0) < amount) {
-            if (typeof showToast === 'function') showToast("Insufficient Spirit Stones!");
+            if (typeof showToast === 'function') showToast("معندكش دنانير روحية كفاية!");
             return false;
         }
 
@@ -57,7 +57,7 @@ window.AUCTION = {
                 if (nextBid < state.activeAuction.item.basePrice * rival.maxBidMult) {
                     this.placeBid(state, rival.name, nextBid);
                     if (typeof narrate === 'function') {
-                        narrate(`${rival.name} bids ${nextBid} Spirit Stones!`, "Auction");
+                        narrate(`${rival.name} زود المزايدة لـ ${nextBid} دينار روحي!`, "المزاد");
                     }
                 }
             }

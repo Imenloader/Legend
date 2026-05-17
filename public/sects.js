@@ -1,47 +1,47 @@
 // ============================================================
-// SECTS.JS — Sect Management, Hopping & Ultimates
-// "Legends of the Jade and Sand: The Immortal Codex"
+// SECTS.JS — إدارة الصومعة وطائفة الفرسان والدراويش الأحرار
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.SECTS = {
-    ranks: ['Outer Court', 'Inner Court', 'Core Disciple', 'Elder', 'Grand Elder', 'Sect Master'],
+    ranks: ['المريد المبتدئ', 'المريد المقرب', 'حامل العهد والسر', 'الشيخ الجليل', 'العارف الأكبر', 'صاحب الصومعة والطريقة'],
 
     sectsDb: {
         'jade_summit': { 
             id: 'jade_summit', 
-            name: 'Jade Summit Sect', 
+            name: 'صومعة جبل الطور الروحية', 
             tier: 1, 
-            reqRealm: 'Qi Condensation', 
+            reqRealm: 'مقابلة السالك المبتدئ', 
             cost: 0, 
             ult: 'jade_storm', 
-            ultName: 'Jade Hurricane Storm' 
+            ultName: 'عاصفة الطور السحابية الجبارة' 
         },
         'sufi_order': { 
             id: 'sufi_order', 
-            name: 'Empty Quarter Sufi Order', 
+            name: 'طريقة الدراويش بالربع الخالي', 
             tier: 2, 
-            reqRealm: 'Foundation Establishment', 
+            reqRealm: 'مقام التمكين والولاية', 
             cost: 1000, 
             ult: 'sand_mantra', 
-            ultName: 'Vast Sand Oasis Mantra' 
+            ultName: 'ورد رمال واحة الربع الخالي' 
         },
         'solar_temple': { 
             id: 'solar_temple', 
-            name: 'Righteous Solar Temple', 
+            name: 'ديوان النور الشمسي البهي', 
             tier: 3, 
-            reqRealm: 'Core Formation', 
+            reqRealm: 'تجلي الجوهر والسر الصافي', 
             cost: 5000, 
             ult: 'solar_flare', 
-            ultName: 'Nine Heavens Solar Flare' 
+            ultName: 'وميض البرق الشمسي بالملكوت' 
         },
         'nascent_void': { 
             id: 'nascent_void', 
-            name: 'Nascent Void Abyss', 
+            name: 'مقام الفراغ النوراني الخالص', 
             tier: 4, 
-            reqRealm: 'Nascent Soul', 
+            reqRealm: 'مقام الروح النورانية اللطيفة', 
             cost: 15000, 
             ult: 'void_annihilation', 
-            ultName: 'Primordial Void Annihilation' 
+            ultName: 'طلسم محو الفناء والبرزخ' 
         }
     },
 
@@ -50,7 +50,7 @@ window.SECTS = {
         if (!state.sect) {
             state.sect = {
                 id: 'jade_summit',
-                name: 'Jade Summit Sect',
+                name: 'صومعة جبل الطور الروحية',
                 tier: 1,
                 contribution: 50,
                 level: 1,
@@ -60,48 +60,48 @@ window.SECTS = {
                 treasury: 100,
                 specialization: null, // Sword, Alchemy, Array
                 buildings: {
-                    'meditation_hall': { lvl: 1, name: 'Meditation Hall', bonus: 'XP' },
-                    'spirit_garden': { lvl: 0, name: 'Spirit Garden', bonus: 'Gold' }
+                    'meditation_hall': { lvl: 1, name: 'خلوة الذكر والتأمل الروحي', bonus: 'XP' },
+                    'spirit_garden': { lvl: 0, name: 'بستان الأعشاب والبركة', bonus: 'Gold' }
                 }
             };
         }
     },
 
     leaveSect(state) {
-        if (!state.sect) return { success: false, message: "You are not currently in any sect!" };
+        if (!state.sect) return { success: false, message: "إنت مش منضم لأي صومعة أو طريقة حالياً!" };
         const oldSectName = state.sect.name;
         
-        let message = `You have formally departed the <b>${oldSectName}</b>.`;
+        let message = `لقد خرجت رسمياً وتنحيت عن <b>${oldSectName}</b>.`;
         if (state.player.gold >= 1000) {
             state.player.gold -= 1000;
-            message += ` Paid 1,000 Spirit Stones to keep your techniques intact.`;
+            message += ` دفعت 1,000 دينار سحري عشان تحافظ على الفنون اللي اتعلمتها بدون مسح.`;
         } else {
             // Betrayal purges learned sect ultimates from skills array!
             state.player.skills = (state.player.skills || []).filter(s => !s.startsWith('sect_'));
-            message += ` <span style="color:var(--danger)">As penalty for betrayal, your meridians were purged of all learned sect ultimate techniques!</span>`;
+            message += ` <span style="color:var(--danger)">عقوبة لخروجك المفاجئ وغدرك بالعهد، قنواتك اتطهرت واتمسح منها كل أسرار الفنون الروحية الخاصة بالطائفة!</span>`;
         }
         state.sect = null;
         return { success: true, message };
     },
 
     joinSect(state, sectId) {
-        if (state.sect) return { success: false, message: `You are already a member of the ${state.sect.name}! Leave them first.` };
+        if (state.sect) return { success: false, message: `إنت بالفعل عضو في ${state.sect.name}! لازم تسيبهم الأول.` };
         const s = this.sectsDb[sectId];
-        if (!s) return { success: false, message: "Sect not found." };
+        if (!s) return { success: false, message: "الطائفة دي مش موجودة في سجلات العوالم." };
         
         // Check realm requirement
-        const currentRealm = state.player.cultivation?.stage || 'Qi Condensation';
+        const currentRealm = state.player.cultivation?.stage || 'مقابلة السالك المبتدئ';
         if (s.tier > 1) {
-            const realms = ['Qi Condensation', 'Foundation Establishment', 'Core Formation', 'Nascent Soul'];
+            const realms = ['مقابلة السالك المبتدئ', 'مقام التمكين والولاية', 'تجلي الجوهر والسر الصافي', 'مقام الروح النورانية اللطيفة'];
             const playerRealmIdx = realms.indexOf(currentRealm);
             const reqRealmIdx = realms.indexOf(s.reqRealm);
             if (playerRealmIdx < reqRealmIdx) {
-                return { success: false, message: `Your realm is too low! Requires <b>${s.reqRealm}</b>.` };
+                return { success: false, message: `مقامك الروحي لسة قليل جداً! محتاج مقام <b>${s.reqRealm}</b> على الأقل.` };
             }
         }
 
         if (state.player.gold < s.cost) {
-            return { success: false, message: `Insufficient Spirit Stones! Requires ${s.cost} Stones.` };
+            return { success: false, message: `معندكش دنانير روحيّة كفاية! محتاج ${s.cost} دينار روحي.` };
         }
         
         state.player.gold -= s.cost;
@@ -117,31 +117,31 @@ window.SECTS = {
             treasury: 0,
             specialization: null,
             buildings: {
-                'meditation_hall': { lvl: 1, name: 'Meditation Hall', bonus: 'XP' },
-                'spirit_garden': { lvl: 0, name: 'Spirit Garden', bonus: 'Gold' }
+                'meditation_hall': { lvl: 1, name: 'خلوة الذكر والتأمل الروحي', bonus: 'XP' },
+                'spirit_garden': { lvl: 0, name: 'بستان الأعشاب والبركة', bonus: 'Gold' }
             }
         };
 
-        return { success: true, message: `Welcome! You have been accepted into the <b>${s.name}</b>!` };
+        return { success: true, message: `أهلاً بك! تم قبولك وتعيينك في <b>${s.name}</b> ببركة العهد الأبدي!` };
     },
 
     learnUltimate(state) {
-        if (!state.sect) return { success: false, message: "You are not in a sect!" };
+        if (!state.sect) return { success: false, message: "لازم تنضم لصومعة أو طائفة الأول!" };
         const s = this.sectsDb[state.sect.id] || {
-            ultName: "Primordial Jade Grand Ultimate",
+            ultName: "طلسم الفراغ والبرزخ الأكبر",
             ult: "grand_dao",
             tier: state.sect.tier || 1
         };
 
         const cost = s.tier * 500;
         if ((state.sect.contribution || 0) < cost) {
-            return { success: false, message: `Not enough Sect Contribution! Requires ${cost} points.` };
+            return { success: false, message: `معندكش نقاط مساهمة كافية في الصومعة! محتاج ${cost} نقطة.` };
         }
 
         state.sect.contribution -= cost;
         const ultSkillId = 'sect_' + s.ult;
         if ((state.player.skills || []).includes(ultSkillId)) {
-            return { success: false, message: "You have already mastered this ultimate technique!" };
+            return { success: false, message: "إنت بالفعل أتقنت الفن الروحي الأكبر ده!" };
         }
 
         if (!state.player.skills) state.player.skills = [];
@@ -152,33 +152,33 @@ window.SECTS = {
             window.SKILLS.techniques[ultSkillId] = {
                 id: ultSkillId,
                 name: s.ultName,
-                desc: `Grand Sect Ultimate. Deals massive elemental damage equal to ${s.tier * 2.5}x your raw Attack.`,
+                desc: `ورد الطائفة الأكبر والأعظم. بيسبب ضرر روحي جبار بيساوي ${s.tier * 2.5}x هجومك الجسدي الأساسي.`,
                 mpCost: s.tier * 15,
                 damageMult: s.tier * 2.5
             };
         }
 
-        return { success: true, message: `Congratulations! You have mastered the legendary technique: <b>${s.ultName}</b>!` };
+        return { success: true, message: `ألف مبروك! أتقنت وفتحت الفن الروحي الأسطوري للطائفة: <b>${s.ultName}</b>!` };
     },
 
     setSpecialization(state, path) {
         this.init(state);
         state.sect.specialization = path;
         // Apply immediate bonuses
-        if (path === 'Sword') state.player.atk += 10;
-        else if (path === 'Alchemy') state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 20;
-        return { success: true, message: `Your sect has chosen the <b>${path} Path</b>!` };
+        if (path === 'طريق السيف الدمشقي') state.player.atk += 10;
+        else if (path === 'طريق الكيمياء والطب') state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 20;
+        return { success: true, message: `طائفتك وصومعتك اختارت <b>${path}</b>!` };
     },
 
     // Recruit a random disciple
     recruit(state) {
         this.init(state);
-        if (state.sect.disciples.length >= state.sect.maxDisciples) return { success: false, message: "Sect is at full capacity!" };
+        if (state.sect.disciples.length >= state.sect.maxDisciples) return { success: false, message: "الصومعة مليانة مريدين على الآخر!" };
         
         const cost = 1000 * state.sect.level;
-        if (state.player.gold < cost) return { success: false, message: "Not enough Spirit Stones to recruit!" };
+        if (state.player.gold < cost) return { success: false, message: "معندكش دنانير كفاية لتعيين ودعوة مريدين جدد!" };
         
-        const names = ['Jun', 'Lao', 'Xiao', 'Mei', 'Ying'];
+        const names = ['سعد', 'سليم', 'كريم', 'فارس', 'نجم', 'بشير', 'أمين'];
         const d = {
             name: names[Math.floor(Math.random() * names.length)] + " " + (state.sect.disciples.length + 1),
             lvl: 1,
@@ -189,29 +189,31 @@ window.SECTS = {
         
         state.player.gold -= cost;
         state.sect.disciples.push(d);
-        return { success: true, message: `Recruited ${d.name} (${d.quality})!` };
+        
+        const qualMap = { 'Genius': 'عبقري اللب', 'Normal': 'عادي' };
+        return { success: true, message: `عينت المريد <b>${d.name}</b> (${qualMap[d.quality] || d.quality}) بنجاح!` };
     },
 
     // Sect Diplomacy database
     rivalSects: [
-        { id: 'demon_blade', name: 'Demon Blade Sect', relation: 'Hostile', power: 500, territory: 'Shadow Peaks' },
-        { id: 'heavenly_lotus', name: 'Heavenly Lotus Sect', relation: 'Neutral', power: 300, territory: 'Mist Valley' },
-        { id: 'righteous_sun', name: 'Righteous Sun Sect', relation: 'Ally', power: 450, territory: 'Solar Plateau' }
+        { id: 'demon_blade', name: 'طائفة السيف الأسود الغادرة', relation: 'Hostile', power: 500, territory: 'جبال الظلال الوعرة' },
+        { id: 'heavenly_lotus', name: 'صومعة الياقوت والصفاء', relation: 'Neutral', power: 300, territory: 'وادي الرمال الساحرة' },
+        { id: 'righteous_sun', name: 'ديوان شمس المشرق العادلة', relation: 'Ally', power: 450, territory: 'هضبة الأنوار الشمسية' }
     ],
 
     territories: {
-        'Crossroads Outskirts': { owner: 'Player', income: 100 },
-        'Shadow Peaks': { owner: 'demon_blade', income: 500 },
-        'Mist Valley': { owner: 'heavenly_lotus', income: 300 },
-        'Solar Plateau': { owner: 'righteous_sun', income: 450 }
+        'ضواحي واحة القوافل': { owner: 'Player', income: 100 },
+        'جبال الظلال الوعرة': { owner: 'demon_blade', income: 500 },
+        'وادي الرمال الساحرة': { owner: 'heavenly_lotus', income: 300 },
+        'هضبة الأنوار الشمسية': { owner: 'righteous_sun', income: 450 }
     },
 
     // Declare war on a rival
     declareWar(state, rivalId) {
         const rival = this.rivalSects.find(r => r.id === rivalId);
-        if (!rival) return { success: false, message: "Rival not found." };
+        if (!rival) return { success: false, message: "الخصم ده مش موجود." };
         rival.relation = 'War';
-        return { success: true, message: `You have declared war on the <b>${rival.name}</b>!` };
+        return { success: true, message: `أعلنت الحرب الضروس ورفعت سيفك ضد <b>${rival.name}</b>!` };
     },
 
     // Resolve a turn of war
@@ -229,45 +231,48 @@ window.SECTS = {
             if (rival.power <= 0) {
                 rival.relation = 'Defeated';
                 this.territories[rival.territory].owner = 'Player';
-                return { victory: true, message: `The <b>${rival.name}</b> has been CRUSHED! You now rule the <b>${rival.territory}</b>.` };
+                return { victory: true, message: `تم سحق <b>${rival.name}</b> بالكامل! إنت دلوقتي بتحكم <b>${rival.territory}</b> بالكامل برفع سيفك.` };
             }
-            return { victory: true, message: `Your disciples won a major skirmish against the ${rival.name}! Looted ${gain} Stones.` };
+            return { victory: true, message: `المريدين بتوعك انتصروا في معركة خاطفة ضد ${rival.name}! ونهبوا ${gain} دينار روحي.` };
         } else {
             const loss = Math.floor(state.sect.treasury * 0.1);
             state.sect.treasury -= loss;
             if (state.sect.disciples.length > 0) {
                 const fallen = state.sect.disciples.pop();
-                return { victory: false, message: `Your forces were repelled! <b>${fallen.name}</b> fell in battle. Lost ${loss} Stones.` };
+                return { victory: false, message: `قواتك اتهزمت ورجعت متراجعة! المريد <b>${fallen.name}</b> استشهد في المعركة. وخسرت ${loss} دينار روحي.` };
             }
-            return { victory: false, message: `Your sect is defenseless! The ${rival.name} plundered ${loss} Stones.` };
+            return { victory: false, message: `صومعتك مكشوفة ومفيش دفاع! طائفة ${rival.name} نهبت ${loss} دينار روحي من الخزنة.` };
         }
     },
 
     assignDisciple(state, index, task) {
         this.init(state);
         const d = state.sect.disciples[index];
-        if (!d) return { success: false, message: "Disciple not found." };
-        if (d.assignment === 'expedition') return { success: false, message: "Disciple is currently on an expedition and cannot be reassigned!" };
+        if (!d) return { success: false, message: "المريد مش موجود." };
+        if (d.assignment === 'expedition') return { success: false, message: "المريد في قافلة استكشاف حالياً ومينفعش تغير مهمته!" };
         
         d.assignment = task; // 'array', 'harvest', 'patrol', or undefined (idle)
-        return { success: true, message: `Assigned <b>${d.name}</b> to <b>${task ? task.toUpperCase() : 'IDLE'}</b> duties.` };
+        
+        const taskMap = { 'array': 'تأمل دايرة الأنوار', 'harvest': 'جمع الأعشاب والخيرات', 'patrol': 'حراسة ودوريات الصومعة', 'expedition': 'قافلة واستكشاف الصحراء' };
+        const taskName = taskMap[task] || 'مستريح';
+        return { success: true, message: `عينت <b>${d.name}</b> في مهام <b>${taskName}</b>.` };
     },
 
     sendOnExpedition(state, index) {
         this.init(state);
         const d = state.sect.disciples[index];
-        if (!d) return { success: false, message: "Disciple not found." };
-        if (d.assignment === 'expedition') return { success: false, message: "Disciple is already on an expedition!" };
+        if (!d) return { success: false, message: "المريد مش موجود." };
+        if (d.assignment === 'expedition') return { success: false, message: "المريد في قافلة استكشاف بالفعل!" };
         
         const dw = state.dwelling || { resources: { food: 0 } };
         if ((dw.resources.food || 0) < 500) {
-            return { success: false, message: "You lack the 500 Food required to provision this expedition." };
+            return { success: false, message: "معندكش 500 حزمة طعام لتأمين وتزويد القافلة دي!" };
         }
         
         dw.resources.food -= 500;
         d.assignment = 'expedition';
         d.expeditionTicks = 12; // 1 minute (12 ticks of 5s heartbeat)
-        return { success: true, message: `Dispatched <b>${d.name}</b> on a dangerous wilderness expedition! Provisioned 500 Food.` };
+        return { success: true, message: `بعت المريد <b>${d.name}</b> في قافلة استكشاف مخاطرة للصحراء! وأمنته بـ 500 حزمة طعام.` };
     },
 
     // Passive heartbeat (Passive income/fame + Taxation + Sect Contribution Gain)
@@ -299,21 +304,29 @@ window.SECTS = {
                         if (!state.player.inventory.materials) state.player.inventory.materials = {};
                         state.player.inventory.materials[rewardMat] = (state.player.inventory.materials[rewardMat] || 0) + qty;
                         
+                        const matMap = {
+                            'spirit_herb': 'عشبة النور',
+                            'iron_ore': 'خام الحديد الدمشقي',
+                            'monster_core': 'نواة الوحش السحرية',
+                            'dragon_vein_shard': 'شظية ينابيع النور الروحانية'
+                        };
+
                         let pillMsg = "";
                         if (Math.random() < 0.4) {
                             if (!state.player.inventory.items) state.player.inventory.items = [];
                             state.player.inventory.items.push({
                                 id: 'qi_pill',
-                                name: 'Qi Pill',
+                                name: 'حبة المانا الروحية',
                                 slot: 'pill',
                                 quality: 'Rare',
-                                desc: 'Instantly grants 100 Qi.'
+                                desc: 'تمنح 100 نقطة نور وتجلي روحي فوراً عند بلعها.'
                             });
-                            pillMsg = " and 1x <b>Qi Pill</b>";
+                            pillMsg = " وحبة واحدة من <b>إكسير المانا الروحية</b>";
                         }
                         
                         if (typeof narrate === 'function') {
-                            narrate(`<b>Expedition Return</b>: <b>${d.name}</b> has successfully returned! Gained 1 level (Lvl ${d.lvl}) and discovered <b>${qty}x ${rewardMat.replace(/_/g, ' ').toUpperCase()}</b>${pillMsg}!`, "Sect");
+                            const matDisplayName = matMap[rewardMat] || rewardMat.replace(/_/g, ' ').toUpperCase();
+                            narrate(`<b>عودة القافلة الاستكشافية</b>: المريد <b>${d.name}</b> رجع بالسلامة من الصحراء! وارتقى مستوى (مستوى ${d.lvl}) ولاقى <b>${qty}x ${matDisplayName}</b>${pillMsg}!`, "الصومعة");
                         }
                     }
                 }
@@ -346,22 +359,22 @@ window.SECTS = {
 
         if (roll < 0.3) {
             const stones = Math.floor(Math.random() * 1000) + 200;
-            narrate(`<b>Sect Discovery</b>: One of your disciples found a hidden spirit-vein! <b>+${stones} Spirit Stones</b> added to treasury.`, "Sect");
+            narrate(`<b>اكتشاف في الصومعة</b>: أحد المريدين لاقى منبع مانا مخفي في الجبل! وتم إضافة <b>+${stones} دينار روحي</b> للخزينة العائلية.`, "الصومعة");
             state.sect.treasury += stones;
         } else if (roll < 0.6) {
-            narrate(`<b>New Talent</b>: A wandering genius is impressed by your sect's fame (${Math.floor(state.sect.fame)}) and wishes to join!`, "Sect");
-            const d = { name: "Genius " + (state.sect.disciples.length + 1), lvl: 2, atk: 15, quality: 'Genius', alive: true };
+            narrate(`<b>موهبة جديدة مباركة</b>: درويش عبقري جوال انبهر بهيبة صومعتك المدوية (${Math.floor(state.sect.fame)}) وعايز ينضم ليك!`, "الصومعة");
+            const d = { name: "العبقري سعد " + (state.sect.disciples.length + 1), lvl: 2, atk: 15, quality: 'Genius', alive: true };
             state.sect.disciples.push(d);
         } else if (roll < 0.9) {
             const warring = this.rivalSects.filter(r => r.relation === 'War');
             if (warring.length > 0) {
                 const rival = warring[Math.floor(Math.random() * warring.length)];
                 const res = this.resolveWarTurn(state, rival.id);
-                narrate(res.message, "War Room");
+                narrate(res.message, "غرفة الحرب والقيادة");
             } else {
                 const rival = this.rivalSects[Math.floor(Math.random() * this.rivalSects.length)];
                 if (rival.relation === 'Hostile' && Math.random() > 0.7) {
-                    narrate(`<b>SKIRMISH!</b>: The <b>${rival.name}</b> has harassed your trade routes. Treasury takes a hit.`, "Sect");
+                    narrate(`<b>معركة خاطفة!</b>: طائفة <b>${rival.name}</b> ضايقت قوافل التجارة بتاعتك في وضح النهار. الخزنة اتأثرت وخسرت 200 دينار.`, "الصومعة");
                     state.sect.treasury -= 200;
                 }
             }

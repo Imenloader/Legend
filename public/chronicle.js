@@ -1,6 +1,7 @@
-// ────────────────────────────────────────────────────────
-// CHRONICLE.JS — Visual Novel Gallery & Story Log
-// ────────────────────────────────────────────────────────
+// ============================================================
+// CHRONICLE.JS — سجل ذكريات البطل وتواريخ الملحمة الروحية
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
+// ============================================================
 
 window.toggleChronicleModal = function() {
     const modal = document.getElementById('chronicle-modal');
@@ -46,18 +47,18 @@ window.updateChronicleUI = function(state) {
         const karma = state.player.karma || 0;
         if (karma >= 60) {
             projectionBox.innerHTML = `
-                <span style="color:var(--jade); font-weight:bold; font-size:1rem; display:block; margin-bottom:5px;">☀️ Path of Celestial Saint</span>
-                Your righteous actions echo through the Jade mountains. You are currently walking the noble path, on course for the <b>Saintly Ascension Ending</b>. You will seal the chaotic Rifts, bring eternal peace, and unify both jade and sand realms.
+                <span style="color:var(--jade); font-weight:bold; font-size:1rem; display:block; margin-bottom:5px;">☀️ طريق الولاية والصفاء النوراني</span>
+                أفعالك الخيرة والنورانية بتتردد في جبال الطور وجوف الصحراء. إنت ماشي في طريق الهداية والنور، وقريب جداً من <b>نهاية الارتقاء النوراني الأسمى</b>. هتقدر تقفل الفجوات المظلمة، وتنشر السلام الأبدي وتوحد عوالم النور والرمال.
             `;
         } else if (karma <= -60) {
             projectionBox.innerHTML = `
-                <span style="color:var(--danger); font-weight:bold; font-size:1rem; display:block; margin-bottom:5px;">💀 Path of Demonic Sovereign</span>
-                You have forged your soul in the crucible of absolute ambition and dark flame. You are on course for the <b>Demonic Sovereign Ending</b>. You will seize the rifts' power, tear down the ancient sects, and reign supreme over the sand.
+                <span style="color:var(--danger); font-weight:bold; font-size:1rem; display:block; margin-bottom:5px;">💀 طريق ملكوت الغرور المظلم</span>
+                صنعت وهرست روحك في نار الطموح المطلق والغرور المظلم. إنت دلوقتي في طريقك لـ <b>نهاية ملكوت الظلال المطلق</b>. هتستولى على قوة الفجوات السحرية وتدمر الصوامع الكبرى، وتحكم بقبضة حديدية على الصحراء بالكامل.
             `;
         } else {
             projectionBox.innerHTML = `
-                <span style="color:var(--secondary); font-weight:bold; font-size:1rem; display:block; margin-bottom:5px;">⚖️ Path of the Great Balance</span>
-                You steer clear of extremism, holding the central line of the neutral sage. You are on course for the <b>Wandering Balance Ending</b>. You will maintain the eternal cycle, keeping both shadow and light in perfect dynamic tension.
+                <span style="color:var(--secondary); font-weight:bold; font-size:1rem; display:block; margin-bottom:5px;">⚖️ طريق الميزان والاعتدال الأبدي</span>
+                إنت بعيد عن التطرف وواقف في النص بالظبط زي الحكيم المعتدل. إنت في طريقك لـ <b>نهاية الميزان الهائم الأبدي</b>. هتحافظ على التوازن والدورة الأبدية بين النور والظلام في تناسق تام.
             `;
         }
     }
@@ -72,8 +73,8 @@ window.updateChronicleUI = function(state) {
         // Background node
         if (state.player.background) {
             nodes.push({
-                title: "Origin Decided",
-                desc: `Awakened as a <b>${state.player.background.name}</b>, carrying the trait of <i>${state.player.background.trait}</i> into the mortal realms.`,
+                title: "تحديد المولد والنشأة والبركة",
+                desc: `اتولدت ونشأت كـ <b>${state.player.background.name}</b>، وورثت خصلة وصفة <i>${state.player.background.trait}</i> في عوالم الفناء الروحية.`,
                 type: 'neutral'
             });
         }
@@ -81,8 +82,8 @@ window.updateChronicleUI = function(state) {
         // System node
         if (state.player.system) {
             nodes.push({
-                title: "Destiny System Unlocked",
-                desc: `Blessed by the cosmos with the unique <b>${state.player.system.name}</b>: <i>${state.player.system.desc}</i>`,
+                title: "انفتاح ميزة القدر المباركة",
+                desc: `حلت عليك بركة السماء بميزة قدر فريدة ونادرة <b>${state.player.system.name}</b>: <i>${state.player.system.desc}</i>`,
                 type: 'saintly'
             });
         }
@@ -90,84 +91,84 @@ window.updateChronicleUI = function(state) {
         // Act completions & decisions
         if (hasChronicleFlag(state, 'womb_completed')) {
             nodes.push({
-                title: "First Steps into the Dao",
-                desc: "Passed the heavenly trials of youth, successfully tempering your spirit roots and emerging into the wider desert.",
+                title: "الخطوات الأولى في طريق السلوك الروحي",
+                desc: "عديت اختبارات الطفولة والسما الصعبة بنجاح، وقويت مقامات جذورك الروحية وخرجت لرحاب الصحراء الواسعة.",
                 type: 'neutral'
             });
         }
         if (hasChronicleFlag(state, 'harun_met')) {
             nodes.push({
-                title: "The Crossroads Merchant",
-                desc: "Met Harun the Jinn Merchant, learning of the poisoning that corrupts both Sand and Jade realms.",
+                title: "تاجر واحة القوافل الغامض",
+                desc: "قابلت الشيخ هارون تاجر الجان، وعرفت منه السموم والشرور اللي بتلوث عوالم الرمال وجبل الطور الروحية.",
                 type: 'neutral'
             });
         }
         if (hasChronicleFlag(state, 'act2_started')) {
             nodes.push({
-                title: "The Celestial Conflict",
-                desc: "Witnessed the growing tensions between the mystical Sufi Orders and the proud Jade Sects.",
+                title: "فتنة العوالم والأنوار",
+                desc: "شهدت بعينك التوترات والخلافات الكبيرة بين دراويش طريقة الربع الخالي وفرسان صومعة جبل الطور.",
                 type: 'neutral'
             });
         }
         if (hasChronicleFlag(state, 'act3_pass_visited')) {
             nodes.push({
-                title: "Passage of the Sacred Duke",
-                desc: "Faced the Jade Pass protectors. Resolved the conflict with righteous diplomacy and high resolve.",
+                title: "ممر الشيخ الجليل وحكمة اللقاء",
+                desc: "واجهت حراس ممر الطور الروحي. وحليت الخلاف بجدعنة ووقار وحكمة نورانية بالغة.",
                 type: 'saintly'
             });
         }
         if (hasChronicleFlag(state, 'act3_mirror_completed')) {
             nodes.push({
-                title: "The Mirror of Past Lives",
-                desc: "Stared deep into the Abyssal Sea Mirror. Unlocked the memories of the Fallen Immortal.",
+                title: "مرآة الحيوات السابقة والبرزخ",
+                desc: "بصيت بعمق في مرآة بحر النور اللجي. وفتحت ذكريات الخالد الساقط المدوية وتجليات الروح.",
                 type: 'neutral'
             });
         }
         if (hasChronicleFlag(state, 'act4_started')) {
             nodes.push({
-                title: "Siege of the Crossroads",
-                desc: "Took a stand during the massive invasion, defending the heart of the Silk Road from rogue sects.",
+                title: "حصار واحة القوافل الكبرى",
+                desc: "وقفت وقفة رجالة ودافعت عن واحة القوافل وقلب طريق الحرير ضد الطوائف السوداء الشيطانية.",
                 type: 'neutral'
             });
         }
         if (hasChronicleFlag(state, 'act4_completed')) {
             nodes.push({
-                title: "The Siege Broken",
-                desc: "Shattered the phantom armies and restored peace to the city, gaining the respect of both factions.",
+                title: "فك الحصار وطرد الأشرار",
+                desc: "سحقت جيوش الظلال الوهمية ورجعت الأمان للواحة، وكسبت احترام وود الطائفتين بالكامل.",
                 type: 'saintly'
             });
         }
         if (hasChronicleFlag(state, 'act5_started')) {
             nodes.push({
-                title: "The Great Convergence",
-                desc: "Ascended to the final rift, ready to decide the ultimate fate of sand, jade, and sky.",
+                title: "ملتقى الفجوات الأعظم وقدر النهاية",
+                desc: "ارتقيت للفجوة الكبرى الأخيرة، وجاهز دلوقتي عشان تقرر مصير الرمال، وجبل الطور، والملكوت بالكامل.",
                 type: 'neutral'
             });
         }
         if (hasChronicleFlag(state, 'ending_saint')) {
             nodes.push({
-                title: "☀️ Saintly Ascension",
-                desc: "Achieved perfect cosmic union. Sealed the rifts with celestial grace, becoming the guardian saint of both worlds.",
+                title: "☀️ الارتقاء النوراني الأسمى",
+                desc: "حققت الاتحاد الروحي الكامل والصفاء. وقفلت الفجوات المظلمة ببركة سماوية، وبقيت الولي الحامي لكلا العالمين.",
                 type: 'saintly'
             });
         }
         if (hasChronicleFlag(state, 'ending_demon')) {
             nodes.push({
-                title: "💀 Demonic Sovereign Rule",
-                desc: "Crushed all resistance under your boots. Formed a new empire ruled by absolute strength.",
+                title: "💀 حكم ملكوت الظلال والغرور المطلق",
+                desc: "سحقت كل المقاومين تحت رجليك. وأسست إمبراطورية جديدة بيحكمها سيف القوة المطلقة والظلال.",
                 type: 'demonic'
             });
         }
         if (hasChronicleFlag(state, 'ending_balance')) {
             nodes.push({
-                title: "⚖️ The Great Neutral Balance",
-                desc: "Refused extremes. Preserved both shadow and light, walking the endless road of the dynamic Tao.",
+                title: "⚖️ توازن الميزان النوراني الكبير",
+                desc: "رفضت التطرف وحافظت على النور والظلام مع بعض في توازن مستمر، ماشي في طريق الاعتدال الهائم الأبدي.",
                 type: 'neutral'
             });
         }
         
         if (nodes.length === 0) {
-            timeline.innerHTML = '<div style="color:var(--text-dim); text-align:center; margin-top:50px;">Your story has just begun...</div>';
+            timeline.innerHTML = '<div style="color:var(--text-dim); text-align:center; margin-top:50px;">قصتك وابتلاءاتك لسة بادية... كمل طريقك وجاهد نفسك!</div>';
         } else {
             nodes.forEach(n => {
                 const item = document.createElement('div');
@@ -196,7 +197,7 @@ window.updateHubStoryProgress = function(state) {
     const hudBar = document.getElementById('hud-act-progress-bar');
     
     if (hudActName) hudActName.textContent = progress.actName;
-    if (hudActPct) hudActPct.textContent = `${progress.pct}% Complete`;
+    if (hudActPct) hudActPct.textContent = `${progress.pct}% اكتملت`;
     if (hudBar) hudBar.style.width = `${progress.pct}%`;
     
     // 2. Narrative Screen elements
@@ -205,41 +206,41 @@ window.updateHubStoryProgress = function(state) {
     const storyHudBar = document.getElementById('story-hud-act-progress-bar');
     
     if (storyHudActName) storyHudActName.textContent = progress.actName;
-    if (storyHudActPct) storyHudActPct.textContent = `${progress.pct}% Complete`;
+    if (storyHudActPct) storyHudActPct.textContent = `${progress.pct}% اكتملت`;
     if (storyHudBar) storyHudBar.style.width = `${progress.pct}%`;
 };
 
 function calculateStoryProgress(state) {
-    let actName = "Act I: Shifting Sands";
+    let actName = "الفصل الأول: رمال الصحراء الهائمة";
     let pct = 0;
     
     if (window.STORY && typeof window.STORY.getCurrentAct === 'function') {
         const act = window.STORY.getCurrentAct(state);
         const names = {
-            1: "Act I: Shifting Sands",
-            2: "Act II: Celestial Conflict",
-            3: "Act III: Mirror of Past Lives",
-            4: "Act IV: Crossroads Siege",
-            5: "Act V: Convergence"
+            1: "الفصل الأول: رمال الصحراء الهائمة",
+            2: "الفصل الثاني: فتنة العوالم والأنوار",
+            3: "الفصل الثالث: مرآة الحيوات السابقة والبرزخ",
+            4: "الفصل الرابع: حصار واحة القوافل الكبرى",
+            5: "الفصل الخامس: ملتقى الفجوات الأعظم وقدر النهاية"
         };
-        actName = names[act] || "Act I: Shifting Sands";
+        actName = names[act] || "الفصل الأول: رمال الصحراء الهائمة";
         pct = window.STORY.getActProgress(state);
     } else {
         // Fallback to legacy calculation if STORY isn't loaded yet
         if (hasChronicleFlag(state, 'act5_started')) {
-            actName = "Act V: Convergence";
+            actName = "الفصل الخامس: ملتقى الفجوات الأعظم وقدر النهاية";
             pct = 50;
         } else if (hasChronicleFlag(state, 'act4_started')) {
-            actName = "Act IV: Crossroads Siege";
+            actName = "الفصل الرابع: حصار واحة القوافل الكبرى";
             pct = 40;
         } else if (hasChronicleFlag(state, 'act3_started')) {
-            actName = "Act III: Mirror of Past Lives";
+            actName = "الفصل الثالث: مرآة الحيوات السابقة والبرزخ";
             pct = 30;
         } else if (hasChronicleFlag(state, 'act2_started')) {
-            actName = "Act II: Celestial Conflict";
+            actName = "الفصل الثاني: فتنة العوالم والأنوار";
             pct = 50;
         } else {
-            actName = "Act I: Shifting Sands";
+            actName = "الفصل الأول: رمال الصحراء الهائمة";
             pct = 10;
         }
     }

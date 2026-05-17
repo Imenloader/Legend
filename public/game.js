@@ -35,7 +35,7 @@ function validateState() {
     
     // Safety check for currentRegion
     if (window.LORE && window.LORE.REGIONS && !window.LORE.REGIONS[state.player.currentRegion]) {
-        console.warn(`Region ${state.player.currentRegion} missing. Resetting to Crossroads.`);
+        console.warn(`المنطقة ${state.player.currentRegion} مفقودة. إعادة الضبط لواحة التقاطع.`);
         state.player.currentRegion = 'crossroads';
     }
 
@@ -110,7 +110,7 @@ function showToast(msg) {
 async function saveGame() {
     // Always save locally first
     localStorage.setItem('legend_rpg_state', JSON.stringify(state));
-    showToast("Progress Sealed 🕯️");
+    showToast("تم حفظ وختم تقدمك بنجاح! 🕯️");
     
     // Attempt cloud save
     if (supabaseClient) {
@@ -146,7 +146,7 @@ let state = {
     playerId: localStorage.getItem('rpg_player_id') || `guest_${Math.random().toString(36).substr(2, 9)}`,
     settings: { perspective: 'second' },
     player: {
-        name: 'Cultivator',
+        name: 'البطل المريد',
         class: 'Sword Immortal',
         lvl: 1,
         xp: 0,
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rescueBtn = document.getElementById('rescue-btn');
     if (rescueBtn) {
         rescueBtn.addEventListener('click', () => {
-            narrate("Emergency state reset initiated. Returning to Crossroads...", "System");
+            narrate("تم بدء إعادة ضبط الحالة الطارئة. العودة إلى واحة التقاطع...", "النظام");
             state.currentEnemy = null;
             showScreen('story-screen');
             hubLoop();
@@ -294,14 +294,14 @@ function resumeGame() {
         hubLoop();
     }
     
-    narrate("<b>Echoes of the Past</b>: You have returned to your path.", "System", null, false, true);
+    narrate("<b>أصداء الماضي الغابر</b>: لقد عدت إلى مسارك وقدرك المكتوب بنجاح.", "النظام", null, false, true);
 }
 
 // --- Narrative Engine ---
 function parsePerspective(text) {
     if (typeof text !== 'string') return String(text || '');
     if (state.settings?.perspective === 'first') {
-        return text.replace(/\bYourself\b/g, 'Myself').replace(/\byourself\b/g, 'myself').replace(/\bYour\b/g, 'My').replace(/\byour\b/g, 'my').replace(/\bYou are\b/g, 'I am').replace(/\byou are\b/g, 'I am').replace(/\bYou\b/g, 'I').replace(/\byou\b/g, 'I');
+        return text.replace(/\bYourself\b/g, 'نفْسي').replace(/\byourself\b/g, 'نفسي').replace(/\bYour\b/g, 'مُلكي').replace(/\byour\b/g, 'خاصتي').replace(/\bYou are\b/g, 'أنا أكون').replace(/\byou are\b/g, 'أنا').replace(/\bYou\b/g, 'أنا').replace(/\byou\b/g, 'أنا');
     }
     return text;
 }
@@ -454,13 +454,13 @@ function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, is
         }
         
         if (speaker) {
-            const color = isEnemy ? 'var(--danger)' : (speaker === 'System' ? 'var(--secondary)' : 'var(--jade)');
+            const color = isEnemy ? 'var(--danger)' : (speaker === 'System' || speaker === 'النظام' ? 'var(--secondary)' : 'var(--jade)');
             contentHtml += `<span class="narrative-speaker" style="color: ${color};">${speaker}</span>`;
         }
         
         const finalText = isSystem ? safeText : parsePerspective(safeText);
         const paragraphId = 'narrative-text-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-        contentHtml += `<p id="${paragraphId}" style="margin: 0; color: ${isSystem ? 'var(--secondary)' : 'var(--text)'};"></p>`;
+        contentHtml += `<div id="${paragraphId}" style="margin: 0; color: ${isSystem ? 'var(--secondary)' : 'var(--text)'};"></div>`;
         
         block.innerHTML = contentHtml;
         narrativeWindow.appendChild(block);
@@ -474,7 +474,7 @@ function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, is
         block.scrollIntoView({ behavior: 'smooth', block: 'end' });
     } catch (err) {
         console.error("Narrative Error:", err);
-        showToast("The Dao is clouded... (Rendering Error)");
+        showToast("طريق اليقين والقدر غائم حالياً... (خطأ في العرض)");
     }
 }
 
@@ -585,7 +585,7 @@ function setChoices(choicesArray) {
 
         if (isCombat) {
             const txt = choice.text.toLowerCase();
-            if (txt.includes('form') || txt.includes('taming') || txt.includes('tame')) {
+            if (txt.includes('form') || txt.includes('taming') || txt.includes('tame') || txt.includes('وضعية') || txt.includes('ترويض')) {
                 btn.setAttribute('data-type', 'form');
             } else {
                 btn.setAttribute('data-type', 'attack');
@@ -609,7 +609,7 @@ function setChoices(choicesArray) {
                 if (choice.callback) choice.callback();
             } catch (err) {
                 console.error("Choice Callback Error:", err);
-                showToast("The Dao flickers... (Interaction Error)");
+                showToast("طريق اليقين يتأرجح... (خطأ تفاعلي)");
                 setTimeout(() => { 
                     state._uiLock = false; 
                     targetContainer.classList.remove('ui-locked');
@@ -628,7 +628,7 @@ function setChoices(choicesArray) {
 
 function updateTopBar() {
     if (!UI_ELEMENTS.storyPlayerName) return;
-    UI_ELEMENTS.storyPlayerName.innerText = `${state.player.name} (Lvl ${state.player.lvl})`;
+    UI_ELEMENTS.storyPlayerName.innerText = `${state.player.name} (مستوى ${state.player.lvl})`;
     UI_ELEMENTS.storyHp.innerText = state.player.hp;
     UI_ELEMENTS.storyMp.innerText = state.player.mp;
     UI_ELEMENTS.storyHpBar.style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
@@ -684,7 +684,7 @@ function initGame() {
         if (diffHours >= 1) {
             const idleQi = Math.floor(diffHours * 10 * (state.player.lvl || 1));
             state.player.xp += idleQi;
-            narrate(`While you were away, you gathered ${idleQi} Qi through passive meditation.`, "System");
+            narrate(`أثناء غيابك عن الخلوة، جمعت ${idleQi} من يقين المانا من خلال التأمل السلبي الطاهر.`, "النظام");
         }
     }
     state.lastLogin = now;
@@ -703,12 +703,12 @@ function initGame() {
                     if (state.player.gold >= a.currentBid) {
                         state.player.gold -= a.currentBid;
                         state.player.inventory.items.push({...a.item});
-                        narrate(`SOLD! You won the ${a.item.name} for ${a.currentBid} stones!`, "Auction");
+                        narrate(`تم البيع! لقد فزت بـ ${a.item.name} مقابل ${a.currentBid} حجر روحي!`, "المزاد");
                     } else {
-                        narrate(`CRITICAL: You won the auction but lack the stones! The ${a.item.name} is forfeited.`, "Auction");
+                        narrate(`حالة حرجة: فزت بالمزاد ولكن لا تملك ما يكفي من الأحجار الروحية! تم مصادرة الـ ${a.item.name}.`, "المزاد");
                     }
                 } else {
-                    narrate(`SOLD! ${a.highestBidder} won the ${a.item.name}.`, "Auction");
+                    narrate(`تم البيع! فاز ${a.highestBidder} بـ ${a.item.name}.`, "المزاد");
                 }
                 state.activeAuction = null;
                 updateTopBar();
@@ -735,7 +735,7 @@ function initGame() {
     clearNarrative();
     calculateTotalStats();
     saveGame();
-    narrate("The wind whispers of a Great Convergence. Your path begins now.", "System", null, false, true);
+    narrate("توشوش الرياح بأخبار عن تقارب عظيم للأقدار السماوية. مسارك يبدأ الآن.", "النظام", null, false, true);
     hubLoop();
 }
 
@@ -759,25 +759,25 @@ function hubLoop() {
         if (flags['act5_started'] && !flags['act5_transition_shown']) {
             flags['act5_transition_shown'] = true;
             saveGame();
-            triggerActTransition("ACT V: THE GREAT CONVERGENCE", "The final barrier shatters. Ascend, conquer, or walk the balanced path.", () => hubLoop());
+            triggerActTransition("الفصل الخامس: التلاقي الأكبر للأقدار", "الحاجز الأخير يتحطم ويتلاشى. اصعد إلى السماوات العلى، أو اسحق أعداءك، أو اسلك درب الوسطية الخالد.", () => hubLoop());
             return;
         }
         if (flags['act4_started'] && !flags['act4_transition_shown']) {
             flags['act4_transition_shown'] = true;
             saveGame();
-            triggerActTransition("ACT IV: SIEGE OF CROSSROADS", "Hold the gates. Secure the Silk Road from the wrath of the rogue sects.", () => hubLoop());
+            triggerActTransition("الفصل الرابع: حصار واحة التقاطع", "احم البوابات بدمك. أمن طريق الحرير العظيم من بطش الطوائف المارقة واللصوص.", () => hubLoop());
             return;
         }
         if (flags['act3_started'] && !flags['act3_transition_shown']) {
             flags['act3_transition_shown'] = true;
             saveGame();
-            triggerActTransition("ACT III: THE MIRROR OF MEMORY", "Unveil the ancient path of the Fallen Immortal and your true origins.", () => hubLoop());
+            triggerActTransition("الفصل الثالث: مرآة الذاكرة الغابرة", "اكشف الستار عن المسار القديم للمريد الهابط وأصولك الحقيقية التي طواها الزمن.", () => hubLoop());
             return;
         }
         if (flags['act2_started'] && !flags['act2_transition_shown']) {
             flags['act2_transition_shown'] = true;
             saveGame();
-            triggerActTransition("ACT II: CELESTIAL STRIFE", "Sufi and Jade gather like thunderclouds over the high pass.", () => hubLoop());
+            triggerActTransition("الفصل الثاني: النزاع السماوي الأعظم", "موجات الصوفية واليشم تتجمع كغيوم الرعد فوق المعبر العالي الجبلي.", () => hubLoop());
             return;
         }
 
@@ -789,7 +789,7 @@ function hubLoop() {
                     const enemy = window.LORE ? window.LORE.getAllEnemies()[state.pendingCombatEnemy] : null;
                     state.pendingCombatEnemy = null;
                     if (enemy) startCombat({ ...enemy, hp: enemy.baseHp, maxHp: enemy.baseHp, atk: enemy.baseAtk });
-                    else { narrate("Error: Enemy data missing. Returning to hub.", "System"); hubLoop(); }
+                    else { narrate("خطأ: بيانات العدو مفقودة في المخطوطة الروحية. العودة للواحة.", "النظام"); hubLoop(); }
                 } else { 
                     if (window.QUESTS) window.QUESTS.updateQuests(state);
                     if (window.SKILLS) window.SKILLS.checkUnlocks(state);
@@ -803,7 +803,7 @@ function hubLoop() {
     clearNarrative();
     const regionId = state.player.currentRegion || 'crossroads';
     const region = window.LORE && window.LORE.REGIONS ? window.LORE.REGIONS[regionId] : null;
-    const regionName = region ? region.name : "Unknown Realm";
+    const regionName = region ? region.name : "ملكوت مجهول";
 
     const comp = window.COMPANIONS ? window.COMPANIONS.getActive(state) : null;
     if (comp) {
@@ -811,48 +811,48 @@ function hubLoop() {
         if (greeting) narrate(greeting, comp.name, comp.sprite, false);
     }
 
-    narrate(`<b style="font-size:1.4em;letter-spacing:2px;color:var(--secondary);">${regionName.toUpperCase()}</b>`, 'System', null, false, true);
-    if (region) narrate(`<i style="color:var(--text-dim);">${region.subtitle}</i><br>${region.description}`, 'System', null, false, true);
+    narrate(`<b style="font-size:1.4em;letter-spacing:2px;color:var(--secondary);">${regionName.toUpperCase()}</b>`, 'النظام', null, false, true);
+    if (region) narrate(`<i style="color:var(--text-dim);">${region.subtitle}</i><br>${region.description}`, 'النظام', null, false, true);
 
     const choices = [];
-    if (typeof showWorldMap === 'function') choices.push({ text: "🗺️ Open World Map", callback: showWorldMap });
+    if (typeof showWorldMap === 'function') choices.push({ text: "🗺️ افتح خريطة العالم الأسطوري", callback: showWorldMap });
     
     // Exploration
-    choices.push({ text: `⚔️ Explore ${regionName}`, callback: () => exploreRegion(regionId) });
+    choices.push({ text: `⚔️ استكشف ${regionName}`, callback: () => exploreRegion(regionId) });
 
     if (regionId === 'crossroads') {
-        if (typeof showQuestLog === 'function') choices.push({ text: "📜 Mission Board", callback: showQuestLog });
-        if (typeof showMarket === 'function') choices.push({ text: "⚖️ Crossroads Market", callback: showMarket });
-        if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ Sect Auction House", callback: showAuctionHouse });
-        if (typeof showManagementScreen === 'function') choices.push({ text: "👨‍👩‍👧‍👦 Manage Family & Sect", callback: showManagementScreen });
+        if (typeof showQuestLog === 'function') choices.push({ text: "📜 لوحة المهام والطلبات", callback: showQuestLog });
+        if (typeof showMarket === 'function') choices.push({ text: "⚖️ سوق واحة التقاطع", callback: showMarket });
+        if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ دار مزادات الطائفة العظمى", callback: showAuctionHouse });
+        if (typeof showManagementScreen === 'function') choices.push({ text: "👨‍👩‍👧‍👦 إدارة العائلة والطائفة", callback: showManagementScreen });
     } else if (regionId === 'jade_peak') {
-        choices.push({ text: "🏯 Jade Summit Sect Pagoda", callback: () => narrate("The Sect elders are in deep meditation.", "System") });
-        choices.push({ text: "🗡️ Sword Intent Cliff", callback: () => narrate("You feel a sharp intent in the air.", "System") });
+        choices.push({ text: "🏯 معبد قمة اليشم والرهبان", callback: () => narrate("شيوخ ورهبان الطائفة في حالة تجلي وتأمل روحي عميق في قنوات المانا.", "النظام") });
+        choices.push({ text: "🗡️ منحدر بصير السيف الناري", callback: () => narrate("تشعر بهالة سيف حادة تقطع النسمات وتحفر الصخر في الهواء.", "النظام") });
     }
     
     if (state.player.lvl >= 10) {
-        choices.push({ text: "✨ Hall of Transmigration", callback: showRebirthScreen });
+        choices.push({ text: "✨ قاعة انتقال الأرواح والبعث", callback: showRebirthScreen });
     }
     
     if (state.player.lvl >= 20 && !state.player.isAscended) {
-        choices.push({ text: "⚡ Attempt Heavenly Tribulation", callback: () => {
+        choices.push({ text: "⚡ خوض محنة البرق السماوي", callback: () => {
             if (window.ASCENSION) window.ASCENSION.startTribulation(state, narrate, startCombat);
         }});
     }
     
-    if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 Cultivate Qi", callback: showCultivationScreen });
-    if (typeof showAlchemyScreen === 'function') choices.push({ text: "⚗️ Alchemy Furnace", callback: showAlchemyScreen });
-    if (typeof showForgeScreen === 'function') choices.push({ text: "🔨 Spirit Forge", callback: showForgeScreen });
+    if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 تأمل واجمع المانا واليقين", callback: showCultivationScreen });
+    if (typeof showAlchemyScreen === 'function') choices.push({ text: "⚗️ فرن الخيمياء وتقطير الإكسير", callback: showAlchemyScreen });
+    if (typeof showForgeScreen === 'function') choices.push({ text: "🔨 ورشة سحر الحديد والأسلحة", callback: showForgeScreen });
     
-    choices.push({ text: "📜 Martial Library (Skills)", callback: showSkillsScreen });
-    choices.push({ text: "🎒 Inventory & Karma", callback: showInventory });
-    choices.push({ text: "🧘 Meditate (Restore)", callback: () => {
+    choices.push({ text: "📜 مكتبة الفنون والمهارات", callback: showSkillsScreen });
+    choices.push({ text: "🎒 الحقيبة وجوهر الكارما", callback: showInventory });
+    choices.push({ text: "🧘 خلوة وتأمل (استشفاء كامل)", callback: () => {
         state.player.hp = state.player.maxHp; state.player.mp = state.player.maxMp;
-        narrate("Fully restored Essence and Qi.", "System", null, false, true);
+        narrate("استعدت كامل جوهر الجسد وطاقة اليقين في المانا.", "النظام", null, false, true);
         if (window.QUESTS) window.QUESTS.updateQuests(state);
         updateTopBar(); saveGame(); setTimeout(hubLoop, 1500);
     }});
-    choices.push({ text: "Manage Companion", callback: showCompanionScreen });
+    choices.push({ text: "إدارة الرفيق البطل", callback: showCompanionScreen });
     setChoices(choices);
 }
 
@@ -861,27 +861,27 @@ function showCompanionScreen() {
     clearNarrative();
     const comp = window.COMPANIONS ? window.COMPANIONS.getActive(state) : null;
     
-    let html = `<b>Companion Roster</b> — Choose who walks beside you.<br><br>`;
+    let html = `<b>سجل رفقاء الدرب</b> — اختر البطل الذي يشد عضدك ويسير بجانبك.<br><br>`;
     
     if (comp) {
         const tier = window.COMPANIONS.getAffinityTier(comp.affinity);
         let bonusText = "";
         if (comp.passiveBuff) {
-            bonusText = `Provides scale-based combat passive: <b>+${Math.floor(comp.passiveBuff.bonus * (0.5 + comp.affinity / 100) * 100)}% ${comp.passiveBuff.stat.toUpperCase()}</b>`;
+            bonusText = `يقدم بركة إيجابية في القتال بنسبة: <b>+${Math.floor(comp.passiveBuff.bonus * (0.5 + comp.affinity / 100) * 100)}% ${comp.passiveBuff.stat === 'atk' ? 'هجوم' : comp.passiveBuff.stat === 'def' ? 'دفاع' : comp.passiveBuff.stat.toUpperCase()}</b>`;
         }
         
         let synergyStatus = comp.affinity >= 75 
-            ? `<span style="color:var(--secondary); font-weight:bold;">🔥 Synergy Ultimate UNLOCKED!</span>` 
-            : `<span style="color:var(--text-dim);">🔒 Synergy Ultimate unlocks at 75% Affinity</span>`;
+            ? `<span style="color:var(--secondary); font-weight:bold;">🔥 مهارة التآزر القصوى: مفتوحة ومتاحة!</span>` 
+            : `<span style="color:var(--text-dim);">🔒 مهارة التآزر القصوى تفتح عند 75% ألفة</span>`;
             
         html = `
             <div class="management-card" style="border-left:4px solid var(--secondary); font-family:'Inter', sans-serif;">
                 <div class="management-header">
-                    <h3 style="color:var(--secondary); margin:0;">👥 Active Companion: ${comp.name}</h3>
+                    <h3 style="color:var(--secondary); margin:0;">👥 الرفيق النشط: ${comp.name}</h3>
                     <span class="management-badge" style="background:${tier.color}; color:#fff;">${tier.label}</span>
                 </div>
                 <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; margin:10px 0; font-size:0.9rem; text-align:left;">
-                    <p style="margin:5px 0;">Affinity Level: <b style="color:var(--secondary);">${comp.affinity}%</b></p>
+                    <p style="margin:5px 0;">مستوى الألفة والود: <b style="color:var(--secondary);">${comp.affinity}%</b></p>
                     <p style="margin:5px 0;">${bonusText}</p>
                     <p style="margin:5px 0;">${synergyStatus}</p>
                 </div>
@@ -890,17 +890,17 @@ function showCompanionScreen() {
         `;
     }
     
-    narrate(html, "Companion Hall", null, false, true);
+    narrate(html, "ديوان الرفقاء", null, false, true);
     
     const available = window.COMPANIONS ? window.COMPANIONS.getAvailable(state) : [];
     const choices = [];
     
     if (comp) {
         choices.push({
-            text: "💬 Strategic Counsel (restore 30% HP/MP; costs 50 Spirit Stones)",
+            text: "💬 استشارة استراتيجية (تستعيد 30% صحة ومانا؛ تكلف 50 حجر روحي)",
             callback: () => {
                 if (state.player.gold < 50) {
-                    narrate("You do not have enough Spirit Stones.", "System");
+                    narrate("معندكش أحجار روحية كفاية في صرتك لتكلفة الاستشارة.", "النظام");
                     setTimeout(showCompanionScreen, 1500);
                     return;
                 }
@@ -908,8 +908,8 @@ function showCompanionScreen() {
                 state.player.hp = Math.min(state.player.maxHp, state.player.hp + Math.floor(state.player.maxHp * 0.3));
                 state.player.mp = Math.min(state.player.maxMp, state.player.mp + Math.floor(state.player.maxMp * 0.3));
                 
-                const counsel = window.COMPANIONS.getDialogue(state, state.companion, 'greet') || "Walk forward with confidence, Daoist.";
-                narrate(`<b>${comp.name}</b> counsels you: "${counsel}"<br><br><span class="loot-refined">Restored 30% HP and Qi!</span>`, "System");
+                const counsel = window.COMPANIONS.getDialogue(state, state.companion, 'greet') || "تقدم للأمام بثقة يا سالك، فالقدر يكتبه الشجعان وسيوفهم.";
+                narrate(`<b>${comp.name}</b> يوجهك بكلماته: "${counsel}"<br><br><span class="loot-refined">تم استعادة 30% من صحتك وطاقة يقينك!</span>`, "النظام");
                 updateTopBar();
                 saveGame();
                 setTimeout(showCompanionScreen, 3000);
@@ -917,10 +917,10 @@ function showCompanionScreen() {
         });
         
         choices.push({
-            text: "⚔️ Sparring Session (Challenges companion, costs 15 Qi)",
+            text: "⚔️ جلسة تدريب وقتال ودي (تحدي الرفيق، تكلف 15 مانا)",
             callback: () => {
                 if (state.player.mp < 15) {
-                    narrate("You lack the Qi to initiate sparring.", "System");
+                    narrate("معندكش يقين روحي كافي في خلاياك لبدء المبارزة والتدريب الودي.", "النظام");
                     setTimeout(showCompanionScreen, 1500);
                     return;
                 }
@@ -928,15 +928,15 @@ function showCompanionScreen() {
                 
                 const mult = state.player.familyPagodaLevel === 2 ? 1.15 : 1.0;
                 const gain = Math.floor(5 * mult);
-                window.COMPANIONS.adjustAffinity(state, state.companion, gain, "Sparred together in martial excellence.");
+                window.COMPANIONS.adjustAffinity(state, state.companion, gain, "مبارزة قتالية ودية راقية.");
                 
                 const statChoice = Math.random() < 0.5 ? 'atk' : 'def';
                 if (statChoice === 'atk') {
                     state.player.atk = (state.player.atk || 10) + 1;
-                    narrate(`You sparred intensely with <b>${comp.name}</b>. Gained <b>+${gain}% Affinity</b> and permanently raised your combat insight (<b>+1 Attack</b>)!`, "System");
+                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت بصيرتك القتالية بشكل دائم (<b>+1 هجوم</b>)!`, "النظام");
                 } else {
                     state.player.def = (state.player.def || 5) + 1;
-                    narrate(`You sparred intensely with <b>${comp.name}</b>. Gained <b>+${gain}% Affinity</b> and permanently raised your combat insight (<b>+1 Defense</b>)!`, "System");
+                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت بصيرتك القتالية بشكل دائم (<b>+1 دفاع</b>)!`, "النظام");
                 }
                 
                 calculateTotalStats();
@@ -947,18 +947,18 @@ function showCompanionScreen() {
         });
         
         choices.push({
-            text: "🎁 Offer Gift (100 Spirit Stones)",
+            text: "🎁 تقديم هدية فاخرة (100 حجر روحي)",
             callback: () => {
                 if (state.player.gold < 100) {
-                    narrate("You lack the Spirit Stones to purchase a suitable gift.", "System");
+                    narrate("معندكش أحجار روحية كفاية لشراء هدية تليق بقدسية الدرب.", "النظام");
                     setTimeout(showCompanionScreen, 1500);
                     return;
                 }
                 state.player.gold -= 100;
                 const mult = state.player.familyPagodaLevel === 2 ? 1.15 : 1.0;
                 const gain = Math.floor(10 * mult);
-                window.COMPANIONS.adjustAffinity(state, state.companion, gain, "Offered a premium Spiritual Jade pendant.");
-                narrate(`You offered a Spiritual Jade pendant to <b>${comp.name}</b>. Gained <b>+${gain}% Affinity</b>!`, "System");
+                window.COMPANIONS.adjustAffinity(state, state.companion, gain, "تقديم قلادة يشم الصحراء المذهبة.");
+                narrate(`قدمت قلادة اليشم الروحي الفاخرة كهدية عظيمة لـ <b>${comp.name}</b>. زادت الألفة بنسبة <b>+${gain}%</b>!`, "النظام");
                 updateTopBar();
                 saveGame();
                 setTimeout(showCompanionScreen, 2200);
@@ -967,10 +967,10 @@ function showCompanionScreen() {
     }
     
     choices.push({
-        text: "👥 Change Active Companion",
+        text: "👥 تغيير الرفيق النشط",
         callback: () => {
             clearNarrative();
-            narrate("Choose who walks beside you:", "System", null, false, true);
+            narrate("اختر البطل الذي يشد عضدك ويسير بجانبك في ساحة القتال:", "النظام", null, false, true);
             const subchoices = available.map(hero => ({
                 text: `${hero.id === state.companion ? '✅ ' : ''}${hero.name}`,
                 callback: () => {
@@ -981,17 +981,17 @@ function showCompanionScreen() {
                     showCompanionScreen();
                 }
             }));
-            setChoices([...subchoices, { text: "↩ Back", callback: showCompanionScreen }]);
+            setChoices([...subchoices, { text: "↩ رجوع", callback: showCompanionScreen }]);
         }
     });
     
-    setChoices([...choices, { text: "↩ Return", callback: hubLoop }]);
+    setChoices([...choices, { text: "↩ عودة", callback: hubLoop }]);
 }
 
 // --- Combat Integration ---
 function exploreRegion(regionId) {
     if (!window.LORE || !window.LORE.REGIONS || !window.LORE.REGIONS[regionId]) {
-        narrate("This region is lost in the mists of time.", "System");
+        narrate("هذه المنطقة ضائعة في غياهب النسيان وعواصف الزمن القديم.", "النظام");
         hubLoop();
         return;
     }
@@ -1002,7 +1002,7 @@ function exploreRegion(regionId) {
     const enemies = window.LORE.getRegionEnemies ? window.LORE.getRegionEnemies(regionId) : [];
     
     if (enemies.length === 0) {
-        narrate(`You wander the ${region.name}, but the paths are currently quiet. Perhaps you should return later.`, "System");
+        narrate(`تجولت طويلاً في نواحي ${region.name}، لكن دروب الرمل واليشم هادئة وصامتة حالياً. ربما يجب أن تعود لاحقاً.`, "النظام");
         setTimeout(hubLoop, 2000);
         return;
     }
@@ -1015,7 +1015,7 @@ function exploreRegion(regionId) {
         atk: Math.floor(enemy.baseAtk * (window.BALANCE ? window.BALANCE.enemyAtkScale(state.player.lvl, region.minLevel || 1) : 1))
     };
 
-    narrate(`Traveling to ${region.name}...`, "System");
+    narrate(`ترتحل وتسافر بنورك وعنادك إلى ${region.name}...`, "النظام");
     setTimeout(() => {
         showScreen('story-screen');
         startCombat(scaledEnemy);
@@ -1030,8 +1030,8 @@ function updateMomentumUI() {
     bar.style.left = mom >= 0 ? '50%' : (50 + mom/2) + '%';
     bar.style.width = Math.abs(mom/2) + '%';
     bar.style.background = mom >= 0 ? 'linear-gradient(90deg, #d4af37, #00a86b)' : 'linear-gradient(90deg, #8a1c1c, #d4af37)';
-    const formNames = { water: '🌊 WATER', mountain: '🏔️ MOUNTAIN', wind: '🌪️ WIND' };
-    if (indicator) indicator.textContent = 'STANCE: ' + (formNames[state.playerForm] || 'NONE');
+    const formNames = { water: '🌊 وضعية المية السلسة', mountain: '🏔️ وضعية الجبل الشامخ', wind: '🌪️ وضعية الرياح العاتية' };
+    if (indicator) indicator.textContent = 'الوضعية الحالية: ' + (formNames[state.playerForm] || 'لا توجد');
     const portrait = document.querySelector('.portrait-container');
     if (portrait) {
         portrait.classList.remove('aura-water', 'aura-mountain', 'aura-wind');
@@ -1043,7 +1043,7 @@ function startCombat(enemy) {
     state.currentEnemy = enemy;
     state.momentum = 0; state.playerForm = 'water';
     updateTopBar(); updateMomentumUI();
-    narrate(enemy.dialogue || `${enemy.name} challenges you!`, enemy.name, enemy.sprite, true);
+    narrate(enemy.dialogue || `يقف ${enemy.name} في طريقك شاهراً سلاحه ويتحدّاك بسخرية!`, enemy.name, enemy.sprite, true);
     setTimeout(combatLoop, 1500);
 }
 
@@ -1057,23 +1057,23 @@ function combatLoop() {
     if (state.player.immortalAscensionActive && state.player.hp < state.player.maxHp) {
         const healAmt = 5;
         state.player.hp = Math.min(state.player.maxHp, state.player.hp + healAmt);
-        narrate(`<span style="color:var(--jade); font-weight:bold;">✨ Immortal Ascension:</span> Restored <b>${healAmt} HP</b> at the start of the turn.`, "System");
+        narrate(`<span style="color:var(--jade); font-weight:bold;">✨ بركة الارتقاء الأبدي:</span> شفي جسدك تلقائياً بـ <b>${healAmt} نقاط حياة</b> في بداية هذه الجولة.`, "النظام");
         updateTopBar();
         triggerFlash('heal');
     }
     
     // 1. Process turn effects (DOTs, Buffs, Stuns)
     const effectMsg = window.COMBAT ? window.COMBAT.processTurnEffects(state, enemy) : '';
-    if (effectMsg) narrate(effectMsg, "System", null, false, true);
+    if (effectMsg) narrate(effectMsg, "النظام", null, false, true);
     
     if (enemy.hp <= 0) { setTimeout(handleVictory, 1000); return; }
 
     // 2. Enemy turn (if not stunned)
     if (!state.skipEnemyTurn) {
         enemy.nextMove = window.COMBAT ? window.COMBAT.selectEnemyMove(enemy) : 'heavy';
-        narrate(window.COMBAT ? window.COMBAT.getTelegraph(enemy, enemy.nextMove) : 'Enemy attacks!', enemy.name, enemy.sprite, true);
+        narrate(window.COMBAT ? window.COMBAT.getTelegraph(enemy, enemy.nextMove) : 'العدو يستعد للهجوم!', enemy.name, enemy.sprite, true);
     } else {
-        narrate(`${enemy.name} is recovering from the stun...`, "System");
+        narrate(`${enemy.name} يستعيد وعيه من الدوار والذهول...`, "النظام");
     }
 
     setTimeout(() => {
@@ -1085,10 +1085,10 @@ function combatLoop() {
                 actualCost = Math.max(1, Math.floor(actualCost * 0.8));
             }
             return {
-                text: m.name + (actualCost > 0 ? ` (${actualCost} Qi)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} HP)` : ''),
+                text: m.name + (actualCost > 0 ? ` (${actualCost} مانا)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} دم)` : ''),
                 callback: () => {
-                    if (actualCost > (state.player.mp || 0)) { narrate("Not enough Qi!", "System"); combatLoop(); return; }
-                    if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("Not enough Life Essence!", "System"); combatLoop(); return; }
+                    if (actualCost > (state.player.mp || 0)) { narrate("معندكش طاقة يقين (مانا) كافية لتفعيل الفن!", "النظام"); combatLoop(); return; }
+                    if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("لا تملك ما يكفي من جوهر دم الحياة لتضحية الفن!", "النظام"); combatLoop(); return; }
                     
                     if (actualCost > 0) state.player.mp -= actualCost;
                     resolveCombatTurn(m.id);
@@ -1099,37 +1099,37 @@ function combatLoop() {
         // Check companion affinity for synergy ultimate
         const activeComp = window.COMPANIONS ? window.COMPANIONS.getActive(state) : null;
         if (activeComp && activeComp.affinity >= 75) {
-            let synergyName = "Synergy Strike";
+            let synergyName = "ضربة التآزر المشترك";
             let synergyId = "synergy_strike";
             if (activeComp.id.includes('wukong')) {
-                synergyName = "🐒 Cudgel Smash";
+                synergyName = "🐒 ضربة الهراوة الإلهية";
                 synergyId = "synergy_wukong";
             } else if (activeComp.id.includes('tariq')) {
-                synergyName = "🛡️ Desert Aegis";
+                synergyName = "🛡️ درع رمال الصحراء";
                 synergyId = "synergy_tariq";
             } else if (activeComp.id.includes('boushaki') || activeComp.id.includes('sidi')) {
-                synergyName = "🌀 Sufi Breath";
+                synergyName = "🌀 النفحة الصوفية القدسية";
                 synergyId = "synergy_boushaki";
             } else if (activeComp.id.includes('fatima')) {
-                synergyName = "🌌 Astrolabe Insight";
+                synergyName = "🌌 بصيرة الأسطرلاب";
                 synergyId = "synergy_fatima";
             }
             
             choices.push({
-                text: `💖 Synergy: ${synergyName} (25 Qi)`,
+                text: `💖 تآزر: ${synergyName} (25 مانا)`,
                 callback: () => {
-                    if ((state.player.mp || 0) < 25) { narrate("Not enough Qi for Companion Synergy!", "System"); combatLoop(); return; }
+                    if ((state.player.mp || 0) < 25) { narrate("طاقة يقينك ضعيفة ولا تكفي لتفعيل التآزر مع الرفيق!", "النظام"); combatLoop(); return; }
                     state.player.mp -= 25;
                     resolveCombatTurn(synergyId);
                 }
             });
         }
         
-        choices.push({ text: "🌊 Water Form", callback: () => { state.playerForm = 'water'; combatLoop(); }});
-        choices.push({ text: "🏔️ Mountain Form", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
-        choices.push({ text: "🌪️ Wind Form", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
+        choices.push({ text: "🌊 وضعية المية السلسة", callback: () => { state.playerForm = 'water'; combatLoop(); }});
+        choices.push({ text: "🏔️ وضعية الجبل الشامخ", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
+        choices.push({ text: "🌪️ وضعية الرياح العاتية", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
         
-        if (enemy.archetype === 'beast') choices.push({ text: "🐾 Attempt Taming", callback: () => resolveCombatTurn('tame') });
+        if (enemy.archetype === 'beast') choices.push({ text: "🐾 محاولة ترويض المخلوق", callback: () => resolveCombatTurn('tame') });
 
         setChoices(choices);
     }, 1000);
@@ -1149,31 +1149,31 @@ function resolveCombatTurn(moveId) {
         if (moveId === 'synergy_wukong') {
             dmg = Math.floor(state.player.atk * 2.8);
             state.skipEnemyTurn = true;
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Sun Wukong's Cudgel Smash!</span> Sun Wukong slams his staff down, crushing ${enemy.name} for <b>${dmg} damage</b> and stunning them!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة هراوة سون ووكونغ القاضية!</span> هوى سون ووكونغ بهراوته الذهبية الإلهية في الجو، ساحقاً ${enemy.name} بـ <b>${dmg} ضرر هائل</b> ودمره ودوخه بالكامل!`;
         } else if (moveId === 'synergy_tariq') {
             const heal = Math.floor(state.player.def * 8);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
             state.player_invulnerable_turn = true;
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Tariq's Desert Aegis!</span> Tariq raises an absolute sand shield, restoring <b>${heal} HP</b> and granting invulnerability!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 درع رمال طارق بن زياد المطلق!</span> استدعى طارق بن زياد جدار رمال ذهبي عظيم حماه من الهلاك، مستعيداً <b>${heal} نقاط حياة</b> وجعلك محصناً بالكامل ضد كل شيء!`;
         } else if (moveId === 'synergy_boushaki') {
             const heal = Math.floor(state.player.atk * 1.5);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 50);
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Sidi Boushaki's Sufi Breath!</span> Sidi Boushaki channels cosmic tranquility, restoring <b>${heal} HP</b> and <b>50 Qi</b>!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 النفحة الصوفية القدسية للشيخ سيدي بوشاكي!</span> رتل الشيخ دعاء السكينة والتجلي، مستعيداً طهارة عروقك بـ <b>${heal} نقاط حياة</b> و <b>50 يقين (مانا)</b>!`;
         } else if (moveId === 'synergy_fatima') {
             dmg = Math.floor(state.player.atk * 2.2);
             enemy.atk = Math.max(1, Math.floor(enemy.atk * 0.6));
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Fatima's Astrolabe Insight!</span> Fatima maps the celestial orbits, blasting ${enemy.name} for <b>${dmg} damage</b> and permanently debuffing their attack!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 بصيرة فاطمة الفلكية وحساب الأسطرلاب!</span> رصدت فاطمة مسارات الكواكب الحارقة، صاعقة ${enemy.name} بـ <b>${dmg} ضرر يقيني</b> وضعفت هجومه للأبد!`;
         } else {
             dmg = Math.floor(state.player.atk * 2.0);
             const heal = Math.floor(dmg * 0.15);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Companion Synergy Strike!</span> Your companion strikes in perfect tandem, dealing <b>${dmg} damage</b> and restoring <b>${heal} HP</b>!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة التآزر المشترك والروح الواحد!</span> ضربتما معاً في تناغم أسطوري ومثالي، مسببين <b>${dmg} ضرر</b> واستعدت <b>${heal} نقاط حياة</b>!`;
         }
 
         enemy.hp = Math.max(0, enemy.hp - dmg);
         
-        narrate(blockText, "System", null, false, true);
+        narrate(blockText, "النظام", null, false, true);
         updateTopBar(); updateMomentumUI();
         
         if (window.AUDIO) window.AUDIO.playEffect('combat_hit');
@@ -1201,11 +1201,11 @@ function resolveCombatTurn(moveId) {
         return;
     }
 
-    const result = window.COMBAT ? window.COMBAT.resolveMove(moveId, enemy.nextMove, state.player.atk, enemy.atk, enemy, state) : { playerDmg: 10, enemyDmg: 5, resultText: 'Clash!' };
+    const result = window.COMBAT ? window.COMBAT.resolveMove(moveId, enemy.nextMove, state.player.atk, enemy.atk, enemy, state) : { playerDmg: 10, enemyDmg: 5, resultText: 'صدام عظيم!' };
     
     // Handle Tamed result
     if (result.special === 'tamed') {
-        narrate(result.resultText, "System");
+        narrate(result.resultText, "النظام");
         if (window.PETS) window.PETS.tame(state, enemy.id);
         setTimeout(() => { state._combatLock = false; handleVictory(); }, 1500);
         return;
@@ -1215,7 +1215,7 @@ function resolveCombatTurn(moveId) {
     if (state.player.supremeSovereignActive && (result.playerDmg || 0) > 0 && state.player.hp < state.player.maxHp) {
         const stealAmt = Math.max(1, Math.floor(result.playerDmg * 0.15));
         state.player.hp = Math.min(state.player.maxHp, state.player.hp + stealAmt);
-        result.resultText += `<br><span style="color:var(--danger); font-weight:bold;">👑 Supreme Sovereign:</span> Stole <b>${stealAmt} HP</b> from ${enemy.name}'s life force.`;
+        result.resultText += `<br><span style="color:var(--danger); font-weight:bold;">👑 السيادة المطلقة للخليفة:</span> سرقت وامتصيت <b>${stealAmt} نقاط حياة</b> من جوهر حياة ${enemy.name}.`;
         updateTopBar();
         triggerFlash('heal');
     }
@@ -1224,7 +1224,7 @@ function resolveCombatTurn(moveId) {
     state.player.hp = Math.max(0, state.player.hp - (result.enemyDmg || 0));
     state.momentum = Math.max(-100, Math.min(100, (state.momentum || 0) + (result.momentumShift || 0)));
     
-    narrate(result.resultText, 'System', null, false, true);
+    narrate(result.resultText, 'النظام', null, false, true);
     updateTopBar(); updateMomentumUI();
     
     // Play procedural combat audio
@@ -1253,13 +1253,13 @@ function resolveCombatTurn(moveId) {
 
 function handleVictory() {
     const enemy = state.currentEnemy;
-    narrate(`Victory! You have defeated ${enemy.name}.`, 'System');
+    narrate(`النصر الحاسم! لقد سحقت وهزمت ${enemy.name} في معركة أسطورية.`, 'النظام');
     
     // Check if this was a breakthrough Heavenly Tribulation
     if (state._pendingBreakthroughStage && window.CULTIVATION) {
         const msg = window.CULTIVATION.completeBreakthrough(state, state._pendingBreakthroughStage);
         state._pendingBreakthroughStage = null;
-        narrate(msg, "System", null, false, true);
+        narrate(msg, "النظام", null, false, true);
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
         calculateTotalStats();
         updateTopBar();
@@ -1275,7 +1275,7 @@ function handleVictory() {
         rescuedMember.crisis = null;
         rescuedMember._pendingRescue = null;
         rescuedMember.affinity = Math.min(100, rescuedMember.affinity + 30);
-        narrate(`<b>RESCUE MISSION SUCCESS!</b> You have freed <b>${rescuedMember.name}</b> from the clutches of danger! Affinity is now <b>${rescuedMember.affinity}%</b>.`, "System", null, false, true);
+        narrate(`<b>نجاح باهر لمهمة الإنقاذ!</b> لقد حررت وفككت أسر <b>${rescuedMember.name}</b> من براثن الخطر المحدق! الألفة معه الآن هي <b>${rescuedMember.affinity}%</b>.`, "النظام", null, false, true);
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
         calculateTotalStats();
         updateTopBar();
@@ -1295,9 +1295,9 @@ function handleVictory() {
     state.player.gold += goldReward;
     
     let victoryMsg = `<div style="background:rgba(0,229,160,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); margin-bottom:15px; text-align:left;">
-        <b style="color:var(--jade); font-size:1.15rem; letter-spacing:1px; font-family:'Cinzel';">🏆 COMBAT VICTORY</b><br>
-        ${state.exploreStreak > 0 ? `<small style="color:var(--secondary)">🔥 Exploration Streak: ${state.exploreStreak} (+${Math.round(state.exploreStreak * 5)}% Bonus)</small><br>` : ''}<br>
-        Gained <b>${xpReward} XP</b> and <b>${goldReward} Spirit Stones</b>.
+        <b style="color:var(--jade); font-size:1.15rem; letter-spacing:1px; font-family:'Cinzel';">🏆 انتصار مجيد في المعركة</b><br>
+        ${state.exploreStreak > 0 ? `<small style="color:var(--secondary)">🔥 تتابع الاستكشاف المتواصل: ${state.exploreStreak} (مكافأة إضافية +${Math.round(state.exploreStreak * 5)}%)</small><br>` : ''}<br>
+        حصلت على <b>${xpReward} خبرة يقين</b> و <b>${goldReward} حجر روحي</b>.
     `;
 
     // --- Dynamic Crafting Materials Drop ---
@@ -1321,7 +1321,7 @@ function handleVictory() {
         state.player.inventory.materials[matId] = (state.player.inventory.materials[matId] || 0) + 1;
         
         const matName = matId.replace(/_/g, ' ').toUpperCase();
-        victoryMsg += `<br><span style="color:var(--secondary)">🎁 Found Material:</span> <b class="loot-refined">${matName}</b> (Added to satchel)`;
+        victoryMsg += `<br><span style="color:var(--secondary)">🎁 عثرت على خامة:</span> <b class="loot-refined">${matName === 'SPIRIT HERB' ? 'عشبة المانا' : matName === 'IRON ORE' ? 'خام الحديد الدمشقي' : matName === 'MONSTER CORE' ? 'قلب وحش البراري' : matName === 'DRAGON VEIN SHARD' ? 'شظية عرق التنين' : 'حرير سماوي خالد'}</b> (أضيفت لصرة الحقيبة)`;
     }
 
     // --- Dynamic Equipment Drop ---
@@ -1337,19 +1337,19 @@ function handleVictory() {
             state.player.inventory.items.push(newItem);
             
             const qClass = `loot-${proto.quality.toLowerCase()}`;
-            victoryMsg += `<br><span style="color:var(--secondary)">🗡️ Found Equipment:</span> <b class="${qClass}">[${proto.quality}] ${proto.name}</b> (Equippable)`;
+            victoryMsg += `<br><span style="color:var(--secondary)">🗡️ عثرت على عتاد:</span> <b class="${qClass}">[${proto.quality === 'refined' ? 'مصفى' : proto.quality === 'epic' ? 'ملحمي' : proto.quality === 'legendary' ? 'أسطوري' : 'شائع'}] ${proto.name}</b> (يمكن ارتداؤه)`;
         }
     }
 
     victoryMsg += `</div>`;
-    narrate(victoryMsg, "System", null, false, true);
+    narrate(victoryMsg, "النظام", null, false, true);
 
     if (state.player.xp >= state.player.maxXp) { 
         state.player.lvl++; 
         state.player.xp -= state.player.maxXp; 
         state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 2.1)); 
         calculateTotalStats(); 
-        narrate("<span class='loot-epic'><b>🌟 BREAKTHROUGH!</b> Your cultivation has reached a new height.</span>", "System", null, false, true); 
+        narrate("<span class='loot-epic'><b>🌟 ارتقاء يقيني عظيم!</b> لقد طهرت يقينك ووصلت خلوتك الروحية إلى ذروة جديدة وجبارة.</span>", "النظام", null, false, true); 
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
     }
     
@@ -1360,15 +1360,15 @@ function handleVictory() {
     
     if (rescuedMember) {
         setChoices([
-            { text: "↩ Return to Family Management", callback: showManagementScreen }
+            { text: "↩ عودة إلى ديوان إدارة العائلة", callback: showManagementScreen }
         ]);
         return;
     }
 
     const activeRegion = state.player.currentRegion || 'crossroads';
     setChoices([
-        { text: `⚔️ Venture Deeper (+${state.exploreStreak * 5}% Bonus)`, callback: () => exploreRegion(activeRegion) },
-        { text: "↩ Return to Crossroads", callback: () => {
+        { text: `⚔️ المغامرة بشكل أعمق (+${state.exploreStreak * 5}% مكافأة)`, callback: () => exploreRegion(activeRegion) },
+        { text: "↩ عودة إلى واحة التقاطع", callback: () => {
             state.exploreStreak = 0;
             hubLoop();
         } }
@@ -1387,9 +1387,9 @@ function handleDefeat() {
     state.currentEnemy = null;
     saveGame();
     
-    narrate(`<b>DEFEAT!</b> You have been defeated by the enemy. A wandering Taoist hermit discovered your unconscious body and dragged you back to the City of Crossroads.<br><br><b>Penalty:</b> Lost <span style="color:var(--secondary)">${goldPenalty} Spirit Stones</span>. You have been revived at half Essence.`, "System");
+    narrate(`<b>الهزيمة المرة!</b> لقد سقطت مغشياً عليك في المعركة. عثر عليك درويش صوفي متجول في الصحراء وقام بسحب جسدك المنهك وداوى جراحك ليعيدك لواحة التقاطع بأمان.<br><br><b>العقوبة:</b> خسرت <span style="color:var(--secondary)">${goldPenalty} حجر روحي</span>. وتم إنعاشك بنصف طاقتك وجوهر حياتك.`, "النظام");
     
-    setChoices([{ text: "Stand up and continue", callback: hubLoop }]);
+    setChoices([{ text: "قف على قدميك واستمر في طريقك", callback: hubLoop }]);
 }
 
 // --- Equipment & Stats Management ---
@@ -1446,6 +1446,19 @@ function calculateTotalStats() {
     bDef += cb.def ?? 0;
     bHp += cb.hp ?? 0;
     bMp += cb.mp ?? 0;
+
+    // Body Refinement Stature Bonuses
+    if (state.player.cultivation?.bodyRealm && window.CULTIVATION?.bodyRealms) {
+        const bodyRealmName = state.player.cultivation.bodyRealm;
+        const currentIdx = window.CULTIVATION.bodyRealms.findIndex(r => r.name === bodyRealmName);
+        if (currentIdx !== -1) {
+            for (let i = 0; i <= currentIdx; i++) {
+                const b = window.CULTIVATION.bodyRealms[i].bonus;
+                bHp += b.hp ?? 0;
+                bDef += b.def ?? 0;
+            }
+        }
+    }
 
     // 3. Faction Benefits
     const rank = state.player.factionRank ?? 1;
@@ -1645,13 +1658,13 @@ function updateEquipmentDOM(state) {
         const statsEl = document.getElementById(`eq-${s}-stats`);
         
         if (nameEl) {
-            nameEl.textContent = item ? item.name : 'None';
+            nameEl.textContent = item ? item.name : 'لا يوجد';
             if (item && item.quality) {
                 const qClass = `loot-${item.quality.toLowerCase()}`;
                 nameEl.className = qClass;
                 // Add badge if part of set
                 if (item.set) {
-                    nameEl.innerHTML += ` <span style="font-size:0.65rem; padding: 2px 4px; background: rgba(212,175,55,0.15); border: 1px solid var(--secondary); border-radius: 4px; color: var(--secondary); margin-left: 5px;">${item.set.toUpperCase()}</span>`;
+                    nameEl.innerHTML += ` <span style="font-size:0.65rem; padding: 2px 4px; background: rgba(212,175,55,0.15); border: 1px solid var(--secondary); border-radius: 4px; color: var(--secondary); margin-left: 5px;">${item.set === 'xianxia' ? 'يشم الملوك' : item.set === 'vedic' ? 'الورد القدسي' : item.set === 'silk_road' ? 'درب القوافل' : 'أساطير الشرق'}</span>`;
                 }
             } else {
                 nameEl.className = '';
@@ -1661,10 +1674,10 @@ function updateEquipmentDOM(state) {
         if (statsEl) {
             if (item && item.stats) {
                 let statText = [];
-                if (item.stats.atk) statText.push(`+${item.stats.atk} ATK`);
-                if (item.stats.def) statText.push(`+${item.stats.def} DEF`);
-                if (item.stats.hp) statText.push(`+${item.stats.hp} HP`);
-                if (item.stats.mp) statText.push(`+${item.stats.mp} MP`);
+                if (item.stats.atk) statText.push(`+${item.stats.atk} هجوم`);
+                if (item.stats.def) statText.push(`+${item.stats.def} دفاع`);
+                if (item.stats.hp) statText.push(`+${item.stats.hp} صحة`);
+                if (item.stats.mp) statText.push(`+${item.stats.mp} مانا`);
                 statsEl.textContent = statText.join(', ');
             } else {
                 statsEl.textContent = '';
@@ -1680,39 +1693,39 @@ function updateEquipmentDOM(state) {
         
         const setDetails = {
             xianxia: {
-                name: 'Immortal Ascension (Xianxia)',
+                name: 'الارتقاء الأبدي (يشم الملوك)',
                 color: 'var(--jade)',
                 effects: {
-                    2: '+10% ATK, +5% DEF',
-                    4: '+20% ATK, +15% DEF',
-                    6: '⚔️ <b>Immortal Ascension</b>: +40% ATK, +30% DEF, and auto-heals 5 HP at start of each combat round!'
+                    2: '+10% هجوم، +5% دفاع',
+                    4: '+20% هجوم، +15% دفاع',
+                    6: '⚔️ <b>الارتقاء الأبدي</b>: +40% هجوم، +30% دفاع، ويشفي جسدك تلقائياً بـ 5 نقاط حياة في بداية كل جولة قتال!'
                 }
             },
             vedic: {
-                name: 'Supreme Mantra (Vedic)',
+                name: 'الذكر العظيم (الورد القدسي)',
                 color: '#d4af37',
                 effects: {
-                    2: '+10% ATK, +10% HP',
-                    4: '+20% ATK, +20% HP',
-                    6: '🕉️ <b>Supreme Mantra</b>: +35% ATK, +35% HP, and reduces active skill MP costs by 20%!'
+                    2: '+10% هجوم، +10% صحة',
+                    4: '+20% هجوم، +20% صحة',
+                    6: '🕉️ <b>الذكر العظيم</b>: +35% هجوم، +35% صحة، ويقلل استهلاك طاقة اليقين للمهارات بنسبة 20%!'
                 }
             },
             silk_road: {
-                name: 'Silk Oasis (Silk Road)',
+                name: 'واحة الحرير (درب القوافل)',
                 color: 'var(--secondary)',
                 effects: {
-                    2: '+10% HP, +10% MP',
-                    4: '+20% HP, +20% MP',
-                    6: '🐪 <b>Silk Oasis</b>: +40% HP, +40% MP, and boosts all experience gains by 25%!'
+                    2: '+10% صحة، +10% مانا',
+                    4: '+20% صحة، +20% مانا',
+                    6: '🐪 <b>واحة الحرير</b>: +40% صحة، +40% مانا، ويزيد كسب خبرة اليقين في المعارك بنسبة 25%!'
                 }
             },
             mythology: {
-                name: 'Supreme Sovereign (Mythology)',
+                name: 'السيادة المطلقة (أساطير الشرق)',
                 color: 'var(--danger)',
                 effects: {
-                    2: '+15% ATK, +10% DEF',
-                    4: '+30% ATK, +20% DEF',
-                    6: '👑 <b>Supreme Sovereign</b>: +50% ATK, +40% DEF, and grants 15% life-steal on all combat hits!'
+                    2: '+15% هجوم، +10% دفاع',
+                    4: '+30% هجوم، +20% دفاع',
+                    6: '👑 <b>السيادة المطلقة</b>: +50% هجوم، +40% دفاع، ويمنحك امتصاص حياة وسرقة طاقة بنسبة 15% من كل ضربة قتال!'
                 }
             }
         };
@@ -1735,7 +1748,7 @@ function updateEquipmentDOM(state) {
         });
 
         if (!hasAnyBonus) {
-            bonusHtml = `<div style="text-align:center; color:var(--text-dim); padding:10px 0;">None. Equip matching set pieces to unlock bonuses.</div>`;
+            bonusHtml = `<div style="text-align:center; color:var(--text-dim); padding:10px 0;">مفيش مكافآت طقم نشطة. البس قطع متطابقة من نفس الطقم لتفعيل البركات الجبارة!</div>`;
         }
         
         activeSetEl.innerHTML = bonusHtml;
@@ -1753,25 +1766,26 @@ function showInventory() {
     // Dynamically update the visual equipment panel slots and set bonuses
     updateEquipmentDOM(state);
     
-    const factionBenefit = state.player.faction === 'Jade Summit Sect' ? '+10% ATK' : '+10% Qi';
-    const factionText = state.player.faction ? `<br><b>Faction:</b> ${state.player.faction} (Rank ${state.player.factionRank})<br><small style="color:var(--jade)">Benefit: ${factionBenefit} per rank</small>` : '';
+    const factionBenefit = state.player.faction === 'Jade Summit Sect' ? '+10% هجوم' : '+10% مانا روحي';
+    const factionText = state.player.faction ? `<br><b>الطائفة:</b> ${state.player.faction === 'Jade Summit Sect' ? 'طائفة قمة اليشم' : 'طريقة الربع الخالي الصوفية'} (المرتبة ${state.player.factionRank})<br><small style="color:var(--jade)">المنفعة الروحية: ${factionBenefit} لكل مرتبة</small>` : '';
 
     narrate(`<div style="background:rgba(0,0,0,0.5);padding:15px;border-radius:10px;border:1px solid var(--secondary)">
-        <b>Cultivator:</b> ${state.player.name} | Lvl ${state.player.lvl}<br>
-        <b>Spirit Stones:</b> ${state.player.gold} | <b>Karma:</b> ${state.player.karma}${factionText}
-    </div>`, "System", null, false, true);
+        <b>المريد السالك:</b> ${state.player.name} | مستوى ${state.player.lvl}<br>
+        <b>الأحجار الروحية:</b> ${state.player.gold} | <b>جوهر الكارما:</b> ${state.player.karma}${factionText}
+    </div>`, "النظام", null, false, true);
     
     const slots = Object.keys(state.player.equipment).filter(s => ['head', 'body', 'legs', 'boots', 'weapon', 'relic'].includes(s));
     let html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0;">';
     slots.forEach(s => {
         const item = state.player.equipment[s];
+        const slotArabic = s === 'head' ? 'الرأس' : s === 'body' ? 'الدرع' : s === 'legs' ? 'الرداء' : s === 'boots' ? 'الحذاء' : s === 'weapon' ? 'السيف' : 'الأثر';
         html += `<div class="inventory-slot" onclick="unequipItem('${s}')" style="height:70px;cursor:pointer;flex-direction:column;border-color:${item?'var(--secondary)':'#333'}">
-            <span style="font-size:0.5rem;opacity:0.5;">${s.toUpperCase()}</span>
-            <div style="font-size:0.8rem;color:${item?'#fff':'#555'}">${item ? item.name : 'Empty'}</div>
+            <span style="font-size:0.5rem;opacity:0.5;">${slotArabic}</span>
+            <div style="font-size:0.8rem;color:${item?'#fff':'#555'}">${item ? item.name : 'فارغ'}</div>
         </div>`;
     });
     html += '</div>';
-    narrate(html, "System", null, false, true);
+    narrate(html, "النظام", null, false, true);
     
     switchSatchelTab('equipment');
     document.getElementById('back-hub-btn').onclick = hubLoop;
@@ -1795,22 +1809,23 @@ function switchSatchelTab(tab) {
             
             if (state.isSelling) {
                 const sellPrice = Math.floor((item.price || 50) * 0.5);
-                div.innerHTML = `<span style="color:var(--secondary)">SELL: ${item.name}</span><br><small>${sellPrice} Stones</small>`;
+                div.innerHTML = `<span style="color:var(--secondary)">بيع: ${item.name}</span><br><small>${sellPrice} حجر روحي</small>`;
                 div.onclick = () => {
                     const res = window.SHOP.sell(state, realIndex);
-                    narrate(res.message, "System");
+                    narrate(res.message, "النظام");
                     switchSatchelTab(tab);
                     updateTopBar();
                 };
             } else {
-                div.innerHTML = `<b>${item.name}</b><br><small>${item.slot || item.type || 'Consumable'}</small>`;
+                const slotArabic = item.slot === 'head' ? 'الرأس' : item.slot === 'body' ? 'الدرع' : item.slot === 'legs' ? 'الرداء' : item.slot === 'boots' ? 'الحذاء' : item.slot === 'weapon' ? 'السيف' : item.slot === 'relic' ? 'الأثر' : 'جرعة استهلاك';
+                div.innerHTML = `<b>${item.name}</b><br><small>${slotArabic}</small>`;
                 div.onclick = () => {
                     if (item.slot) equipItem(realIndex);
                     else if (item.effect) {
                         if (item.effect.hp) state.player.hp = Math.min(state.player.maxHp, state.player.hp + item.effect.hp);
                         if (item.effect.mp) state.player.mp = Math.min(state.player.maxMp, state.player.mp + item.effect.mp);
                         state.player.inventory.items.splice(realIndex, 1);
-                        narrate(`Used ${item.name}.`, "System");
+                        narrate(`استخدمت ${item.name} بنجاح وداويت جراح روحك.`, "النظام");
                         updateTopBar(); switchSatchelTab(tab);
                     }
                 };
@@ -1823,7 +1838,8 @@ function switchSatchelTab(tab) {
             const div = document.createElement('div');
             div.className = 'inventory-slot';
             div.style.padding = '10px';
-            div.innerHTML = `${k.replace(/_/g,' ')}: <b>x${v}</b>`;
+            const matArabic = k === 'spirit_herb' ? 'عشبة المانا' : k === 'iron_ore' ? 'خام الحديد الدمشقي' : k === 'monster_core' ? 'قلب وحش البراري' : k === 'dragon_vein_shard' ? 'شظية عرق التنين' : k === 'celestial_silk' ? 'حرير سماوي خالد' : k.replace(/_/g,' ');
+            div.innerHTML = `${matArabic}: <b>x${v}</b>`;
             grid.appendChild(div);
         });
     }

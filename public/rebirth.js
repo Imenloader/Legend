@@ -1,13 +1,13 @@
 // ============================================================
-// REBIRTH.JS — Transmigration & Ancestral Legacy
-// "Legends of the Jade and Sand: The Immortal Codex"
+// REBIRTH.JS — التناسخ والتجسد الروحي والميراث الأزلي للأجداد
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.REBIRTH = {
     traits: {
-        'heavenly_bones': { id: 'heavenly_bones', name: 'Heavenly Bones', desc: '+20% Base HP permanently.', bonus: { hp: 0.2 } },
-        'spirit_eye': { id: 'spirit_eye', name: 'Spirit Eye', desc: '+10% Crit Rate permanently.', bonus: { crit: 0.1 } },
-        'jinn_luck': { id: 'jinn_luck', name: 'Jinn Luck', desc: '+50% Spirit Stone gain.', bonus: { goldMult: 0.5 } }
+        'heavenly_bones': { id: 'heavenly_bones', name: 'عظام الكهرمان المباركة', desc: '+20% صحة أساسية دايمة مع كل تجسد روحي.', bonus: { hp: 0.2 } },
+        'spirit_eye': { id: 'spirit_eye', name: 'عين البصيرة الروحانية', desc: '+10% فرصة ضربة قاضية دايمة مع كل تجسد روحي.', bonus: { crit: 0.1 } },
+        'jinn_luck': { id: 'jinn_luck', name: 'بركة حظ الجان المطيع', desc: '+50% كسب دنانير روحية سحرية إضافية للأبد.', bonus: { goldMult: 0.5 } }
     },
 
     // Initialize legacy state
@@ -58,7 +58,6 @@ window.REBIRTH = {
             equipment: { head: null, body: null, legs: null, boots: null, weapon: null, relic: null, necklace: null, ring: null },
             skills: []
         };
-
 
         return true;
     }

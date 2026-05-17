@@ -1,6 +1,6 @@
 // ============================================================
-// ASCENSION.JS — Gate of Ascension & Heavenly Continent
-// "Legends of the Jade and Sand: The Immortal Codex"
+// ASCENSION.JS — بوابة الملكوت العالي والارتقاء للأعلى
+// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
 window.ASCENSION = {
@@ -9,19 +9,19 @@ window.ASCENSION = {
         const stage = state.player.cultivation.stage;
         const stageLvl = state.player.cultivation.stageLevel;
         // Peak of Nascent Soul is level 10 and breakthrough is ready!
-        return (stage === 'Nascent Soul' && stageLvl >= 10 && state.player.cultivation.breakthroughReady);
+        return (stage === 'مقام الروح النورانية اللطيفة' && stageLvl >= 10 && state.player.cultivation.breakthroughReady);
     },
 
     attemptPhysical(state) {
         if (!this.checkEligible(state)) {
-            return { success: false, message: "Your soul has not yet crystallized to the peak of Nascent Soul." };
+            return { success: false, message: "روحك لسة متبلورتش لقمة مقام الروح النورانية اللطيفة." };
         }
 
         // Physical Ascension requires raw physical toughness: Defense >= 100
         if ((state.player.def || 0) < 100) {
             return { 
                 success: false, 
-                message: `<span style="color:var(--danger)"><b>Flesh Ascension Failed!</b> Your physical body was instantly torn apart by the spatial tribulation winds. You require at least <b>100 Defense</b> to walk through. Upgrade your Water Roots or Jade Body Refinement manual first!</span>` 
+                message: `<span style="color:var(--danger)"><b>فشل ارتقاء الجسد!</b> هيكلك الجسدي اتمزق فوراً بفعل رياح الفراغ السحابية الرهيبة. محتاج على الأقل <b>100 دفاع</b> عشان تعبر. طور ينابيع المياه في صومعتك أو أتقن سر الجسد الصخري الصلب أولاً!</span>` 
             };
         }
 
@@ -30,29 +30,29 @@ window.ASCENSION = {
 
     attemptCombat(state) {
         if (!this.checkEligible(state)) {
-            return { success: false, message: "Your soul has not yet crystallized to the peak of Nascent Soul." };
+            return { success: false, message: "روحك لسة متبلورتش لقمة مقام الروح النورانية اللطيفة." };
         }
 
         // Spawns the legendary Gatekeeper Boss!
         const gatekeeper = {
-            name: 'Heavenly Gatekeeper Shen',
+            name: 'حارس بوابة الملكوت شهاب',
             hp: 1500,
             maxHp: 1500,
             atk: 75,
             def: 40,
-            dialogue: 'A mortal wishes to challenge the laws of heaven? Prove your right to tread upon the celestial path!',
+            dialogue: 'فاني ضعيف عايز يتحدى قوانين الملكوت والعرش الأعلى؟ وريني نيتك وقوتك عشان تستحق تمشي في طريق الأنوار!',
             nextMove: null
         };
 
         state._pendingAscension = true;
         setTimeout(() => startCombat(gatekeeper), 1500);
 
-        return { success: true, method: 'combat', message: "The sky rips open. Heavenly Gatekeeper Shen descends in a flash of gold light!" };
+        return { success: true, method: 'combat', message: "السما بتتشق. حارس بوابة الملكوت شهاب بيهبط عليك في ومضة ضوء دهبي خاطف!" };
     },
 
     complete(state) {
         state.player.ascended = true;
-        state.player.cultivation.stage = 'Deity Realm';
+        state.player.cultivation.stage = 'الفناء الباقي والارتقاء الأسمى';
         state.player.cultivation.stageLevel = 1;
         state.player.cultivation.breakthroughReady = false;
 
