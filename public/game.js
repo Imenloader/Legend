@@ -1,13 +1,46 @@
+function deepMerge(target, source) {
+    if (!source) return target;
+    for (const key in source) {
+        if (source[key] instanceof Object && key in target) {
+            Object.assign(source[key], deepMerge(target[key], source[key]));
+        }
+    }
+    Object.assign(target, source);
+    return target;
+}
+
+function validateState() {
+    // Ensure critical structures exist
+    if (!state.player) location.reload(); // Critical failure
+    if (!state.player.inventory) state.player.inventory = { items: [], materials: {} };
+    if (!state.player.equipment) state.player.equipment = { head: null, body: null, legs: null, boots: null, weapon: null };
+    if (!state.player.cultivation) state.player.cultivation = { stage: 'Qi Condensation', stageLevel: 1, cultivationBonuses: { hp: 0, mp: 0, atk: 0, def: 0 } };
+    if (!state.player.cultivation.cultivationBonuses) state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
+    
+    // Safety check for currentRegion
+    if (window.LORE && window.LORE.REGIONS && !window.LORE.REGIONS[state.player.currentRegion]) {
+        console.warn(`Region ${state.player.currentRegion} missing. Resetting to Crossroads.`);
+        state.player.currentRegion = 'crossroads';
+    }
+    
+    // Cleanup processing flags
+    state._combatLock = false;
+    state.isSelling = false;
+}
+
 async function loadGameCloud() {
-    // Try localStorage first for speed
     const saved = localStorage.getItem('legend_rpg_state');
     if (saved) {
         try {
             const loadedState = JSON.parse(saved);
-            Object.assign(state, loadedState);
-            console.log('Local state loaded.');
+            deepMerge(state, loadedState);
+            validateState();
+            console.log('Local state loaded and validated.');
             document.getElementById('continue-btn').style.display = 'block';
-        } catch (e) { console.error('Failed to parse local save', e); }
+        } catch (e) { 
+            console.error('Failed to parse/validate local save', e); 
+            localStorage.removeItem('legend_rpg_state'); // Clear corrupt save
+        }
     }
 
     // Then sync with Supabase for cloud-based persistence
@@ -20,7 +53,8 @@ async function loadGameCloud() {
                 .single();
             
             if (data && data.state) {
-                Object.assign(state, data.state);
+                deepMerge(state, data.state);
+                validateState();
                 console.log('Cloud state synchronized.');
                 document.getElementById('continue-btn').style.display = 'block';
                 return true;
@@ -30,9 +64,23 @@ async function loadGameCloud() {
     return false;
 }
 
+function showToast(msg) {
+    let toast = document.getElementById('game-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'game-toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('active');
+    setTimeout(() => toast.classList.remove('active'), 2500);
+}
+
 async function saveGame() {
     // Always save locally first
     localStorage.setItem('legend_rpg_state', JSON.stringify(state));
+    showToast("Progress Sealed 🕯️");
     
     // Attempt cloud save
     if (supabaseClient) {
@@ -62,6 +110,7 @@ if (typeof supabase !== 'undefined') {
 }
 
 // Deep Game State
+let heartbeatInterval = null;
 let state = {
     screen: 'menu',
     playerId: localStorage.getItem('rpg_player_id') || `guest_${Math.random().toString(36).substr(2, 9)}`,
@@ -218,49 +267,67 @@ function resumeGame() {
 
 // --- Narrative Engine ---
 function parsePerspective(text) {
-    if (state.settings.perspective === 'first') {
+    if (typeof text !== 'string') return String(text || '');
+    if (state.settings?.perspective === 'first') {
         return text.replace(/\bYourself\b/g, 'Myself').replace(/\byourself\b/g, 'myself').replace(/\bYour\b/g, 'My').replace(/\byour\b/g, 'my').replace(/\bYou are\b/g, 'I am').replace(/\byou are\b/g, 'I am').replace(/\bYou\b/g, 'I').replace(/\byou\b/g, 'I');
     }
     return text;
 }
 
 function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, isSystem = false, bgImage = null) {
-    // Cinematic Mode logic
-    if (bgImage) {
-        const overlay = document.getElementById('cinematic-overlay');
-        const box = document.getElementById('novel-box');
-        const spk = document.getElementById('novel-speaker');
-        const cnt = document.getElementById('novel-content');
-        if (overlay && box && spk && cnt) {
-            overlay.style.backgroundImage = `url('${bgImage}')`;
-            overlay.classList.add('active');
-            spk.textContent = speaker || "???";
-            cnt.innerHTML = text;
-            // Hide standard UI to focus on cinematic
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    try {
+        const safeText = text || '...';
+        
+        // Cinematic Mode logic
+        if (bgImage) {
+            const overlay = document.getElementById('cinematic-overlay');
+            const box = document.getElementById('novel-box');
+            const spk = document.getElementById('novel-speaker');
+            const cnt = document.getElementById('novel-content');
+            if (overlay && box && spk && cnt) {
+                overlay.style.backgroundImage = `url('${bgImage}')`;
+                overlay.classList.add('active');
+                spk.textContent = speaker || "???";
+                cnt.innerHTML = safeText;
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                return;
+            }
+        } else {
+            const overlay = document.getElementById('cinematic-overlay');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        const narrativeWindow = document.getElementById('narrative-window');
+        if (!narrativeWindow) {
+            console.error("Narrative window missing from DOM.");
             return;
         }
-    } else {
-        const overlay = document.getElementById('cinematic-overlay');
-        if (overlay) overlay.classList.remove('active');
-    }
 
-    const block = document.createElement('div');
-    block.className = 'narrative-block';
-    let contentHtml = '';
-    if (speakerSprite) {
-        const alignClass = isEnemy ? 'enemy-portrait' : '';
-        contentHtml += `<img src="${speakerSprite}" class="story-portrait ${alignClass}" alt="${speaker}">`;
+        const block = document.createElement('div');
+        block.className = 'narrative-block';
+        let contentHtml = '';
+        
+        if (speakerSprite) {
+            const alignClass = isEnemy ? 'enemy-portrait' : '';
+            contentHtml += `<img src="${speakerSprite}" class="story-portrait ${alignClass}" alt="${speaker || 'Speaker'}">`;
+        }
+        
+        if (speaker) {
+            const color = isEnemy ? 'var(--danger)' : (speaker === 'System' ? 'var(--secondary)' : 'var(--jade)');
+            contentHtml += `<span class="narrative-speaker" style="color: ${color};">${speaker}</span>`;
+        }
+        
+        const finalText = isSystem ? safeText : parsePerspective(safeText);
+        contentHtml += `<p style="margin: 0; color: ${isSystem ? 'var(--secondary)' : 'var(--text)'};">${finalText}</p>`;
+        
+        block.innerHTML = contentHtml;
+        narrativeWindow.appendChild(block);
+        block.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    } catch (err) {
+        console.error("Narrative Error:", err);
+        // Fallback: simple alert or toast if critical
+        showToast("The Dao is clouded... (Rendering Error)");
     }
-    if (speaker) {
-        const color = isEnemy ? 'var(--danger)' : (speaker === 'System' ? 'var(--secondary)' : 'var(--jade)');
-        contentHtml += `<span class="narrative-speaker" style="color: ${color};">${speaker}</span>`;
-    }
-    const finalText = isSystem ? text : parsePerspective(text);
-    contentHtml += `<p style="margin: 0; color: ${isSystem ? 'var(--secondary)' : 'var(--text)'};">${finalText}</p>`;
-    block.innerHTML = contentHtml;
-    narrativeWindow.appendChild(block);
-    block.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 // --- Visual Effects ---
@@ -287,13 +354,40 @@ function triggerFlash(type = 'damage') {
 }
 function clearNarrative() { narrativeWindow.innerHTML = ''; }
 function setChoices(choicesArray) {
+    if (!choiceEngine) choiceEngine = document.getElementById('choice-engine');
+    if (!choiceEngine) return;
+
     choiceEngine.innerHTML = '';
     if (!choicesArray || choicesArray.length === 0) return;
-    choicesArray.forEach(choice => {
+
+    choicesArray.forEach((choice, idx) => {
         const btn = document.createElement('button');
         btn.className = 'btn choice-btn';
+        btn.id = `choice-btn-${idx}`;
         btn.innerHTML = choice.text;
-        btn.onclick = () => { choiceEngine.innerHTML = ''; if (choice.callback) choice.callback(); };
+        btn.onclick = () => {
+            if (state._uiLock) return;
+            state._uiLock = true;
+            choiceEngine.classList.add('ui-locked');
+            
+            try {
+                choiceEngine.innerHTML = ''; 
+                if (choice.callback) choice.callback();
+            } catch (err) {
+                console.error("Choice Callback Error:", err);
+                showToast("The Dao flickers... (Interaction Error)");
+                setTimeout(() => { 
+                    state._uiLock = false; 
+                    choiceEngine.classList.remove('ui-locked');
+                    hubLoop(); 
+                }, 1000);
+            } finally {
+                setTimeout(() => { 
+                    state._uiLock = false; 
+                    if (choiceEngine) choiceEngine.classList.remove('ui-locked');
+                }, 200);
+            }
+        };
         choiceEngine.appendChild(btn);
     });
 }
@@ -351,8 +445,9 @@ function initGame() {
     }
     state.lastLogin = now;
 
-    // --- AUCTION HEARTBEAT ---
-    setInterval(() => {
+    // --- HEARTBEAT ENGINE ---
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+    heartbeatInterval = setInterval(() => {
         if (state.activeAuction && !state.activeAuction.isClosed) {
             state.activeAuction.timeLeft--;
             if (window.AUCTION) window.AUCTION.processNPCs(state);
@@ -361,8 +456,13 @@ function initGame() {
                 state.activeAuction.isClosed = true;
                 const a = state.activeAuction;
                 if (a.highestBidder === state.player.name) {
-                    state.player.inventory.items.push({...a.item});
-                    narrate(`SOLD! You won the ${a.item.name}!`, "Auction");
+                    if (state.player.gold >= a.currentBid) {
+                        state.player.gold -= a.currentBid;
+                        state.player.inventory.items.push({...a.item});
+                        narrate(`SOLD! You won the ${a.item.name} for ${a.currentBid} stones!`, "Auction");
+                    } else {
+                        narrate(`CRITICAL: You won the auction but lack the stones! The ${a.item.name} is forfeited.`, "Auction");
+                    }
                 } else {
                     narrate(`SOLD! ${a.highestBidder} won the ${a.item.name}.`, "Auction");
                 }
@@ -373,7 +473,6 @@ function initGame() {
         if (window.SECTS) window.SECTS.process(state);
 
         // --- DYNAMIC EVENT HEARTBEAT ---
-        // Every 5 seconds, there is a 5% chance of a random life/sect event
         if (Math.random() < 0.05) {
             const eventType = Math.random() > 0.5 ? 'LIFE' : 'SECT';
             if (eventType === 'LIFE' && window.LIFE && window.LIFE.processRandomEvent) {
@@ -594,27 +693,42 @@ function combatLoop() {
 }
 
 function resolveCombatTurn(moveId) {
+    if (state._combatLock) return;
+    state._combatLock = true;
+
     const enemy = state.currentEnemy;
+    if (!enemy) { state._combatLock = false; return; }
+
     const result = window.COMBAT ? window.COMBAT.resolveMove(moveId, enemy.nextMove, state.player.atk, enemy.atk, enemy, state) : { playerDmg: 10, enemyDmg: 5, resultText: 'Clash!' };
     
     // Handle Tamed result
     if (result.special === 'tamed') {
         narrate(result.resultText, "System");
         if (window.PETS) window.PETS.tame(state, enemy.id);
-        setTimeout(handleVictory, 1500);
+        setTimeout(() => { state._combatLock = false; handleVictory(); }, 1500);
         return;
     }
 
-    enemy.hp = Math.max(0, enemy.hp - result.playerDmg);
-    state.player.hp = Math.max(0, state.player.hp - result.enemyDmg);
+    enemy.hp = Math.max(0, enemy.hp - (result.playerDmg || 0));
+    state.player.hp = Math.max(0, state.player.hp - (result.enemyDmg || 0));
     state.momentum = Math.max(-100, Math.min(100, (state.momentum || 0) + (result.momentumShift || 0)));
+    
     narrate(result.resultText, 'System', null, false, true);
     updateTopBar(); updateMomentumUI();
+    
     if (result.playerDmg > 0) spawnFloatingText(`-${result.playerDmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
-    if (result.enemyDmg > 0) { spawnFloatingText(`-${result.enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); triggerScreenShake(); triggerFlash('damage'); }
-    if (state.player.hp <= 0) setTimeout(handleDefeat, 1500);
-    else if (enemy.hp <= 0) setTimeout(handleVictory, 1500);
-    else setTimeout(combatLoop, 2000);
+    if (result.enemyDmg > 0) { 
+        spawnFloatingText(`-${result.enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
+        triggerScreenShake(); triggerFlash('damage'); 
+    }
+
+    if (state.player.hp <= 0) {
+        setTimeout(() => { state._combatLock = false; handleDefeat(); }, 1500);
+    } else if (enemy.hp <= 0) {
+        setTimeout(() => { state._combatLock = false; handleVictory(); }, 1500);
+    } else {
+        setTimeout(() => { state._combatLock = false; combatLoop(); }, 2000);
+    }
 }
 
 function handleVictory() {
@@ -652,110 +766,104 @@ function handleDefeat() {
 
 // --- Equipment & Stats Management ---
 function calculateTotalStats() {
-    const baseAtk = 15 + (state.player.lvl - 1) * 4;
-    const baseDef = 5 + (state.player.lvl - 1) * 2;
-    const baseMaxHp = 100 + (state.player.lvl - 1) * 20;
-    const baseMaxMp = 50 + (state.player.lvl - 1) * 10;
+    if (!state.player) return;
+
+    // 1. Calculate Base Stats from Level
+    const level = state.player.lvl || 1;
+    const baseAtk = 15 + (level - 1) * 4;
+    const baseDef = 5 + (level - 1) * 2;
+    const baseMaxHp = 100 + (level - 1) * 20;
+    const baseMaxMp = 50 + (level - 1) * 10;
+    
+    // Accumulators for bonuses
     let bAtk = 0, bDef = 0, bHp = 0, bMp = 0;
 
-    // Add Cultivation specific permanent bonuses
-    if (state.player.cultivation && state.player.cultivation.cultivationBonuses) {
-        const cb = state.player.cultivation.cultivationBonuses;
-        bAtk += cb.atk || 0;
-        bDef += cb.def || 0;
-        bHp += cb.hp || 0;
-        bMp += cb.mp || 0;
-    }
+    // 2. Permanent Cultivation Bonuses
+    const cb = state.player.cultivation?.cultivationBonuses ?? { hp: 0, mp: 0, atk: 0, def: 0 };
+    bAtk += cb.atk ?? 0;
+    bDef += cb.def ?? 0;
+    bHp += cb.hp ?? 0;
+    bMp += cb.mp ?? 0;
 
-    // Faction Benefits
+    // 3. Faction Benefits
+    const rank = state.player.factionRank ?? 1;
     if (state.player.faction === 'Jade Summit Sect') {
-        bAtk += (baseAtk * 0.1 * (state.player.factionRank || 1));
+        bAtk += (baseAtk * 0.1 * rank);
     } else if (state.player.faction === 'Sufi Order of the Empty Quarter') {
-        bMp += (baseMaxMp * 0.1 * (state.player.factionRank || 1));
+        bMp += (baseMaxMp * 0.1 * rank);
     }
 
-    // Technique Bonuses (Passive Skills)
-    if (window.SKILLS) {
-        const skillBonuses = window.SKILLS.getPassiveBonuses(state);
-        if (skillBonuses.atk) bAtk += baseAtk * skillBonuses.atk;
-        if (skillBonuses.def) bDef += baseDef * skillBonuses.def;
-        state.player.hpRegen = skillBonuses.hpRegen || 0;
-        state.player.mpRegen = skillBonuses.mpRegen || 0;
-    }
+    // 4. Technique Bonuses (Safe module access)
+    const skillBonuses = window.SKILLS?.getPassiveBonuses?.(state) ?? { atk: 0, def: 0, hpRegen: 0, mpRegen: 0 };
+    bAtk += baseAtk * (skillBonuses.atk ?? 0);
+    bDef += baseDef * (skillBonuses.def ?? 0);
+    state.player.hpRegen = skillBonuses.hpRegen ?? 0;
+    state.player.mpRegen = skillBonuses.mpRegen ?? 0;
 
-    // Karma Divine Bonuses
-    if (state.player.karma >= 50) bHp += baseMaxHp * 0.15;
-    if (state.player.karma <= -50) bAtk += baseAtk * 0.1;
+    // 5. Karma & Legacy
+    if ((state.player.karma ?? 0) >= 50) bHp += baseMaxHp * 0.15;
+    if ((state.player.karma ?? 0) <= -50) bAtk += baseAtk * 0.1;
 
-    // Legacy (Rebirth) Bonuses
-    if (state.legacy) {
-        const leg = state.legacy.permanentStats || {};
-        bAtk += leg.atk || 0; bDef += leg.def || 0;
-        bHp += leg.hp || 0; bMp += leg.mp || 0;
+    const legacyStats = state.legacy?.permanentStats ?? {};
+    bAtk += legacyStats.atk ?? 0;
+    bDef += legacyStats.def ?? 0;
+    bHp += legacyStats.hp ?? 0;
+    bMp += legacyStats.mp ?? 0;
 
-        if (window.REBIRTH) {
-            (state.legacy.traits || []).forEach(tId => {
-                const trait = window.REBIRTH.traits[tId];
-                if (trait && trait.bonus) {
-                    if (trait.bonus.hp) bHp += baseMaxHp * trait.bonus.hp;
-                }
-            });
-        }
-    }
+    // 6. External Systems (Pets & Cultivation Methods)
+    const petBonus = window.PETS?.getBonuses?.(state) ?? {};
+    bAtk += baseAtk * (petBonus.atk ?? 0);
+    bDef += baseDef * (petBonus.def ?? 0);
+    bHp += petBonus.hp ?? 0;
+    bMp += petBonus.mp ?? 0;
 
-    // Beast Pavilion (Pet) Bonuses
-    if (window.PETS) {
-        const petBonus = window.PETS.getBonuses(state);
-        if (petBonus.atk) bAtk += baseAtk * petBonus.atk;
-        if (petBonus.def) bDef += baseDef * petBonus.def;
-        if (petBonus.hp) bHp += petBonus.hp;
-        if (petBonus.mp) bMp += petBonus.mp;
-    }
-
-    // --- Cultivation Method (Manual) Bonuses ---
-    if (state.player.cultivation && state.player.cultivation.activeMethod && window.CULTIVATION) {
+    if (state.player.cultivation?.activeMethod && window.CULTIVATION?.methods) {
         const method = window.CULTIVATION.methods[state.player.cultivation.activeMethod];
-        if (method && method.bonus) {
-            if (method.bonus.maxHp) bHp += baseMaxHp * method.bonus.maxHp;
-            if (method.bonus.atk) bAtk += baseAtk * method.bonus.atk;
-            if (method.bonus.def) bDef += baseDef * method.bonus.def;
-            if (method.bonus.mpRegen) state.player.mpRegenBonus = method.bonus.mpRegen;
-            if (method.bonus.xpGain) state.player.xpGainBonus = method.bonus.xpGain;
-            if (method.bonus.critRate) state.player.critRate += method.bonus.critRate;
+        if (method?.bonus) {
+            bHp += baseMaxHp * (method.bonus.maxHp ?? 0);
+            bAtk += baseAtk * (method.bonus.atk ?? 0);
+            bDef += baseDef * (method.bonus.def ?? 0);
+            state.player.mpRegenBonus = method.bonus.mpRegen ?? 0;
+            state.player.xpGainBonus = method.bonus.xpGain ?? 0;
         }
     }
 
-    Object.values(state.player.equipment).forEach(item => {
-        if (item && item.stats) {
-            bAtk += item.stats.atk || 0; bDef += item.stats.def || 0;
-            bHp += item.stats.hp || 0; bMp += item.stats.mp || 0;
-        }
+    // 7. Equipment
+    Object.values(state.player.equipment ?? {}).forEach(item => {
+        const s = item?.stats ?? {};
+        bAtk += s.atk ?? 0;
+        bDef += s.def ?? 0;
+        bHp += s.hp ?? 0;
+        bMp += s.mp ?? 0;
     });
 
-    // 6. Life System & Background Traits
-    const sys = state.player.system || {};
-    const bg = state.player.background || {};
+    // 8. Life System & Background Traits
+    const sys = state.player.system ?? {};
+    const bg = state.player.background ?? {};
     
-    if (bg.statMult) { bAtk *= bg.statMult; bDef *= bg.statMult; }
-    if (bg.hpMult) bHp *= bg.hpMult;
-    
+    let totalStatMult = bg.statMult ?? 1;
+    let totalHpMult = bg.hpMult ?? 1;
+
     if (sys.id === 'many_children') {
-        const bonus = 1 + ((state.player.children || 0) * 0.02);
-        bAtk *= bonus; bDef *= bonus; bHp *= bonus; bMp *= bonus;
+        const bonus = 1 + ((state.player.children ?? 0) * 0.02);
+        totalStatMult *= bonus;
+        totalHpMult *= bonus;
     }
     if (sys.id === 'killing') {
-        bAtk += Math.floor((state.player.kills || 0) / 10);
+        bAtk += Math.floor((state.player.kills ?? 0) / 10);
     }
     if (sys.id === 'sword_saint') {
-        bAtk *= 1.5; // High damage focus
+        totalStatMult *= 1.5;
     }
 
-    state.player.atk = Math.floor(baseAtk + bAtk);
-    state.player.def = Math.floor(baseDef + bDef);
-    state.player.maxHp = Math.floor(baseMaxHp + bHp);
+    // 9. Final Application
+    state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult);
+    state.player.def = Math.floor((baseDef + bDef) * totalStatMult);
+    state.player.maxHp = Math.floor((baseMaxHp + bHp) * totalHpMult);
     state.player.maxMp = Math.floor(baseMaxMp + bMp);
-    state.player.hp = Math.min(state.player.hp, state.player.maxHp);
-    state.player.mp = Math.min(state.player.mp, state.player.maxMp);
+    
+    state.player.hp = Math.min(state.player.hp ?? 0, state.player.maxHp);
+    state.player.mp = Math.min(state.player.mp ?? 0, state.player.maxMp);
 }
 
 function equipItem(index) {

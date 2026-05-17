@@ -26,12 +26,14 @@ html, body {
     color: var(--text);
     height: 100vh;
     width: 100vw;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
+    position: fixed;
+    inset: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: fixed;
-    inset: 0;
 }
 
 #game-container {
@@ -214,7 +216,9 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
     letter-spacing: 1px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     margin: 5px 0;
+    touch-action: manipulation;
 }
+
 
 .btn:hover {
     transform: translateY(-2px);
@@ -223,6 +227,13 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
 }
 
 .btn:active { transform: translateY(0); }
+
+.ui-locked {
+    pointer-events: none;
+    opacity: 0.8;
+    filter: grayscale(0.5);
+    cursor: wait !important;
+}
 
 .btn-secondary {
     background: rgba(255,255,255,0.05);
@@ -254,6 +265,40 @@ input[type="text"]:focus {
 }
 
 /* --- Class Selector --- */
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
+}
+
+.inventory-slot {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #333;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.choice-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    padding: 15px;
+}
+
+@media (max-width: 480px) {
+    .inventory-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .inventory-slot {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+}
+
 .class-selector {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -291,22 +336,6 @@ input[type="text"]:focus {
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid var(--secondary-glow);
-}
-
-.card-bg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* --- Ornaments --- */
-.ornament {
-    width: 100px;
-    height: 4px;
-    background: var(--secondary);
-    margin: 20px auto;
-    position: relative;
-    box-shadow: 0 0 10px var(--secondary-glow);
 }
 
 .ornament::before, .ornament::after {
@@ -553,4 +582,60 @@ input[type="text"]:focus {
 .status-unlocked { color: #00e5a0; background: rgba(0, 229, 160, 0.1); border: 1px solid #00e5a0; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
 .status-locked { color: #ff4d4d; background: rgba(255, 77, 77, 0.1); border: 1px solid #ff4d4d; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
 
-.map-status-badge { font-weight: bold; letter-spacing: 1px; }
+/* --- Global Responsiveness --- */
+@media (max-width: 768px) {
+    #game-container {
+        border-radius: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+    
+    .top-bar {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        height: auto;
+        min-height: 40px;
+    }
+
+    .screen-header h2 { font-size: 1.1rem; }
+    
+    #world-map-svg {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .map-tooltip {
+        width: 240px !important;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .novel-text-box {
+        width: 95% !important;
+        bottom: 10px !important;
+        padding: 15px !important;
+    }
+    #novel-content { font-size: 0.95rem; }
+    #novel-speaker { font-size: 1rem; }
+}
+    .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--glass);
+    border: 1px solid var(--secondary);
+    color: var(--secondary);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    pointer-events: none;
+}
+
+.toast.active {
+    transform: translateX(-50%) translateY(0);
+}

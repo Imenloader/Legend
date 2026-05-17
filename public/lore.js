@@ -426,17 +426,49 @@ const CHINESE_ENEMIES = {
     }
 };
 
+const ARABIAN_ENEMIES = {
+    desert_ghoul: {
+        id: 'desert_ghoul', name: 'Desert Ghoul', region: 'empty_quarter',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 70, baseAtk: 22, xpReward: 50,
+        description: 'A scavenger of the dunes, toughened by the heat and hungry for flesh.',
+        moves: {
+            heavy: { name: 'Bone Cracker', text: 'It lunges with supernatural strength, aiming to break your guard.' },
+            fast: { name: 'Sand Claw', text: 'A swift, raking strike from its jagged nails.' },
+            magic: { name: 'Heat Mirage', text: 'It shimmers in the heat, making it harder to hit while it recovers.' }
+        },
+        loot: ['Ghoul Tooth', 'Desert Sand Stone']
+    },
+    ifrit: {
+        id: 'ifrit', name: 'Scorching Ifrit', region: 'empty_quarter',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 120, baseAtk: 28, xpReward: 100,
+        description: 'A jinn of fire and smoke. It sees your mortality as a fuel to be consumed.',
+        moves: {
+            heavy: { name: 'Supernova Slam', text: 'A massive burst of thermal energy that melts the surrounding sand.' },
+            fast: { name: 'Flame Lash', text: 'A whip of spiritual fire that burns through physical armor.' },
+            magic: { name: 'Smoke Veil', text: 'It vanishes into a cloud of sulfur, preparing its next ambush.' }
+        },
+        loot: ['Fire Essence', 'Brass Lamp Shard']
+    }
+};
+
 window.LORE = Object.assign(window.LORE || {}, { 
     REGIONS, 
     CHINESE_HEROES, 
     CHINESE_ENEMIES,
     CROSSROADS_ENEMIES,
+    ARABIAN_ENEMIES,
     getAllEnemies: function() {
         return { 
             ...(this.CHINESE_ENEMIES || {}), 
             ...(this.ARABIAN_ENEMIES || {}), 
             ...(this.CROSSROADS_ENEMIES || {}) 
         };
+    },
+    getRegionEnemies: function(regionId) {
+        const all = this.getAllEnemies();
+        return Object.values(all).filter(e => e.region === regionId);
     }
 });
 

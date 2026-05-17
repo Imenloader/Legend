@@ -210,6 +210,7 @@ function showForgeScreen() {
 // ============================================================
 function showWorldMap() {
     showScreen('map-screen');
+    const container = document.getElementById('game-container');
     const group = document.getElementById('map-regions-group');
     if (!group) return;
     group.innerHTML = '';
@@ -264,22 +265,30 @@ function showWorldMap() {
             
             const travelBtn = document.getElementById('map-travel-btn');
             travelBtn.style.display = isUnlocked ? 'block' : 'none';
-            travelBtn.onclick = () => {
+            travelBtn.onclick = (ev) => {
+                ev.stopPropagation();
                 tooltip.style.display = 'none';
                 showScreen('story-screen');
                 exploreRegion(region.id);
             };
 
             tooltip.style.display = 'block';
-            let tx = e.clientX + 20;
-            let ty = e.clientY + 20;
-            if (tx + 300 > window.innerWidth) tx = e.clientX - 320;
-            if (ty + 200 > window.innerHeight) ty = e.clientY - 220;
             
-            tooltip.style.position = 'fixed';
-            tooltip.style.left = tx + 'px';
-            tooltip.style.top = ty + 'px';
-            tooltip.style.zIndex = '9999';
+            // Viewport-aware positioning relative to game-container
+            const rect = container.getBoundingClientRect();
+            let tx = e.clientX - rect.left + 20;
+            let ty = e.clientY - rect.top + 20;
+            
+            const tooltipWidth = 280;
+            const tooltipHeight = 180;
+
+            if (tx + tooltipWidth > rect.width) tx = (e.clientX - rect.left) - tooltipWidth - 20;
+            if (ty + tooltipHeight > rect.height) ty = (e.clientY - rect.top) - tooltipHeight - 20;
+            
+            tooltip.style.position = 'absolute';
+            tooltip.style.left = Math.max(10, tx) + 'px';
+            tooltip.style.top = Math.max(10, ty) + 'px';
+            tooltip.style.zIndex = '1000';
             
             circle.setAttribute('r', '18');
         };

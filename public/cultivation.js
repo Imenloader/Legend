@@ -48,31 +48,31 @@ window.CULTIVATION = {
         const qiGained = Math.max(1, Math.floor(baseQi * (1.1 - stageProgress)));
         
         state.player.xp += qiGained;
-
+        let levelsGained = 0;
         let message = `You sit in lotus position. Meridians pulse with ${qiGained} gathered Qi.`;
 
-        // Check for level up (Harder scaling)
-        if (state.player.xp >= state.player.maxXp) {
+        // Handle multiple level ups
+        while (state.player.xp >= state.player.maxXp && state.player.cultivation.stageLevel < 10) {
             state.player.xp -= state.player.maxXp;
             state.player.lvl++;
             state.player.cultivation.stageLevel++;
-            state.player.maxXp = Math.floor(state.player.maxXp * 2.1); // HELL SCALING
+            state.player.maxXp = Math.floor(state.player.maxXp * 2.1);
+            levelsGained++;
             
-            // Store permanent cultivation bonuses
             if (!state.player.cultivation.cultivationBonuses) {
                 state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
             }
             const cb = state.player.cultivation.cultivationBonuses;
-            cb.hp += 15;
-            cb.mp += 8;
-            cb.atk += 3;
-            
-            message += `<br><br><span class="loot-epic">🌟 LEVEL UP! You are now Level ${state.player.lvl}. Your Qi foundation deepens.</span>`;
+            cb.hp += 15; cb.mp += 8; cb.atk += 3;
+        }
 
-            if (state.player.cultivation.stageLevel >= 10) {
-                state.player.cultivation.breakthroughReady = true;
-                message += `<br><br><span class="loot-mythic">⚡ PEAK REACHED. The bottleneck of the ${state.player.cultivation.stage} realm is before you. You must risk a Breakthrough.</span>`;
-            }
+        if (levelsGained > 0) {
+            message += `<br><br><span class="loot-epic">🌟 BREAKTHROUGH! You gained ${levelsGained} level(s). Your current rank is ${state.player.lvl}.</span>`;
+        }
+
+        if (state.player.cultivation.stageLevel >= 10 && !state.player.cultivation.breakthroughReady) {
+            state.player.cultivation.breakthroughReady = true;
+            message += `<br><br><span class="loot-mythic">⚡ PEAK REACHED. The bottleneck of the ${state.player.cultivation.stage} realm is before you. You must risk a Breakthrough.</span>`;
         }
 
         return { success: true, message };

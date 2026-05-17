@@ -34,10 +34,16 @@ window.AUCTION = {
     placeBid(state, bidderName, amount) {
         if (!state.activeAuction || state.activeAuction.isClosed) return false;
         if (amount <= state.activeAuction.currentBid) return false;
+        
+        // Defensive check for player bidding
+        if (bidderName === state.player.name && (state.player.gold || 0) < amount) {
+            if (typeof showToast === 'function') showToast("Insufficient Spirit Stones!");
+            return false;
+        }
 
         state.activeAuction.currentBid = amount;
         state.activeAuction.highestBidder = bidderName;
-        state.activeAuction.timeLeft = Math.min(30, state.activeAuction.timeLeft + 5); // Extend time slightly
+        state.activeAuction.timeLeft = Math.min(30, state.activeAuction.timeLeft + 5); 
         return true;
     },
 

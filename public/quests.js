@@ -43,23 +43,31 @@ window.QUESTS = {
         if (!state.activeQuests) state.activeQuests = ['main_01'];
         if (!state.completedQuests) state.completedQuests = [];
 
-        state.activeQuests.forEach((qId, index) => {
+        const newlyCompleted = [];
+        state.activeQuests = state.activeQuests.filter(qId => {
             const q = this.database[qId];
             if (q && q.isComplete(state)) {
-                // Complete quest
-                state.player.gold += q.reward.gold || 0;
-                state.player.xp += q.reward.xp || 0;
+                // Apply Rewards
+                state.player.gold = (state.player.gold || 0) + (q.reward.gold || 0);
+                state.player.xp = (state.player.xp || 0) + (q.reward.xp || 0);
                 if (q.reward.karma) state.player.karma += q.reward.karma;
+                if (q.reward.reputation) state.player.reputation = (state.player.reputation || 0) + q.reward.reputation;
                 
                 state.completedQuests.push(qId);
-                state.activeQuests.splice(index, 1);
-                
-                // Alert player (if UI is available)
-                if (typeof narrate === 'function') {
-                    narrate(`Quest Complete: ${q.title}! Received ${q.reward.gold} Spirit Stones.`, "System");
-                }
+                newlyCompleted.push(q.title);
+                return false; // Remove from active
             }
+            return true; // Keep active
         });
+
+        if (newlyCompleted.length > 0) {
+            if (typeof narrate === 'function') {
+                newlyCompleted.forEach(title => narrate(`Quest Complete: ${title}! Rewards sealed in your soul.`, "System"));
+            }
+            // Trigger recalculation if rewards affected stats (xp/karma)
+            if (typeof calculateTotalStats === 'function') calculateTotalStats();
+            if (typeof updateTopBar === 'function') updateTopBar();
+        }
     },
 
     // Start a new quest
