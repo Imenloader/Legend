@@ -1022,3 +1022,172 @@ input[type="text"]:focus {
     to { transform: translateX(0); opacity: 1; }
 }
 
+/* --- Cinematic Act Transition Overlay --- */
+.act-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(11, 14, 20, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    backdrop-filter: blur(15px);
+}
+.act-transition-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.act-transition-content {
+    text-align: center;
+    max-width: 600px;
+    padding: 40px;
+    transform: scale(0.9);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.act-transition-overlay.active .act-transition-content {
+    transform: scale(1);
+}
+.act-transition-chapter {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--secondary);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+.act-transition-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    color: #fff;
+    text-shadow: 0 0 20px var(--secondary-glow);
+    margin-bottom: 20px;
+}
+.act-transition-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+.act-transition-progress-wrapper {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.5);
+}
+.act-transition-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary), var(--jade));
+    transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- The Immortal Chronicle Modal --- */
+.chronicle-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(5, 7, 10, 0.8);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+.chronicle-modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.chronicle-modal-container {
+    background: rgba(11, 14, 20, 0.95);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    padding: 35px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 30px var(--secondary-glow);
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.chronicle-modal.active .chronicle-modal-container {
+    transform: scale(1);
+}
+.chronicle-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.chronicle-close-btn:hover {
+    color: var(--danger);
+}
+.chronicle-layout {
+    display: flex;
+    gap: 25px;
+    margin-top: 20px;
+}
+@media (max-width: 768px) {
+    .chronicle-layout {
+        flex-direction: column;
+    }
+}
+.chronicle-panel {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* --- Screen Shake & Flash Effects --- */
+.screen-shake {
+    animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.screen-flash-white {
+    position: absolute;
+    inset: 0;
+    z-index: 9999;
+    background: #fff;
+    pointer-events: none;
+    animation: flashFade 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+.screen-flash-jade {
+    position: absolute;
+    inset: 0;
+    z-index: 9999;
+    background: var(--jade);
+    pointer-events: none;
+    animation: flashFade 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+@keyframes flashFade {
+    0% { opacity: 0.85; }
+    100% { opacity: 0; }
+}
+
+/* Story progress HUD Hover Effects */
+.hud-story-progress:hover, .hud-story-progress-narrative:hover {
+    border-color: var(--secondary) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
+}
+

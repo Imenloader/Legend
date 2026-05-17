@@ -190,6 +190,7 @@ window.updateHubStoryProgress = function(state) {
     
     const progress = calculateStoryProgress(state);
     
+    // 1. Hub Screen elements
     const hudActName = document.getElementById('hud-act-name');
     const hudActPct = document.getElementById('hud-act-pct');
     const hudBar = document.getElementById('hud-act-progress-bar');
@@ -197,44 +198,50 @@ window.updateHubStoryProgress = function(state) {
     if (hudActName) hudActName.textContent = progress.actName;
     if (hudActPct) hudActPct.textContent = `${progress.pct}% Complete`;
     if (hudBar) hudBar.style.width = `${progress.pct}%`;
+    
+    // 2. Narrative Screen elements
+    const storyHudActName = document.getElementById('story-hud-act-name');
+    const storyHudActPct = document.getElementById('story-hud-act-pct');
+    const storyHudBar = document.getElementById('story-hud-act-progress-bar');
+    
+    if (storyHudActName) storyHudActName.textContent = progress.actName;
+    if (storyHudActPct) storyHudActPct.textContent = `${progress.pct}% Complete`;
+    if (storyHudBar) storyHudBar.style.width = `${progress.pct}%`;
 };
 
 function calculateStoryProgress(state) {
     let actName = "Act I: Shifting Sands";
     let pct = 0;
     
-    if (hasChronicleFlag(state, 'act5_started')) {
-        actName = "Act V: Convergence";
-        pct = 10;
-        if (hasChronicleFlag(state, 'ending_saint') || hasChronicleFlag(state, 'ending_demon') || hasChronicleFlag(state, 'ending_balance')) {
-            pct = 100;
-        } else if (hasChronicleFlag(state, 'act5_boss_beaten')) {
-            pct = 90;
-        } else {
-            pct = 50;
-        }
-    } else if (hasChronicleFlag(state, 'act4_started')) {
-        actName = "Act IV: Crossroads Siege";
-        pct = 10;
-        if (hasChronicleFlag(state, 'act4_completed')) pct = 100;
-        else if (hasChronicleFlag(state, 'act4_siege_victory')) pct = 80;
-        else pct = 40;
-    } else if (hasChronicleFlag(state, 'act3_started')) {
-        actName = "Act III: Mirror of Past Lives";
-        pct = 10;
-        if (hasChronicleFlag(state, 'act3_mirror_completed')) pct = 100;
-        else if (hasChronicleFlag(state, 'act3_pass_visited')) pct = 70;
-        else pct = 30;
-    } else if (hasChronicleFlag(state, 'act2_started')) {
-        actName = "Act II: Celestial Conflict";
-        pct = 20;
-        if (hasChronicleFlag(state, 'harun_met')) pct = 100;
-        else pct = 50;
+    if (window.STORY && typeof window.STORY.getCurrentAct === 'function') {
+        const act = window.STORY.getCurrentAct(state);
+        const names = {
+            1: "Act I: Shifting Sands",
+            2: "Act II: Celestial Conflict",
+            3: "Act III: Mirror of Past Lives",
+            4: "Act IV: Crossroads Siege",
+            5: "Act V: Convergence"
+        };
+        actName = names[act] || "Act I: Shifting Sands";
+        pct = window.STORY.getActProgress(state);
     } else {
-        actName = "Act I: Shifting Sands";
-        pct = 10;
-        if (hasChronicleFlag(state, 'womb_completed')) pct = 100;
-        else pct = 50;
+        // Fallback to legacy calculation if STORY isn't loaded yet
+        if (hasChronicleFlag(state, 'act5_started')) {
+            actName = "Act V: Convergence";
+            pct = 50;
+        } else if (hasChronicleFlag(state, 'act4_started')) {
+            actName = "Act IV: Crossroads Siege";
+            pct = 40;
+        } else if (hasChronicleFlag(state, 'act3_started')) {
+            actName = "Act III: Mirror of Past Lives";
+            pct = 30;
+        } else if (hasChronicleFlag(state, 'act2_started')) {
+            actName = "Act II: Celestial Conflict";
+            pct = 50;
+        } else {
+            actName = "Act I: Shifting Sands";
+            pct = 10;
+        }
     }
     
     return { actName, pct };

@@ -1155,5 +1155,51 @@ window.BALANCE = {
     }
 };
 
-const STORY_ENGINE_HELPERS = {}; window.STORY = Object.assign(window.STORY || {}, { STORY_NODES, ...STORY_ENGINE_HELPERS });
+const STORY_ENGINE_HELPERS = {
+    getCurrentAct(state) {
+        if (!state || !state.narrative_node) return 1;
+        if (state.narrative_node === 'hub') {
+            if (state.storyFlags?.['act5_started']) return 5;
+            if (state.storyFlags?.['act4_started']) return 4;
+            if (state.storyFlags?.['act3_started']) return 3;
+            if (state.storyFlags?.['act2_started']) return 2;
+            return 1;
+        }
+        const node = window.STORY ? window.STORY.get(state.narrative_node) : null;
+        return node ? (node.act || 1) : 1;
+    },
+
+    getActProgress(state) {
+        if (!state) return 0;
+        const currentAct = this.getCurrentAct(state);
+        
+        // Map of key milestones/nodes by act to evaluate completion
+        const actNodes = {
+            1: ['womb_start', 'womb_birth', 'act1_intro', 'act1_scheherazade_meet'],
+            2: ['act2_intro', 'act2_elder_zhao', 'act2_harun_crisis', 'harun_met'],
+            3: ['act3_intro', 'act3_journey_start', 'act3_mirror_completed'],
+            4: ['act4_intro', 'act4_siege_start', 'act4_completed'],
+            5: ['act5_intro', 'act5_climax_start', 'ending_scene']
+        };
+        
+        const nodes = actNodes[currentAct];
+        if (!nodes) return 100;
+        
+        let completedCount = 0;
+        nodes.forEach(nodeId => {
+            if (state.history && state.history.includes(nodeId)) {
+                completedCount++;
+            } else if (state.narrative_node === nodeId) {
+                completedCount++;
+            } else if (state.storyFlags && (state.storyFlags[nodeId] || state.storyFlags[nodeId + '_completed'])) {
+                completedCount++;
+            }
+        });
+        
+        const pct = Math.round((completedCount / nodes.length) * 100);
+        return Math.min(100, Math.max(0, pct));
+    }
+}; 
+
+window.STORY = Object.assign(window.STORY || {}, { STORY_NODES, ...STORY_ENGINE_HELPERS });
 

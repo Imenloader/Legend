@@ -13,7 +13,16 @@ function validateState() {
     // Ensure critical structures exist
     if (!state.player) location.reload(); // Critical failure
     if (!state.player.inventory) state.player.inventory = { items: [], materials: {} };
-    if (!state.player.equipment) state.player.equipment = { head: null, body: null, legs: null, boots: null, weapon: null };
+    if (!state.player.equipment) {
+        state.player.equipment = { head: null, body: null, legs: null, boots: null, weapon: null, relic: null };
+    } else {
+        const requiredSlots = ['head', 'body', 'legs', 'boots', 'weapon', 'relic'];
+        requiredSlots.forEach(s => {
+            if (state.player.equipment[s] === undefined) {
+                state.player.equipment[s] = null;
+            }
+        });
+    }
     if (!state.player.cultivation) state.player.cultivation = { stage: 'Qi Condensation', stageLevel: 1, cultivationBonuses: { hp: 0, mp: 0, atk: 0, def: 0 } };
     if (!state.player.cultivation.cultivationBonuses) state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
     
@@ -899,6 +908,15 @@ function combatLoop() {
     
     const enemy = state.currentEnemy;
     
+    // Xianxia 6-piece Set: Immortal Ascension HP Heal
+    if (state.player.immortalAscensionActive && state.player.hp < state.player.maxHp) {
+        const healAmt = 5;
+        state.player.hp = Math.min(state.player.maxHp, state.player.hp + healAmt);
+        narrate(`<span style="color:var(--jade); font-weight:bold;">✨ Immortal Ascension:</span> Restored <b>${healAmt} HP</b> at the start of the turn.`, "System");
+        updateTopBar();
+        triggerFlash('heal');
+    }
+    
     // 1. Process turn effects (DOTs, Buffs, Stuns)
     const effectMsg = window.COMBAT ? window.COMBAT.processTurnEffects(state, enemy) : '';
     if (effectMsg) narrate(effectMsg, "System", null, false, true);
@@ -916,16 +934,22 @@ function combatLoop() {
     setTimeout(() => {
         // 3. Player choices
         const moves = window.COMBAT ? window.COMBAT.getActionsForForm(state.playerForm, state) : [];
-        const choices = moves.map(m => ({
-            text: m.name + (m.cost > 0 ? ` (${m.cost} Qi)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} HP)` : ''),
-            callback: () => {
-                if (m.cost > (state.player.mp || 0)) { narrate("Not enough Qi!", "System"); combatLoop(); return; }
-                if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("Not enough Life Essence!", "System"); combatLoop(); return; }
-                
-                if (m.cost > 0) state.player.mp -= m.cost;
-                resolveCombatTurn(m.id);
+        const choices = moves.map(m => {
+            let actualCost = m.cost;
+            if (state.player.supremeMantraActive && actualCost > 0) {
+                actualCost = Math.max(1, Math.floor(actualCost * 0.8));
             }
-        }));
+            return {
+                text: m.name + (actualCost > 0 ? ` (${actualCost} Qi)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} HP)` : ''),
+                callback: () => {
+                    if (actualCost > (state.player.mp || 0)) { narrate("Not enough Qi!", "System"); combatLoop(); return; }
+                    if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("Not enough Life Essence!", "System"); combatLoop(); return; }
+                    
+                    if (actualCost > 0) state.player.mp -= actualCost;
+                    resolveCombatTurn(m.id);
+                }
+            };
+        });
         
         choices.push({ text: "🌊 Water Form", callback: () => { state.playerForm = 'water'; combatLoop(); }});
         choices.push({ text: "🏔️ Mountain Form", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
@@ -952,6 +976,15 @@ function resolveCombatTurn(moveId) {
         if (window.PETS) window.PETS.tame(state, enemy.id);
         setTimeout(() => { state._combatLock = false; handleVictory(); }, 1500);
         return;
+    }
+
+    // Mythology 6-piece Set: Supreme Sovereign Life-steal
+    if (state.player.supremeSovereignActive && (result.playerDmg || 0) > 0 && state.player.hp < state.player.maxHp) {
+        const stealAmt = Math.max(1, Math.floor(result.playerDmg * 0.15));
+        state.player.hp = Math.min(state.player.maxHp, state.player.hp + stealAmt);
+        result.resultText += `<br><span style="color:var(--danger); font-weight:bold;">👑 Supreme Sovereign:</span> Stole <b>${stealAmt} HP</b> from ${enemy.name}'s life force.`;
+        updateTopBar();
+        triggerFlash('heal');
     }
 
     enemy.hp = Math.max(0, enemy.hp - (result.playerDmg || 0));
@@ -1102,6 +1135,17 @@ function handleDefeat() {
 }
 
 // --- Equipment & Stats Management ---
+function getEquippedSetCounts(state) {
+    const counts = { xianxia: 0, vedic: 0, silk_road: 0, mythology: 0 };
+    if (!state.player || !state.player.equipment) return counts;
+    Object.values(state.player.equipment).forEach(item => {
+        if (item && item.set && counts[item.set] !== undefined) {
+            counts[item.set]++;
+        }
+    });
+    return counts;
+}
+
 function calculateTotalStats() {
     if (!state.player) return;
 
@@ -1188,7 +1232,84 @@ function calculateTotalStats() {
         }
     }
 
-    // 7. Equipment
+    // 7. Set Bonuses Scanner
+    const setCounts = getEquippedSetCounts(state);
+    
+    // Set multipliers
+    let eqAtkMult = 1;
+    let eqDefMult = 1;
+    let eqHpMult = 1;
+    let eqMpMult = 1;
+
+    // Xianxia Set: Focus ATK / DEF
+    if (setCounts.xianxia >= 6) {
+        eqAtkMult += 0.40;
+        eqDefMult += 0.30;
+        state.player.immortalAscensionActive = true;
+    } else if (setCounts.xianxia >= 4) {
+        eqAtkMult += 0.20;
+        eqDefMult += 0.15;
+        state.player.immortalAscensionActive = false;
+    } else if (setCounts.xianxia >= 2) {
+        eqAtkMult += 0.10;
+        eqDefMult += 0.05;
+        state.player.immortalAscensionActive = false;
+    } else {
+        state.player.immortalAscensionActive = false;
+    }
+
+    // Vedic Set: Focus ATK / HP
+    if (setCounts.vedic >= 6) {
+        eqAtkMult += 0.35;
+        eqHpMult += 0.35;
+        state.player.supremeMantraActive = true;
+    } else if (setCounts.vedic >= 4) {
+        eqAtkMult += 0.20;
+        eqHpMult += 0.20;
+        state.player.supremeMantraActive = false;
+    } else if (setCounts.vedic >= 2) {
+        eqAtkMult += 0.10;
+        eqHpMult += 0.10;
+        state.player.supremeMantraActive = false;
+    } else {
+        state.player.supremeMantraActive = false;
+    }
+
+    // Silk Road Set: Focus HP / MP
+    if (setCounts.silk_road >= 6) {
+        eqHpMult += 0.40;
+        eqMpMult += 0.40;
+        state.player.silkOasisActive = true;
+    } else if (setCounts.silk_road >= 4) {
+        eqHpMult += 0.20;
+        eqMpMult += 0.20;
+        state.player.silkOasisActive = false;
+    } else if (setCounts.silk_road >= 2) {
+        eqHpMult += 0.10;
+        eqMpMult += 0.10;
+        state.player.silkOasisActive = false;
+    } else {
+        state.player.silkOasisActive = false;
+    }
+
+    // Mythology Set: Focus ATK / DEF
+    if (setCounts.mythology >= 6) {
+        eqAtkMult += 0.50;
+        eqDefMult += 0.40;
+        state.player.supremeSovereignActive = true;
+    } else if (setCounts.mythology >= 4) {
+        eqAtkMult += 0.30;
+        eqDefMult += 0.20;
+        state.player.supremeSovereignActive = false;
+    } else if (setCounts.mythology >= 2) {
+        eqAtkMult += 0.15;
+        eqDefMult += 0.10;
+        state.player.supremeSovereignActive = false;
+    } else {
+        state.player.supremeSovereignActive = false;
+    }
+
+    // 8. Individual Equipment Flat Stats
     Object.values(state.player.equipment ?? {}).forEach(item => {
         const s = item?.stats ?? {};
         bAtk += s.atk ?? 0;
@@ -1197,7 +1318,7 @@ function calculateTotalStats() {
         bMp += s.mp ?? 0;
     });
 
-    // 8. Life System & Background Traits
+    // 9. Life System & Background Traits
     const sys = state.player.system ?? {};
     const bg = state.player.background ?? {};
     
@@ -1216,11 +1337,11 @@ function calculateTotalStats() {
         totalStatMult *= 1.5;
     }
 
-    // 9. Final Application
-    state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult);
-    state.player.def = Math.floor((baseDef + bDef) * totalStatMult);
-    state.player.maxHp = Math.floor((baseMaxHp + bHp) * totalHpMult);
-    state.player.maxMp = Math.floor(baseMaxMp + bMp);
+    // 10. Final Application
+    state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult * eqAtkMult);
+    state.player.def = Math.floor((baseDef + bDef) * totalStatMult * eqDefMult);
+    state.player.maxHp = Math.floor((baseMaxHp + bHp) * totalHpMult * eqHpMult);
+    state.player.maxMp = Math.floor((baseMaxMp + bMp) * eqMpMult);
     
     state.player.hp = Math.min(state.player.hp ?? 0, state.player.maxHp);
     state.player.mp = Math.min(state.player.mp ?? 0, state.player.maxMp);
@@ -1244,9 +1365,123 @@ function unequipItem(slot) {
     calculateTotalStats(); updateTopBar(); saveGame(); showInventory();
 }
 
+function updateEquipmentDOM(state) {
+    if (!state.player || !state.player.equipment) return;
+    
+    const slots = ['head', 'body', 'legs', 'boots', 'weapon', 'relic'];
+    slots.forEach(s => {
+        const item = state.player.equipment[s];
+        const nameEl = document.getElementById(`eq-${s}-name`);
+        const statsEl = document.getElementById(`eq-${s}-stats`);
+        
+        if (nameEl) {
+            nameEl.textContent = item ? item.name : 'None';
+            if (item && item.quality) {
+                const qClass = `loot-${item.quality.toLowerCase()}`;
+                nameEl.className = qClass;
+                // Add badge if part of set
+                if (item.set) {
+                    nameEl.innerHTML += ` <span style="font-size:0.65rem; padding: 2px 4px; background: rgba(212,175,55,0.15); border: 1px solid var(--secondary); border-radius: 4px; color: var(--secondary); margin-left: 5px;">${item.set.toUpperCase()}</span>`;
+                }
+            } else {
+                nameEl.className = '';
+                nameEl.style.color = 'var(--text-dim)';
+            }
+        }
+        if (statsEl) {
+            if (item && item.stats) {
+                let statText = [];
+                if (item.stats.atk) statText.push(`+${item.stats.atk} ATK`);
+                if (item.stats.def) statText.push(`+${item.stats.def} DEF`);
+                if (item.stats.hp) statText.push(`+${item.stats.hp} HP`);
+                if (item.stats.mp) statText.push(`+${item.stats.mp} MP`);
+                statsEl.textContent = statText.join(', ');
+            } else {
+                statsEl.textContent = '';
+            }
+        }
+    });
+
+    // Populate active set bonuses
+    const activeSetEl = document.getElementById('active-set-bonuses');
+    if (activeSetEl) {
+        const counts = getEquippedSetCounts(state);
+        let bonusHtml = '';
+        
+        const setDetails = {
+            xianxia: {
+                name: 'Immortal Ascension (Xianxia)',
+                color: 'var(--jade)',
+                effects: {
+                    2: '+10% ATK, +5% DEF',
+                    4: '+20% ATK, +15% DEF',
+                    6: '⚔️ <b>Immortal Ascension</b>: +40% ATK, +30% DEF, and auto-heals 5 HP at start of each combat round!'
+                }
+            },
+            vedic: {
+                name: 'Supreme Mantra (Vedic)',
+                color: '#d4af37',
+                effects: {
+                    2: '+10% ATK, +10% HP',
+                    4: '+20% ATK, +20% HP',
+                    6: '🕉️ <b>Supreme Mantra</b>: +35% ATK, +35% HP, and reduces active skill MP costs by 20%!'
+                }
+            },
+            silk_road: {
+                name: 'Silk Oasis (Silk Road)',
+                color: 'var(--secondary)',
+                effects: {
+                    2: '+10% HP, +10% MP',
+                    4: '+20% HP, +20% MP',
+                    6: '🐪 <b>Silk Oasis</b>: +40% HP, +40% MP, and boosts all experience gains by 25%!'
+                }
+            },
+            mythology: {
+                name: 'Supreme Sovereign (Mythology)',
+                color: 'var(--danger)',
+                effects: {
+                    2: '+15% ATK, +10% DEF',
+                    4: '+30% ATK, +20% DEF',
+                    6: '👑 <b>Supreme Sovereign</b>: +50% ATK, +40% DEF, and grants 15% life-steal on all combat hits!'
+                }
+            }
+        };
+
+        let hasAnyBonus = false;
+        Object.entries(counts).forEach(([setKey, count]) => {
+            if (count >= 2) {
+                hasAnyBonus = true;
+                const details = setDetails[setKey];
+                let currentBonusText = '';
+                if (count >= 6) currentBonusText = details.effects[6];
+                else if (count >= 4) currentBonusText = details.effects[4];
+                else currentBonusText = details.effects[2];
+
+                bonusHtml += `<div style="margin-bottom: 8px; padding: 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px;">
+                    <span style="color:${details.color}; font-weight:bold;">${details.name} [${count}/6]</span><br>
+                    <span style="color:#fff; font-size:0.75rem;">${currentBonusText}</span>
+                </div>`;
+            }
+        });
+
+        if (!hasAnyBonus) {
+            bonusHtml = `<div style="text-align:center; color:var(--text-dim); padding:10px 0;">None. Equip matching set pieces to unlock bonuses.</div>`;
+        }
+        
+        activeSetEl.innerHTML = bonusHtml;
+    }
+}
+
+window.unequipItemSlot = function(slot) {
+    unequipItem(slot);
+};
+
 function showInventory() {
     showScreen('inventory-screen');
     clearNarrative();
+    
+    // Dynamically update the visual equipment panel slots and set bonuses
+    updateEquipmentDOM(state);
     
     const factionBenefit = state.player.faction === 'Jade Summit Sect' ? '+10% ATK' : '+10% Qi';
     const factionText = state.player.faction ? `<br><b>Faction:</b> ${state.player.faction} (Rank ${state.player.factionRank})<br><small style="color:var(--jade)">Benefit: ${factionBenefit} per rank</small>` : '';
@@ -1256,8 +1491,8 @@ function showInventory() {
         <b>Spirit Stones:</b> ${state.player.gold} | <b>Karma:</b> ${state.player.karma}${factionText}
     </div>`, "System", null, false, true);
     
-    const slots = Object.keys(state.player.equipment);
-    let html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0;">';
+    const slots = Object.keys(state.player.equipment).filter(s => ['head', 'body', 'legs', 'boots', 'weapon', 'relic'].includes(s));
+    let html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0;">';
     slots.forEach(s => {
         const item = state.player.equipment[s];
         html += `<div class="inventory-slot" onclick="unequipItem('${s}')" style="height:70px;cursor:pointer;flex-direction:column;border-color:${item?'var(--secondary)':'#333'}">

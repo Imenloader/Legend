@@ -59,7 +59,13 @@ window.QUESTS = {
             if (q && q.isComplete(state)) {
                 // Apply Rewards
                 state.player.gold = (state.player.gold || 0) + (q.reward.gold || 0);
-                state.player.xp = (state.player.xp || 0) + (q.reward.xp || 0);
+                
+                let xpReward = q.reward.xp || 0;
+                if (state.player.silkOasisActive && xpReward > 0) {
+                    xpReward = Math.floor(xpReward * 1.25);
+                }
+                state.player.xp = (state.player.xp || 0) + xpReward;
+                
                 if (q.reward.karma) state.player.karma += q.reward.karma;
                 if (q.reward.reputation) state.player.reputation = (state.player.reputation || 0) + q.reward.reputation;
                 
