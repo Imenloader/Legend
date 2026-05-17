@@ -1,44 +1,25 @@
--- Create a table for game saves
+-- SQL Setup Script for Supabase Game Saves persistence
+-- Run this in the Supabase SQL Editor to initialize or update your database
+
+-- 1. Create the game_saves table if it does not exist
 CREATE TABLE IF NOT EXISTS game_saves (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    player_id TEXT UNIQUE NOT NULL, -- This can be an anonymous ID from localstorage
-    player_name TEXT,
-    class TEXT,
-    level INTEGER DEFAULT 1,
-    xp INTEGER DEFAULT 0,
-    hp INTEGER,
-    max_hp INTEGER,
-    mp INTEGER,
-    max_mp INTEGER,
-    atk INTEGER,
-    def INTEGER,
-    potions INTEGER DEFAULT 2,
-    companion TEXT,
-    inventory_items JSONB,
-    equipment JSONB,
-    quests JSONB,
-    karma INTEGER DEFAULT 0,
-    achievements JSONB,
-    relationships JSONB,
-    narrative_node TEXT,
-    perspective TEXT DEFAULT 'second',
-    last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    player_id TEXT PRIMARY KEY,                       -- Unique player identifier (anonymous UUID/localstorage ID)
+    state JSONB NOT NULL,                             -- Complete JSON-serialized game state (level, stats, inventory, achievements, etc.)
+    last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- Enable RLS
+-- 2. Safely alter table to add columns in case the table existed previously with a different schema
+ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS state JSONB;
+ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+
+-- 3. Enable Row Level Security (RLS)
 ALTER TABLE game_saves ENABLE ROW LEVEL SECURITY;
 
--- Safely add new columns for updates to existing tables
-ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS karma INTEGER DEFAULT 0;
-ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS achievements JSONB;
-ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS relationships JSONB;
-ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS narrative_node TEXT;
-ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS perspective TEXT DEFAULT 'second';
-
--- Drop policy if it exists to avoid 42710 error, then recreate it
+-- 4. Drop policy if it exists to avoid conflicts, then recreate it
 DROP POLICY IF EXISTS "Public Game Saves" ON game_saves;
 
--- Allow public access for this demo (or restrict by player_id if using auth)
+-- 5. Allow public reading, inserting, and updating of states
+-- This is perfect for single-page standalone web RPGs where anyone can play and sync their progress
 CREATE POLICY "Public Game Saves" ON game_saves
     FOR ALL
     TO public
