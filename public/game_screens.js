@@ -40,7 +40,16 @@ function showCultivationScreen() {
                 }
                 if (typeof triggerFlash === 'function') triggerFlash('heal');
 
-                updateTopBar(); saveGame();
+                // Play procedural sound effects
+                if (window.AUDIO) {
+                    if (result.message.includes("BREAKTHROUGH")) {
+                        window.AUDIO.playEffect('level_up');
+                    } else {
+                        window.AUDIO.playEffect('story_beat');
+                    }
+                }
+
+                calculateTotalStats(); updateTopBar(); saveGame();
                 setTimeout(showCultivationScreen, 2200);
             }
         },
@@ -332,24 +341,78 @@ function showSkillsScreen() {
 
 function showQuestLog() {
     clearNarrative();
-    narrate("<b>Active Missions & Bounties</b>", "System", null, false, true);
+    narrate("<b>📜 THE MISSION BOARD</b><br>Crossroads Hub of Bounties and Destiny", "System", null, false, true);
     
-    if (!state.activeQuests || state.activeQuests.length === 0) {
-        narrate("No active quests. Check back later.");
+    // Ensure lists exist
+    if (!state.activeQuests) state.activeQuests = [];
+    if (!state.completedQuests) state.completedQuests = [];
+
+    // --- Active Quests ---
+    let html = `<div style="text-align:left; margin-bottom:20px;">
+        <h3 style="color:var(--secondary); font-family:'Cinzel'; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">⚔️ Active Undertakings</h3>`;
+    
+    const activeList = state.activeQuests.map(qId => window.QUESTS.database[qId]).filter(Boolean);
+    
+    if (activeList.length === 0) {
+        html += `<p style="color:var(--text-dim); font-style:italic; padding-left:10px;">Your scroll of active destiny is currently clear.</p>`;
     } else {
-        state.activeQuests.forEach(qId => {
-            const q = window.QUESTS.database[qId];
-            if (q) {
-                narrate(`<div style="background:rgba(0,0,0,0.3);padding:10px;border-left:4px solid var(--secondary);margin-bottom:10px;">
-                    <b style="color:var(--secondary)">${q.title}</b> [${q.type}]<br>
-                    ${q.desc}<br>
-                    <small>Objective: ${q.objective}</small>
-                </div>`, "System", null, false, true);
-            }
+        activeList.forEach(q => {
+            html += `
+                <div style="background:rgba(212, 175, 55, 0.05); padding:10px; border-left:4px solid var(--secondary); margin-bottom:10px; border-radius: 0 4px 4px 0;">
+                    <b style="color:var(--secondary)">${q.title}</b> <span style="font-size:0.75rem; text-transform:uppercase; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:3px; margin-left:5px;">${q.type}</span><br>
+                    <span style="font-size:0.9rem; color:var(--text-dim);">${q.desc}</span><br>
+                    <span style="font-size:0.85rem; color:var(--jade); margin-top:5px; display:inline-block;"><b>Objective:</b> ${q.objective}</span>
+                </div>
+            `;
         });
     }
-    setChoices([{ text: "↩ Return", callback: hubLoop }]);
+    
+    // --- Available Quests ---
+    html += `<h3 style="color:var(--jade); font-family:'Cinzel'; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px; margin-top:25px;">📜 Available Board Postings</h3>`;
+    
+    const availableList = Object.values(window.QUESTS.database).filter(q => 
+        !state.activeQuests.includes(q.id) && !state.completedQuests.includes(q.id)
+    );
+    
+    if (availableList.length === 0) {
+        html += `<p style="color:var(--text-dim); font-style:italic; padding-left:10px;">The mission board is bare. Check back after your next cultivation breakthrough.</p>`;
+    } else {
+        availableList.forEach(q => {
+            html += `
+                <div style="background:rgba(255,255,255,0.02); padding:10px; border-left:4px solid var(--text-dim); margin-bottom:10px; border-radius: 0 4px 4px 0;">
+                    <b>${q.title}</b> <span style="font-size:0.75rem; text-transform:uppercase; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:3px; margin-left:5px; color:var(--text-dim);">${q.type}</span><br>
+                    <span style="font-size:0.9rem; color:var(--text-dim);">${q.desc}</span><br>
+                    <span style="font-size:0.8rem; color:var(--secondary-glow); display:inline-block; margin-top:5px;"><b>Rewards:</b> ${q.reward.gold ? `${q.reward.gold} Stones ` : ''}${q.reward.xp ? `| ${q.reward.xp} Qi ` : ''}</span>
+                </div>
+            `;
+        });
+    }
+    
+    html += `</div>`;
+    narrate(html, "System", null, false, true);
+
+    const choices = [];
+    
+    // Add choice buttons for each available quest to let the player accept it
+    availableList.forEach(q => {
+        choices.push({
+            text: `📜 Undertake: ${q.title}`,
+            callback: () => {
+                const accepted = window.QUESTS.acceptQuest(state, q.id);
+                if (accepted) {
+                    narrate(`You have committed to the contract: <b>${q.title}</b>. May the Dao guide you.`, "System");
+                    setTimeout(showQuestLog, 1500);
+                } else {
+                    showQuestLog();
+                }
+            }
+        });
+    });
+
+    choices.push({ text: "↩ Return", callback: hubLoop });
+    setChoices(choices);
 }
+
 
 function showMarket() {
     clearNarrative();
@@ -625,26 +688,60 @@ function showManagementScreen() {
     narrate(html, "System", null, false, true);
     
     const choices = [
-        { text: "🤝 Spend Time with Family", callback: () => { narrate("You spent time with your family, increasing affinity.", "System"); state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity+5)); showManagementScreen(); } }
+        { text: "🤝 Spend Time with Family", callback: () => {
+            if (state.player.family && state.player.family.length > 0) {
+                narrate("You spent time with your family, deepening your bonds.", "System");
+                state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity + 5));
+            } else {
+                narrate("You spent time in quiet contemplation, but your current life lacks close biological relations.", "System");
+            }
+            showManagementScreen();
+        }}
     ];
 
     if (!state.sect) {
-        choices.push({ text: "🏠 Found Sect (10,000 Spirit Stones)", callback: () => { if(state.player.gold >= 10000) { state.player.gold -= 10000; window.SECTS.init(state); showManagementScreen(); } } });
+        choices.push({ text: "🏠 Found Sect (10,000 Spirit Stones)", callback: () => {
+            if (state.player.gold >= 10000) {
+                state.player.gold -= 10000;
+                window.SECTS.init(state);
+                narrate("Congratulations! You have founded an immortal lineage and established your own sect.", "System");
+            } else {
+                narrate("You do not have enough Spirit Stones to establish a grand sect. (Requires 10,000)", "System");
+            }
+            showManagementScreen();
+        }});
     } else {
         choices.push({ text: "📜 Choose Sect Path", callback: () => {
             const paths = ["Sword", "Alchemy", "Array"];
-            setChoices(paths.map(p => ({ text: p + " Path", callback: () => { 
-                const res = window.SECTS.setSpecialization(state, p);
-                narrate(res.message, "System");
-                showManagementScreen();
-            }})));
+            setChoices([
+                ...paths.map(p => ({ text: p + " Path", callback: () => { 
+                    const res = window.SECTS.setSpecialization(state, p);
+                    narrate(res.message, "System");
+                    showManagementScreen();
+                }})),
+                { text: "↩ Back", callback: showManagementScreen }
+            ]);
         }});
-        choices.push({ text: "👤 Recruit Disciple", callback: () => { const res = window.SECTS.recruit(state); narrate(res.message, "System"); showManagementScreen(); } });
+        choices.push({ text: "👤 Recruit Disciple", callback: () => {
+            const res = window.SECTS.recruit(state);
+            narrate(res.message, "System");
+            showManagementScreen();
+        }});
         choices.push({ text: "⚔️ Enter War Room", callback: showWarRoom });
     }
 
-    choices.push({ text: "💍 Seek Marriage (5000 Spirit Stones)", callback: () => { if(window.LIFE) { const res = window.LIFE.seekMarriage(state, narrate); narrate(res.message, "System"); showManagementScreen(); } } });
+    choices.push({ text: "💍 Seek Marriage (5000 Spirit Stones)", callback: () => {
+        if (state.player.spouse) {
+            narrate(`You are already happily married to <b>${state.player.spouse.name}</b>!`, "System");
+            showManagementScreen();
+        } else if (window.LIFE) {
+            const res = window.LIFE.seekMarriage(state, narrate);
+            narrate(res.message, "System");
+            showManagementScreen();
+        }
+    }});
     choices.push({ text: "↩ Return", callback: hubLoop });
+
     
     setChoices(choices);
 }

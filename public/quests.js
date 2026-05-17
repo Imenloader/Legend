@@ -34,6 +34,16 @@ window.QUESTS = {
             isComplete: (state) => {
                 const herbs = state.player.inventory.items.filter(i => i.id === 'herb_bundle').length;
                 return herbs >= 5;
+            },
+            onComplete: (state) => {
+                let count = 0;
+                state.player.inventory.items = state.player.inventory.items.filter(item => {
+                    if (item.id === 'herb_bundle' && count < 5) {
+                        count++;
+                        return false;
+                    }
+                    return true;
+                });
             }
         }
     },
@@ -52,6 +62,9 @@ window.QUESTS = {
                 state.player.xp = (state.player.xp || 0) + (q.reward.xp || 0);
                 if (q.reward.karma) state.player.karma += q.reward.karma;
                 if (q.reward.reputation) state.player.reputation = (state.player.reputation || 0) + q.reward.reputation;
+                
+                // Execute onComplete callback
+                if (q.onComplete) q.onComplete(state);
                 
                 state.completedQuests.push(qId);
                 newlyCompleted.push(q.title);
@@ -73,8 +86,10 @@ window.QUESTS = {
     // Start a new quest
     acceptQuest(state, qId) {
         if (!state.activeQuests) state.activeQuests = [];
-        if (state.activeQuests.includes(qId) || (state.completedQuests && state.completedQuests.includes(qId))) return false;
+        if (!state.completedQuests) state.completedQuests = [];
+        if (state.activeQuests.includes(qId) || state.completedQuests.includes(qId)) return false;
         state.activeQuests.push(qId);
         return true;
     }
 };
+

@@ -53,10 +53,12 @@ window.REBIRTH = {
             mp: 50, maxMp: 50,
             atk: 10, def: 5,
             gold: 100, karma: 0,
-            inventory: { items: [], materials: {} },
-            equipment: { weapon: null, armor: null, head: null, body: null, boots: null, relic: null, relic2: null, artifact: null },
+            children: 0, kills: 0,
+            inventory: { potions: 2, elixirs: 0, items: [], materials: {}, blueprints: [] },
+            equipment: { head: null, body: null, legs: null, boots: null, weapon: null, relic: null, necklace: null, ring: null },
             skills: []
         };
+
 
         return true;
     }

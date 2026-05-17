@@ -30,7 +30,12 @@ window.COMPANIONS = {
     getActive(state) {
         if (!state.companion || !state.companions) return null;
         const id = state.companion;
-        const all = window.LORE ? window.LORE.getAllHeroes() : {};
+        const all = window.LORE ? (typeof window.LORE.getAllHeroes === 'function' ? window.LORE.getAllHeroes() : {
+            ...(window.LORE.CHINESE_HEROES || {}),
+            ...(window.LORE.ARABIAN_HEROES || {}),
+            ...(window.LORE.MYTH_HEROES || {}),
+            ...(window.LORE.EXTRA_HEROES || {})
+        }) : {};
         const loreData = all[id];
         const stateData = state.companions[id] || { affinity: 50, memories: [] };
         return loreData ? { ...loreData, ...stateData } : null;
@@ -65,7 +70,12 @@ window.COMPANIONS = {
 
     // Get contextual dialogue based on affinity + memories
     getDialogue(state, id, context) {
-        const all = window.LORE ? window.LORE.getAllHeroes() : {};
+        const all = window.LORE ? (typeof window.LORE.getAllHeroes === 'function' ? window.LORE.getAllHeroes() : {
+            ...(window.LORE.CHINESE_HEROES || {}),
+            ...(window.LORE.ARABIAN_HEROES || {}),
+            ...(window.LORE.MYTH_HEROES || {}),
+            ...(window.LORE.EXTRA_HEROES || {})
+        }) : {};
         const loreData = all[id];
         if (!loreData || !loreData.dialogue) return null;
 
@@ -129,7 +139,12 @@ window.COMPANIONS = {
     // --- COMPANION ROSTER for the selection screen ---
     getRoster() {
         if (!window.LORE) return [];
-        const all = window.LORE.getAllHeroes();
+        const all = typeof window.LORE.getAllHeroes === 'function' ? window.LORE.getAllHeroes() : {
+            ...(window.LORE.CHINESE_HEROES || {}),
+            ...(window.LORE.ARABIAN_HEROES || {}),
+            ...(window.LORE.MYTH_HEROES || {}),
+            ...(window.LORE.EXTRA_HEROES || {})
+        };
         return Object.values(all);
     },
 

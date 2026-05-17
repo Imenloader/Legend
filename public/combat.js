@@ -364,6 +364,11 @@ window.COMBAT = {
         pDmg = Math.floor(pDmg);
         eDmg = Math.floor(eDmg);
 
+        if (state.player.system && state.player.system.id === 'sword_saint' && pDmg > 0) {
+            pDmg *= 2;
+            msg += ` <span style="color:var(--secondary); font-weight:bold;">[Sword Immortal 2x Damage]</span>`;
+        }
+
         if (state.playerForm === 'water' && pDmg > 0) {
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 5);
             msg += ` (Water restores 5 Qi)`;

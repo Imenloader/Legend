@@ -16,9 +16,9 @@ const STORY_NODES = {
 
 What will you grasp in the silence?`,
         choices: [
-            { text: '☀️ Grasp the light (Atk focus)', next: 'womb_birth', onEnter: (s) => { s.player.atk += 10; s._wombGift = 'Strength'; } },
-            { text: '🌊 Flow with the energy (HP focus)', next: 'womb_birth', onEnter: (s) => { s.player.maxHp += 50; s.player.hp = s.player.maxHp; s._wombGift = 'Vitality'; } },
-            { text: '🧘 Quietly observe (Karma/Qi focus)', next: 'womb_birth', onEnter: (s) => { s.player.karma += 20; s.player.maxMp += 30; s.player.mp = s.player.maxMp; s._wombGift = 'Spirituality'; } }
+            { text: '☀️ Grasp the light (Atk focus)', next: 'womb_birth', onEnter: (s) => { s.player.atk += 10; s._wombGift = 'Strength'; s.player.wombGift = 'Strength'; } },
+            { text: '🌊 Flow with the energy (HP focus)', next: 'womb_birth', onEnter: (s) => { s.player.maxHp += 50; s.player.hp = s.player.maxHp; s._wombGift = 'Vitality'; s.player.wombGift = 'Vitality'; } },
+            { text: '🧘 Quietly observe (Karma/Qi focus)', next: 'womb_birth', onEnter: (s) => { s.player.karma += 20; s.player.maxMp += 30; s.player.mp = s.player.maxMp; s._wombGift = 'Spirituality'; s.player.wombGift = 'Spirituality'; } }
         ]
     },
 
@@ -545,6 +545,9 @@ window.STORY = {
         if (window.LORE?.REGIONS[regionId]) {
             window.LORE.REGIONS[regionId].unlocked = true;
         }
+        if (typeof state !== 'undefined' && state.unlockedRegions && !state.unlockedRegions.includes(regionId)) {
+            state.unlockedRegions.push(regionId);
+        }
     },
 
     // ── CORE RUNNER ── called from game.js to play a node
@@ -585,6 +588,9 @@ window.STORY = {
         const choiceObjects = filteredChoices.map(c => ({
             text: c.text,
             callback: () => {
+                // Execute choice onEnter callback if present
+                if (c.onEnter) c.onEnter(state);
+
                 // Apply karma
                 if (c.karmaChange) state.player.karma = Math.max(-100, Math.min(100, (state.player.karma || 0) + c.karmaChange));
 

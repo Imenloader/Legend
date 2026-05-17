@@ -55,13 +55,6 @@ window.SECTS = {
         return { success: true, message: `Recruited ${d.name} (${d.quality})!` };
     },
 
-    // Sect heartbeat (Passive income/fame)
-    process(state) {
-        if (!state.sect) return;
-        state.sect.fame += state.sect.disciples.length * 0.1;
-        state.sect.treasury += state.sect.disciples.length * 5;
-    },
-
     // Sect Diplomacy database
     rivalSects: [
         { id: 'demon_blade', name: 'Demon Blade Sect', relation: 'Hostile', power: 500, territory: 'Shadow Peaks' },

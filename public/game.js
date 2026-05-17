@@ -17,16 +17,34 @@ function validateState() {
     if (!state.player.cultivation) state.player.cultivation = { stage: 'Qi Condensation', stageLevel: 1, cultivationBonuses: { hp: 0, mp: 0, atk: 0, def: 0 } };
     if (!state.player.cultivation.cultivationBonuses) state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
     
+    // Lineage & Family validation
+    if (!state.player.family) state.player.family = [];
+    if (typeof state.player.children !== 'number') state.player.children = 0;
+    if (typeof state.player.kills !== 'number') state.player.kills = 0;
+    if (typeof state.player.gold !== 'number' || isNaN(state.player.gold)) state.player.gold = 50;
+    if (typeof state.player.karma !== 'number' || isNaN(state.player.karma)) state.player.karma = 0;
+    
     // Safety check for currentRegion
     if (window.LORE && window.LORE.REGIONS && !window.LORE.REGIONS[state.player.currentRegion]) {
         console.warn(`Region ${state.player.currentRegion} missing. Resetting to Crossroads.`);
         state.player.currentRegion = 'crossroads';
     }
+
+    if (!state.unlockedRegions) state.unlockedRegions = ['crossroads'];
+    if (window.LORE && window.LORE.REGIONS) {
+        state.unlockedRegions.forEach(rId => {
+            if (window.LORE.REGIONS[rId]) {
+                window.LORE.REGIONS[rId].unlocked = true;
+            }
+        });
+    }
     
     // Cleanup processing flags
     state._combatLock = false;
+    state._uiLock = false;
     state.isSelling = false;
 }
+
 
 async function loadGameCloud() {
     const saved = localStorage.getItem('legend_rpg_state');
@@ -163,6 +181,7 @@ let state = {
     companions: {},
     relationships: {},
     achievements: [],
+    unlockedRegions: ['crossroads'],
     narrative_node: 'womb_start',
     storyFlags: {},
     currentEnemy: null,
@@ -295,6 +314,13 @@ function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, is
         } else {
             const overlay = document.getElementById('cinematic-overlay');
             if (overlay) overlay.classList.remove('active');
+            
+            // Restore active screen so that standard game screen shows if all were hidden
+            const activeScreenExists = Array.from(document.querySelectorAll('.screen')).some(s => s.classList.contains('active'));
+            if (!activeScreenExists) {
+                const storyScreen = document.getElementById('story-screen');
+                if (storyScreen) storyScreen.classList.add('active');
+            }
         }
 
         const narrativeWindow = document.getElementById('narrative-window');
@@ -358,7 +384,27 @@ function setChoices(choicesArray) {
     if (!choiceEngine) return;
 
     choiceEngine.innerHTML = '';
+    
+    // Clear cinematic novel box choices if any exist
+    const novelBox = document.getElementById('novel-box');
+    const existingNovelChoices = document.getElementById('novel-choices');
+    if (existingNovelChoices) existingNovelChoices.remove();
+
     if (!choicesArray || choicesArray.length === 0) return;
+
+    const overlay = document.getElementById('cinematic-overlay');
+    const isCinematic = overlay && overlay.classList.contains('active');
+
+    let targetContainer = choiceEngine;
+
+    if (isCinematic && novelBox) {
+        const div = document.createElement('div');
+        div.id = 'novel-choices';
+        div.className = 'actions';
+        div.style.cssText = 'margin-top: 20px; display: flex; flex-direction: column; gap: 10px; width: 100%;';
+        novelBox.appendChild(div);
+        targetContainer = div;
+    }
 
     choicesArray.forEach((choice, idx) => {
         const btn = document.createElement('button');
@@ -368,27 +414,34 @@ function setChoices(choicesArray) {
         btn.onclick = () => {
             if (state._uiLock) return;
             state._uiLock = true;
-            choiceEngine.classList.add('ui-locked');
+            targetContainer.classList.add('ui-locked');
+            if (window.AUDIO) window.AUDIO.playEffect('menu_click');
             
             try {
-                choiceEngine.innerHTML = ''; 
+                targetContainer.innerHTML = ''; 
+                const overlayNow = document.getElementById('cinematic-overlay');
+                const isCinematicNow = overlayNow && overlayNow.classList.contains('active');
+                if (!isCinematicNow) {
+                    const novelChoices = document.getElementById('novel-choices');
+                    if (novelChoices) novelChoices.remove();
+                }
                 if (choice.callback) choice.callback();
             } catch (err) {
                 console.error("Choice Callback Error:", err);
                 showToast("The Dao flickers... (Interaction Error)");
                 setTimeout(() => { 
                     state._uiLock = false; 
-                    choiceEngine.classList.remove('ui-locked');
+                    targetContainer.classList.remove('ui-locked');
                     hubLoop(); 
                 }, 1000);
             } finally {
                 setTimeout(() => { 
                     state._uiLock = false; 
-                    if (choiceEngine) choiceEngine.classList.remove('ui-locked');
+                    if (targetContainer) targetContainer.classList.remove('ui-locked');
                 }, 200);
             }
         };
-        choiceEngine.appendChild(btn);
+        targetContainer.appendChild(btn);
     });
 }
 
@@ -419,8 +472,14 @@ function updateAuras() {
 }
 
 function showScreen(screenId) {
+    const scr = document.getElementById(screenId);
+    if (!scr) {
+        console.warn(`Screen ${screenId} not found in DOM! Fallback to story-screen.`);
+        showScreen('story-screen');
+        return;
+    }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
+    scr.classList.add('active');
     state.screen = screenId;
     updateTopBar();
 }
@@ -716,6 +775,15 @@ function resolveCombatTurn(moveId) {
     narrate(result.resultText, 'System', null, false, true);
     updateTopBar(); updateMomentumUI();
     
+    // Play procedural combat audio
+    if (window.AUDIO) {
+        if ((result.playerDmg || 0) > 0 || (result.enemyDmg || 0) > 0) {
+            window.AUDIO.playEffect('combat_hit');
+        } else {
+            window.AUDIO.playEffect('combat_block');
+        }
+    }
+    
     if (result.playerDmg > 0) spawnFloatingText(`-${result.playerDmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
     if (result.enemyDmg > 0) { 
         spawnFloatingText(`-${result.enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
@@ -735,6 +803,14 @@ function handleVictory() {
     const enemy = state.currentEnemy;
     narrate(`Victory! You have defeated ${enemy.name}.`, 'System');
     
+    // Check if this was a breakthrough Heavenly Tribulation
+    if (state._pendingBreakthroughStage && window.CULTIVATION) {
+        const msg = window.CULTIVATION.completeBreakthrough(state, state._pendingBreakthroughStage);
+        state._pendingBreakthroughStage = null;
+        narrate(msg, "System", null, false, true);
+        if (window.AUDIO) window.AUDIO.playEffect('level_up');
+    }
+    
     const xpBase = window.BALANCE ? window.BALANCE.xpForEnemy(enemy.minLevel || 1) : 50;
     const bg = state.player.background || {};
     const xpReward = Math.floor(xpBase * (bg.xpMult || 1));
@@ -752,6 +828,7 @@ function handleVictory() {
         state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 2.1)); 
         calculateTotalStats(); 
         narrate("<b>BREAKTHROUGH!</b> Your cultivation has reached a new height.", "System"); 
+        if (window.AUDIO) window.AUDIO.playEffect('level_up');
     }
     
     state.currentEnemy = null;
@@ -777,6 +854,29 @@ function calculateTotalStats() {
     
     // Accumulators for bonuses
     let bAtk = 0, bDef = 0, bHp = 0, bMp = 0;
+
+    // Class-specific base bonuses
+    const cls = state.player.class;
+    if (cls === 'Sword Immortal') {
+        bAtk += 5;
+    } else if (cls === 'Medicine Cultivator') {
+        bHp += 30;
+    } else if (cls === 'Sufi Mystic') {
+        bMp += 20;
+    } else if (cls === 'Desert Knight') {
+        bDef += 5;
+        bHp += 15;
+    }
+
+    // Womb Gift bonuses
+    const gift = state.player.wombGift || state._wombGift;
+    if (gift === 'Strength') {
+        bAtk += 10;
+    } else if (gift === 'Vitality') {
+        bHp += 50;
+    } else if (gift === 'Spirituality') {
+        bMp += 30;
+    }
 
     // 2. Permanent Cultivation Bonuses
     const cb = state.player.cultivation?.cultivationBonuses ?? { hp: 0, mp: 0, atk: 0, def: 0 };
