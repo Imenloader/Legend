@@ -291,7 +291,7 @@ Her voice drops.
 
 She lowers her voice to nearly nothing.
 
-"Once, long ago, a disciple of the Jade Emperor crossed into the Islamic spirit world on a diplomatic mission. He saw the divine light of Tawhid — the oneness of God — and it shattered everything he believed about the Dao. He returned... changed. Broken. He spent a thousand years trying to reconcile two truths that he felt could not coexist."
+"Once, long ago, a disciple of the Jade Emperor crossed into the Islamic spirit world on a diplomatic mission. He saw the divine light of Tawhid — the oneness of the Supreme — and it shattered everything he believed about the Dao. He returned... changed. Broken. He spent a thousand years trying to reconcile two truths that he felt could not coexist."
 
 "He failed. And in his failure, he chose to destroy both rather than live with the contradiction."
 
@@ -537,6 +537,9 @@ window.STORY = {
         if (!this.hasFlag(state, 'act1_started')) return 'act1_intro';
         if (state.player.lvl >= 3 && !this.hasFlag(state, 'act2_started')) return 'act2_intro';
         if (state.player.lvl >= 4 && this.hasFlag(state, 'act2_started') && !this.hasFlag(state, 'harun_met')) return 'act2_harun_crisis';
+        if (state.player.lvl >= 6 && this.hasFlag(state, 'harun_met') && !this.hasFlag(state, 'act3_started')) return 'act3_intro';
+        if (state.player.lvl >= 9 && this.hasFlag(state, 'act3_mirror_completed') && !this.hasFlag(state, 'act4_started')) return 'act4_intro';
+        if (state.player.lvl >= 10 && this.hasFlag(state, 'act4_completed') && !this.hasFlag(state, 'act5_started')) return 'act5_intro';
         return null; // No pending beat — continue free roam
     },
 

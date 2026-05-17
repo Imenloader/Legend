@@ -13,7 +13,7 @@ window.LIFE = {
 
     systems: {
         'many_children': { id: 'many_children', name: 'Many Children Many Blessings', desc: 'Gain +2% stats for every child born.' },
-        'killing': { id: 'killing', name: 'God of Slaughter System', desc: 'Gain +1 Atk for every 10 kills.' },
+        'killing': { id: 'killing', name: 'Supreme of Slaughter System', desc: 'Gain +1 Atk for every 10 kills.' },
         'sword_saint': { id: 'sword_saint', name: 'Sword Immortal System', desc: '2x Sword damage and auto-mastery of techniques.' }
     },
 

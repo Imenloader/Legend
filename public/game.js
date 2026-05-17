@@ -38,6 +38,9 @@ function validateState() {
             }
         });
     }
+
+    if (!state.activeQuests) state.activeQuests = ['main_01'];
+    if (!state.completedQuests) state.completedQuests = [];
     
     // Cleanup processing flags
     state._combatLock = false;
@@ -185,7 +188,8 @@ let state = {
     narrative_node: 'womb_start',
     storyFlags: {},
     currentEnemy: null,
-    combatState: null
+    combatState: null,
+    exploreStreak: 0
 };
 
 // --- DOM Elements ---
@@ -406,11 +410,34 @@ function setChoices(choicesArray) {
         targetContainer = div;
     }
 
+    const isCombat = !!state.currentEnemy && !isCinematic;
+    const isHub = state.narrative_node === 'hub' && !isCinematic;
+    if (isCombat) {
+        targetContainer.classList.add('combat-choice-grid');
+        targetContainer.classList.remove('hub-choice-grid');
+    } else if (isHub) {
+        targetContainer.classList.add('hub-choice-grid');
+        targetContainer.classList.remove('combat-choice-grid');
+    } else {
+        targetContainer.classList.remove('combat-choice-grid');
+        targetContainer.classList.remove('hub-choice-grid');
+    }
+
     choicesArray.forEach((choice, idx) => {
         const btn = document.createElement('button');
         btn.className = 'btn choice-btn';
         btn.id = `choice-btn-${idx}`;
         btn.innerHTML = choice.text;
+
+        if (isCombat) {
+            const txt = choice.text.toLowerCase();
+            if (txt.includes('form') || txt.includes('taming') || txt.includes('tame')) {
+                btn.setAttribute('data-type', 'form');
+            } else {
+                btn.setAttribute('data-type', 'attack');
+            }
+        }
+
         btn.onclick = () => {
             if (state._uiLock) return;
             state._uiLock = true;
@@ -809,36 +836,110 @@ function handleVictory() {
         state._pendingBreakthroughStage = null;
         narrate(msg, "System", null, false, true);
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
+        calculateTotalStats();
+        updateTopBar();
     }
+    
+    if (typeof state.exploreStreak !== 'number') state.exploreStreak = 0;
+    const streakMult = 1 + (state.exploreStreak * 0.05);
     
     const xpBase = window.BALANCE ? window.BALANCE.xpForEnemy(enemy.minLevel || 1) : 50;
     const bg = state.player.background || {};
-    const xpReward = Math.floor(xpBase * (bg.xpMult || 1));
+    const xpReward = Math.floor(xpBase * (bg.xpMult || 1) * streakMult);
     
-    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()));
+    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()) * streakMult);
     
     state.player.xp += xpReward;
     state.player.gold += goldReward;
     
-    narrate(`Gained ${xpReward} Qi and found ${goldReward} Spirit Stones.`, "System");
+    let victoryMsg = `<div style="background:rgba(0,229,160,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); margin-bottom:15px; text-align:left;">
+        <b style="color:var(--jade); font-size:1.15rem; letter-spacing:1px; font-family:'Cinzel';">🏆 COMBAT VICTORY</b><br>
+        ${state.exploreStreak > 0 ? `<small style="color:var(--secondary)">🔥 Exploration Streak: ${state.exploreStreak} (+${Math.round(state.exploreStreak * 5)}% Bonus)</small><br>` : ''}<br>
+        Gained <b>${xpReward} XP</b> and <b>${goldReward} Spirit Stones</b>.
+    `;
+
+    // --- Dynamic Crafting Materials Drop ---
+    if (Math.random() < 0.6) {
+        let matId = 'spirit_herb';
+        const lvl = state.player.lvl || 1;
+        if (lvl <= 5) {
+            matId = Math.random() < 0.5 ? 'spirit_herb' : 'iron_ore';
+        } else if (lvl <= 12) {
+            const r = Math.random();
+            matId = r < 0.4 ? 'monster_core' : (r < 0.7 ? 'spirit_herb' : 'iron_ore');
+        } else if (lvl <= 20) {
+            const r = Math.random();
+            matId = r < 0.4 ? 'dragon_vein_shard' : (r < 0.7 ? 'monster_core' : 'spirit_herb');
+        } else {
+            const r = Math.random();
+            matId = r < 0.4 ? 'celestial_silk' : (r < 0.75 ? 'dragon_vein_shard' : 'monster_core');
+        }
+
+        if (!state.player.inventory.materials) state.player.inventory.materials = {};
+        state.player.inventory.materials[matId] = (state.player.inventory.materials[matId] || 0) + 1;
+        
+        const matName = matId.replace(/_/g, ' ').toUpperCase();
+        victoryMsg += `<br><span style="color:var(--secondary)">🎁 Found Material:</span> <b class="loot-refined">${matName}</b> (Added to satchel)`;
+    }
+
+    // --- Dynamic Equipment Drop ---
+    if (Math.random() < 0.35 && window.EQUIPMENT_DATA) {
+        const eligible = Object.values(window.EQUIPMENT_DATA).filter(item => (item.reqLevel || 1) <= (state.player.lvl || 1));
+        if (eligible.length > 0) {
+            const proto = eligible[Math.floor(Math.random() * eligible.length)];
+            const newItem = {
+                ...proto,
+                id: `${proto.id}_${Date.now()}`
+            };
+            if (!state.player.inventory.items) state.player.inventory.items = [];
+            state.player.inventory.items.push(newItem);
+            
+            const qClass = `loot-${proto.quality.toLowerCase()}`;
+            victoryMsg += `<br><span style="color:var(--secondary)">🗡️ Found Equipment:</span> <b class="${qClass}">[${proto.quality}] ${proto.name}</b> (Equippable)`;
+        }
+    }
+
+    victoryMsg += `</div>`;
+    narrate(victoryMsg, "System", null, false, true);
 
     if (state.player.xp >= state.player.maxXp) { 
         state.player.lvl++; 
         state.player.xp -= state.player.maxXp; 
         state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 2.1)); 
         calculateTotalStats(); 
-        narrate("<b>BREAKTHROUGH!</b> Your cultivation has reached a new height.", "System"); 
+        narrate("<span class='loot-epic'><b>🌟 BREAKTHROUGH!</b> Your cultivation has reached a new height.</span>", "System", null, false, true); 
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
     }
     
+    state.exploreStreak++;
     state.currentEnemy = null;
     saveGame(); 
-    setTimeout(hubLoop, 2000);
+    
+    const activeRegion = state.player.currentRegion || 'crossroads';
+    setChoices([
+        { text: `⚔️ Venture Deeper (+${state.exploreStreak * 5}% Bonus)`, callback: () => exploreRegion(activeRegion) },
+        { text: "↩ Return to Crossroads", callback: () => {
+            state.exploreStreak = 0;
+            hubLoop();
+        } }
+    ]);
 }
 
 function handleDefeat() {
-    narrate("You have fallen.", "System");
-    setChoices([{ text: "Restart", callback: () => location.reload() }]);
+    state.exploreStreak = 0;
+    const goldPenalty = Math.floor((state.player.gold || 0) * 0.2);
+    state.player.gold = Math.max(0, (state.player.gold || 0) - goldPenalty);
+    
+    // Revive player at 50% HP/MP to enable immediate recovery and exploration
+    state.player.hp = Math.floor(state.player.maxHp * 0.5);
+    state.player.mp = Math.floor(state.player.maxMp * 0.5);
+    
+    state.currentEnemy = null;
+    saveGame();
+    
+    narrate(`<b>DEFEAT!</b> You have been defeated by the enemy. A wandering Taoist hermit discovered your unconscious body and dragged you back to the City of Crossroads.<br><br><b>Penalty:</b> Lost <span style="color:var(--secondary)">${goldPenalty} Spirit Stones</span>. You have been revived at half Essence.`, "System");
+    
+    setChoices([{ text: "Stand up and continue", callback: hubLoop }]);
 }
 
 // --- Equipment & Stats Management ---

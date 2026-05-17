@@ -21,6 +21,13 @@ window.CRAFTING = {
             type: 'special',
             effect: { breakthrough: true }
         },
+        'golden_core_pill': {
+            name: 'Golden Core Pill',
+            desc: 'Required to breakthrough to Core Formation.',
+            ingredients: { 'spirit_herb': 8, 'monster_core': 4 },
+            type: 'special',
+            effect: { breakthrough: true }
+        },
         'nascent_pill': {
             name: 'Nascent Soul Pill',
             desc: 'A divine pill that stabilizes the nascent spirit.',
@@ -152,6 +159,7 @@ window.CRAFTING = {
 
         if (success) {
             const newItem = {
+                id: recipeId,
                 name: `${quality === 'Normal' ? '' : quality + ' '}${recipe.name}`,
                 type: 'consumable',
                 effect: { ...recipe.effect }

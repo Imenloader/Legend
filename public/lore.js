@@ -126,14 +126,14 @@ const CHINESE_HEROES = {
     guan_yu: {
         id: 'guan_yu',
         name: 'Guan Yu',
-        title: 'The Sacred Duke / God of War',
+        title: 'The Sacred Duke / Supreme of War',
         origin: 'jade_peak',
         sprite: 'assets/guan_yu.png',
         alignment: 'lawful_good',
         karmaRequirement: 40, // Only righteous players can ally
         affinity: 0,
         personality: 'stoic',
-        description: 'He does not speak unless necessary. His presence alone bends the spiritual pressure of a room. The God of War measures a person\'s worth by their loyalty, not their power.',
+        description: 'He does not speak unless necessary. His presence alone bends the spiritual pressure of a room. The Supreme of War measures a person\'s worth by their loyalty, not their power.',
         dialogue: {
             greet: [
                 '"Your Qi is unstable. Your heart is not yet decided. Come back when you know who you are."',
@@ -450,6 +450,102 @@ const ARABIAN_ENEMIES = {
             magic: { name: 'Smoke Veil', text: 'It vanishes into a cloud of sulfur, preparing its next ambush.' }
         },
         loot: ['Fire Essence', 'Brass Lamp Shard']
+    },
+    jade_enforcer_squad: {
+        id: 'jade_enforcer_squad', name: 'Jade Summit Enforcer Squad', region: 'jade_peak',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 300, baseAtk: 45, xpReward: 300,
+        description: 'An elite patrol of the Jade Peak, armed with spears of divine law.',
+        moves: {
+            heavy: { name: 'Sect Phalanx', text: 'The enforcers lock their jade shields, raising physical defense while lunging forward.' },
+            fast: { name: 'Piercing Lunge', text: 'A rapid flurry of cold jade spears aiming for vital meridians.' },
+            magic: { name: 'Formation Lock', text: 'They chant a restraining formula, threatening to cage your movements.' }
+        },
+        loot: ['Broken Jade Pendant', 'Sect Archive Key']
+    },
+    desert_jinn_rebel: {
+        id: 'desert_jinn_rebel', name: 'Gargantuan Desert Jinn Rebel', region: 'desert_rift',
+        sprite: 'assets/sufi_mystic_1778872363338.png',
+        baseHp: 450, baseAtk: 60, xpReward: 500,
+        description: 'A giant spirit of fire who refuses the order of the Emperor.',
+        moves: {
+            heavy: { name: 'Dune Smasher', text: 'A heavy sand-hammer blow that pulverizes shields.' },
+            fast: { name: 'Desert Vortex', text: 'A blazing spin-attack of sand and fire.' },
+            magic: { name: 'Flame Tempest', text: 'A searing wave of spiritual flame.' }
+        },
+        loot: ['Fire Essence', 'Monster Core']
+    },
+    corrupted_jade_specter: {
+        id: 'corrupted_jade_specter', name: 'Corrupted Jade Specter', region: 'desert_rift',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 450, baseAtk: 60, xpReward: 500,
+        description: 'A haunting ghost of celestial jade, driven mad by the desert storms.',
+        moves: {
+            heavy: { name: 'Spectral Claw', text: 'A sweeping physical strike of cold phantom energy.' },
+            fast: { name: 'Jade Spike', text: 'Fires high-speed jade shards from the sky.' },
+            magic: { name: 'Qi Leach', text: 'A chilling siphon that steals HP and MP.' }
+        },
+        loot: ['Living Jade Chip', 'Monster Core']
+    },
+    fog_golem: {
+        id: 'fog_golem', name: 'Spectral Fog Golem', region: 'desert_rift',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 500, baseAtk: 55, xpReward: 500,
+        description: 'A mass of rock and dust, held together by corrupted mist.',
+        moves: {
+            heavy: { name: 'Mist Hammer', text: 'A heavy, slow smash of solid granite.' },
+            fast: { name: 'Dust Storm', text: 'Blinds you with a swirling cloud of sharp dust.' },
+            magic: { name: 'Stone Armor', text: 'Draws mineral components to reinforce its physical shell.' }
+        },
+        loot: ['Iron Ore', 'Monster Core']
+    },
+    fallen_immortal_final: {
+        id: 'fallen_immortal_final', name: 'The Fallen Immortal (Void)', region: 'desert_rift',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        baseHp: 1000, baseAtk: 90, xpReward: 2000,
+        description: 'The final boss, holding the broken threads of both East and West.',
+        moves: {
+            heavy: { name: 'Abyssal Void Slam', text: 'Gathers the crushing gravity of the empty space to smash your physical body.' },
+            fast: { name: 'Void Piercer', text: 'A laser spike of dark, concentrated spiritual light.' },
+            magic: { name: 'Cosmic Dissolution', text: 'Draws spiritual energy from the surrounding ley lines to heal and burn.' }
+        },
+        loot: ['Varunastra Core', 'Pangu\'s Axe Fragment']
+    },
+    fallen_immortal_righteous: {
+        id: 'fallen_immortal_righteous', name: 'The Fallen Immortal (Ashes of Order)', region: 'desert_rift',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        baseHp: 1100, baseAtk: 95, xpReward: 2000,
+        description: 'The avatar of the Void, reacting to your sterile order by gathering all of reality\'s ashes.',
+        moves: {
+            heavy: { name: 'Imperial Ruin', text: 'Crushes with the weight of fallen celestial empires.' },
+            fast: { name: 'Lawbreaker Spear', text: 'A lance of pure white anti-matter.' },
+            magic: { name: 'Sterile Vacuum', text: 'Sucks away all breath and spiritual Qi from the air.' }
+        },
+        loot: ['Rigveda Pages', 'Seven Star Sword of Dao']
+    },
+    fallen_immortal_demonic: {
+        id: 'fallen_immortal_demonic', name: 'The Fallen Immortal (Core of Chaos)', region: 'desert_rift',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        baseHp: 1200, baseAtk: 105, xpReward: 2000,
+        description: 'The avatar of the Void, matching your dark flame with the icy vacuum of absolute space.',
+        moves: {
+            heavy: { name: 'Asura Devastator', text: 'Unleashes six massive phantom arm strikes simultaneously.' },
+            fast: { name: 'Chaos Blade', text: 'A dark slice that ignores 50% of your defense.' },
+            magic: { name: 'Black Sun Eruption', text: 'A supernova of negative karma that consumes everything.' }
+        },
+        loot: ['Kavacha Golden Breastplate', 'Wukong\'s Golden Band']
+    },
+    fallen_immortal_neutral: {
+        id: 'fallen_immortal_neutral', name: 'The Fallen Immortal (Fractured Balance)', region: 'desert_rift',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        baseHp: 1150, baseAtk: 100, xpReward: 2000,
+        description: 'The avatar of the Void, challenging your claim to the center of the world.',
+        moves: {
+            heavy: { name: 'World Balance Cracker', text: 'Splits the ground in two, throwing you off stance.' },
+            fast: { name: 'Symmetrical Strike', text: 'A double blow targeting both body and spirit.' },
+            magic: { name: 'Yin-Yang Devastation', text: 'Unleashes twin beams of absolute heat and absolute cold.' }
+        },
+        loot: ['Trishula of the Three Realms', 'Taiji Yin-Yang Ring']
     }
 };
 
@@ -476,25 +572,75 @@ window.LORE = Object.assign(window.LORE || {}, {
 // EQUIPMENT DATA - The Immortal Armory
 // ============================================================
 window.EQUIPMENT_DATA = {
-    // Weapons
+    // === CHINESE XIANXIA SET ===
+    seven_star_sword: { id: 'seven_star_sword', name: 'Seven Star Sword of Dao', slot: 'weapon', quality: 'Super', stats: { atk: 85, mp: 30 }, reqLevel: 20, reqStage: 'Core Formation', desc: 'Inscribed with the Big Dipper constellation, aligning your blade with the celestial axis.' },
+    qingping_sword: { id: 'qingping_sword', name: 'Qingping Sword of Harmony', slot: 'weapon', quality: 'Elite', stats: { atk: 50 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'A famous sword of ancient sects, radiating pure clear Qi.' },
+    xuanwu_plate: { id: 'xuanwu_plate', name: 'Xuanwu Turtle Scale Plate', slot: 'body', quality: 'Super', stats: { def: 75, hp: 200 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'Forged from the scales of the black tortoise Xuanwu. Virtually unbreakable.' },
+    phoenix_feather_crown: { id: 'phoenix_feather_crown', name: 'Phoenix Feather Crown', slot: 'head', quality: 'Super', stats: { def: 25, mp: 50 }, reqLevel: 22, reqStage: 'Core Formation', desc: 'Woven with the glowing tail-feathers of a divine phoenix, granting mental clarity.' },
+    nine_dragons_cauldron: { id: 'nine_dragons_cauldron', name: 'Nine Dragons Spirit Cauldron', slot: 'relic', quality: 'Super', stats: { mp: 120 }, reqLevel: 24, reqStage: 'Core Formation', desc: 'A miniature bronze cauldron that constantly purifies the user\'s internal meridians.' },
+    taiji_yin_yang_ring: { id: 'taiji_yin_yang_ring', name: 'Taiji Yin-Yang Ring', slot: 'ring', quality: 'Unique', stats: { def: 12, mp: 40 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'A jade ring depicting the cosmic balance, allowing effortless shifting between hard and soft styles.' },
+    kunlun_frost_boots: { id: 'kunlun_frost_boots', name: 'Kunlun Frost-Riding Boots', slot: 'boots', quality: 'Elite', stats: { def: 18, speed: 12 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'Boots forged from glacier-ice of Mount Kunlun, leaving cold footprints in the hot desert.' },
+    pangu_axe_fragment: { id: 'pangu_axe_fragment', name: 'Pangu\'s World-Cleaving Fragment', slot: 'relic', quality: 'Super', stats: { atk: 40, def: 20 }, reqLevel: 28, reqStage: 'Core Formation', desc: 'A tiny flake of obsidian from the primeval axe that split heaven and earth.' },
+    fuxi_zither: { id: 'fuxi_zither', name: 'Fuxi\'s Jade Zither', slot: 'relic', quality: 'Elite', stats: { mp: 80 }, reqLevel: 16, reqStage: 'Foundation Establishment', desc: 'Strumming this zither calms wild spiritual beast souls.' },
+    bagua_mirror: { id: 'bagua_mirror', name: 'Daoist Bagua Mirror', slot: 'relic', quality: 'Normal', stats: { def: 8 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'A simple bronze mirror used to ward off street ghosts and low-level demons.' },
+    demon_slaying_cord: { id: 'demon_slaying_cord', name: 'Demon-Slaying Gold Cord', slot: 'relic', quality: 'Refined', stats: { atk: 15 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'A shimmering gold thread used to bind corrupted disciples and rogue beasts.' },
+    gilded_dragon_greaves: { id: 'gilded_dragon_greaves', name: 'Gilded Dragon-Vein Greaves', slot: 'legs', quality: 'Elite', stats: { def: 35, hp: 60 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'Leg armor infused with the solid heavy energy of local dragon ley-lines.' },
+    cloud_walk_trousers: { id: 'cloud_walk_trousers', name: 'Cloud-Walk Silk Trousers', slot: 'legs', quality: 'Refined', stats: { def: 15, speed: 8 }, reqLevel: 8, reqStage: 'Qi Condensation', desc: 'Lightweight pants favored by scouts and outer sect messengers.' },
+    taiyang_necklace: { id: 'taiyang_necklace', name: 'Taiyang Sun-Core Pendant', slot: 'necklace', quality: 'Elite', stats: { atk: 25 }, reqLevel: 13, reqStage: 'Foundation Establishment', desc: 'A necklace holding a hot solar crystal, melting away cold poison and fatigue.' },
+    wukong_golden_band: { id: 'wukong_golden_band', name: 'Golden Fillet of the Great Sage', slot: 'ring', quality: 'Super', stats: { def: 40, mp: 60 }, reqLevel: 30, reqStage: 'Core Formation', desc: 'A gold ring shaped like the crown that bound the Monkey King, granting absolute mental fortitude.' },
+
+    // === INDIAN VEDIC SET ===
+    trishula_of_shiva: { id: 'trishula_of_shiva', name: 'Trishula of the Three Realms', slot: 'weapon', quality: 'Super', stats: { atk: 130 }, reqLevel: 30, reqStage: 'Core Formation', desc: 'The sacred trident representing creation, maintenance, and destruction. Hum with absolute power.' },
+    brahmastra_scroll: { id: 'brahmastra_scroll', name: 'Brahmastra Divine Seal', slot: 'relic', quality: 'Super', stats: { atk: 60, mp: 100 }, reqLevel: 28, reqStage: 'Core Formation', desc: 'A copper scroll inscribed with the mantra to summon the weapon of Brahma. Handle with extreme caution.' },
+    pinaka_bow: { id: 'pinaka_bow', name: 'Pinaka Divine Bow', slot: 'weapon', quality: 'Super', stats: { atk: 90 }, reqLevel: 23, reqStage: 'Core Formation', desc: 'The bow of Shiva. Its release sound shakes the heavens and makes mountains tremble.' },
+    kaumodaki_gada: { id: 'kaumodaki_gada', name: 'Kaumodaki Mace of Vishnu', slot: 'weapon', quality: 'Elite', stats: { atk: 65, def: 20 }, reqLevel: 18, reqStage: 'Foundation Establishment', desc: 'A massive gold mace capable of crushing whole armies of asuras.' },
+    gilded_sitar_saraswati: { id: 'gilded_sitar_saraswati', name: 'Saraswati\'s Gilded Sitar', slot: 'relic', quality: 'Elite', stats: { mp: 70 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'An exquisite sitar. Its music purifies spiritual flow, accelerating Qi gathering.' },
+    rudraksha_mala: { id: 'rudraksha_mala', name: 'Rudraksha Mala of Focus', slot: 'necklace', quality: 'Normal', stats: { mp: 20 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'One hundred and eight dried seeds that help calm breathing and center the spiritual core.' },
+    kavacha_of_karna: { id: 'kavacha_of_karna', name: 'Kavacha Golden Breastplate', slot: 'body', quality: 'Super', stats: { def: 90, hp: 300 }, reqLevel: 29, reqStage: 'Core Formation', desc: 'The legendary golden armor born with Karna. It negates a massive portion of all incoming physical blows.' },
+    kundala_earrings: { id: 'kundala_earrings', name: 'Kundala Divine Earrings', slot: 'head', quality: 'Elite', stats: { def: 20, mp: 50 }, reqLevel: 16, reqStage: 'Foundation Establishment', desc: 'Glorious gold earrings that allow the wearer to hear celestial messages.' },
+    agneyastra_ring: { id: 'agneyastra_ring', name: 'Agneyastra Fire Ring', slot: 'ring', quality: 'Elite', stats: { atk: 35 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'Forged in the fire of Agni. Releases heat bursts with every strike.' },
+    varunastra_core: { id: 'varunastra_core', name: 'Varunastra Water Core', slot: 'relic', quality: 'Elite', stats: { def: 30 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'A heavy sapphire sphere containing the rushing force of cosmic oceans.' },
+    gandiva_bow: { id: 'gandiva_bow', name: 'Gandiva Bow of Arjuna', slot: 'weapon', quality: 'Super', stats: { atk: 105 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'A celestial bow that glows when drawn, automatically shaping arrows out of raw energy.' },
+    sudarshana_chakra: { id: 'sudarshana_chakra', name: 'Sudarshana Chakra Replica', slot: 'weapon', quality: 'Super', stats: { atk: 115 }, reqLevel: 27, reqStage: 'Core Formation', desc: 'A spinning, saw-toothed disc of pure golden starlight, slicing through all spiritual obstacles.' },
+    yudhisthira_crown: { id: 'yudhisthira_crown', name: 'Crown of Yudhisthira', slot: 'head', quality: 'Elite', stats: { def: 22, mp: 30 }, reqLevel: 17, reqStage: 'Foundation Establishment', desc: 'The simple, noble crown of the king of dharma, representing absolute truth.' },
+    shiva_tandava_drums: { id: 'shiva_tandava_drums', name: 'Tandava Damru Drum', slot: 'relic', quality: 'Elite', stats: { atk: 30, speed: 8 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'A small hourglass-shaped drum. Its rhythmic beat accelerates your heart rate and reaction times.' },
+    naga_pearl_necklace: { id: 'naga_pearl_necklace', name: 'Naga Pearl Necklace', slot: 'necklace', quality: 'Refined', stats: { def: 12, hp: 30 }, reqLevel: 7, reqStage: 'Qi Condensation', desc: 'Gleaming pearls guarded by the serpent kings of the underworld.' },
+    dharma_wheel_ring: { id: 'dharma_wheel_ring', name: 'Dharma Wheel Signet', slot: 'ring', quality: 'Refined', stats: { def: 6, mp: 15 }, reqLevel: 6, reqStage: 'Qi Condensation', desc: 'A ring shaped like the eight-spoked wheel, reminding the soul of the noble path.' },
+    rigveda_pages: { id: 'rigveda_pages', name: 'Sanskrit Rigveda Pages', slot: 'relic', quality: 'Elite', stats: { mp: 90 }, reqLevel: 13, reqStage: 'Foundation Establishment', desc: 'Ancient birch-bark sheets containing the earliest hymns of the Supremes.' },
+    somaras_flask: { id: 'somaras_flask', name: 'Earthen Somaras Flask', slot: 'relic', quality: 'Normal', stats: { hp: 20 }, reqLevel: 2, reqStage: 'Qi Condensation', desc: 'A simple jug that keeps spiritual drinks fresh for hours.' },
+    garuda_feather_boots: { id: 'garuda_feather_boots', name: 'Garuda-Feather Sandals', slot: 'boots', quality: 'Elite', stats: { def: 10, speed: 20 }, reqLevel: 11, reqStage: 'Foundation Establishment', desc: 'Sandals adorned with feathers of the giant eagle mount Garuda. Walk on air.' },
+    vajra_trousers: { id: 'vajra_trousers', name: 'Vajra Body-Tempering Pants', slot: 'legs', quality: 'Elite', stats: { def: 40 }, reqLevel: 16, reqStage: 'Foundation Establishment', desc: 'Pants woven with diamond-hard threads, protecting the legs during fierce stance shifts.' },
+
+    // === SILK ROAD & ARABIAN SET ===
     spirit_scimitar: { id: 'spirit_scimitar', name: 'Spirit Scimitar', slot: 'weapon', quality: 'Normal', stats: { atk: 12 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'A standard blade tempered with a small amount of spiritual Qi.' },
-    blade_of_badr: { id: 'blade_of_badr', name: 'Blade of Badr', slot: 'weapon', quality: 'Elite', stats: { atk: 45, karma: 5 }, reqLevel: 10, reqStage: 'Foundation Establishment', desc: 'A blessed blade that shines with the resolve of the faithful.' },
+    blade_of_badr: { id: 'blade_of_badr', name: 'Blade of Badr', slot: 'weapon', quality: 'Elite', stats: { atk: 45 }, reqLevel: 10, reqStage: 'Foundation Establishment', desc: 'A blessed blade that shines with the resolve of the faithful.' },
     heaven_cleaving_sword: { id: 'heaven_cleaving_sword', name: 'Heaven-Cleaving Sword', slot: 'weapon', quality: 'Super', stats: { atk: 120 }, reqLevel: 30, reqStage: 'Core Formation', desc: 'An immortal relic said to have been used to divide the clouds of the five heavens.' },
-    
-    // Head
     spirit_turban: { id: 'spirit_turban', name: 'Spirit Turban', slot: 'head', quality: 'Refined', stats: { def: 5, mp: 10 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'A silk turban woven with protective sutras.' },
     imamah_of_light: { id: 'imamah_of_light', name: 'Imamah of Divine Light', slot: 'head', quality: 'Elite', stats: { def: 15, mp: 40 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'A radiant head covering that clarifies the mind and strengthens the soul.' },
-
-    // Body
     robe_of_zuhd: { id: 'robe_of_zuhd', name: 'Robe of Zuhd', slot: 'body', quality: 'Refined', stats: { def: 12, hp: 20 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'A simple, humble robe that offers surprising protection through detachment.' },
-    cloak_of_the_dervish: { id: 'cloak_of_the_dervish', name: 'Cloak of the Whirling Dervish', slot: 'body', quality: 'Unique', stats: { def: 25, evade: 5 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'Flows like the wind, making it difficult for enemies to land a solid blow.' },
-    ihram_of_purity: { id: 'ihram_of_purity', name: 'Ihram of Purity', slot: 'body', quality: 'Super', stats: { def: 60, hp: 150, karma: 20 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'The ultimate armor for a righteous cultivator, vibrating with the power of Hajj.' },
-
-    // Relics
+    cloak_of_the_dervish: { id: 'cloak_of_the_dervish', name: 'Cloak of the Whirling Dervish', slot: 'body', quality: 'Unique', stats: { def: 25 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'Flows like the wind, making it difficult for enemies to land a solid blow.' },
+    ihram_of_purity: { id: 'ihram_of_purity', name: 'Ihram of Purity', slot: 'body', quality: 'Super', stats: { def: 60, hp: 150 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'The ultimate armor for a righteous cultivator, vibrating with the power of Hajj.' },
     dhikr_beads_iron: { id: 'dhikr_beads_iron', name: 'Iron Dhikr Beads', slot: 'relic', quality: 'Normal', stats: { mp: 15 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'Heavy beads that help ground your Qi during meditation.' },
     misbaha_of_the_saints: { id: 'misbaha_of_the_saints', name: 'Misbaha of the Saints', slot: 'relic', quality: 'Super', stats: { mp: 100, atk: 20 }, reqLevel: 20, reqStage: 'Foundation Establishment', desc: 'Ancient beads that have absorbed the prayers of generations of holy men.' },
-
-    // Accessories
     seal_of_solomon: { id: 'seal_of_solomon', name: 'Seal of Solomon', slot: 'ring', quality: 'Elite', stats: { atk: 15, mp: 20 }, reqLevel: 18, reqStage: 'Foundation Establishment', desc: 'A legendary ring that grants dominion over jinn and elements.' },
-    sandals_of_buraq: { id: 'sandals_of_buraq', name: 'Sandals of Buraq', slot: 'boots', quality: 'Unique', stats: { def: 8, speed: 10 }, reqLevel: 10, reqStage: 'Qi Condensation', desc: 'Woven with the speed of the heavenly steed.' }
+    sandals_of_buraq: { id: 'sandals_of_buraq', name: 'Sandals of Buraq', slot: 'boots', quality: 'Unique', stats: { def: 8, speed: 10 }, reqLevel: 10, reqStage: 'Qi Condensation', desc: 'Woven with the speed of the heavenly steed.' },
+    damascus_scimitar: { id: 'damascus_scimitar', name: 'Damascus Steel Scimitar', slot: 'weapon', quality: 'Elite', stats: { atk: 48 }, reqLevel: 11, reqStage: 'Foundation Establishment', desc: 'Pattern-welded blade, holding an edge that can slice silk floating in the air.' },
+    silk_scholar_headdress: { id: 'silk_scholar_headdress', name: 'Headdress of the House of Wisdom', slot: 'head', quality: 'Refined', stats: { def: 6, mp: 15 }, reqLevel: 6, reqStage: 'Qi Condensation', desc: 'Favored by scholars studying the stars and coordinates of the desert.' },
+    persian_lion_plate: { id: 'persian_lion_plate', name: 'Lion-Embossed Persian Plate', slot: 'body', quality: 'Elite', stats: { def: 42, hp: 90 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'Engraved with a roaring lion of the royal Persian guard.' },
+    steppe_rider_pants: { id: 'steppe_rider_pants', name: 'Steppe Rider Leather Pants', slot: 'legs', quality: 'Normal', stats: { def: 6 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'Sturdy leather trousers perfect for long days on horseback.' },
+    boots_of_caravan_king: { id: 'boots_of_caravan_king', name: 'Boots of the Caravan King', slot: 'boots', quality: 'Elite', stats: { def: 12, speed: 14 }, reqLevel: 13, reqStage: 'Foundation Establishment', desc: 'Reinforced boots inured to the heat of the desert floor and mountain scree.' },
+    amber_sufi_necklace: { id: 'amber_sufi_necklace', name: 'Amber Sufi Rosary', slot: 'necklace', quality: 'Refined', stats: { mp: 30 }, reqLevel: 8, reqStage: 'Qi Condensation', desc: 'Glowing amber beads that radiate warmth when held.' },
+    ring_of_al_khidr: { id: 'ring_of_al_khidr', name: 'Emerald Ring of Al-Khidr', slot: 'ring', quality: 'Super', stats: { hp: 120, mp: 60 }, reqLevel: 26, reqStage: 'Core Formation', desc: 'An emerald ring hum with the life-giving energy of the legendary green guide.' },
+    glassmorphism_compass: { id: 'glassmorphism_compass', name: 'Astro-Qi Glass Compass', slot: 'relic', quality: 'Elite', stats: { def: 10, mp: 40 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'A complex brass mechanism displaying regional Qi flows instead of magnetic north.' },
+
+    // === CLASSIC FANTASY RPG SET ===
+    excalibur_shard: { id: 'excalibur_shard', name: 'Excalibur Sword Shard', slot: 'weapon', quality: 'Super', stats: { atk: 95 }, reqLevel: 24, reqStage: 'Core Formation', desc: 'A glowing metal shard carrying the unbreakable vow of a long-lost Western king.' },
+    aegis_shield: { id: 'aegis_shield', name: 'Aegis Bronze Seal', slot: 'relic', quality: 'Super', stats: { def: 55 }, reqLevel: 22, reqStage: 'Core Formation', desc: 'A heavy circular disc depicting a terrifying gorgon face, petrifying close-range foes.' },
+    muramasa_blade: { id: 'muramasa_blade', name: 'Muramasa Cursed Blade', slot: 'weapon', quality: 'Super', stats: { atk: 110 }, reqLevel: 26, reqStage: 'Core Formation', desc: 'A beautiful Eastern katana that demands blood when drawn, increasing damage immensely.' },
+    sandals_of_hermes: { id: 'sandals_of_hermes', name: 'Winged Sandals of Hermes', slot: 'boots', quality: 'Super', stats: { def: 14, speed: 30 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'Lightweight sandals equipped with small feather-wings, granting unparalleled speed.' },
+    ring_of_nibelung: { id: 'ring_of_nibelung', name: 'Ring of the Nibelung', slot: 'ring', quality: 'Super', stats: { atk: 25, def: 25 }, reqLevel: 27, reqStage: 'Core Formation', desc: 'A cursed gold ring of massive power, bringing fate-twisting wealth and danger.' },
+    boots_of_haste: { id: 'boots_of_haste', name: 'Swift Boots of Haste', slot: 'boots', quality: 'Refined', stats: { def: 6, speed: 12 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'Enchanted running shoes designed to slip through wind currents.' },
+    draupnir_armlet: { id: 'draupnir_armlet', name: 'Draupnir Gold Armlet', slot: 'ring', quality: 'Elite', stats: { def: 18, mp: 30 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'A heavy Norse gold band. It splits into copies of itself, keeping gold-flows steady.' },
+    gungnir_replica: { id: 'gungnir_replica', name: 'Replica Spear Gungnir', slot: 'weapon', quality: 'Elite', stats: { atk: 55 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'A masterwork ash-wood spear. Once thrown, it seeks the target\'s weak spot automatically.' },
+    mjolnir_fragment: { id: 'mjolnir_fragment', name: 'Mjolnir Lightning Fragment', slot: 'relic', quality: 'Super', stats: { atk: 45, mp: 50 }, reqLevel: 23, reqStage: 'Core Formation', desc: 'A chipped metal fragment of the hammer of storm, sparks of static energy crackling on its surface.' }
 };

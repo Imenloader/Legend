@@ -24,7 +24,7 @@ const MYTH_HEROES = {
             ],
             battle_cry: ['"For home! For cunning! CHARGE!"', '"A man who survives becomes more dangerous each time!"'],
             victory: ['"Every enemy falls, eventually. Patience is the greatest weapon."'],
-            defeat: ['"Even the gods tire eventually. We retreat — and plan."']
+            defeat: ['"Even the Supremes tire eventually. We retreat — and plan."']
         },
         passiveBuff: {
             label: '+20% Gold from all encounters (Cunning Plunder)',
@@ -54,7 +54,7 @@ const MYTH_HEROES = {
                 '"They said I would die young. I said — let the songs last forever."'
             ],
             battle_cry: ['"FOR GLORY! NONE SHALL STAND!"', '"My rage is my shield and my sword!!"'],
-            victory: ['"This is what the gods intended. Victory. Always victory."'],
+            victory: ['"This is what the Supremes intended. Victory. Always victory."'],
             defeat: ['"Not... yet. I have more left to prove."']
         },
         passiveBuff: {
@@ -116,7 +116,7 @@ const MYTH_HEROES = {
         dialogue: {
             greet: [
                 '"Open Sesame! Ha — works every time. Come, friend, let us find what is hidden."',
-                '"I have stolen from forty thieves and the gods themselves. What are a few enemies to us?"'
+                '"I have stolen from forty thieves and the Supremes themselves. What are a few enemies to us?"'
             ],
             battle_cry: ['"Surprise is the sharpest blade!"', '"They never see us coming!"'],
             victory: ['"And we vanish before they know what happened."'],

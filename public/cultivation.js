@@ -9,7 +9,7 @@ window.CULTIVATION = {
         { name: 'Qi Condensation', requiredPill: null, tribulationId: null, bonus: { hp: 0, mp: 0, atk: 0 } },
         { name: 'Foundation Establishment', requiredPill: 'foundation_pill', tribulationId: 'trib_foundation', bonus: { hp: 50, mp: 20, atk: 10 } },
         { name: 'Core Formation', requiredPill: 'golden_core_pill', tribulationId: 'trib_core', bonus: { hp: 150, mp: 50, atk: 30 } },
-        { name: 'Nascent Soul', requiredPill: 'nascent_soul_elixir', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
+        { name: 'Nascent Soul', requiredPill: 'nascent_pill', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
     ],
 
     // --- Cultivation Methods (Manuals) ---
@@ -87,6 +87,21 @@ window.CULTIVATION = {
         const nextStage = this.stages[currentStageIdx + 1];
 
         if (!nextStage) return { success: false, message: "You have reached the pinnacle of mortality." };
+
+        // Enforce Required Pill
+        if (nextStage.requiredPill) {
+            const pillIndex = (state.player.inventory.items || []).findIndex(item => item.id === nextStage.requiredPill);
+            if (pillIndex === -1) {
+                const pillRecipe = window.CRAFTING && window.CRAFTING.alchemyRecipes ? window.CRAFTING.alchemyRecipes[nextStage.requiredPill] : null;
+                const pillName = pillRecipe ? pillRecipe.name : nextStage.requiredPill.replace(/_/g, ' ');
+                return { 
+                    success: false, 
+                    message: `<span style="color:var(--danger)"><b>Breakthrough Blocked!</b> You require a <b>${pillName}</b> to protect your soul and cross the breakthrough threshold. Brew one in the Alchemy Furnace first.</span>` 
+                };
+            }
+            // Consume the pill!
+            state.player.inventory.items.splice(pillIndex, 1);
+        }
 
         // SUCCESS CHANCE: Harder for higher realms
         // Foundation: 80%, Core: 50%, Nascent: 20%

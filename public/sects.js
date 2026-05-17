@@ -47,7 +47,8 @@ window.SECTS = {
             name: names[Math.floor(Math.random() * names.length)] + " " + (state.sect.disciples.length + 1),
             lvl: 1,
             atk: 5 + Math.floor(Math.random() * 5),
-            quality: Math.random() > 0.9 ? 'Genius' : 'Normal'
+            quality: Math.random() > 0.9 ? 'Genius' : 'Normal',
+            alive: true
         };
         
         state.player.gold -= cost;
@@ -82,7 +83,7 @@ window.SECTS = {
         const rival = this.rivalSects.find(r => r.id === rivalId);
         if (!rival || rival.relation !== 'War') return;
 
-        const playerPower = state.sect.disciples.filter(d => d.alive).reduce((acc, d) => acc + (d.atk || 5), 0);
+        const playerPower = state.sect.disciples.filter(d => d.alive !== false).reduce((acc, d) => acc + (d.atk || 5), 0);
         const winChance = playerPower / (playerPower + rival.power);
 
         if (Math.random() < winChance) {

@@ -8,7 +8,7 @@ window.SHOP = {
     stocks: {
         crossroads_market: [
             { id: 'iron_ore', name: 'Iron Ore', price: 10, type: 'material', desc: 'Basic forging material.' },
-            { id: 'herb_bundle', name: 'Spirit Herbs', price: 15, type: 'material', desc: 'Used for basic alchemy.' },
+            { id: 'spirit_herb', name: 'Spirit Herbs', price: 15, type: 'material', desc: 'Used for basic alchemy.' },
             { id: 'healing_ointment', name: 'Healing Ointment', price: 50, type: 'consumable', desc: 'Restores 50 HP.', effect: { hp: 50 } },
             { id: 'spirit_water', name: 'Spirit Water', price: 40, type: 'consumable', desc: 'Restores 30 Qi.', effect: { mp: 30 } }
         ],
@@ -35,8 +35,13 @@ window.SHOP = {
         }
 
         state.player.gold -= item.price;
-        if (!state.player.inventory.items) state.player.inventory.items = [];
-        state.player.inventory.items.push({ ...item });
+        if (item.type === 'material') {
+            if (!state.player.inventory.materials) state.player.inventory.materials = {};
+            state.player.inventory.materials[item.id] = (state.player.inventory.materials[item.id] || 0) + 1;
+        } else {
+            if (!state.player.inventory.items) state.player.inventory.items = [];
+            state.player.inventory.items.push({ ...item });
+        }
         
         return { success: true, message: `Purchased ${item.name}!` };
     },

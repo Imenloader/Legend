@@ -168,7 +168,11 @@ function showAlchemyScreen() {
             choices.push({
                 text: `${canCraft ? '⚗️ ' : '[LOCKED] '}Brew ${r.name} | Needs: ${ingList}`,
                 callback: () => {
-                    if (!canCraft) return;
+                    if (!canCraft) {
+                        narrate(`<span style="color:var(--danger)"><b>Brewing Blocked!</b> You do not have the required ingredients for ${r.name}.</span>`, "System");
+                        setTimeout(showAlchemyScreen, 2000);
+                        return;
+                    }
                     startStabilityMiniGame((stability) => {
                         const res = window.CRAFTING.brewAlchemy(state, id, stability);
                         narrate(res.message, 'System', null, false, true);
@@ -283,8 +287,9 @@ function showWorldMap() {
 
             tooltip.style.display = 'block';
             
-            // Viewport-aware positioning relative to game-container
-            const rect = container.getBoundingClientRect();
+            // Viewport-aware positioning relative to map-screen (the absolute parent)
+            const mapScreen = document.getElementById('map-screen') || container;
+            const rect = mapScreen.getBoundingClientRect();
             let tx = e.clientX - rect.left + 20;
             let ty = e.clientY - rect.top + 20;
             
@@ -295,8 +300,8 @@ function showWorldMap() {
             if (ty + tooltipHeight > rect.height) ty = (e.clientY - rect.top) - tooltipHeight - 20;
             
             tooltip.style.position = 'absolute';
-            tooltip.style.left = Math.max(10, tx) + 'px';
-            tooltip.style.top = Math.max(10, ty) + 'px';
+            tooltip.style.left = Math.max(10, Math.min(tx, rect.width - tooltipWidth - 10)) + 'px';
+            tooltip.style.top = Math.max(10, Math.min(ty, rect.height - tooltipHeight - 10)) + 'px';
             tooltip.style.zIndex = '1000';
             
             circle.setAttribute('r', '18');
@@ -645,7 +650,33 @@ function showManagementScreen() {
             `;
         });
         
+        
         html += `</div>`;
+
+        // Render Active Disciples list inside Sect Card
+        if (state.sect.disciples && state.sect.disciples.length) {
+            html += `
+                <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+                    <div style="font-size:0.9rem; color:var(--secondary); font-family:'Cinzel'; margin-bottom:10px; display:flex; justify-content:space-between;">
+                        <span>👤 Active Disciples</span>
+                        <span>(${state.sect.disciples.length}/${state.sect.maxDisciples})</span>
+                    </div>
+            `;
+            state.sect.disciples.forEach(d => {
+                const statusClass = (d.alive !== false) ? 'badge-alive' : 'badge-deceased';
+                const statusText = (d.alive !== false) ? 'ACTIVE' : 'FALLEN';
+                html += `
+                    <div style="background:rgba(255,255,255,0.02); margin-bottom:8px; padding:8px 12px; border-radius:4px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(255,255,255,0.05);">
+                        <div>
+                            <span style="font-weight:bold; color:var(--secondary);">${d.name}</span>
+                            <span style="font-size:0.75rem; color:var(--text-dim); margin-left:8px;">Lvl ${d.lvl} | Atk ${d.atk}</span>
+                        </div>
+                        <span class="management-badge ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        }
     } else {
         html += `<p style="color:var(--text-dim); font-style:italic; text-align:center;">You have not yet founded an immortal lineage.</p>`;
     }
