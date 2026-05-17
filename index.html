@@ -153,15 +153,15 @@
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="طبيب الصومعة والبركة"
+                aria-label="الحكيم المعالج ودواي الروح"
                 data-class="Medicine Cultivator"
                 data-sprite="assets/medicine_cultivator_1778872338789.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/medicine_cultivator_1778872338789.png" alt="Medicine Cultivator">
                 </div>
-                <h3>طبيب الصومعة والبركة</h3>
-                <p>صحة هائلة وتجدد مبارك للجسد</p>
+                <h3>الحكيم المعالج ودواي الروح</h3>
+                <p>صحة هائلة وتجدد وسرعة التئام الجروح</p>
             </div>
             <div
                 class="class-card"
@@ -175,40 +175,40 @@
                     <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Desert Knight">
                 </div>
                 <h3>فارس الصحراء المنيع</h3>
-                <p>دفاع حديدي وصمود خارق للجسد</p>
+                <p>دفاع حديدي وصمود بطولي للجسد</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="الدرويش السالك المقرب"
+                aria-label="الفارس الحر ذو الهيبة الكبرى"
                 data-class="Sufi Mystic"
                 data-sprite="assets/sufi_mystic_1778872363338.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/sufi_mystic_1778872363338.png" alt="Sufi Mystic">
                 </div>
-                <h3>الدرويش السالك المقرب</h3>
-                <p>طاقة مانا فائقة وأوراد قدسية</p>
+                <h3>الفارس الحر ذو الهيبة الكبرى</h3>
+                <p>تركيز ذهني فائق وحيل وخطط ذكية</p>
             </div>
         </div>
-        <button id="create-btn" class="btn">إيقاظ الروح وبدء السلوك الروحي</button>
+        <button id="create-btn" class="btn">إشعال الهمة والبدء في رحلة الفتوة</button>
     </div>
 
     <!-- Hub City Screen -->
     <div id="hub-screen" class="screen">
         <h1 style="font-size: 3rem;">واحة القوافل الكبرى (ملتقى الطرق)</h1>
-        <p>طريق الحرير مليء بالتجار، والسالكين، والدراويش الأحرار.</p>
+        <p>طريق الحرير مليء بالتجار، والفرسان الأحرار، والجدعان الأبطال.</p>
 
         <div class="stats-group" style="text-align: center; max-width: 400px; margin: 0 auto 30px;">
-            <div class="stat-label">جوهر الحياة ونور الجسد: <span id="hub-hp">100</span> / <span id="hub-max-hp">100</span></div>
+            <div class="stat-label">جوهر الحياة وصلابة الجسد: <span id="hub-hp">100</span> / <span id="hub-max-hp">100</span></div>
             <div class="hp-bar-container">
                 <div id="hub-hp-bar" class="hp-bar"></div>
             </div>
             <div style="margin-top: 10px; color: var(--secondary); font-size: 1.2rem; font-family: 'El Messiri', cursive;">
-                <span id="hub-rank-name">تطهير الجسد الطيني الفاني</span>
+                <span id="hub-rank-name">تطهير الجسد وتقوية البنيان</span>
             </div>
-            <div style="color: var(--text-dim); font-size: 0.9rem;">الرتبة <span id="hub-lvl">1</span> <span id="hub-class">السالك</span></div>
+            <div style="color: var(--text-dim); font-size: 0.9rem;">الرتبة <span id="hub-lvl">1</span> <span id="hub-class">الفتوة</span></div>
         </div>
 
         <!-- NEW: Dynamic Story Progress HUD Panel -->
@@ -224,14 +224,14 @@
         </div>
 
         <div class="quest-log" style="background: var(--glass); border: 1px solid var(--primary); padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
-            <div style="color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">العهد الروحي والوجهة الحالية</div>
-            <div id="current-quest" style="color: var(--text); font-size: 1.1rem; margin-top: 5px;">ارتقِ للرتبة 3 لتفعيل بركة الرفيق.</div>
+            <div style="color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">العهد والوجهة الحالية لبطل القلوب</div>
+            <div id="current-quest" style="color: var(--text); font-size: 1.1rem; margin-top: 5px;">ارتقِ للرتبة 3 لتفعيل مساعدة الرفيق.</div>
         </div>
 
         <div class="class-selector" style="grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
             <button id="explore-btn" class="btn" style="width: 100%;">السفر والنزال في البرية<br><span style="font-size: 0.7rem; color: #fff;">قتال، غنائم وكنوز</span></button>
             <button id="inventory-btn" class="btn btn-secondary" style="width: 100%;">حقيبة التأمل والعتاد<br><span style="font-size: 0.7rem; color: #fff;">تجهيز الأسلحة والدروع</span></button>
-            <button id="rest-btn" class="btn btn-secondary" style="width: 100%;">خلوة وبحر اليقين الباطني<br><span style="font-size: 0.7rem; color: #fff;">ارتقاء المانا وجسدك</span></button>
+            <button id="rest-btn" class="btn btn-secondary" style="width: 100%;">ديوان التدريب وشحذ الهمة والتركيز<br><span style="font-size: 0.7rem; color: #fff;">ارتقاء المانا وجسدك</span></button>
         </div>
     </div>
 
@@ -315,7 +315,7 @@
         <!-- Top Bar Stats -->
         <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; font-family: 'Cairo', 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; flex-direction: row-reverse;">
             <div style="flex: 1; text-align: right; margin-left: 20px;">
-                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">البطل المريد</span> | جوهر الجسد: <span id="story-hp">100</span> | يقين المانا: <span id="story-mp">50</span> | الدنانير السحرية: <span id="story-gold" style="color:#f5c842">50</span> 
+                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">بطل القلوب والفتوة</span> | جوهر الجسد: <span id="story-hp">100</span> | التركيز والهمة: <span id="story-mp">50</span> | الدنانير الذهبية: <span id="story-gold" style="color:#f5c842">50</span> 
                 <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[كتم الصوت]':'[الصوت شغال]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[الصوت شغال]</button>
                 <button onclick="exportCombatLog()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[حفظ تاريخ القتال]</button>
                 <button onclick="if(typeof showPropertiesScreen==='function')showPropertiesScreen()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[صفات البطل]</button>
@@ -367,13 +367,13 @@
         <h1 id="result-title">الارتقاء الأسمى والنصر</h1>
         <p id="result-text">طريق السلوك والجهاد لسة مستمر.</p>
         <div id="reward-info" style="margin-bottom: 30px; text-align: center;">
-            <span id="xp-gain" style="color: var(--secondary); font-weight: 600;">+25 نقاط خبرة للرتبة الروحية</span>
+            <span id="xp-gain" style="color: var(--secondary); font-weight: 600;">+25 نقاط خبرة للرتبة والجدعنة</span>
             <div id="loot-drop" style="margin-top: 15px; color: var(--primary);"></div>
         </div>
         <div class="actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;">
-            <button id="explore-btn" class="btn">مواصلة السفر والجهاد الروحي</button>
+            <button id="explore-btn" class="btn">مواصلة السفر والجهاد والترحال</button>
             <button id="inventory-btn" class="btn btn-secondary">حقيبة التأمل والعتاد</button>
-            <button id="rest-btn" class="btn btn-secondary">خلوة سريعة (رجوع كامل الصحة والمانا)</button>
+            <button id="rest-btn" class="btn btn-secondary">قسط من الراحة (رجوع كامل الصحة والتركيز)</button>
         </div>
     </div>
 

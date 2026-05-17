@@ -5,9 +5,9 @@
 
 window.AUCTION = {
     items: [
-        { id: 'ancient_manual', name: 'مخطوطة السيف العتيقة الأثرية', basePrice: 2000, desc: 'بتفتح طريقة وفن "ضربة الفناء الروحية" المدمرة بسيفك.' },
+        { id: 'ancient_manual', name: 'مخطوطة السيف العتيقة الأثرية', basePrice: 2000, desc: 'بتفتح طريقة وفن "ضربة الفناء القاتلة" المدمرة بسيفك.' },
         { id: 'dragon_bone', name: 'عظمة التنين الحقيقي الأثرية المباركة', basePrice: 5000, desc: 'مادة أسطورية نادرة جداً لمسبك الفولاذ وصناعة الأسلحة الفتاكة.' },
-        { id: 'nirvana_pill', name: 'حبة النيرفانا واليقين المطلق الروحية', basePrice: 10000, desc: 'بتضمن النجاح التام بنسبة 100% في طقس الارتقاء الروحي القادم.' }
+        { id: 'nirvana_pill', name: 'حبة التركيز والصلابة المطلقة البدنية', basePrice: 10000, desc: 'بتضمن النجاح التام بنسبة 100% في تدريب الارتقاء البدني القادم.' }
     ],
 
     // شخصيات المنافسين المزايدين (NPCs)
@@ -37,7 +37,7 @@ window.AUCTION = {
         
         // Defensive check for player bidding
         if (bidderName === state.player.name && (state.player.gold || 0) < amount) {
-            if (typeof showToast === 'function') showToast("معندكش دنانير روحية كفاية!");
+            if (typeof showToast === 'function') showToast("معندكش دنانير ذهبية كفاية!");
             return false;
         }
 
@@ -57,7 +57,7 @@ window.AUCTION = {
                 if (nextBid < state.activeAuction.item.basePrice * rival.maxBidMult) {
                     this.placeBid(state, rival.name, nextBid);
                     if (typeof narrate === 'function') {
-                        narrate(`${rival.name} زود المزايدة لـ ${nextBid} دينار روحي!`, "المزاد");
+                        narrate(`${rival.name} زود المزايدة لـ ${nextBid} دينار ذهبي!`, "المزاد");
                     }
                 }
             }

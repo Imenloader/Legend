@@ -1,47 +1,47 @@
 // ============================================================
-// SECTS.JS — إدارة الصومعة وطائفة الفرسان والدراويش الأحرار
-// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
+// SECTS.JS — إدارة القلعة ورابطة الفرسان والجدعان الأحرار
+// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
 // ============================================================
 
 window.SECTS = {
-    ranks: ['المريد المبتدئ', 'المريد المقرب', 'حامل العهد والسر', 'الشيخ الجليل', 'العارف الأكبر', 'صاحب الصومعة والطريقة'],
+    ranks: ['الفارس المستجد', 'المقاتل الشجاع', 'حارس الراية والعهد', 'القائد الجسور', 'كبير الفرسان المعتمد', 'سيد الديوان والقلعة'],
 
     sectsDb: {
         'jade_summit': { 
             id: 'jade_summit', 
-            name: 'صومعة جبل الطور الروحية', 
+            name: 'ديوان جبل الطور للفرسان', 
             tier: 1, 
-            reqRealm: 'مقابلة السالك المبتدئ', 
+            reqRealm: 'الجدع المبتدئ', 
             cost: 0, 
             ult: 'jade_storm', 
             ultName: 'عاصفة الطور السحابية الجبارة' 
         },
         'sufi_order': { 
             id: 'sufi_order', 
-            name: 'طريقة الدراويش بالربع الخالي', 
+            name: 'رابطة أبطال الربع الخالي', 
             tier: 2, 
-            reqRealm: 'مقام التمكين والولاية', 
+            reqRealm: 'الفتوة الجسور', 
             cost: 1000, 
             ult: 'sand_mantra', 
-            ultName: 'ورد رمال واحة الربع الخالي' 
+            ultName: 'ضربة رمال واحة الربع الخالي الجبارة' 
         },
         'solar_temple': { 
             id: 'solar_temple', 
-            name: 'ديوان النور الشمسي البهي', 
+            name: 'ديوان الفرسان الأحرار البهي', 
             tier: 3, 
-            reqRealm: 'تجلي الجوهر والسر الصافي', 
+            reqRealm: 'البطل الشهم', 
             cost: 5000, 
             ult: 'solar_flare', 
-            ultName: 'وميض البرق الشمسي بالملكوت' 
+            ultName: 'ضربة وميض البرق الشمسي الجبارة' 
         },
         'nascent_void': { 
             id: 'nascent_void', 
-            name: 'مقام الفراغ النوراني الخالص', 
+            name: 'قلعة النور والشهامة الخالصة', 
             tier: 4, 
-            reqRealm: 'مقام الروح النورانية اللطيفة', 
+            reqRealm: 'كبير الجدعان والزعيم', 
             cost: 15000, 
             ult: 'void_annihilation', 
-            ultName: 'طلسم محو الفناء والبرزخ' 
+            ultName: 'طلسم ضربة الإعصار الأكبر' 
         }
     },
 
@@ -50,7 +50,7 @@ window.SECTS = {
         if (!state.sect) {
             state.sect = {
                 id: 'jade_summit',
-                name: 'صومعة جبل الطور الروحية',
+                name: 'ديوان جبل الطور للفرسان',
                 tier: 1,
                 contribution: 50,
                 level: 1,
@@ -60,25 +60,25 @@ window.SECTS = {
                 treasury: 100,
                 specialization: null, // Sword, Alchemy, Array
                 buildings: {
-                    'meditation_hall': { lvl: 1, name: 'خلوة الذكر والتأمل الروحي', bonus: 'XP' },
-                    'spirit_garden': { lvl: 0, name: 'بستان الأعشاب والبركة', bonus: 'Gold' }
+                    'meditation_hall': { lvl: 1, name: 'ديوان التدريب وشحذ الهمة', bonus: 'XP' },
+                    'spirit_garden': { lvl: 0, name: 'بستان الأعشاب الطبية النادرة', bonus: 'Gold' }
                 }
             };
         }
     },
 
     leaveSect(state) {
-        if (!state.sect) return { success: false, message: "إنت مش منضم لأي صومعة أو طريقة حالياً!" };
+        if (!state.sect) return { success: false, message: "إنت مش منضم لأي رابطة أو ديوان فرسان حالياً!" };
         const oldSectName = state.sect.name;
         
         let message = `لقد خرجت رسمياً وتنحيت عن <b>${oldSectName}</b>.`;
         if (state.player.gold >= 1000) {
             state.player.gold -= 1000;
-            message += ` دفعت 1,000 دينار سحري عشان تحافظ على الفنون اللي اتعلمتها بدون مسح.`;
+            message += ` دفعت 1,000 دينار ذهبي عشان تحافظ على الفنون اللي اتعلمتها بدون مسح.`;
         } else {
             // Betrayal purges learned sect ultimates from skills array!
             state.player.skills = (state.player.skills || []).filter(s => !s.startsWith('sect_'));
-            message += ` <span style="color:var(--danger)">عقوبة لخروجك المفاجئ وغدرك بالعهد، قنواتك اتطهرت واتمسح منها كل أسرار الفنون الروحية الخاصة بالطائفة!</span>`;
+            message += ` <span style="color:var(--danger)">عقوبة لخروجك المفاجئ وغدرك بالعهد، اتمسح منك كل أسرار مهارات القتال الخاصة بالرابطة!</span>`;
         }
         state.sect = null;
         return { success: true, message };
@@ -87,21 +87,21 @@ window.SECTS = {
     joinSect(state, sectId) {
         if (state.sect) return { success: false, message: `إنت بالفعل عضو في ${state.sect.name}! لازم تسيبهم الأول.` };
         const s = this.sectsDb[sectId];
-        if (!s) return { success: false, message: "الطائفة دي مش موجودة في سجلات العوالم." };
+        if (!s) return { success: false, message: "الرابطة دي مش موجودة في سجلات العوالم." };
         
         // Check realm requirement
-        const currentRealm = state.player.cultivation?.stage || 'مقابلة السالك المبتدئ';
+        const currentRealm = state.player.cultivation?.stage || 'الجدع المبتدئ';
         if (s.tier > 1) {
-            const realms = ['مقابلة السالك المبتدئ', 'مقام التمكين والولاية', 'تجلي الجوهر والسر الصافي', 'مقام الروح النورانية اللطيفة'];
+            const realms = ['الجدع المبتدئ', 'الفتوة الجسور', 'البطل الشهم', 'كبير الجدعان والزعيم'];
             const playerRealmIdx = realms.indexOf(currentRealm);
             const reqRealmIdx = realms.indexOf(s.reqRealm);
             if (playerRealmIdx < reqRealmIdx) {
-                return { success: false, message: `مقامك الروحي لسة قليل جداً! محتاج مقام <b>${s.reqRealm}</b> على الأقل.` };
+                return { success: false, message: `رتبة فروسيتك وجدعنتك لسة قليلة جداً! محتاج رتبة <b>${s.reqRealm}</b> على الأقل.` };
             }
         }
 
         if (state.player.gold < s.cost) {
-            return { success: false, message: `معندكش دنانير روحيّة كفاية! محتاج ${s.cost} دينار روحي.` };
+            return { success: false, message: `معندكش دنانير ذهبية كفاية! محتاج ${s.cost} دينار ذهبي.` };
         }
         
         state.player.gold -= s.cost;
@@ -117,8 +117,8 @@ window.SECTS = {
             treasury: 0,
             specialization: null,
             buildings: {
-                'meditation_hall': { lvl: 1, name: 'خلوة الذكر والتأمل الروحي', bonus: 'XP' },
-                'spirit_garden': { lvl: 0, name: 'بستان الأعشاب والبركة', bonus: 'Gold' }
+                'meditation_hall': { lvl: 1, name: 'ديوان التدريب وشحذ الهمة', bonus: 'XP' },
+                'spirit_garden': { lvl: 0, name: 'بستان الأعشاب الطبية النادرة', bonus: 'Gold' }
             }
         };
 
@@ -126,22 +126,22 @@ window.SECTS = {
     },
 
     learnUltimate(state) {
-        if (!state.sect) return { success: false, message: "لازم تنضم لصومعة أو طائفة الأول!" };
+        if (!state.sect) return { success: false, message: "لازم تنضم لديوان أو رابطة الأول!" };
         const s = this.sectsDb[state.sect.id] || {
-            ultName: "طلسم الفراغ والبرزخ الأكبر",
+            ultName: "مهارة الإعصار الأكبر المدمر",
             ult: "grand_dao",
             tier: state.sect.tier || 1
         };
 
         const cost = s.tier * 500;
         if ((state.sect.contribution || 0) < cost) {
-            return { success: false, message: `معندكش نقاط مساهمة كافية في الصومعة! محتاج ${cost} نقطة.` };
+            return { success: false, message: `معندكش نقاط مساهمة كافية في الديوان! محتاج ${cost} نقطة.` };
         }
 
         state.sect.contribution -= cost;
         const ultSkillId = 'sect_' + s.ult;
         if ((state.player.skills || []).includes(ultSkillId)) {
-            return { success: false, message: "إنت بالفعل أتقنت الفن الروحي الأكبر ده!" };
+            return { success: false, message: "إنت بالفعل أتقنت مهارة القتال الكبرى دي!" };
         }
 
         if (!state.player.skills) state.player.skills = [];
@@ -152,13 +152,13 @@ window.SECTS = {
             window.SKILLS.techniques[ultSkillId] = {
                 id: ultSkillId,
                 name: s.ultName,
-                desc: `ورد الطائفة الأكبر والأعظم. بيسبب ضرر روحي جبار بيساوي ${s.tier * 2.5}x هجومك الجسدي الأساسي.`,
+                desc: `مهارة الرابطة الكبرى والأعظم. بتسبب ضرر هجومي جبار بيساوي ${s.tier * 2.5}x هجومك الجسدي الأساسي.`,
                 mpCost: s.tier * 15,
                 damageMult: s.tier * 2.5
             };
         }
 
-        return { success: true, message: `ألف مبروك! أتقنت وفتحت الفن الروحي الأسطوري للطائفة: <b>${s.ultName}</b>!` };
+        return { success: true, message: `ألف مبروك! أتقنت وفتحت مهارة القتال الأسطورية للرابطة: <b>${s.ultName}</b>!` };
     },
 
     setSpecialization(state, path) {
@@ -167,16 +167,16 @@ window.SECTS = {
         // Apply immediate bonuses
         if (path === 'طريق السيف الدمشقي') state.player.atk += 10;
         else if (path === 'طريق الكيمياء والطب') state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 20;
-        return { success: true, message: `طائفتك وصومعتك اختارت <b>${path}</b>!` };
+        return { success: true, message: `رابطتك وديوانك اختاروا <b>${path}</b>!` };
     },
 
     // Recruit a random disciple
     recruit(state) {
         this.init(state);
-        if (state.sect.disciples.length >= state.sect.maxDisciples) return { success: false, message: "الصومعة مليانة مريدين على الآخر!" };
+        if (state.sect.disciples.length >= state.sect.maxDisciples) return { success: false, message: "القلعة مليانة فرسان على الآخر!" };
         
         const cost = 1000 * state.sect.level;
-        if (state.player.gold < cost) return { success: false, message: "معندكش دنانير كفاية لتعيين ودعوة مريدين جدد!" };
+        if (state.player.gold < cost) return { success: false, message: "معندكش دنانير كفاية لتعيين ودعوة فرسان جدد!" };
         
         const names = ['سعد', 'سليم', 'كريم', 'فارس', 'نجم', 'بشير', 'أمين'];
         const d = {
@@ -191,13 +191,13 @@ window.SECTS = {
         state.sect.disciples.push(d);
         
         const qualMap = { 'Genius': 'عبقري اللب', 'Normal': 'عادي' };
-        return { success: true, message: `عينت المريد <b>${d.name}</b> (${qualMap[d.quality] || d.quality}) بنجاح!` };
+        return { success: true, message: `عينت الفارس <b>${d.name}</b> (${qualMap[d.quality] || d.quality}) بنجاح!` };
     },
 
     // Sect Diplomacy database
     rivalSects: [
         { id: 'demon_blade', name: 'طائفة السيف الأسود الغادرة', relation: 'Hostile', power: 500, territory: 'جبال الظلال الوعرة' },
-        { id: 'heavenly_lotus', name: 'صومعة الياقوت والصفاء', relation: 'Neutral', power: 300, territory: 'وادي الرمال الساحرة' },
+        { id: 'heavenly_lotus', name: 'قلعة الياقوت والصلابة البدنية', relation: 'Neutral', power: 300, territory: 'وادي الرمال الساحرة' },
         { id: 'righteous_sun', name: 'ديوان شمس المشرق العادلة', relation: 'Ally', power: 450, territory: 'هضبة الأنوار الشمسية' }
     ],
 
@@ -233,27 +233,27 @@ window.SECTS = {
                 this.territories[rival.territory].owner = 'Player';
                 return { victory: true, message: `تم سحق <b>${rival.name}</b> بالكامل! إنت دلوقتي بتحكم <b>${rival.territory}</b> بالكامل برفع سيفك.` };
             }
-            return { victory: true, message: `المريدين بتوعك انتصروا في معركة خاطفة ضد ${rival.name}! ونهبوا ${gain} دينار روحي.` };
+            return { victory: true, message: `الفرسان بتوعك انتصروا في معركة خاطفة ضد ${rival.name}! ونهبوا ${gain} دينار ذهبي.` };
         } else {
             const loss = Math.floor(state.sect.treasury * 0.1);
             state.sect.treasury -= loss;
             if (state.sect.disciples.length > 0) {
                 const fallen = state.sect.disciples.pop();
-                return { victory: false, message: `قواتك اتهزمت ورجعت متراجعة! المريد <b>${fallen.name}</b> استشهد في المعركة. وخسرت ${loss} دينار روحي.` };
+                return { victory: false, message: `قواتك اتهزمت ورجعت متراجعة! الفارس <b>${fallen.name}</b> سقط في المعركة. وخسرت ${loss} دينار ذهبي.` };
             }
-            return { victory: false, message: `صومعتك مكشوفة ومفيش دفاع! طائفة ${rival.name} نهبت ${loss} دينار روحي من الخزنة.` };
+            return { victory: false, message: `قلعتك مكشوفة ومفيش دفاع! طائفة ${rival.name} نهبت ${loss} دينار ذهبي من الخزنة.` };
         }
     },
 
     assignDisciple(state, index, task) {
         this.init(state);
         const d = state.sect.disciples[index];
-        if (!d) return { success: false, message: "المريد مش موجود." };
-        if (d.assignment === 'expedition') return { success: false, message: "المريد في قافلة استكشاف حالياً ومينفعش تغير مهمته!" };
+        if (!d) return { success: false, message: "الفارس مش موجود." };
+        if (d.assignment === 'expedition') return { success: false, message: "الفارس في قافلة استكشاف حالياً ومينفعش تغير مهمته!" };
         
         d.assignment = task; // 'array', 'harvest', 'patrol', or undefined (idle)
         
-        const taskMap = { 'array': 'تأمل دايرة الأنوار', 'harvest': 'جمع الأعشاب والخيرات', 'patrol': 'حراسة ودوريات الصومعة', 'expedition': 'قافلة واستكشاف الصحراء' };
+        const taskMap = { 'array': 'التدريب على مهارات القتال', 'harvest': 'جمع الأعشاب والخيرات', 'patrol': 'حراسة ودوريات القلعة', 'expedition': 'قافلة واستكشاف الصحراء' };
         const taskName = taskMap[task] || 'مستريح';
         return { success: true, message: `عينت <b>${d.name}</b> في مهام <b>${taskName}</b>.` };
     },
@@ -261,8 +261,8 @@ window.SECTS = {
     sendOnExpedition(state, index) {
         this.init(state);
         const d = state.sect.disciples[index];
-        if (!d) return { success: false, message: "المريد مش موجود." };
-        if (d.assignment === 'expedition') return { success: false, message: "المريد في قافلة استكشاف بالفعل!" };
+        if (!d) return { success: false, message: "الفارس مش موجود." };
+        if (d.assignment === 'expedition') return { success: false, message: "الفارس في قافلة استكشاف بالفعل!" };
         
         const dw = state.dwelling || { resources: { food: 0 } };
         if ((dw.resources.food || 0) < 500) {
@@ -272,7 +272,7 @@ window.SECTS = {
         dw.resources.food -= 500;
         d.assignment = 'expedition';
         d.expeditionTicks = 12; // 1 minute (12 ticks of 5s heartbeat)
-        return { success: true, message: `بعت المريد <b>${d.name}</b> في قافلة استكشاف مخاطرة للصحراء! وأمنته بـ 500 حزمة طعام.` };
+        return { success: true, message: `بعت الفارس <b>${d.name}</b> في قافلة استكشاف مخاطرة للصحراء! وأمنته بـ 500 حزمة طعام.` };
     },
 
     // Passive heartbeat (Passive income/fame + Taxation + Sect Contribution Gain)
@@ -305,10 +305,10 @@ window.SECTS = {
                         state.player.inventory.materials[rewardMat] = (state.player.inventory.materials[rewardMat] || 0) + qty;
                         
                         const matMap = {
-                            'spirit_herb': 'عشبة النور',
+                            'spirit_herb': 'العشبة الطبية الجبلية',
                             'iron_ore': 'خام الحديد الدمشقي',
-                            'monster_core': 'نواة الوحش السحرية',
-                            'dragon_vein_shard': 'شظية ينابيع النور الروحانية'
+                            'monster_core': 'نواة الوحش البري',
+                            'dragon_vein_shard': 'شظية الصخرة البلورية النادرة'
                         };
 
                         let pillMsg = "";
@@ -316,17 +316,17 @@ window.SECTS = {
                             if (!state.player.inventory.items) state.player.inventory.items = [];
                             state.player.inventory.items.push({
                                 id: 'qi_pill',
-                                name: 'حبة المانا الروحية',
+                                name: 'حبة الطاقة والهمة',
                                 slot: 'pill',
                                 quality: 'Rare',
-                                desc: 'تمنح 100 نقطة نور وتجلي روحي فوراً عند بلعها.'
+                                desc: 'تمنح 100 نقطة خبرة وتدريب بدني فوراً عند بلعها.'
                             });
-                            pillMsg = " وحبة واحدة من <b>إكسير المانا الروحية</b>";
+                            pillMsg = " وحبة واحدة من <b>إكسير الطاقة والهمة</b>";
                         }
                         
                         if (typeof narrate === 'function') {
                             const matDisplayName = matMap[rewardMat] || rewardMat.replace(/_/g, ' ').toUpperCase();
-                            narrate(`<b>عودة القافلة الاستكشافية</b>: المريد <b>${d.name}</b> رجع بالسلامة من الصحراء! وارتقى مستوى (مستوى ${d.lvl}) ولاقى <b>${qty}x ${matDisplayName}</b>${pillMsg}!`, "الصومعة");
+                            narrate(`<b>عودة القافلة الاستكشافية</b>: الفارس <b>${d.name}</b> رجع بالسلامة من الصحراء! وارتقى مستوى (مستوى ${d.lvl}) ولاقى <b>${qty}x ${matDisplayName}</b>${pillMsg}!`, "الديوان");
                         }
                     }
                 }
@@ -359,10 +359,10 @@ window.SECTS = {
 
         if (roll < 0.3) {
             const stones = Math.floor(Math.random() * 1000) + 200;
-            narrate(`<b>اكتشاف في الصومعة</b>: أحد المريدين لاقى منبع مانا مخفي في الجبل! وتم إضافة <b>+${stones} دينار روحي</b> للخزينة العائلية.`, "الصومعة");
+            narrate(`<b>اكتشاف في القلعة</b>: أحد الفرسان لاقى منبع مياه عذبة مخفي في الجبل! وتم إضافة <b>+${stones} دينار ذهبي</b> للخزينة العائلية.`, "القلعة");
             state.sect.treasury += stones;
         } else if (roll < 0.6) {
-            narrate(`<b>موهبة جديدة مباركة</b>: درويش عبقري جوال انبهر بهيبة صومعتك المدوية (${Math.floor(state.sect.fame)}) وعايز ينضم ليك!`, "الصومعة");
+            narrate(`<b>موهبة جديدة مباركة</b>: فارس عبقري جوال انبهر بهيبة قلعتك المدوية (${Math.floor(state.sect.fame)}) وعايز ينضم ليك!`, "القلعة");
             const d = { name: "العبقري سعد " + (state.sect.disciples.length + 1), lvl: 2, atk: 15, quality: 'Genius', alive: true };
             state.sect.disciples.push(d);
         } else if (roll < 0.9) {
@@ -374,7 +374,7 @@ window.SECTS = {
             } else {
                 const rival = this.rivalSects[Math.floor(Math.random() * this.rivalSects.length)];
                 if (rival.relation === 'Hostile' && Math.random() > 0.7) {
-                    narrate(`<b>معركة خاطفة!</b>: طائفة <b>${rival.name}</b> ضايقت قوافل التجارة بتاعتك في وضح النهار. الخزنة اتأثرت وخسرت 200 دينار.`, "الصومعة");
+                    narrate(`<b>معركة خاطفة!</b>: رابطة <b>${rival.name}</b> ضايقت قوافل التجارة بتاعتك في وضح النهار. الخزنة اتأثرت وخسرت 200 دينار.`, "القلعة");
                     state.sect.treasury -= 200;
                 }
             }

@@ -1,5 +1,5 @@
 // ============================================================
-// COMPANIONS.JS — نظام المودة والروابط الروحية والقصصية للرفاق
+// COMPANIONS.JS — نظام المودة والروابط والقصصية للرفاق
 // "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
@@ -62,7 +62,7 @@ window.COMPANIONS = {
     // Get affinity tier label
     getAffinityTier(affinity) {
         if (affinity >= 90) return { label: 'عهد الدم والوفاء الأبدي', color: 'var(--secondary)' };
-        if (affinity >= 70) return { label: 'ثقة روحية عميقة', color: '#9b59b6' };
+        if (affinity >= 70) return { label: 'ثقة وصداقة عميقة', color: '#9b59b6' };
         if (affinity >= 50) return { label: 'حليف مبجل ومحترم', color: 'var(--jade)' };
         if (affinity >= 30) return { label: 'شريك حذر ومترقب', color: 'var(--text-dim)' };
         return { label: 'علاقة متوترة وباردة', color: 'var(--danger)' };

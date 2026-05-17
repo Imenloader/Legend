@@ -1,6 +1,6 @@
 // ============================================================
-// ASCENSION.JS — بوابة الملكوت العالي والارتقاء للأعلى
-// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
+// ASCENSION.JS — بوابة ديوان الأبطال والارتقاء للمقام الأسطوري
+// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
 // ============================================================
 
 window.ASCENSION = {
@@ -8,20 +8,20 @@ window.ASCENSION = {
         if (!state.player.cultivation) return false;
         const stage = state.player.cultivation.stage;
         const stageLvl = state.player.cultivation.stageLevel;
-        // Peak of Nascent Soul is level 10 and breakthrough is ready!
-        return (stage === 'مقام الروح النورانية اللطيفة' && stageLvl >= 10 && state.player.cultivation.breakthroughReady);
+        // Peak of Great Boss (Stage 4) is level 10 and breakthrough is ready!
+        return (stage === 'كبير الجدعان والزعيم' && stageLvl >= 10 && state.player.cultivation.breakthroughReady);
     },
 
     attemptPhysical(state) {
         if (!this.checkEligible(state)) {
-            return { success: false, message: "روحك لسة متبلورتش لقمة مقام الروح النورانية اللطيفة." };
+            return { success: false, message: "جسدك وهمتك لسة موصلوش لقمة مقام كبير الجدعان والزعيم." };
         }
 
         // Physical Ascension requires raw physical toughness: Defense >= 100
         if ((state.player.def || 0) < 100) {
             return { 
                 success: false, 
-                message: `<span style="color:var(--danger)"><b>فشل ارتقاء الجسد!</b> هيكلك الجسدي اتمزق فوراً بفعل رياح الفراغ السحابية الرهيبة. محتاج على الأقل <b>100 دفاع</b> عشان تعبر. طور ينابيع المياه في صومعتك أو أتقن سر الجسد الصخري الصلب أولاً!</span>` 
+                message: `<span style="color:var(--danger)"><b>فشل ارتقاء الجسد!</b> هيكلك الجسدي اتمزق فوراً بفعل رياح الفراغ والرمال الوعرة الرهيبة. محتاج على الأقل <b>100 دفاع</b> عشان تعبر. طور ينابيع المياه في قلعتك أو أتقن سر الجسد الصخري الصلب أولاً!</span>` 
             };
         }
 
@@ -30,29 +30,29 @@ window.ASCENSION = {
 
     attemptCombat(state) {
         if (!this.checkEligible(state)) {
-            return { success: false, message: "روحك لسة متبلورتش لقمة مقام الروح النورانية اللطيفة." };
+            return { success: false, message: "جسدك وهمتك لسة موصلوش لقمة مقام كبير الجدعان والزعيم." };
         }
 
         // Spawns the legendary Gatekeeper Boss!
         const gatekeeper = {
-            name: 'حارس بوابة الملكوت شهاب',
+            name: 'حارس بوابة قلعة الأبطال شهاب',
             hp: 1500,
             maxHp: 1500,
             atk: 75,
             def: 40,
-            dialogue: 'فاني ضعيف عايز يتحدى قوانين الملكوت والعرش الأعلى؟ وريني نيتك وقوتك عشان تستحق تمشي في طريق الأنوار!',
+            dialogue: 'فارس طموح عايز يتحدى قوانين مسبك الأبطال والعرش الأعلى؟ وريني نيتك وقوتك وسيفك عشان تستحق تمشي في طريق الفرسان الكبار!',
             nextMove: null
         };
 
         state._pendingAscension = true;
         setTimeout(() => startCombat(gatekeeper), 1500);
 
-        return { success: true, method: 'combat', message: "السما بتتشق. حارس بوابة الملكوت شهاب بيهبط عليك في ومضة ضوء دهبي خاطف!" };
+        return { success: true, method: 'combat', message: "السما بتتشق. حارس بوابة قلعة الأبطال شهاب بيهبط عليك في ومضة ضوء دهبي خاطف!" };
     },
 
     complete(state) {
         state.player.ascended = true;
-        state.player.cultivation.stage = 'الفناء الباقي والارتقاء الأسمى';
+        state.player.cultivation.stage = 'البطل الأسطوري الأكبر الفاتح';
         state.player.cultivation.stageLevel = 1;
         state.player.cultivation.breakthroughReady = false;
 

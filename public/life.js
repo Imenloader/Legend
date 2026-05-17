@@ -1,20 +1,20 @@
 // ============================================================
 // LIFE.JS — محرك محاكاة الولادة والنشأة والعزوة الشرقية
-// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
+// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
 // ============================================================
 
 window.LIFE = {
     backgrounds: {
-        'beggar': { id: 'beggar', name: 'ابن الشوارع الفقير', gold: 0, trait: 'الروح الجعانة', desc: 'اتولدت في أزقة الحواري الضلمة. +20% زيادة في كسب الخبرة الروحية بس بتبدأ من الصفر تماماً.', xpMult: 1.2 },
+        'beggar': { id: 'beggar', name: 'ابن الشوارع الفقير', gold: 0, trait: 'الهمة العالية', desc: 'اتولدت في أزقة الحواري الضلمة. +20% زيادة في كسب الخبرة والجدعنة بس بتبدأ من الصفر تماماً.', xpMult: 1.2 },
         'merchant': { id: 'merchant', name: 'ابن التاجر الغني', gold: 5000, trait: 'اللسان الفصيح', desc: 'اتولدت في بيت غنى ومال. -20% أسعار في سوق القوافل والخصومات.', priceMult: 0.8 },
-        'royal': { id: 'royal', name: 'ابن الباشا والأمير', gold: 10000, trait: 'الهيبة السلطانية', desc: 'اتولدت في القصور الفخمة. +20% لكل الإحصائيات الأساسية بس بتبدأ بـ +50 ديون سيئات وكارما.', statMult: 1.2, karma: -50 },
+        'royal': { id: 'royal', name: 'ابن الباشا والأمير', gold: 10000, trait: 'الهيبة السلطانية', desc: 'اتولدت في القصور الفخمة. +20% لكل الإحصائيات الأساسية بس بتبدأ ببعض الخصومات وحظ عاثر في السوق.', statMult: 1.2, karma: -50 },
         'farmer': { id: 'farmer', name: 'ابن الفلاح الطيب', gold: 100, trait: 'طينة الأرض المباركة', desc: 'اتولدت في الغيطان وسط الخير. +20% للصحة والتحمل الأقصى.', hpMult: 1.2 }
     },
 
     systems: {
-        'many_children': { id: 'many_children', name: 'بركة العزوة والذرية', desc: 'بتاخد +2% لكل الإحصائيات مع كل طفل بيتولد في عيلتك وصومعتك.' },
+        'many_children': { id: 'many_children', name: 'بركة العزوة والذرية', desc: 'بتاخد +2% لكل الإحصائيات مع كل ولد أو بنت في عيلتك وديوانك.' },
         'killing': { id: 'killing', name: 'سر الفارس الجزار', desc: 'بتاخد +1 نقطة هجوم مع كل 10 أعداء بتهزمهم وتخلص الأرض من شرهم.' },
-        'sword_saint': { id: 'sword_saint', name: 'طلسم السيف الدمشقي الأسطوري', desc: '2x ضرر السيف وبتتعلم وتتقن الفنون الروحية القتالية في ثانية.' }
+        'sword_saint': { id: 'sword_saint', name: 'طلسم السيف الدمشقي الأسطوري', desc: '2x ضرر السيف وبتتعلم وتتقن الفنون والمهارات القتالية في ثانية.' }
     },
 
     // Roll a new life
@@ -83,25 +83,25 @@ window.LIFE = {
 
         if (roll < 0.4) {
             // Affinity Event
-            const gift = Math.random() > 0.5 ? 'عشبة النور' : 'كيس دنانير الروح';
-            narrate(`<b>زيارة عائلية</b>: ${member.relation} ${member.name} زارك في واحة القوافل. هما فخورين بيك وبطريقك الروحي وادولك <b>${gift}</b>.`, "العائلة");
+            const gift = Math.random() > 0.5 ? 'العشبة الطبية الجبلية' : 'كيس دنانير الذهب';
+            narrate(`<b>زيارة عائلية</b>: ${member.relation} ${member.name} زارك في واحة القوافل. هما فخورين بيك وبطريقك في الجدعنة والفتوة وادولك <b>${gift}</b>.`, "العائلة");
             member.affinity = Math.min(100, member.affinity + 5);
-            if (gift === 'عشبة النور') { state.player.xp += 100; narrate(`كسبت 100 نقطة نور!`, "النظام الروحي"); }
-            else { state.player.gold += 500; narrate(`كسبت 500 دينار روحي سحري!`, "النظام الروحي"); }
+            if (gift === 'العشبة الطبية الجبلية') { state.player.xp += 100; narrate(`كسبت 100 نقطة خبرة!`, "ديوان الفتوة"); }
+            else { state.player.gold += 500; narrate(`كسبت 500 دينار ذهبي!`, "ديوان الفتوة"); }
         } else if (roll < 0.7) {
             // Marriage / Sibling Event
-            narrate(`<b>أخبار العيلة المفرحة</b>: ${member.relation} ${member.name} وصل لدرجة ارتقاء روحي جديدة في خلوته وصومعته! مودة عيلتك زادت وإنت بتشاركه الفرحة.`, "العائلة");
+            narrate(`<b>أخبار العيلة المفرحة</b>: ${member.relation} ${member.name} وصل لمرتبة جدعنة جديدة في ديوانه وتدريبه البدني! مودة عيلتك زادت وإنت بتشاركه الفرحة.`, "العائلة");
             member.affinity = Math.min(100, member.affinity + 10);
             member.lvl++;
         } else if (roll < 0.85) {
             // Family Crisis
             const crisisType = Math.random() > 0.5 ? 'Kidnapped' : 'Sick';
-            narrate(`<b>كرب ومصيبة عائلية!</b>: ${member.relation} ${member.name} ${crisisType === 'Kidnapped' ? 'مخطوف ومحبوس عند طائفة السيف الأسود الشرير!' : 'بيعانى من تسمم روحي خطير في قنوات المانا ونور الروح!'}`, "العائلة");
-            narrate(`لازم تتحرك وتنقذهم بسرعة قبل ما يموتوا. (تقدر تحل الكرب ده من شاشة العائلة)`, "النظام الروحي");
+            narrate(`<b>كرب ومصيبة عائلية!</b>: ${member.relation} ${member.name} ${crisisType === 'Kidnapped' ? 'مخطوف ومحبوس عند طائفة السيف الأسود الشرير!' : 'بيعانى من حمى شديدة ومرض عضال يحتاج لعلاج وأعشاب طبية!'}`, "العائلة");
+            narrate(`لازم تتحرك وتنقذهم بسرعة قبل ما يموتوا. (تقدر تحل الكرب ده من شاشة العائلة)`, "ديوان الفتوة");
             member.crisis = crisisType;
         } else if (state.player.karma < -50 && roll < 0.95) {
             // Karma Tribulation
-            narrate(`<b>تحذير من الملكوت الأعلى</b>: السما غاضبة من ذنوبك وسرقاتك وغفلتك. صاعقة عقاب من الملكوت ضربت صومعة تأملك الروحي!`, "العدالة الروحية");
+            narrate(`<b>تحذير وعاصفة صحراوية</b>: ضربة برد وعاصفة ترابية شديدة دمرت مسبك القلعة ومخازنك!`, "العدالة والصمود");
             state.player.hp = Math.max(1, Math.floor(state.player.hp * 0.7));
             if (typeof triggerScreenShake === 'function') triggerScreenShake();
         }
@@ -109,7 +109,7 @@ window.LIFE = {
 
     // Marriage System
     seekMarriage(state, narrate) {
-        if (state.player.gold < 5000) return { success: false, message: "الجوازة والشبكة وكتب الكتاب محتاجة على الأقل 5000 دينار سحري!" };
+        if (state.player.gold < 5000) return { success: false, message: "الجوازة والشبكة وكتب الكتاب محتاجة على الأقل 5000 دينار ذهبي!" };
         
         const candidateNames = ['ليلى', 'ياسمين', 'فاطمة', 'عائشة', 'نور'];
         const name = candidateNames[Math.floor(Math.random() * candidateNames.length)];
@@ -124,20 +124,20 @@ window.LIFE = {
         if (!state.player.spouse) return;
         if (Math.random() < 0.1) { // 10% chance per heartbeat if married
             state.player.children = (state.player.children || 0) + 1;
-            narrate(`<b>زيادة في العزوة والولد!</b>: شريكة حياتك ${state.player.spouse.name} ولدت طفل سليم معافى. عزوتك ونسبك بقى أقوى وبصحتك زادت ببركة الله.`, "العائلة");
+            narrate(`<b>زيادة في العزوة والولد!</b>: شريكة حياتك ${state.player.spouse.name} ولدت طفل سليم معافى. عزوتك ونسبك بقى أقوى وبصحتك زادت بفضل الله.`, "العائلة");
             if (window.BALANCE) window.BALANCE.applyToState(state); // Re-calculate stat bonuses
         }
     },
 
     dualCultivate(state) {
         if (!state.player.spouse) {
-            return { success: false, message: "لازم تتجوز الأول عشان تعمل تأمل روحي مشترك مع شريكة حياتك!" };
+            return { success: false, message: "لازم تتجوز الأول عشان تعمل تدريب بدني مشترك مع شريكة حياتك!" };
         }
         
         const now = Date.now();
         if (state._lastDualCultivate && now - state._lastDualCultivate < 30000) { 
             const waitTime = Math.ceil((30000 - (now - state._lastDualCultivate)) / 1000);
-            return { success: false, message: `قنواتك الروحية لسة تعبانة وبتستريح. استنى كمان ${waitTime} ثانية.` };
+            return { success: false, message: `عضلاتك وجسدك لسة تعبانة وبتستريح. استنى كمان ${waitTime} ثانية.` };
         }
         
         state._lastDualCultivate = now;
@@ -159,15 +159,15 @@ window.LIFE = {
 
         state.player.spouse.affinity = Math.min(100, (state.player.spouse.affinity || 70) + 5);
 
-        let message = `إنت والست <b>${state.player.spouse.name}</b> قعدتوا قصاد بعض، ودمجتوا هالات الأنوار الروحانية في دايرة تأمل واحدة صافية. كسبت <span class="loot-epic">+${xpBonus} خبرة روحية</span>! محبتها ليك بقت <b>${state.player.spouse.affinity}%</b>.`;
+        let message = `إنت والست <b>${state.player.spouse.name}</b> قعدتوا قصاد بعض، وشحذتوا الهمة والتركيز مع بعض في جلسة تدريب صافية. كسبت <span class="loot-epic">+${xpBonus} خبرة بدنية</span>! محبتها ليك بقت <b>${state.player.spouse.affinity}%</b>.`;
         if (levelUp) {
-            message += `<br><br><span class="loot-epic">🌟 تجلي روحي وارتقاء! مستواك زاد درجة كاملة!</span>`;
+            message += `<br><br><span class="loot-epic">🌟 شحذ بدني كامل وتطور! مستواك زاد درجة كاملة!</span>`;
         }
 
         if (Math.random() < 0.3) {
             if (!state.player.inventory.materials) state.player.inventory.materials = {};
             state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 1;
-            message += `<br><small style="color:var(--secondary)">🎁 شريكة حياتك أهدتك <b>عشبة النور</b> من جنينة صومعتها الخاصة.</small>`;
+            message += `<br><small style="color:var(--secondary)">🎁 حديقة شريكة حياتك الخاصة أهدتك <b>العشبة الطبية الجبلية</b>.</small>`;
         }
 
         calculateTotalStats();
@@ -181,7 +181,7 @@ window.LIFE = {
     upgradeAncestralPagoda(state) {
         if (!state.player.familyPagodaLevel) state.player.familyPagodaLevel = 0;
         const currentLvl = state.player.familyPagodaLevel;
-        if (currentLvl >= 3) return { success: false, message: "صومعة الأجداد والمقبرة الملكية وصلت لأعلى درجة عز وجلال!" };
+        if (currentLvl >= 3) return { success: false, message: "ديوان الأجداد والمقبرة العائلية وصلت لأعلى درجة عز وجلال!" };
         
         const costs = [
             { wood: 500, iron: 200, stones: 1000 },
@@ -195,7 +195,7 @@ window.LIFE = {
         if ((dw.resources.wood || 0) < cost.wood || (dw.resources.iron || 0) < cost.iron || (state.player.gold || 0) < cost.stones) {
             return { 
                 success: false, 
-                message: `الموارد مش كفاية للتطوير!<br>محتاج: 🪵 ${cost.wood} خشب، 🪙 ${cost.iron} حديد، و 💎 ${cost.stones} دنانير سحرية.` 
+                message: `الموارد مش كفاية للتطوير!<br>محتاج: 🪵 ${cost.wood} خشب، 🪙 ${cost.iron} حديد، و 💎 ${cost.stones} دنانير ذهبية.` 
             };
         }
         
@@ -206,14 +206,14 @@ window.LIFE = {
         state.player.familyPagodaLevel++;
         
         const names = [
-            "مقام الذكرى والترحم والبركة (+10% مانا تأمل)",
+            "ديوان الذكرى والترحم والوفاء (+10% همة وتركيز)",
             "ديوان الفرسان الأبطال والعزوة (+15% سرعة مودة الرفاق)",
             "المقبرة السلطانية الملكية الكبرى (+15% ضرر الضربات القاضية)"
         ];
         
         return { 
             success: true, 
-            message: `<b>تم تطوير صومعة الأجداد بنجاح!</b><br>أنشأت <b>${names[currentLvl]}</b>!` 
+            message: `<b>تم تطوير ديوان الأجداد بنجاح!</b><br>أنشأت <b>${names[currentLvl]}</b>!` 
         };
     },
 
@@ -224,25 +224,25 @@ window.LIFE = {
         
         if (option === 'pay') {
             const cost = member.crisis === 'Kidnapped' ? 2000 : 1500;
-            if (state.player.gold < cost) return { success: false, message: `معندكش الـ ${cost} دينار سحري المطلوبة للحل الودي.` };
+            if (state.player.gold < cost) return { success: false, message: `معندكش الـ ${cost} دينار ذهبي المطلوبة للحل الودي.` };
             
             state.player.gold -= cost;
             member.crisis = null;
             member.affinity = Math.min(100, member.affinity + 20);
             return { 
                 success: true, 
-                message: `دفعت الفدية الودية. <b>${member.name}</b> رجع لبيته وصومعته بسلام وأمان! المودة بينكم بقت <b>${member.affinity}</b>.` 
+                message: `دفعت الفدية الودية. <b>${member.name}</b> رجع لبيته وديوانه بسلام وأمان! المودة بينكم بقت <b>${member.affinity}</b>.` 
             };
         }
         
         if (option === 'disciple') {
             if (!state.sect || !state.sect.disciples || state.sect.disciples.length === 0) {
-                return { success: false, message: "معندكش صومعة أو مريدين تبعتهم للمهمة الصعبة دي!" };
+                return { success: false, message: "معندكش قلعة أو فرسان تبعتهم للمهمة الصعبة دي!" };
             }
             
             // Find highest level available disciple not on expedition
             const disciple = state.sect.disciples.find(d => d.alive && d.assignment !== 'expedition');
-            if (!disciple) return { success: false, message: "كل المريدين بتوعك مشغولين في قوافل تانية أو مصابين!" };
+            if (!disciple) return { success: false, message: "كل الفرسان بتوعك مشغولين في قوافل تانية أو مصابين!" };
             
             const chance = disciple.lvl * 0.15;
             const roll = Math.random();
@@ -254,13 +254,13 @@ window.LIFE = {
                 disciple.atk += 3;
                 return {
                     success: true,
-                    message: `<b>نصر ونجاح!</b> المريد <b>${disciple.name}</b> هزم قطاع الطرق وحرر ${member.name}! المريد ارتقى لـ <b>مستوى ${disciple.lvl}</b>.`
+                    message: `<b>نصر ونجاح!</b> الفارس <b>${disciple.name}</b> هزم قطاع الطرق وحرر ${member.name}! الفارس ارتقى لـ <b>مستوى ${disciple.lvl}</b>.`
                 };
             } else {
                 disciple.lvl = Math.max(1, disciple.lvl - 1);
                 return {
                     success: false,
-                    message: `<b>فشل وخسارة!</b> المريد <b>${disciple.name}</b> اتهزم ورجع الصومعة متصاب بجروح شديدة. ${member.name} لسة في خطر!`
+                    message: `<b>فشل وخسارة!</b> الفارس <b>${disciple.name}</b> اتهزم ورجع القلعة متصاب بجروح شديدة. ${member.name} لسة في خطر!`
                 };
             }
         }
@@ -269,7 +269,7 @@ window.LIFE = {
             member._pendingRescue = true;
             const boss = {
                 id: 'rescue_boss',
-                name: member.crisis === 'Kidnapped' ? 'كبير قطاع الطرق الأثيم' : 'طيف السموم الغادر الرهيب',
+                name: member.crisis === 'Kidnapped' ? 'كبير قطاع الطرق الأثيم' : 'وحش الصحراء الغادر الرهيب',
                 baseHp: 180 + state.player.lvl * 20,
                 hp: 180 + state.player.lvl * 20,
                 maxHp: 180 + state.player.lvl * 20,

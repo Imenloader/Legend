@@ -1,32 +1,32 @@
 // ============================================================
-// CULTIVATION.JS — الأوراد والارتقاء الروحي وتطهير الهيكل الفاني
-// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
+// CULTIVATION.JS — خلوة التدريب وشحذ الهمة وتصلين الهيكل البدني
+// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
 // ============================================================
 
 window.CULTIVATION = {
     
     stages: [
-        { name: 'مقابلة السالك المبتدئ', requiredPill: null, tribulationId: null, bonus: { hp: 0, mp: 0, atk: 0 } },
-        { name: 'مقام التمكين والولاية', requiredPill: 'foundation_pill', tribulationId: 'trib_foundation', bonus: { hp: 50, mp: 20, atk: 10 } },
-        { name: 'تجلي الجوهر والسر الصافي', requiredPill: 'golden_core_pill', tribulationId: 'trib_core', bonus: { hp: 150, mp: 50, atk: 30 } },
-        { name: 'مقام الروح النورانية اللطيفة', requiredPill: 'nascent_pill', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
+        { name: 'الجدع المبتدئ', requiredPill: null, tribulationId: null, bonus: { hp: 0, mp: 0, atk: 0 } },
+        { name: 'الفتوة الجسور', requiredPill: 'foundation_pill', tribulationId: 'trib_foundation', bonus: { hp: 50, mp: 20, atk: 10 } },
+        { name: 'البطل الشهم', requiredPill: 'golden_core_pill', tribulationId: 'trib_core', bonus: { hp: 150, mp: 50, atk: 30 } },
+        { name: 'كبير الجدعان والزعيم', requiredPill: 'nascent_pill', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
     ],
 
     bodyRealms: [
-        { name: 'الجسد الطيني الفاني', bonus: { hp: 0, def: 0 } },
-        { name: 'العظام السبجية الصلبة', bonus: { hp: 80, def: 4 } },
-        { name: 'الجلد النحاسي الحصين', bonus: { hp: 200, def: 10 } },
-        { name: 'عظام المرجان والبركة', bonus: { hp: 500, def: 25 } },
-        { name: 'الجسد الياقوتي المتين', bonus: { hp: 1200, def: 60 } },
-        { name: 'جوهر البلور السحري', bonus: { hp: 2500, def: 130 } },
-        { name: 'الهيكل الصلب الكامل', bonus: { hp: 6000, def: 300 } }
+        { name: 'الجسد العادي', bonus: { hp: 0, def: 0 } },
+        { name: 'الهيكل الفولاذي الصلب', bonus: { hp: 80, def: 4 } },
+        { name: 'الجلد النحاسي المنيع', bonus: { hp: 200, def: 10 } },
+        { name: 'العظام الحديدية المتينة', bonus: { hp: 500, def: 25 } },
+        { name: 'الدرع الفولاذي الكامل', bonus: { hp: 1200, def: 60 } },
+        { name: 'الهيكل الفضي الصامد', bonus: { hp: 2500, def: 130 } },
+        { name: 'الهيكل الذهبي الخارق', bonus: { hp: 6000, def: 300 } }
     ],
 
-    // --- طرائق الأذكار والفنون الروحية (Cultivation Methods) ---
+    // --- طرائق التدريب البدني وفنون المبارزة ---
     methods: {
         'jade_body': { 
             id: 'jade_body', 
-            name: 'سر الجسد الصخري الصلب', 
+            name: 'مخطوطة التصلب والجسد الصخري', 
             desc: 'بيركز على زيادة متانة الهيكل وقوة تحمله الجسدية. +25% صحة قصوى، +10% دفاع.',
             bonus: { maxHp: 0.25, def: 0.1, atk: -0.05 },
             unlocked: true 
@@ -40,8 +40,8 @@ window.CULTIVATION = {
         },
         'desert_wind': { 
             id: 'desert_wind', 
-            name: 'أنفاس رياح الصحراء السحرية', 
-            desc: 'بتسرع كسب البركة الروحية والمانا وتنشيط قنوات النور. +15% خبرة روحية، +20% مانا تأمل.',
+            name: 'أنفاس عاصفة الصحراء الشديدة', 
+            desc: 'بتسرع نقاط الخبرة والتدريب البدني. +15% خبرة قتالية، +20% نقاط مانا وتدريب بدني.',
             bonus: { xpGain: 0.15, mpRegen: 0.2, atk: -0.1 },
             unlocked: false 
         }
@@ -49,7 +49,7 @@ window.CULTIVATION = {
 
     meditate(state) {
         if (!state.player.cultivation) {
-            state.player.cultivation = { stage: 'مقابلة السالك المبتدئ', stageLevel: 1, breakthroughReady: false };
+            state.player.cultivation = { stage: 'الجدع المبتدئ', stageLevel: 1, breakthroughReady: false };
         }
         const cult = state.player.cultivation;
 
@@ -78,16 +78,16 @@ window.CULTIVATION = {
                 
                 m.mastery += masteryGain;
                 const reqMastery = Math.floor(100 * Math.pow(1.6, m.level));
-                practiceMsg = `<br>📖 اتعلمت وتأملت في <b>${this.methods[active].name}</b>: كسبت <b style="color:var(--secondary);">${masteryGain} بصيرة روحية</b> (${m.mastery}/${reqMastery})`;
+                practiceMsg = `<br>📖 اتعلمت واتدربت في <b>${this.methods[active].name}</b>: كسبت <b style="color:var(--secondary);">${masteryGain} نقاط بصيرة وتدريب</b> (${m.mastery}/${reqMastery})`;
                 
                 if (m.mastery >= reqMastery) {
                     m.mastery = 0;
                     m.level++;
-                    practiceMsg += `<br><span class="loot-epic" style="text-shadow:0 0 8px var(--jade);">⭐ ارتقى الفن الروحي! <b>${this.methods[active].name}</b> وصل للدرجة ${m.level}!</span>`;
+                    practiceMsg += `<br><span class="loot-epic" style="text-shadow:0 0 8px var(--jade);">⭐ ارتقى فن قتالك! <b>${this.methods[active].name}</b> وصل للدرجة ${m.level}!</span>`;
                     calculateTotalStats();
                 }
             } else {
-                practiceMsg = `<br>📖 <b>${this.methods[active].name}</b> وصل لأعلى تجلي وقمة الإتقان (الدرجة 10).`;
+                practiceMsg = `<br>📖 <b>${this.methods[active].name}</b> وصل لأعلى إتقان لمهارات الفتوة (الدرجة 10).`;
             }
         }
 
@@ -121,7 +121,7 @@ window.CULTIVATION = {
         
         state.player.xp += qiGained;
         let levelsGained = 0;
-        let message = `قعدت في خلوة وصومعة، وممرت المانا والأنوار الروحانية في قنواتك. جمعت <b style="color:var(--secondary)">${qiGained} نور روحي</b>.${practiceMsg}`;
+        let message = `قعدت في خلوة تدريب وشحذ همة، وركزت مجهودك البدني بالكامل. جمعت <b style="color:var(--secondary)">${qiGained} نقاط خبرة وتدريب</b>.${practiceMsg}`;
 
         // Handle level breakthroughs using dynamic curves
         while (state.player.xp >= state.player.maxXp && cult.stageLevel < 10) {
@@ -142,12 +142,12 @@ window.CULTIVATION = {
         }
 
         if (levelsGained > 0) {
-            message += `<br><br><span class="loot-epic">🌟 ارتقاء وتجلي النواة الروحية! مستواك زاد ${levelsGained} درجات. مستواك الروحي الحالي هو <b>الدرجة ${cult.stageLevel}</b>.</span>`;
+            message += `<br><br><span class="loot-epic">🌟 ارتقاء شأنك وجدعنتك! مستواك زاد ${levelsGained} درجات. مستواك القتالي الحالي هو <b>الرتبة ${cult.stageLevel}</b>.</span>`;
         }
 
         if (cult.stageLevel >= 10 && !cult.breakthroughReady) {
             cult.breakthroughReady = true;
-            message += `<br><br><span class="loot-mythic" style="text-shadow: 0 0 10px var(--secondary);">⚡ وصلت لعنق زجاجة وعقبة روحية! قدامك عقبة مقام <b>${cult.stage}</b>. لازم تعمل طقس ارتقاء مباغت وتخوض التجربة.</span>`;
+            message += `<br><br><span class="loot-mythic" style="text-shadow: 0 0 10px var(--secondary);">⚡ وصلت لعقبة ومحك حقيقي! قدامك عقبة اختبار رتبة <b>${cult.stage}</b>. لازم تعمل اختبار شجاعة مباغت وتخوض التحدي الأكبر.</span>`;
         }
 
         return { success: true, message };
@@ -155,13 +155,13 @@ window.CULTIVATION = {
 
     attemptBreakthrough(state) {
         if (!state.player.cultivation.breakthroughReady) {
-            return { success: false, message: "قنواتك الروحية لسة ضيقة أوي. محتاج تعمل خلوة وتأمل أكتر!" };
+            return { success: false, message: "عضلاتك وجدعنتك لسة محتاجين شغل أوي. محتاج تعمل تدريب وشحذ همة أكتر!" };
         }
 
         const currentStageIdx = this.stages.findIndex(s => s.name === state.player.cultivation.stage);
         const nextStage = this.stages[currentStageIdx + 1];
 
-        if (!nextStage) return { success: false, message: "ألف مبروك! وصلت لأعلى مراتب الروحانية والولاية العظمى للفانيين." };
+        if (!nextStage) return { success: false, message: "ألف مبروك! وصلت لأعلى مراتب البطولة والفتونة الأسطورية." };
 
         // Enforce Required Pill
         if (nextStage.requiredPill) {
@@ -171,7 +171,7 @@ window.CULTIVATION = {
                 const pillName = pillRecipe ? pillRecipe.name : nextStage.requiredPill.replace(/_/g, ' ');
                 return { 
                     success: false, 
-                    message: `<span style="color:var(--danger)"><b>الارتقاء اتمنع!</b> محتاج <b>${pillName}</b> لحماية روحك وجسدك من الفرقعة وتخطي عقبة المقام. اطبخ حبة أولاً في موقد الكيمياء.</span>` 
+                    message: `<span style="color:var(--danger)"><b>اختبار الشجاعة اتمنع!</b> محتاج <b>${pillName}</b> لتهدئة عضلاتك وحماية هيكلك الجسدي من سحق المجهود الزايد وتخطي عقبة الرتبة الجديدة. اطبخ شراباً أولاً في موقد الكيمياء.</span>` 
                 };
             }
             // Consume the pill!
@@ -179,16 +179,15 @@ window.CULTIVATION = {
         }
 
         // SUCCESS CHANCE: Harder for higher realms
-        // Foundation: 80%, Core: 50%, Nascent: 20%
         let baseChance = 0.8 - (currentStageIdx * 0.3);
         if (state.player.system?.id === 'jinn_luck') baseChance += 0.1;
         
         const roll = Math.random();
         if (roll > baseChance) {
-            // FAILURE: Qi Deviation
-            state.player.hp = Math.floor(state.player.maxHp * 0.1); // Dropped to 10%
-            state.player.xp = Math.floor(state.player.xp * 0.5); // Lose half current XP
-            return { success: false, message: `<span style="color:var(--danger)"><b>تشتت وهلاك روحي!</b> قنواتك مقدرتش تتحمل الضغط الرهيب. هالتك اتصابت وخسرت نص خبرتك ونورك الحالي.</span>` };
+            // FAILURE: Over-exhaustion
+            state.player.hp = Math.floor(state.player.maxHp * 0.1); 
+            state.player.xp = Math.floor(state.player.xp * 0.5); 
+            return { success: false, message: `<span style="color:var(--danger)"><b>إرهاق وسحق بدني كامل!</b> عضلاتك مقدرتش تتحمل الضغط الرهيب للتمرين. هيبتك اتأثرت وخسرت نص خبرتك وتدريبك الحالي.</span>` };
         }
 
         return { success: true, tribulationId: nextStage.tribulationId, nextStage: nextStage };
@@ -211,15 +210,15 @@ window.CULTIVATION = {
         cb.mp += nextStage.bonus.mp || 0;
         cb.atk += nextStage.bonus.atk || 0;
 
-        return `السما بتنور والرعد بيلعلع وروحك بتتجلى كليا كأولياء الله الصالحين. ارتقيت لمقام <b>${nextStage.name}</b> بسلام وبركة!`;
+        return `الميدان بيلعلع والجدعان بتهتف باسمك لهيبتك وشجاعتك العظيمة. نجحت في الاختبار وارتقيت لرتبة <b>${nextStage.name}</b> بسلام وجدارة فرسان!`;
     },
 
     temperBody(state) {
         if (!state.player.cultivation) {
-            state.player.cultivation = { stage: 'مقابلة السالك المبتدئ', stageLevel: 1, breakthroughReady: false };
+            state.player.cultivation = { stage: 'الجدع المبتدئ', stageLevel: 1, breakthroughReady: false };
         }
         const cult = state.player.cultivation;
-        if (!cult.bodyRealm) cult.bodyRealm = 'الجسد الطيني الفاني';
+        if (!cult.bodyRealm) cult.bodyRealm = 'الجسد العادي';
         if (!cult.bodyLevel) cult.bodyLevel = 1;
         if (!cult.bodyXp) cult.bodyXp = 0;
 
@@ -229,13 +228,13 @@ window.CULTIVATION = {
         // Cost in Qi/XP:
         const qiCost = Math.floor(reqXp * 0.7);
         if ((state.player.xp || 0) < qiCost) {
-            return { success: false, message: `معندكش نور روحي كفاية. محتاج <b>${qiCost} نور</b> لتطهير وتصلين هيكلك الجسدي الطيني.` };
+            return { success: false, message: `معندكش نقاط خبرة وتدريب كافية. محتاج <b>${qiCost} نقاط تدريب</b> لتصلين وتقوية هيكلك الجسدي العادي.` };
         }
 
         state.player.xp -= qiCost;
         cult.bodyXp += qiCost;
 
-        let msg = `وجهت الأنوار الروحية لعضامك وعضلاتك مباشرة لتطهير جسدك الفاني من الطين والوهن. صرفت <b>${qiCost} نور</b>.`;
+        let msg = `وجهت تركيزك ومجهودك التدريبي لعضلاتك وعضمك مباشرة لتقوية وتصلين جسدك من الوهن والكسل. صرفت <b>${qiCost} نقاط تدريب</b>.`;
         
         if (cult.bodyXp >= reqXp) {
             cult.bodyXp = 0;
@@ -245,13 +244,13 @@ window.CULTIVATION = {
                 if (this.bodyRealms[nextIdx]) {
                     cult.bodyRealm = this.bodyRealms[nextIdx].name;
                     cult.bodyLevel = 1;
-                    msg += `<br><span class="loot-epic" style="text-shadow:0 0 8px var(--secondary);">💪 ارتقاء صلابة الجسد! هيكلك الجسدي اترقى لدرجة <b>${cult.bodyRealm}</b>!</span>`;
+                    msg += `<br><span class="loot-epic" style="text-shadow:0 0 8px var(--secondary);">💪 ارتقاء صلابة جسدك! هيكلك الجسدي اترقى لرتبة <b>${cult.bodyRealm}</b>!</span>`;
                 } else {
                     cult.bodyLevel = 10;
-                    msg += `<br>💪 وصلت لأقصى درجات صلابة الهيكل الفاني الممكنة!`;
+                    msg += `<br>💪 وصلت لأقصى درجات صلابة الهيكل البدني الممكنة!`;
                 }
             } else {
-                msg += `<br>💪 طهرت جزء من جسدك! مستوى الصلابة الحالي اترقى لـ <b>${cult.bodyLevel}/10</b>.`;
+                msg += `<br>💪 قويت وعززت جزء من عضلاتك! مستوى الصلابة الحالي اترقى لـ <b>${cult.bodyLevel}/10</b>.`;
             }
             calculateTotalStats();
         }

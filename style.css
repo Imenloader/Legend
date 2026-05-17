@@ -1,17 +1,17 @@
 :root {
-    --primary: #8a1c1c; /* Deep Crimson */
-    --primary-glow: rgba(138, 28, 28, 0.6);
-    --secondary: #d4af37; /* Metallic Gold */
-    --secondary-glow: rgba(212, 175, 55, 0.5);
-    --jade: #00a86b;
-    --sapphire: #0f52ba;
-    --bg-dark: #0B0E14; /* Deep Obsidian */
-    --glass: rgba(11, 14, 20, 0.85);
-    --glass-border: rgba(212, 175, 55, 0.2);
-    --text: #e6e1d8;
-    --text-dim: #a39c8e;
-    --danger: #ff4d4d;
-    --success: #00ff88;
+    --primary: #0D2137; /* Royal Egyptian Lapis Blue */
+    --primary-glow: rgba(13, 33, 55, 0.6);
+    --secondary: #FFD700; /* Sun Gold */
+    --secondary-glow: rgba(255, 215, 0, 0.5);
+    --jade: #03C03C; /* Emerald Scarab Green */
+    --sapphire: #00CED1; /* Sacred Magic Turquoise/Teal */
+    --bg-dark: #05080C; /* Royal Egyptian Obsidian Black */
+    --glass: rgba(5, 8, 12, 0.88);
+    --glass-border: rgba(255, 215, 0, 0.2);
+    --text: #F4EAD4; /* Pale Ivory Gold */
+    --text-dim: #C0B7A6; /* Ancient Parchment */
+    --danger: #FF4D4D;
+    --success: #00FFCC; /* Glowing Turquoise Success */
 }
 
 * {
@@ -88,6 +88,31 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
     box-shadow: 0 0 50px rgba(0,0,0,0.9);
     position: relative;
     z-index: 10;
+}
+
+.screen::before, .screen::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--secondary);
+    pointer-events: none;
+    z-index: 12;
+    transition: all 0.3s ease;
+}
+
+.screen::before {
+    top: 15px;
+    left: 15px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.screen::after {
+    bottom: 15px;
+    right: 15px;
+    border-left: none;
+    border-top: none;
 }
 
 .screen.active {
@@ -204,7 +229,7 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
 .btn {
     width: 100%;
     padding: 12px 20px;
-    background: linear-gradient(135deg, var(--primary), #5e1313);
+    background: linear-gradient(135deg, var(--primary), #1C3D5A);
     border: 1px solid var(--secondary-glow);
     border-radius: 4px;
     color: var(--text);
@@ -218,16 +243,32 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     margin: 5px 0;
     touch-action: manipulation;
+    position: relative;
+    overflow: hidden;
 }
 
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.25), transparent);
+    transition: all 0.6s ease;
+}
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px var(--primary-glow), 0 0 10px var(--secondary-glow);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 25px var(--primary-glow), 0 0 15px var(--secondary-glow);
     border-color: var(--secondary);
 }
 
-.btn:active { transform: translateY(0); }
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:active { transform: translateY(0) scale(1); }
 
 .ui-locked {
     pointer-events: none;

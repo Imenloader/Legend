@@ -146,7 +146,7 @@ let state = {
     playerId: localStorage.getItem('rpg_player_id') || `guest_${Math.random().toString(36).substr(2, 9)}`,
     settings: { perspective: 'second' },
     player: {
-        name: 'البطل المريد',
+        name: 'البطل الفارس',
         class: 'Sword Immortal',
         lvl: 1,
         xp: 0,
@@ -326,6 +326,15 @@ function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
         }
     }
 
+    // Prevent typewriter from corrupting complex HTML structures (e.g. nested layout cards)
+    if (textHtml.includes('<div') || textHtml.includes('<table') || textHtml.includes('<section')) {
+        containerElement.innerHTML = textHtml;
+        if (callback) {
+            callback();
+        }
+        return;
+    }
+
     // Store target text and callback on the element
     containerElement._targetTextHtml = textHtml;
     containerElement._typewriteCallback = callback;
@@ -474,7 +483,7 @@ function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, is
         block.scrollIntoView({ behavior: 'smooth', block: 'end' });
     } catch (err) {
         console.error("Narrative Error:", err);
-        showToast("طريق اليقين والقدر غائم حالياً... (خطأ في العرض)");
+        showToast("طريق التركيز والقدر غائم حالياً... (خطأ في العرض)");
     }
 }
 
@@ -609,7 +618,7 @@ function setChoices(choicesArray) {
                 if (choice.callback) choice.callback();
             } catch (err) {
                 console.error("Choice Callback Error:", err);
-                showToast("طريق اليقين يتأرجح... (خطأ تفاعلي)");
+                showToast("طريق التركيز يتأرجح... (خطأ تفاعلي)");
                 setTimeout(() => { 
                     state._uiLock = false; 
                     targetContainer.classList.remove('ui-locked');
@@ -684,7 +693,7 @@ function initGame() {
         if (diffHours >= 1) {
             const idleQi = Math.floor(diffHours * 10 * (state.player.lvl || 1));
             state.player.xp += idleQi;
-            narrate(`أثناء غيابك عن الخلوة، جمعت ${idleQi} من يقين المانا من خلال التأمل السلبي الطاهر.`, "النظام");
+            narrate(`أثناء غيابك عن الخلوة، جمعت ${idleQi} من طاقة التركيز والهمة من خلال التدريب والتركيز السلبي الطاهر.`, "النظام");
         }
     }
     state.lastLogin = now;
@@ -703,9 +712,9 @@ function initGame() {
                     if (state.player.gold >= a.currentBid) {
                         state.player.gold -= a.currentBid;
                         state.player.inventory.items.push({...a.item});
-                        narrate(`تم البيع! لقد فزت بـ ${a.item.name} مقابل ${a.currentBid} حجر روحي!`, "المزاد");
+                        narrate(`تم البيع! لقد فزت بـ ${a.item.name} مقابل ${a.currentBid} دينار ذهبي!`, "المزاد");
                     } else {
-                        narrate(`حالة حرجة: فزت بالمزاد ولكن لا تملك ما يكفي من الأحجار الروحية! تم مصادرة الـ ${a.item.name}.`, "المزاد");
+                        narrate(`حالة حرجة: فزت بالمزاد ولكن لا تملك ما يكفي من الأحجار البدنية! تم مصادرة الـ ${a.item.name}.`, "المزاد");
                     }
                 } else {
                     narrate(`تم البيع! فاز ${a.highestBidder} بـ ${a.item.name}.`, "المزاد");
@@ -771,7 +780,7 @@ function hubLoop() {
         if (flags['act3_started'] && !flags['act3_transition_shown']) {
             flags['act3_transition_shown'] = true;
             saveGame();
-            triggerActTransition("الفصل الثالث: مرآة الذاكرة الغابرة", "اكشف الستار عن المسار القديم للمريد الهابط وأصولك الحقيقية التي طواها الزمن.", () => hubLoop());
+            triggerActTransition("الفصل الثالث: مرآة الذاكرة الغابرة", "اكشف الستار عن المسار القديم للفارس الهابط وأصولك الحقيقية التي طواها الزمن.", () => hubLoop());
             return;
         }
         if (flags['act2_started'] && !flags['act2_transition_shown']) {
@@ -789,7 +798,7 @@ function hubLoop() {
                     const enemy = window.LORE ? window.LORE.getAllEnemies()[state.pendingCombatEnemy] : null;
                     state.pendingCombatEnemy = null;
                     if (enemy) startCombat({ ...enemy, hp: enemy.baseHp, maxHp: enemy.baseHp, atk: enemy.baseAtk });
-                    else { narrate("خطأ: بيانات العدو مفقودة في المخطوطة الروحية. العودة للواحة.", "النظام"); hubLoop(); }
+                    else { narrate("خطأ: بيانات العدو مفقودة في المخطوطة البدنية. العودة للواحة.", "النظام"); hubLoop(); }
                 } else { 
                     if (window.QUESTS) window.QUESTS.updateQuests(state);
                     if (window.SKILLS) window.SKILLS.checkUnlocks(state);
@@ -826,7 +835,7 @@ function hubLoop() {
         if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ دار مزادات الطائفة العظمى", callback: showAuctionHouse });
         if (typeof showManagementScreen === 'function') choices.push({ text: "👨‍👩‍👧‍👦 إدارة العائلة والطائفة", callback: showManagementScreen });
     } else if (regionId === 'jade_peak') {
-        choices.push({ text: "🏯 معبد قمة اليشم والرهبان", callback: () => narrate("شيوخ ورهبان الطائفة في حالة تجلي وتأمل روحي عميق في قنوات المانا.", "النظام") });
+        choices.push({ text: "🏯 معبد قمة اليشم والرهبان", callback: () => narrate("شيوخ ورهبان الطائفة في حالة تجلي وتدريب بدني عميق في قنوات المانا.", "النظام") });
         choices.push({ text: "🗡️ منحدر بصير السيف الناري", callback: () => narrate("تشعر بهالة سيف حادة تقطع النسمات وتحفر الصخر في الهواء.", "النظام") });
     }
     
@@ -840,7 +849,7 @@ function hubLoop() {
         }});
     }
     
-    if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 تأمل واجمع المانا واليقين", callback: showCultivationScreen });
+    if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 راحة واجمع طاقة التركيز والهمة", callback: showCultivationScreen });
     if (typeof showAlchemyScreen === 'function') choices.push({ text: "⚗️ فرن الخيمياء وتقطير الإكسير", callback: showAlchemyScreen });
     if (typeof showForgeScreen === 'function') choices.push({ text: "🔨 ورشة سحر الحديد والأسلحة", callback: showForgeScreen });
     
@@ -848,7 +857,7 @@ function hubLoop() {
     choices.push({ text: "🎒 الحقيبة وجوهر الكارما", callback: showInventory });
     choices.push({ text: "🧘 خلوة وتأمل (استشفاء كامل)", callback: () => {
         state.player.hp = state.player.maxHp; state.player.mp = state.player.maxMp;
-        narrate("استعدت كامل جوهر الجسد وطاقة اليقين في المانا.", "النظام", null, false, true);
+        narrate("استعدت كامل جوهر الجسد وطاقة التركيز والهمة الكامنة.", "النظام", null, false, true);
         if (window.QUESTS) window.QUESTS.updateQuests(state);
         updateTopBar(); saveGame(); setTimeout(hubLoop, 1500);
     }});
@@ -897,10 +906,10 @@ function showCompanionScreen() {
     
     if (comp) {
         choices.push({
-            text: "💬 استشارة استراتيجية (تستعيد 30% صحة ومانا؛ تكلف 50 حجر روحي)",
+            text: "💬 استشارة استراتيجية (تستعيد 30% صحة ومانا؛ تكلف 50 دينار ذهبي)",
             callback: () => {
                 if (state.player.gold < 50) {
-                    narrate("معندكش أحجار روحية كفاية في صرتك لتكلفة الاستشارة.", "النظام");
+                    narrate("معندكش دنانير ذهبية كفاية في صرتك لتكلفة الاستشارة.", "النظام");
                     setTimeout(showCompanionScreen, 1500);
                     return;
                 }
@@ -909,7 +918,7 @@ function showCompanionScreen() {
                 state.player.mp = Math.min(state.player.maxMp, state.player.mp + Math.floor(state.player.maxMp * 0.3));
                 
                 const counsel = window.COMPANIONS.getDialogue(state, state.companion, 'greet') || "تقدم للأمام بثقة يا سالك، فالقدر يكتبه الشجعان وسيوفهم.";
-                narrate(`<b>${comp.name}</b> يوجهك بكلماته: "${counsel}"<br><br><span class="loot-refined">تم استعادة 30% من صحتك وطاقة يقينك!</span>`, "النظام");
+                narrate(`<b>${comp.name}</b> يوجهك بكلماته: "${counsel}"<br><br><span class="loot-refined">تم استعادة 30% من صحتك وطاقة تركيزك!</span>`, "النظام");
                 updateTopBar();
                 saveGame();
                 setTimeout(showCompanionScreen, 3000);
@@ -920,7 +929,7 @@ function showCompanionScreen() {
             text: "⚔️ جلسة تدريب وقتال ودي (تحدي الرفيق، تكلف 15 مانا)",
             callback: () => {
                 if (state.player.mp < 15) {
-                    narrate("معندكش يقين روحي كافي في خلاياك لبدء المبارزة والتدريب الودي.", "النظام");
+                    narrate("معندكش تركيز بدني كافي في خلاياك لبدء المبارزة والتدريب الودي.", "النظام");
                     setTimeout(showCompanionScreen, 1500);
                     return;
                 }
@@ -933,10 +942,10 @@ function showCompanionScreen() {
                 const statChoice = Math.random() < 0.5 ? 'atk' : 'def';
                 if (statChoice === 'atk') {
                     state.player.atk = (state.player.atk || 10) + 1;
-                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت بصيرتك القتالية بشكل دائم (<b>+1 هجوم</b>)!`, "النظام");
+                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت فرسانك وقافلتك القتالية بشكل دائم (<b>+1 هجوم</b>)!`, "النظام");
                 } else {
                     state.player.def = (state.player.def || 5) + 1;
-                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت بصيرتك القتالية بشكل دائم (<b>+1 دفاع</b>)!`, "النظام");
+                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت فرسانك وقافلتك القتالية بشكل دائم (<b>+1 دفاع</b>)!`, "النظام");
                 }
                 
                 calculateTotalStats();
@@ -947,10 +956,10 @@ function showCompanionScreen() {
         });
         
         choices.push({
-            text: "🎁 تقديم هدية فاخرة (100 حجر روحي)",
+            text: "🎁 تقديم هدية فاخرة (100 دينار ذهبي)",
             callback: () => {
                 if (state.player.gold < 100) {
-                    narrate("معندكش أحجار روحية كفاية لشراء هدية تليق بقدسية الدرب.", "النظام");
+                    narrate("معندكش دنانير ذهبية كفاية لشراء هدية تليق بقدسية الدرب.", "النظام");
                     setTimeout(showCompanionScreen, 1500);
                     return;
                 }
@@ -958,7 +967,7 @@ function showCompanionScreen() {
                 const mult = state.player.familyPagodaLevel === 2 ? 1.15 : 1.0;
                 const gain = Math.floor(10 * mult);
                 window.COMPANIONS.adjustAffinity(state, state.companion, gain, "تقديم قلادة يشم الصحراء المذهبة.");
-                narrate(`قدمت قلادة اليشم الروحي الفاخرة كهدية عظيمة لـ <b>${comp.name}</b>. زادت الألفة بنسبة <b>+${gain}%</b>!`, "النظام");
+                narrate(`قدمت قلادة اليشم البدني الفاخرة كهدية عظيمة لـ <b>${comp.name}</b>. زادت الألفة بنسبة <b>+${gain}%</b>!`, "النظام");
                 updateTopBar();
                 saveGame();
                 setTimeout(showCompanionScreen, 2200);
@@ -1087,7 +1096,7 @@ function combatLoop() {
             return {
                 text: m.name + (actualCost > 0 ? ` (${actualCost} مانا)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} دم)` : ''),
                 callback: () => {
-                    if (actualCost > (state.player.mp || 0)) { narrate("معندكش طاقة يقين (مانا) كافية لتفعيل الفن!", "النظام"); combatLoop(); return; }
+                    if (actualCost > (state.player.mp || 0)) { narrate("معندكش طاقة تركيز (مانا) كافية لتفعيل الفن!", "النظام"); combatLoop(); return; }
                     if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("لا تملك ما يكفي من جوهر دم الحياة لتضحية الفن!", "النظام"); combatLoop(); return; }
                     
                     if (actualCost > 0) state.player.mp -= actualCost;
@@ -1102,13 +1111,13 @@ function combatLoop() {
             let synergyName = "ضربة التآزر المشترك";
             let synergyId = "synergy_strike";
             if (activeComp.id.includes('wukong')) {
-                synergyName = "🐒 ضربة الهراوة الإلهية";
+                synergyName = "🐒 ضربة الهراوة الأسطورية";
                 synergyId = "synergy_wukong";
             } else if (activeComp.id.includes('tariq')) {
                 synergyName = "🛡️ درع رمال الصحراء";
                 synergyId = "synergy_tariq";
             } else if (activeComp.id.includes('boushaki') || activeComp.id.includes('sidi')) {
-                synergyName = "🌀 النفحة الصوفية القدسية";
+                synergyName = "🌀 النفحة التكتيكية الحكيمة";
                 synergyId = "synergy_boushaki";
             } else if (activeComp.id.includes('fatima')) {
                 synergyName = "🌌 بصيرة الأسطرلاب";
@@ -1118,7 +1127,7 @@ function combatLoop() {
             choices.push({
                 text: `💖 تآزر: ${synergyName} (25 مانا)`,
                 callback: () => {
-                    if ((state.player.mp || 0) < 25) { narrate("طاقة يقينك ضعيفة ولا تكفي لتفعيل التآزر مع الرفيق!", "النظام"); combatLoop(); return; }
+                    if ((state.player.mp || 0) < 25) { narrate("طاقة تركيزك ضعيفة ولا تكفي لتفعيل التآزر مع الرفيق!", "النظام"); combatLoop(); return; }
                     state.player.mp -= 25;
                     resolveCombatTurn(synergyId);
                 }
@@ -1149,7 +1158,7 @@ function resolveCombatTurn(moveId) {
         if (moveId === 'synergy_wukong') {
             dmg = Math.floor(state.player.atk * 2.8);
             state.skipEnemyTurn = true;
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة هراوة سون ووكونغ القاضية!</span> هوى سون ووكونغ بهراوته الذهبية الإلهية في الجو، ساحقاً ${enemy.name} بـ <b>${dmg} ضرر هائل</b> ودمره ودوخه بالكامل!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة هراوة سون ووكونغ القاضية!</span> هوى سون ووكونغ بهراوته الذهبية الأسطورية في الجو، ساحقاً ${enemy.name} بـ <b>${dmg} ضرر هائل</b> ودمره ودوخه بالكامل!`;
         } else if (moveId === 'synergy_tariq') {
             const heal = Math.floor(state.player.def * 8);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
@@ -1159,11 +1168,11 @@ function resolveCombatTurn(moveId) {
             const heal = Math.floor(state.player.atk * 1.5);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 50);
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 النفحة الصوفية القدسية للشيخ سيدي بوشاكي!</span> رتل الشيخ دعاء السكينة والتجلي، مستعيداً طهارة عروقك بـ <b>${heal} نقاط حياة</b> و <b>50 يقين (مانا)</b>!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 النفحة التكتيكية الحكيمة للبطل سيدي بوشاكي!</span> رتل الشيخ دعاء السكينة والتجلي، مستعيداً طهارة عروقك بـ <b>${heal} نقاط حياة</b> و <b>50 تركيز (مانا)</b>!`;
         } else if (moveId === 'synergy_fatima') {
             dmg = Math.floor(state.player.atk * 2.2);
             enemy.atk = Math.max(1, Math.floor(enemy.atk * 0.6));
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 بصيرة فاطمة الفلكية وحساب الأسطرلاب!</span> رصدت فاطمة مسارات الكواكب الحارقة، صاعقة ${enemy.name} بـ <b>${dmg} ضرر يقيني</b> وضعفت هجومه للأبد!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 بصيرة فاطمة الفلكية وحساب الأسطرلاب!</span> رصدت فاطمة مسارات الكواكب الحارقة، صاعقة ${enemy.name} بـ <b>${dmg} ضرر تركيزي</b> وضعفت هجومه للأبد!`;
         } else {
             dmg = Math.floor(state.player.atk * 2.0);
             const heal = Math.floor(dmg * 0.15);
@@ -1297,7 +1306,7 @@ function handleVictory() {
     let victoryMsg = `<div style="background:rgba(0,229,160,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); margin-bottom:15px; text-align:left;">
         <b style="color:var(--jade); font-size:1.15rem; letter-spacing:1px; font-family:'Cinzel';">🏆 انتصار مجيد في المعركة</b><br>
         ${state.exploreStreak > 0 ? `<small style="color:var(--secondary)">🔥 تتابع الاستكشاف المتواصل: ${state.exploreStreak} (مكافأة إضافية +${Math.round(state.exploreStreak * 5)}%)</small><br>` : ''}<br>
-        حصلت على <b>${xpReward} خبرة يقين</b> و <b>${goldReward} حجر روحي</b>.
+        حصلت على <b>${xpReward} خبرة بدنية</b> و <b>${goldReward} دينار ذهبي</b>.
     `;
 
     // --- Dynamic Crafting Materials Drop ---
@@ -1349,7 +1358,7 @@ function handleVictory() {
         state.player.xp -= state.player.maxXp; 
         state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 2.1)); 
         calculateTotalStats(); 
-        narrate("<span class='loot-epic'><b>🌟 ارتقاء يقيني عظيم!</b> لقد طهرت يقينك ووصلت خلوتك الروحية إلى ذروة جديدة وجبارة.</span>", "النظام", null, false, true); 
+        narrate("<span class='loot-epic'><b>🌟 ارتقاء عظيم في الهمة والتركيز!</b> لقد طهرت تركيز وهمةك ووصلت خلوتك البدنية إلى ذروة جديدة وجبارة.</span>", "النظام", null, false, true); 
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
     }
     
@@ -1387,7 +1396,7 @@ function handleDefeat() {
     state.currentEnemy = null;
     saveGame();
     
-    narrate(`<b>الهزيمة المرة!</b> لقد سقطت مغشياً عليك في المعركة. عثر عليك درويش صوفي متجول في الصحراء وقام بسحب جسدك المنهك وداوى جراحك ليعيدك لواحة التقاطع بأمان.<br><br><b>العقوبة:</b> خسرت <span style="color:var(--secondary)">${goldPenalty} حجر روحي</span>. وتم إنعاشك بنصف طاقتك وجوهر حياتك.`, "النظام");
+    narrate(`<b>الهزيمة المرة!</b> لقد سقطت مغشياً عليك في المعركة. عثر عليك بطل صوفي متجول في الصحراء وقام بسحب جسدك المنهك وداوى جراحك ليعيدك لواحة التقاطع بأمان.<br><br><b>العقوبة:</b> خسرت <span style="color:var(--secondary)">${goldPenalty} دينار ذهبي</span>. وتم إنعاشك بنصف طاقتك وجوهر حياتك.`, "النظام");
     
     setChoices([{ text: "قف على قدميك واستمر في طريقك", callback: hubLoop }]);
 }
@@ -1702,12 +1711,12 @@ function updateEquipmentDOM(state) {
                 }
             },
             vedic: {
-                name: 'الذكر العظيم (الورد القدسي)',
+                name: 'التركيز والهمة العظيمة',
                 color: '#d4af37',
                 effects: {
                     2: '+10% هجوم، +10% صحة',
                     4: '+20% هجوم، +20% صحة',
-                    6: '🕉️ <b>الذكر العظيم</b>: +35% هجوم، +35% صحة، ويقلل استهلاك طاقة اليقين للمهارات بنسبة 20%!'
+                    6: '🕉️ <b>الهمة والتركيز العالي</b>: +35% هجوم، +35% صحة، ويقلل استهلاك طاقة التركيز للمهارات بنسبة 20%!'
                 }
             },
             silk_road: {
@@ -1716,7 +1725,7 @@ function updateEquipmentDOM(state) {
                 effects: {
                     2: '+10% صحة، +10% مانا',
                     4: '+20% صحة، +20% مانا',
-                    6: '🐪 <b>واحة الحرير</b>: +40% صحة، +40% مانا، ويزيد كسب خبرة اليقين في المعارك بنسبة 25%!'
+                    6: '🐪 <b>واحة الحرير</b>: +40% صحة، +40% مانا، ويزيد كسب خبرة التركيز في المعارك بنسبة 25%!'
                 }
             },
             mythology: {
@@ -1766,12 +1775,12 @@ function showInventory() {
     // Dynamically update the visual equipment panel slots and set bonuses
     updateEquipmentDOM(state);
     
-    const factionBenefit = state.player.faction === 'Jade Summit Sect' ? '+10% هجوم' : '+10% مانا روحي';
-    const factionText = state.player.faction ? `<br><b>الطائفة:</b> ${state.player.faction === 'Jade Summit Sect' ? 'طائفة قمة اليشم' : 'طريقة الربع الخالي الصوفية'} (المرتبة ${state.player.factionRank})<br><small style="color:var(--jade)">المنفعة الروحية: ${factionBenefit} لكل مرتبة</small>` : '';
+    const factionBenefit = state.player.faction === 'Jade Summit Sect' ? '+10% هجوم' : '+10% مانا بدنية';
+    const factionText = state.player.faction ? `<br><b>الطائفة:</b> ${state.player.faction === 'Jade Summit Sect' ? 'طائفة قمة اليشم' : 'طريقة الربع الخالي الصوفية'} (المرتبة ${state.player.factionRank})<br><small style="color:var(--jade)">المنفعة البدنية: ${factionBenefit} لكل مرتبة</small>` : '';
 
     narrate(`<div style="background:rgba(0,0,0,0.5);padding:15px;border-radius:10px;border:1px solid var(--secondary)">
-        <b>المريد السالك:</b> ${state.player.name} | مستوى ${state.player.lvl}<br>
-        <b>الأحجار الروحية:</b> ${state.player.gold} | <b>جوهر الكارما:</b> ${state.player.karma}${factionText}
+        <b>الفارس السالك:</b> ${state.player.name} | مستوى ${state.player.lvl}<br>
+        <b>الأحجار البدنية:</b> ${state.player.gold} | <b>جوهر الكارما:</b> ${state.player.karma}${factionText}
     </div>`, "النظام", null, false, true);
     
     const slots = Object.keys(state.player.equipment).filter(s => ['head', 'body', 'legs', 'boots', 'weapon', 'relic'].includes(s));
@@ -1809,7 +1818,7 @@ function switchSatchelTab(tab) {
             
             if (state.isSelling) {
                 const sellPrice = Math.floor((item.price || 50) * 0.5);
-                div.innerHTML = `<span style="color:var(--secondary)">بيع: ${item.name}</span><br><small>${sellPrice} حجر روحي</small>`;
+                div.innerHTML = `<span style="color:var(--secondary)">بيع: ${item.name}</span><br><small>${sellPrice} دينار ذهبي</small>`;
                 div.onclick = () => {
                     const res = window.SHOP.sell(state, realIndex);
                     narrate(res.message, "النظام");
@@ -1825,7 +1834,7 @@ function switchSatchelTab(tab) {
                         if (item.effect.hp) state.player.hp = Math.min(state.player.maxHp, state.player.hp + item.effect.hp);
                         if (item.effect.mp) state.player.mp = Math.min(state.player.maxMp, state.player.mp + item.effect.mp);
                         state.player.inventory.items.splice(realIndex, 1);
-                        narrate(`استخدمت ${item.name} بنجاح وداويت جراح روحك.`, "النظام");
+                        narrate(`استخدمت ${item.name} بنجاح وداويت جراح تركيزك وهمتك.`, "النظام");
                         updateTopBar(); switchSatchelTab(tab);
                     }
                 };

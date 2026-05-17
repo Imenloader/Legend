@@ -1,6 +1,6 @@
 // ============================================================
-// DWELLING.JS — الصومعة السحرية ونظام المقامات الروحية الخمسة
-// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
+// DWELLING.JS — القلعة والديوان الحربي ونظام عروق الهمة والتركيز
+// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
 // ============================================================
 
 window.DWELLING = {
@@ -18,10 +18,10 @@ window.DWELLING = {
                     food: 1,
                     wood: 0,
                     iron: 0,
-                    qi: 0
+                    qi: 0 // Allocated workers to focus/mana gathering
                 },
-                qiArrayLevel: 1,
-                qi: 0,
+                qiArrayLevel: 1, // Focus/Mana production array lvl
+                qi: 0, // Accumulated focus points
                 roots: {
                     gold: 0,  // ATK (+10)
                     wood: 0,  // HP (+50)
@@ -38,13 +38,13 @@ window.DWELLING = {
         this.init(state);
         const d = state.dwelling;
 
-        // Servant food consumption: 1 Food per servant per tick
+        // Worker food consumption: 1 Food per worker per tick
         const foodConsumed = d.servants * 1;
         let efficiency = 1.0;
 
         if (d.resources.food < foodConsumed) {
             d.resources.food = 0;
-            efficiency = 0.2; // Starving servants are only 20% productive!
+            efficiency = 0.2; // Starving workers are only 20% productive!
         } else {
             d.resources.food -= foodConsumed;
         }
@@ -58,7 +58,7 @@ window.DWELLING = {
         d.resources.wood += woodGained;
         d.resources.iron += ironGained;
 
-        // Passive Qi Array accumulation: increases by array level + servants allocated
+        // Passive Focus/Mana Array accumulation
         const baseQiGained = d.qiArrayLevel * 10;
         const allocatedQiGained = d.nodes.qi * 5 * efficiency;
         d.qi += Math.floor(baseQiGained + allocatedQiGained);
@@ -69,18 +69,18 @@ window.DWELLING = {
         const d = state.dwelling;
         
         if (d.servants >= d.maxServants) {
-            return { success: false, message: "الصومعة والواحة وصلت للحد الأقصى من الخدم والعمال!" };
+            return { success: false, message: "القلعة والديوان وصلوا للحد الأقصى من الخدم والعمال!" };
         }
 
         const cost = 200 + d.servants * 100;
         if (state.player.gold < cost) {
-            return { success: false, message: `معندكش دنانير روحيّة كفاية! محتاج ${cost} دينار روحي.` };
+            return { success: false, message: `معندكش دنانير ذهبية كفاية! محتاج ${cost} دينار ذهبي.` };
         }
 
         state.player.gold -= cost;
         d.servants++;
         d.nodes.food++; // Put new servants to work gathering food by default
-        return { success: true, message: `تم تعيين خادم روحي واحد مقابل ${cost} دينار روحي لخدمة الصومعة.` };
+        return { success: true, message: `تم تعيين عامل قلعة واحد مقابل ${cost} دينار ذهبي لخدمة القلعة والديوان.` };
     },
 
     assignServant(state, nodeKey, amount) {
@@ -104,13 +104,13 @@ window.DWELLING = {
             }
         } else if (amount < 0) {
             if (d.nodes[nodeKey] <= 0) {
-                return { success: false, message: "مفيش أي خدم شغالين في المهمة دي حالياً." };
+                return { success: false, message: "مفيش أي عمال شغالين في المهمة دي حالياً." };
             }
             d.nodes[nodeKey]--;
             d.nodes.food++; // Move them back to food farming
         }
 
-        return { success: true, message: `تم تعيين وتوزيع الخادم بنجاح في مهام الصومعة.` };
+        return { success: true, message: `تم تعيين وتوزيع العامل بنجاح في مهام القلعة.` };
     },
 
     upgradeQiArray(state) {
@@ -128,34 +128,34 @@ window.DWELLING = {
         d.resources.iron -= ironCost;
         d.qiArrayLevel++;
 
-        return { success: true, message: `تم ترقية مصفوفة تجميع الأنوار والمانا لمستوى ${d.qiArrayLevel}!` };
+        return { success: true, message: `تم ترقية مصفوفة شحذ الهمة والتركيز لمستوى ${d.qiArrayLevel}!` };
     },
 
     upgradeRoot(state, rootKey) {
         this.init(state);
         const d = state.dwelling;
 
-        if (d.roots[rootKey] === undefined) return { success: false, message: "نوع مقام غير صالح ومجهول." };
+        if (d.roots[rootKey] === undefined) return { success: false, message: "نوع عرق غير صالح ومجهول للقلعة." };
 
         const currentLvl = d.roots[rootKey];
         const qiCost = Math.floor(100 * Math.pow(1.5, currentLvl));
 
         if (d.qi < qiCost) {
-            return { success: false, message: `معندكش طاقة مانا كفاية في المصفوفة الروحية! محتاج ${qiCost} مانا.` };
+            return { success: false, message: `معندكش طاقة تركيز وهمة كافية في مسبك القلعة! محتاج ${qiCost} نقطة تركيز.` };
         }
 
         d.qi -= qiCost;
         d.roots[rootKey]++;
 
         const rootMap = {
-            'gold': 'الحديدي الهجومي',
-            'wood': 'الوردي للصحة والشفاء',
+            'gold': 'الحديدي الهجومي للفتوة',
+            'wood': 'الأخضر للصحة والشفاء',
             'water': 'المائي للدفاع والصلابة',
-            'fire': 'اللاهب للضربات القاضية',
-            'earth': 'الترابي للمانا والأوراد'
+            'fire': 'اللاهب للضربات الخاطفة',
+            'earth': 'الترابي للهمة والتركيز'
         };
         const rootName = rootMap[rootKey] || rootKey.toUpperCase();
 
-        return { success: true, message: `مقام الروح <b>${rootName}</b> ارتقى بنجاح للدرجة <b>الدرجة ${d.roots[rootKey]}</b>!` };
+        return { success: true, message: `عرق الهمة والتركيز <b>${rootName}</b> ارتقى بنجاح للدرجة <b>الدرجة ${d.roots[rootKey]}</b>!` };
     }
 };

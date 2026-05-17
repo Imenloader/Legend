@@ -1,5 +1,5 @@
 // ============================================================
-// COMBAT.JS — محرك السلوك الروحي والقتال الصحراوي العظيم
+// COMBAT.JS — محرك التدريب القتالي والقتال الصحراوي العظيم
 // "Legends of the Jade and Sand: The Immortal Codex"
 // "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
@@ -64,7 +64,7 @@ window.COMBAT = {
         if (state.player.mpRegen > 0) {
             const mReg = Math.floor(state.player.maxMp * state.player.mpRegen);
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + mReg);
-            if (mReg > 0) msg += `<br><span style="color:var(--jade)">تجدد يقينك الروحي والمانا بـ ${mReg} نقاط مانا.</span>`;
+            if (mReg > 0) msg += `<br><span style="color:var(--jade)">تجدد تركيزك البدني والمانا بـ ${mReg} نقاط مانا.</span>`;
         }
 
         // 5. Stun recovery
@@ -101,7 +101,7 @@ window.COMBAT = {
             case 'full_party_heal':
                 state.player.hp = state.player.maxHp;
                 state.player.mp = state.player.maxMp;
-                msg += `<br>نور الهي طاهر نزل من الملكوت ورجع دمك وقوات المانا بتاعتك كاملة مكملة!`;
+                msg += `<br>نور الهي طاهر نزل من أقاليم الصحراء ورجع دمك وقوات المانا بتاعتك كاملة مكملة!`;
                 break;
             case 'honorable_surrender':
                 if (enemy.hp <= enemy.maxHp * 0.4) {
@@ -119,7 +119,7 @@ window.COMBAT = {
             case 'debuff_enemy_buff_player':
                 state.enemyAtkDebuff = 0.7;
                 state.playerDmgBonus = 1.2 * affinityMult;
-                msg += `<br>قوة هجوم ${enemy.name} ضعفت وانهارت، وقوتك وموجات الأنوار واليقين انفجرت!`;
+                msg += `<br>قوة هجوم ${enemy.name} ضعفت وانهارت، وقوتك وموجات الأنوار والتركيز وهمة انفجرت!`;
                 break;
             case 'area_damage_or_bypass':
                 const areaDmg = Math.floor(state.player.atk * 2 * affinityMult);
@@ -153,7 +153,7 @@ window.COMBAT = {
             ],
             wind: [
                 { id: 'gale_strike', name: 'ضربة العاصفة (يقطع السحر)', type: 'fast', cost: 5 },
-                { id: 'qi_blade', name: 'سيف الأنوار واليقين (يتجاهل الدروع)', type: 'magic', cost: 20 }
+                { id: 'qi_blade', name: 'سيف الأنوار والتركيز وهمة (يتجاهل الدروع)', type: 'magic', cost: 20 }
             ]
         };
         
@@ -247,7 +247,7 @@ window.COMBAT = {
             
             if (skill.effect) {
                 state.activeBuffs.push({ ...skill.effect });
-                msg += `موجات طاقة يقينك انفجرت وزادت بقوة! `;
+                msg += `موجات طاقة تركيز وهمةك انفجرت وزادت بقوة! `;
             }
             
             if (skill.debuff) {
@@ -349,13 +349,13 @@ window.COMBAT = {
         }
         else if (playerMoveId === 'qi_blade') {
             if (enemyMoveType === 'guard' || enemyMoveType === 'deflect') {
-                msg = `سيفك من مانا الأنوار واليقين الصافي عدي واخترق درعه ودفاعه الجسدي بالملي!`;
+                msg = `سيفك من مانا الأنوار والتركيز وهمة الصافي عدي واخترق درعه ودفاعه الجسدي بالملي!`;
                 mom = 30; spec = 'perfect_counter'; pDmg = pBaseDmg * 1.5;
             } else if (enemyMoveType === 'fast') {
-                msg = `تحرك بسرعة البرق وقطع تدفق مانا الأنوار واليقين في عروقك في ثانية!`;
+                msg = `تحرك بسرعة البرق وقطع تدفق مانا الأنوار والتركيز وهمة في عروقك في ثانية!`;
                 mom = -20; eDmg = eBaseDmg * 1.2;
             } else {
-                msg = `السيف الروحي واليقين ضرب ووجع قنواته الروحية من جوة بنجاح.`;
+                msg = `السيف البدني والتركيز وهمة ضرب ووجع قنواته البدنية من جوة بنجاح.`;
                 mom = 15; pDmg = pBaseDmg * 1.2; eDmg = eBaseDmg * 0.5;
             }
         }

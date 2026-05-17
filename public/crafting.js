@@ -1,6 +1,6 @@
 // ============================================================
 // CRAFTING.JS — محرك الخيمياء ومسبك الفولاذ الدمشقي العتيق
-// "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
+// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
 // ============================================================
 
 window.CRAFTING = {
@@ -8,35 +8,35 @@ window.CRAFTING = {
     // --- ALCHEMY (موقد الكيمياء لجابر بن حيان) ---
     alchemyRecipes: {
         'minor_health_potion': {
-            name: 'إكسير الصحة البسيط',
+            name: 'مشروب الصحة البسيط',
             desc: 'بيرجع 40 نقطة صحة.',
             ingredients: { 'spirit_herb': 2 },
             type: 'potion',
             effect: { hp: 40 }
         },
         'foundation_pill': {
-            name: 'إكسير التمكين والولاية',
-            desc: 'مطلوب لتخطي وعقبة مقام التمكين والولاية.',
+            name: 'شراب القوة والصلابة الجسدية',
+            desc: 'مطلوب لتخطي وعقبة اختبار الفتوة الجسور.',
             ingredients: { 'spirit_herb': 5, 'monster_core': 2 },
             type: 'special',
             effect: { breakthrough: true }
         },
         'golden_core_pill': {
-            name: 'حبة الجوهر الصافي الروحانية',
-            desc: 'مطلوبة لتخطي وعقبة مقام تجلي الجوهر الروحي.',
+            name: 'إكسير القوة الخارقة للفرسان',
+            desc: 'مطلوبة لتخطي وعقبة اختبار البطل الشهم.',
             ingredients: { 'spirit_herb': 8, 'monster_core': 4 },
             type: 'special',
             effect: { breakthrough: true }
         },
         'nascent_pill': {
-            name: 'إكسير الروح النورانية السحري',
-            desc: 'حبة أثرية بتثبت الروح اللطيفة وتمنع الهلاك.',
+            name: 'مشروب الصمود الأسطوري الجبار',
+            desc: 'مشروب أثري بيدي مناعة ويحمي الجسد من سحق الإرهاق والهلاك.',
             ingredients: { 'spirit_herb': 15, 'dragon_vein_shard': 1 },
             type: 'special',
             effect: { breakthrough: true, maxHp: 100 }
         },
         'immortal_elixir': {
-            name: 'إكسير الخلود والجوهر الأعظم',
+            name: 'إكسير الطاقة اللانهائية والتحمل الأقصى',
             desc: 'بيدي +10 هجوم دايم وبيشفي جروح الجسد بالكامل.',
             ingredients: { 'celestial_silk': 2, 'dragon_vein_shard': 2 },
             type: 'permanent',
@@ -47,35 +47,35 @@ window.CRAFTING = {
     // --- BLACKSMITH (مسبك الفولاذ وورشة صناعة الجن) ---
     forgeRecipes: {
         'spirit_scimitar': { 
-            name: 'سيف الفارس المبتدئ الروحاني الأصيل', 
+            name: 'سيف الفارس المستجد الفولاذي', 
             slot: 'weapon', 
             ingredients: { 'iron_ore': 5, 'spirit_herb': 2 },
             baseStats: { atk: 12 },
             set: 'xianxia'
         },
         'spirit_turban': { 
-            name: 'عمامة الفرسان المطرزة بالآيات الروحية', 
+            name: 'عمامة الفرسان المطرزة بالخيوط الذهبية الفخمة', 
             slot: 'head', 
             ingredients: { 'spirit_herb': 4 },
             baseStats: { def: 5, mp: 10 },
             set: 'xianxia'
         },
         'robe_of_zuhd': { 
-            name: 'عباءة الزهد والصفاء الروحي الخشنة', 
+            name: 'عباءة السفر والترحال المتينة', 
             slot: 'body', 
             ingredients: { 'spirit_herb': 6, 'iron_ore': 2 },
             baseStats: { def: 12, hp: 20 },
             set: 'xianxia'
         },
         'mantra_beads': {
-            name: 'خرز الذكر وتركيز الأنوار الروحانية',
+            name: 'مسبحة الهمة والتركيز العالي',
             slot: 'weapon',
             ingredients: { 'wood': 15, 'monster_core': 6 },
             baseStats: { atk: 45, mp: 40 },
             set: 'vedic'
         },
         'dhoti_of_enlightenment': {
-            name: 'خرقة اليقين والتجلي النوراني البديع',
+            name: 'رداء الفرسان الصامدين المنسوج بدقة',
             slot: 'body',
             ingredients: { 'spirit_herb': 12, 'monster_core': 4 },
             baseStats: { def: 25, hp: 80 },
@@ -103,14 +103,14 @@ window.CRAFTING = {
             set: 'mythology'
         },
         'phoenix_crown': {
-            name: 'تاج الملكوت المنسوج بريش العنقاء المضيء',
+            name: 'تاج بطل الأبطال المزين بريش العنقاء الأسطوري',
             slot: 'head',
             ingredients: { 'spirit_herb': 10, 'celestial_silk': 3 },
             baseStats: { def: 30, mp: 100, mpRegen: 5 },
             set: 'mythology'
         },
         'heavenly_halberd': {
-            name: 'حربة البريق السماوي الجبارة المصقولة',
+            name: 'حربة العاصفة الجبارة الفولاذية المصقولة',
             slot: 'weapon',
             ingredients: { 'iron_ore': 30, 'celestial_silk': 5, 'dragon_vein_shard': 8 },
             baseStats: { atk: 120 },
@@ -141,10 +141,10 @@ window.CRAFTING = {
         if (!recipe) return { success: false, message: "وصفة مجهولة وغير معروفة للمسبك." };
 
         const matMap = {
-            'spirit_herb': 'عشبة النور الروحية',
-            'monster_core': 'نواة الوحش السحرية',
-            'dragon_vein_shard': 'شظية ينابيع النور الروحانية',
-            'celestial_silk': 'حرير الملكوت السحري',
+            'spirit_herb': 'العشبة الطبية الجبلية',
+            'monster_core': 'نواة الوحش البري',
+            'dragon_vein_shard': 'شظية الصخرة البلورية النادرة',
+            'celestial_silk': 'حرير الواحة الفخم والنادر',
             'iron_ore': 'خام الحديد الدمشقي',
             'wood': 'خشب الصنوبر الأثري'
         };
@@ -153,7 +153,7 @@ window.CRAFTING = {
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
             const matName = matMap[item] || item.replace(/_/g, ' ');
-            if (current < count) return { success: false, message: `معندكش ${matName} كفاية في صومعتك.` };
+            if (current < count) return { success: false, message: `معندكش ${matName} كفاية في قلعتك.` };
         }
 
         // Consume ingredients
@@ -198,10 +198,10 @@ window.CRAFTING = {
         if (!recipe) return { success: false, message: "وصفة مجهولة ومستعصية على إناء الكيمياء." };
 
         const matMap = {
-            'spirit_herb': 'عشبة النور الروحية',
-            'monster_core': 'نواة الوحش السحرية',
-            'dragon_vein_shard': 'شظية ينابيع النور الروحانية',
-            'celestial_silk': 'حرير الملكوت السحري',
+            'spirit_herb': 'العشبة الطبية الجبلية',
+            'monster_core': 'نواة الوحش البري',
+            'dragon_vein_shard': 'شظية الصخرة البلورية النادرة',
+            'celestial_silk': 'حرير الواحة الفخم والنادر',
             'iron_ore': 'خام الحديد الدمشقي',
             'wood': 'خشب الصنوبر الأثري'
         };
@@ -244,7 +244,7 @@ window.CRAFTING = {
             state.player.inventory.items.push(newItem);
             return { success: true, message: `طبخت <b>${newItem.name}</b> بنجاح داخل موقد الكيمياء!`, item: newItem };
         } else {
-            return { success: false, message: "المانا والأنوار اضطربت فجأة في الإناء! المشروب باظ تماماً واتخرّب." };
+            return { success: false, message: "الهمة والتركيز اضطربوا فجأة في الإناء! المشروب باظ تماماً واتخرّب." };
         }
     }
 };

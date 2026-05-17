@@ -8,14 +8,14 @@ window.SHOP = {
     stocks: {
         crossroads_market: [
             { id: 'iron_ore', name: 'خام الحديد الدمشقي العتيق', price: 10, type: 'material', desc: 'مادة أساسية لصناعة الفولاذ والأسلحة بمسبك الجان.' },
-            { id: 'spirit_herb', name: 'أعشاب النور الروحية الطازجة', price: 15, type: 'material', desc: 'تستخدم في طبخ الإكسير والحبوب بموقد الكيمياء.' },
+            { id: 'spirit_herb', name: 'أعشاب النور البدنية الطازجة', price: 15, type: 'material', desc: 'تستخدم في طبخ الإكسير والحبوب بموقد الكيمياء.' },
             { id: 'healing_ointment', name: 'مرهم الشفاء المبارك والبركة', price: 50, type: 'consumable', desc: 'مرهم طبيعي بيرجع 50 نقطة صحة.', effect: { hp: 50 } },
-            { id: 'spirit_water', name: 'ماء بئر زمزم الروحي النقي', price: 40, type: 'consumable', desc: 'ماء نقي ومبارك بيرجع 30 نقطة مانا ونور روحي.', effect: { mp: 30 } }
+            { id: 'spirit_water', name: 'ماء بئر زمزم البدني النقي', price: 40, type: 'consumable', desc: 'ماء نقي ومبارك بيرجع 30 نقطة مانا ونور بدني.', effect: { mp: 30 } }
         ],
         jade_sect_shop: [
-            { id: 'foundation_pill', name: 'إكسير التمكين والولاية السحري', price: 1000, type: 'consumable', desc: 'مطلوب لتخطي وعقبة مقام التمكين والولاية الروحية.' },
+            { id: 'foundation_pill', name: 'إكسير التمكين والولاية السحري', price: 1000, type: 'consumable', desc: 'مطلوب لتخطي وعقبة مقام التمكين والولاية البدنية.' },
             { id: 'jade_charm', name: 'تميمة العقيق الأخضر الحارسة للبركة', price: 500, type: 'relic', slot: 'relic', stats: { def: 15, mp: 20 }, desc: 'تميمة بسيطة وجميلة للحماية من ضربات الأشرار.' },
-            { id: 'disciple_sword', name: 'سيف المريد الحديدي المصقول البديع', price: 800, type: 'weapon', slot: 'weapon', stats: { atk: 25 }, desc: 'السيف المعتمد والمنشور لمريدي صومعة جبل الطور.' }
+            { id: 'disciple_sword', name: 'سيف الفارس الحديدي المصقول البديع', price: 800, type: 'weapon', slot: 'weapon', stats: { atk: 25 }, desc: 'السيف المعتمد والمنشور لفارسي ديوان فرسان جبل الطور.' }
         ],
         sufi_bazaar: [
             { id: 'empty_quarter_dates', name: 'تمر المدينة المبارك السكري', price: 60, type: 'consumable', desc: 'ثمرة مباركة بترجع 40 نقطة صحة و 20 نقطة مانا.', effect: { hp: 40, mp: 20 } },
@@ -31,7 +31,7 @@ window.SHOP = {
         if (!item) return { success: false, message: "الحاجة دي مش موجودة في السوق حالياً." };
         
         if (state.player.gold < item.price) {
-            return { success: false, message: "معندكش دنانير روحيّة كفاية في كيسك!" };
+            return { success: false, message: "معندكش دنانير ذهبية كفاية في كيسك!" };
         }
 
         state.player.gold -= item.price;
@@ -49,12 +49,12 @@ window.SHOP = {
     // Sell an item (standard 50% price)
     sell(state, itemIndex) {
         const item = state.player.inventory.items[itemIndex];
-        if (!item) return { success: false, message: "الحاجة دي مش موجودة في شنطة تأملك الروحي." };
+        if (!item) return { success: false, message: "الحاجة دي مش موجودة في شنطة تأملك البدني." };
         
         const price = Math.floor((item.price || 50) * 0.5);
         state.player.gold += price;
         state.player.inventory.items.splice(itemIndex, 1);
         
-        return { success: true, message: `بعت <b>${item.name}</b> مقابل <b>${price} دينار روحي</b> بنجاح.` };
+        return { success: true, message: `بعت <b>${item.name}</b> مقابل <b>${price} دينار ذهبي</b> بنجاح.` };
     }
 };

@@ -1,5 +1,5 @@
 // ============================================================
-// SOUL_WANDERING.JS — محرك السفر والتأمل الروحي الهائم في البرية
+// SOUL_WANDERING.JS — محرك السفر والاسكتشاف الكشفي الهائم في البرية
 // "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
@@ -33,35 +33,35 @@ window.SOUL_WANDERING = {
         const sw = state.soulWandering;
 
         if (sw.active) {
-            return { success: false, message: "روحك هائمة في الغيب بالفعل حالياً!" };
+            return { success: false, message: "فارسك وقافلتك في رحلة استكشاف بالفعل حالياً!" };
         }
 
         const r = this.regions[regionId];
         if (!r) return { success: false, message: "منطقة برية غير صالحة للسفر." };
 
         if ((state.player.lvl || 1) < r.minLvl) {
-            return { success: false, message: `مقام وتأملك الروحي ضعيف جداً! محتاج على الأقل مستوى ${r.minLvl}.` };
+            return { success: false, message: `مستوى تدريبك البدني ضعيف جداً! محتاج على الأقل مستوى ${r.minLvl}.` };
         }
 
         sw.active = true;
         sw.regionId = regionId;
         sw.ticksRemaining = ticks;
         sw.totalTicks = ticks;
-        sw.log = [`[بداية السفر الروحي] خرجت روحك من جسدك الفاني وبدأت تطوف نحو ${r.name}...`];
+        sw.log = [`[بداية الرحلة الاستكشافية] خرج فارسك للاستكشاف وبدأ يطوف نحو ${r.name}...`];
         sw.loots = { gold: 0, xp: 0, items: [], materials: {} };
 
-        return { success: true, message: `رحلت روحك وطافت نحو ${r.name} لـ ${ticks} دورات روحية.` };
+        return { success: true, message: `انطلق فارسك وطاف نحو ${r.name} لـ ${ticks} دورات استكشافية.` };
     },
 
     stop(state) {
         this.init(state);
         const sw = state.soulWandering;
-        if (!sw.active) return { success: false, message: "روحك مش هائمة في البرزخ حالياً." };
+        if (!sw.active) return { success: false, message: "فارسك مش في رحلة استكشاف حالياً." };
 
         // Force stop: claim whatever has been accumulated so far
         sw.ticksRemaining = 0;
         this.complete(state);
-        return { success: true, message: "استدعيت روحك بالقوة ورجعتها لجسدك الفاني بنجاح!" };
+        return { success: true, message: "استدعيت فارسك وقافلتك وأنهيت الرحلة الاستكشافية بنجاح!" };
     },
 
     process(state) {
@@ -82,13 +82,13 @@ window.SOUL_WANDERING = {
         sw.loots.xp += xpGained;
         sw.loots.gold += goldGained;
 
-        let roundMsg = `[دورة ${sw.totalTicks - sw.ticksRemaining}] هزمت <b>${monster}</b>. كسبت +${xpGained} نور، +${goldGained} دينار.`;
+        let roundMsg = `[دورة ${sw.totalTicks - sw.ticksRemaining}] هزمت <b>${monster}</b>. كسبت +${xpGained} خبرة، +${goldGained} دينار.`;
 
         const matMap = {
-            'spirit_herb': 'عشبة النور الروحية',
+            'spirit_herb': 'عشبة النور البدنية',
             'iron_ore': 'خام الحديد الدمشقي',
             'monster_core': 'نواة الوحش السحرية',
-            'dragon_vein_shard': 'شظية ينابيع النور الروحانية'
+            'dragon_vein_shard': 'شظية ينابيع النور البدنية'
         };
 
         // Resource Drop Roll (50% chance)
@@ -149,7 +149,7 @@ window.SOUL_WANDERING = {
             }
         }
 
-        sw.log.unshift(`<b style="color:var(--jade)">[نهاية السفر الروحي] رجعت روحك لجسدك وقنواتك الروحية بنجاح. كسبت إجمالي ${sw.loots.gold} دينار و ${sw.loots.xp} نور!</b>`);
+        sw.log.unshift(`<b style="color:var(--jade)">[نهاية السفر الكشفي] رجع فارسك لمعسكرك وقنواتك البدنية بنجاح. كسبت إجمالي ${sw.loots.gold} دينار و ${sw.loots.xp} خبرة!</b>`);
         
         calculateTotalStats();
         if (typeof updateTopBar === 'function') updateTopBar();
