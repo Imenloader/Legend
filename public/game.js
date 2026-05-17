@@ -642,6 +642,30 @@ function updateTopBar() {
     UI_ELEMENTS.storyMp.innerText = state.player.mp;
     UI_ELEMENTS.storyHpBar.style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
     if (UI_ELEMENTS.storyGold) UI_ELEMENTS.storyGold.innerText = state.player.gold || 0;
+    
+    // --- Mobile Top HUD Synced Updates ---
+    const mobName = document.getElementById('hud-player-name-val');
+    const mobClass = document.getElementById('hud-class-val');
+    const mobGold = document.getElementById('hud-gold-val');
+    const mobHp = document.getElementById('hud-hp-val');
+    const mobAvatar = document.getElementById('hud-avatar-img');
+
+    if (mobName) mobName.innerText = state.player.name;
+    if (mobClass) {
+        const classNamesArabic = {
+            'Sword Immortal': 'خالد السيف الأسطوري',
+            'Medicine Cultivator': 'الحكيم المعالج ودواي الروح',
+            'Desert Knight': 'فارس الصحراء المنيع',
+            'Sufi Mystic': 'الفارس الحر ذو الهيبة الكبرى'
+        };
+        mobClass.innerText = classNamesArabic[state.player.class] || state.player.class || 'بطل القلوب';
+    }
+    if (mobGold) mobGold.innerText = state.player.gold || 0;
+    if (mobHp) mobHp.innerText = `${state.player.hp}/${state.player.maxHp}`;
+    if (mobAvatar && state.player.sprite) {
+        mobAvatar.src = state.player.sprite;
+    }
+
     if (state.currentEnemy) {
         UI_ELEMENTS.enemyContainer.style.display = 'block';
         UI_ELEMENTS.storyEnemyName.innerText = state.currentEnemy.name;
@@ -661,6 +685,13 @@ function updateAuras() {
     else if (state.player.karma <= -50) portrait.classList.add('aura-demonic');
 }
 
+window.highlightMobileTab = function(index) {
+    document.querySelectorAll('.mobile-bottom-nav .nav-tab').forEach((tab, idx) => {
+        if (idx === index) tab.classList.add('active');
+        else tab.classList.remove('active');
+    });
+};
+
 function showScreen(screenId) {
     const scr = document.getElementById(screenId);
     if (!scr) {
@@ -672,6 +703,15 @@ function showScreen(screenId) {
     scr.classList.add('active');
     state.screen = screenId;
     updateTopBar();
+
+    // --- Update mobile navigation active tab highlight when screen changes ---
+    if (screenId === 'story-screen' || screenId === 'hub-screen') {
+        highlightMobileTab(0);
+    } else if (screenId === 'map-screen') {
+        highlightMobileTab(1);
+    } else if (screenId === 'inventory-screen') {
+        highlightMobileTab(2);
+    }
 }
 
 function initGame() {

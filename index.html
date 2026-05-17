@@ -15,6 +15,29 @@
 </head>
 <body>
 <div id="game-container">
+    <!-- Mobile Top HUD (Visible only on phone/tablet via CSS) -->
+    <div class="mobile-top-hud">
+        <div class="hud-player-info">
+            <div class="hud-avatar">
+                <img id="hud-avatar-img" src="assets/sword_immortal_1778872325571.png" alt="Avatar">
+            </div>
+            <div class="hud-text">
+                <span id="hud-player-name-val">الجدع البطل</span>
+                <span id="hud-class-val">خالد السيف الأسطوري</span>
+            </div>
+        </div>
+        <div class="hud-stats">
+            <div class="hud-resource">
+                <span class="resource-icon">🪙</span>
+                <span id="hud-gold-val">50</span>
+            </div>
+            <div class="hud-resource">
+                <span class="resource-icon">❤️</span>
+                <span id="hud-hp-val">100/100</span>
+            </div>
+        </div>
+    </div>
+
     <button id="rescue-btn" class="btn-rescue" title="الرجوع إلى المنطقة الآمنة (يصلح اللعبة إذا علقت)">إنقاذ البطل</button>
 
     <!-- Cinematic Overlay for Novel Mode -->
@@ -443,6 +466,30 @@
             <span class="legend-item"><span class="legend-dot" style="background:#00e5a0"></span>مكانك الحالي في العالم</span>
         </div>
         <button id="map-back-btn" class="btn btn-secondary" style="margin-top:18px;">الرجوع لواحة القوافل الكبرى</button>
+    </div>
+
+    <!-- Persistent Mobile MMO Bottom Navigation Bar -->
+    <div class="mobile-bottom-nav">
+        <div class="nav-tab active" onclick="if(typeof hubLoop === 'function') { hubLoop(); }">
+            <span class="nav-icon">🕌</span>
+            <span class="nav-label">الواحة</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof showWorldMap === 'function') { showWorldMap(); }">
+            <span class="nav-icon">🧭</span>
+            <span class="nav-label">الخريطة</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof showInventory === 'function') { showInventory(); }">
+            <span class="nav-icon">🎒</span>
+            <span class="nav-label">الحقيبة</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof showCultivationScreen === 'function') { showCultivationScreen(); }">
+            <span class="nav-icon">🧘</span>
+            <span class="nav-label">الديوان</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof toggleChronicleModal === 'function') { toggleChronicleModal(); }">
+            <span class="nav-icon">📖</span>
+            <span class="nav-label">القدر</span>
+        </div>
     </div>
 </div>
 
