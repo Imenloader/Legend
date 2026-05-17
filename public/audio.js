@@ -243,6 +243,21 @@ window.AUDIO = {
 
     // ── SOUND EFFECTS ──
     playEffect(type) {
+        // Trigger physical haptic vibration on supported mobile devices
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            try {
+                if (type === 'combat_hit') {
+                    navigator.vibrate(80);
+                } else if (type === 'combat_block') {
+                    navigator.vibrate([40, 50, 40]);
+                } else if (type === 'level_up' || type === 'loot_mythic') {
+                    navigator.vibrate([100, 50, 100, 50, 200]);
+                }
+            } catch (vibrateError) {
+                console.warn('Haptic vibration failed:', vibrateError);
+            }
+        }
+
         if (!this.ctx || this.muted) return;
         this.resume();
         const now = this.ctx.currentTime;
@@ -322,3 +337,19 @@ window.AUDIO = {
         if (fx[type]) fx[type]();
     }
 };
+
+// Global, lightweight listeners to wake up AudioContext on mobile touch/clicks
+if (typeof document !== 'undefined') {
+    ['click', 'touchstart'].forEach(eventName => {
+        document.addEventListener(eventName, () => {
+            if (window.AUDIO) {
+                if (!window.AUDIO.ctx) {
+                    window.AUDIO.init();
+                }
+                if (window.AUDIO.ctx && typeof window.AUDIO.resume === 'function') {
+                    window.AUDIO.resume();
+                }
+            }
+        }, { once: true });
+    });
+}

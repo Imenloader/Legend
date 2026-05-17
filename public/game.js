@@ -692,6 +692,22 @@ window.highlightMobileTab = function(index) {
     });
 };
 
+window.onMobileTabClick = function(index, actionFunc) {
+    if (state.screen === 'menu-screen') {
+        return;
+    }
+    if (state.currentEnemy) {
+        if (typeof showToast === 'function') {
+            showToast("لا يمكنك مغادرة المعركة الحامية الآن يا فتوة! ⚔️");
+        }
+        return;
+    }
+    highlightMobileTab(index);
+    if (typeof actionFunc === 'function') {
+        actionFunc();
+    }
+};
+
 function showScreen(screenId) {
     const scr = document.getElementById(screenId);
     if (!scr) {
@@ -703,6 +719,18 @@ function showScreen(screenId) {
     scr.classList.add('active');
     state.screen = screenId;
     updateTopBar();
+
+    // Hide mobile navigation and top HUD on menu screen
+    const topHud = document.querySelector('.mobile-top-hud');
+    const bottomNav = document.querySelector('.mobile-bottom-nav');
+    
+    if (screenId === 'menu-screen') {
+        if (topHud) topHud.style.setProperty('display', 'none', 'important');
+        if (bottomNav) bottomNav.style.setProperty('display', 'none', 'important');
+    } else {
+        if (topHud) topHud.style.display = '';
+        if (bottomNav) bottomNav.style.display = '';
+    }
 
     // --- Update mobile navigation active tab highlight when screen changes ---
     if (screenId === 'story-screen' || screenId === 'hub-screen') {

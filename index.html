@@ -470,23 +470,23 @@
 
     <!-- Persistent Mobile MMO Bottom Navigation Bar -->
     <div class="mobile-bottom-nav">
-        <div class="nav-tab active" onclick="if(typeof hubLoop === 'function') { hubLoop(); }">
+        <div class="nav-tab active" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(0, hubLoop); } else { if(typeof hubLoop === 'function') hubLoop(); }">
             <span class="nav-icon">🕌</span>
             <span class="nav-label">الواحة</span>
         </div>
-        <div class="nav-tab" onclick="if(typeof showWorldMap === 'function') { showWorldMap(); }">
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(1, showWorldMap); } else { if(typeof showWorldMap === 'function') showWorldMap(); }">
             <span class="nav-icon">🧭</span>
             <span class="nav-label">الخريطة</span>
         </div>
-        <div class="nav-tab" onclick="if(typeof showInventory === 'function') { showInventory(); }">
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(2, showInventory); } else { if(typeof showInventory === 'function') showInventory(); }">
             <span class="nav-icon">🎒</span>
             <span class="nav-label">الحقيبة</span>
         </div>
-        <div class="nav-tab" onclick="if(typeof showCultivationScreen === 'function') { showCultivationScreen(); }">
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(3, showCultivationScreen); } else { if(typeof showCultivationScreen === 'function') showCultivationScreen(); }">
             <span class="nav-icon">🧘</span>
             <span class="nav-label">الديوان</span>
         </div>
-        <div class="nav-tab" onclick="if(typeof toggleChronicleModal === 'function') { toggleChronicleModal(); }">
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(4, toggleChronicleModal); } else { if(typeof toggleChronicleModal === 'function') toggleChronicleModal(); }">
             <span class="nav-icon">📖</span>
             <span class="nav-label">القدر</span>
         </div>
