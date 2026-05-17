@@ -38,41 +38,106 @@ window.CULTIVATION = {
     },
 
     meditate(state) {
+        if (!state.player.cultivation) {
+            state.player.cultivation = { stage: 'Qi Condensation', stageLevel: 1, breakthroughReady: false };
+        }
+        const cult = state.player.cultivation;
+
+        // Initialize techniques state if absent
+        if (!cult.methodsState) {
+            cult.methodsState = {
+                'jade_body': { level: 1, mastery: 0 },
+                'sword_heart': { level: 0, mastery: 0 },
+                'desert_wind': { level: 0, mastery: 0 }
+            };
+        }
+
         // Restore HP and MP
         state.player.hp = Math.min(state.player.maxHp, state.player.hp + (state.player.maxHp * 0.1));
         state.player.mp = Math.min(state.player.maxMp, state.player.mp + (state.player.maxMp * 0.1));
 
-        // Gather ambient Qi (Diminishing returns as you reach peak)
-        const stageProgress = (state.player.cultivation.stageLevel / 10);
-        const baseQi = 10 + (state.player.lvl * 2);
-        const qiGained = Math.max(1, Math.floor(baseQi * (1.1 - stageProgress)));
+        // 1. Practice Active Cultivation Technique (Scientific Mastery Formula)
+        let practiceMsg = "";
+        const active = cult.activeMethod;
+        if (active && cult.methodsState[active]) {
+            const m = cult.methodsState[active];
+            if (m.level < 10) {
+                const arrayLvl = state.dwelling?.qiArrayLevel || 1;
+                const earthRoot = state.dwelling?.roots?.earth || 1;
+                const masteryGain = Math.floor(arrayLvl * 2 + earthRoot * 1.5 + 10);
+                
+                m.mastery += masteryGain;
+                const reqMastery = Math.floor(100 * Math.pow(1.6, m.level));
+                practiceMsg = `<br>📖 Practiced <b>${this.methods[active].name}</b>: Gained <b style="color:var(--secondary);">${masteryGain} Mastery</b> (${m.mastery}/${reqMastery})`;
+                
+                if (m.mastery >= reqMastery) {
+                    m.mastery = 0;
+                    m.level++;
+                    practiceMsg += `<br><span class="loot-epic" style="text-shadow:0 0 8px var(--jade);">⭐ TECHNIQUE UPGRADED! <b>${this.methods[active].name}</b> ascended to Grade ${m.level}!</span>`;
+                    calculateTotalStats();
+                }
+            } else {
+                practiceMsg = `<br>📖 <b>${this.methods[active].name}</b> has reached its ultimate pinnacle (Grade 10).`;
+            }
+        }
+
+        // 2. Gather Ambient Qi (Scientific Matrix)
+        let techLvlSum = 0;
+        Object.values(cult.methodsState).forEach(tech => {
+            techLvlSum += tech.level || 0;
+        });
+
+        // Family Shrine Modifier
+        let pagodaMult = 1.0;
+        if (state.player.familyPagodaLevel >= 1) pagodaMult += 0.10;
+
+        // Sect Cultivation Array modifier
+        let sectArrayMult = 1.0;
+        if (state.sect && state.sect.disciples) {
+            state.sect.disciples.forEach(d => {
+                if (d.alive && d.assignment === 'array') {
+                    sectArrayMult += (d.lvl || 1) * 0.05;
+                }
+            });
+        }
+
+        const stageProgress = (cult.stageLevel / 10);
+        const methodBonus = state.player.xpGainBonus || 0;
+        const baseQi = 15 + (state.player.lvl * 5);
+        
+        // Multiplier based on all masteries + background + family shrine
+        const qiMultiplier = 1.0 + techLvlSum * 0.08;
+        const qiGained = Math.max(5, Math.floor(baseQi * (1.2 - stageProgress) * qiMultiplier * (1 + methodBonus) * pagodaMult * sectArrayMult));
         
         state.player.xp += qiGained;
         let levelsGained = 0;
-        let message = `You sit in lotus position. Meridians pulse with ${qiGained} gathered Qi.`;
+        let message = `You sit in a lotus position, cycling spiritual Qi through your meridians. You gather <b style="color:var(--secondary)">${qiGained} ambient Qi</b>.${practiceMsg}`;
 
-        // Handle multiple level ups
-        while (state.player.xp >= state.player.maxXp && state.player.cultivation.stageLevel < 10) {
+        // Handle level breakthroughs using dynamic curves
+        while (state.player.xp >= state.player.maxXp && cult.stageLevel < 10) {
             state.player.xp -= state.player.maxXp;
             state.player.lvl++;
-            state.player.cultivation.stageLevel++;
-            state.player.maxXp = Math.floor(state.player.maxXp * 2.1);
+            cult.stageLevel++;
+            state.player.maxXp = 100 + (state.player.lvl - 1) * 80;
             levelsGained++;
             
-            if (!state.player.cultivation.cultivationBonuses) {
-                state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
+            if (!cult.cultivationBonuses) {
+                cult.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
             }
-            const cb = state.player.cultivation.cultivationBonuses;
-            cb.hp += 15; cb.mp += 8; cb.atk += 3;
+            const cb = cult.cultivationBonuses;
+            cb.hp += 25; 
+            cb.mp += 15;
+            cb.atk += 5;
+            cb.def += 2;
         }
 
         if (levelsGained > 0) {
-            message += `<br><br><span class="loot-epic">🌟 BREAKTHROUGH! You gained ${levelsGained} level(s). Your current rank is ${state.player.lvl}.</span>`;
+            message += `<br><br><span class="loot-epic">🌟 CORE BREATHING breakthrough! Gained ${levelsGained} level(s). Current cultivation level is now <b>Level ${cult.stageLevel}</b>.</span>`;
         }
 
-        if (state.player.cultivation.stageLevel >= 10 && !state.player.cultivation.breakthroughReady) {
-            state.player.cultivation.breakthroughReady = true;
-            message += `<br><br><span class="loot-mythic">⚡ PEAK REACHED. The bottleneck of the ${state.player.cultivation.stage} realm is before you. You must risk a Breakthrough.</span>`;
+        if (cult.stageLevel >= 10 && !cult.breakthroughReady) {
+            cult.breakthroughReady = true;
+            message += `<br><br><span class="loot-mythic" style="text-shadow: 0 0 10px var(--secondary);">⚡ REALM BOTTLENECK REACHED. The bottleneck of the <b>${cult.stage}</b> realm is before you. You must risk a Breakthrough.</span>`;
         }
 
         return { success: true, message };
@@ -123,6 +188,10 @@ window.CULTIVATION = {
         state.player.cultivation.stage = nextStage.name;
         state.player.cultivation.stageLevel = 1;
         state.player.cultivation.breakthroughReady = false;
+
+        // Reset XP progress parameters for the new realm
+        state.player.xp = 0;
+        state.player.maxXp = 100 + (state.player.lvl - 1) * 80;
 
         if (!state.player.cultivation.cultivationBonuses) {
             state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };

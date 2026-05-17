@@ -364,6 +364,19 @@ window.COMBAT = {
         pDmg = Math.floor(pDmg);
         eDmg = Math.floor(eDmg);
 
+        if (pDmg > 0) {
+            const roll = Math.random();
+            const critRate = state.player.critRate || 0.05;
+            if (roll < critRate) {
+                let critMult = 1.5;
+                if (state.player.skills && state.player.skills.includes('sword_intent')) critMult += 0.2;
+                if (state.player.familyPagodaLevel >= 3) critMult += 0.15;
+                
+                pDmg = Math.floor(pDmg * critMult);
+                msg += ` <span style="color:#ffcc00; font-weight:bold; text-shadow: 0 0 5px #ffcc00;">✨ CRITICAL STRIKE!</span>`;
+            }
+        }
+
         if (state.player.system && state.player.system.id === 'sword_saint' && pDmg > 0) {
             pDmg *= 2;
             msg += ` <span style="color:var(--secondary); font-weight:bold;">[Sword Immortal 2x Damage]</span>`;

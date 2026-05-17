@@ -1,69 +1,80 @@
 // ============================================================
-// ASCENSION.JS — The Final Boundary
+// ASCENSION.JS — Gate of Ascension & Heavenly Continent
 // "Legends of the Jade and Sand: The Immortal Codex"
 // ============================================================
 
 window.ASCENSION = {
-    stages: [
-        { name: 'Nascent Soul', minLvl: 10, difficulty: 1 },
-        { name: 'Soul Transformation', minLvl: 15, difficulty: 2 },
-        { name: 'Great Perfection', minLvl: 20, difficulty: 5 }
-    ],
-
-    // Start the Heavenly Tribulation survival challenge
-    startTribulation(state, narrate, triggerCombat) {
-        narrate("The sky turns a bruised purple. The air crackles with the wrath of the Heavenly Dao.", "Heavenly Dao");
-        narrate("To transcend the mortal coil, you must survive the <b>Nine Lightning Strikes</b>.", "System");
-        
-        state.tribulationStrikes = 0;
-        this.nextStrike(state, narrate, triggerCombat);
+    checkEligible(state) {
+        if (!state.player.cultivation) return false;
+        const stage = state.player.cultivation.stage;
+        const stageLvl = state.player.cultivation.stageLevel;
+        // Peak of Nascent Soul is level 10 and breakthrough is ready!
+        return (stage === 'Nascent Soul' && stageLvl >= 10 && state.player.cultivation.breakthroughReady);
     },
 
-    nextStrike(state, narrate, triggerCombat) {
-        state.tribulationStrikes++;
-        if (state.tribulationStrikes > 9) {
-            this.completeAscension(state, narrate);
-            return;
+    attemptPhysical(state) {
+        if (!this.checkEligible(state)) {
+            return { success: false, message: "Your soul has not yet crystallized to the peak of Nascent Soul." };
         }
 
-        const dmg = Math.floor(20 * state.tribulationStrikes * (window.BALANCE ? window.BALANCE.xpMultiplier : 1));
-        narrate(`<b>⚡ Strike ${state.tribulationStrikes}/9</b> descends!`, "Heavenly Dao");
-        
-        // Survival Combat or simple Stat Check? Let's do a survival check.
-        const playerDef = state.player.def || 10;
-        const netDmg = Math.max(10, dmg - playerDef);
-        
-        state.player.hp -= netDmg;
-        narrate(`The lightning shears through your Qi! You take ${netDmg} damage.`, "System");
-        
-        if (state.player.hp <= 0) {
-            narrate("Your soul is incinerated by the heavens. You have failed to ascend.", "System");
-            // handleDefeat() should be called from game.js
-        } else {
-            // Chance to gain stats per strike survived
-            state.player.maxHp += 5;
-            if (state.tribulationStrikes < 9) {
-                setTimeout(() => this.nextStrike(state, narrate, triggerCombat), 2000);
-            } else {
-                this.completeAscension(state, narrate);
-            }
+        // Physical Ascension requires raw physical toughness: Defense >= 100
+        if ((state.player.def || 0) < 100) {
+            return { 
+                success: false, 
+                message: `<span style="color:var(--danger)"><b>Flesh Ascension Failed!</b> Your physical body was instantly torn apart by the spatial tribulation winds. You require at least <b>100 Defense</b> to walk through. Upgrade your Water Roots or Jade Body Refinement manual first!</span>` 
+            };
         }
+
+        return { success: true, method: 'physical' };
     },
 
-    completeAscension(state, narrate) {
-        narrate("The clouds part. A pillar of golden light descends, pulling your soul toward the Higher Realms.", "Heavenly Dao");
-        narrate("<b>ASCENSION SUCCESSFUL!</b> You have transcended mortality.", "System");
-        
-        state.player.isAscended = true;
-        state.player.lvl += 10; // Massive boost
-        state.player.karma += 50; 
-        
-        // Unlock Celestial Legacy
-        if (!state.legacy) state.legacy = { ancestralTraits: [] };
-        state.legacy.ancestralTraits.push('Celestial Sovereign');
-        
-        setTimeout(() => {
-            if (typeof hubLoop === 'function') hubLoop();
-        }, 3000);
+    attemptCombat(state) {
+        if (!this.checkEligible(state)) {
+            return { success: false, message: "Your soul has not yet crystallized to the peak of Nascent Soul." };
+        }
+
+        // Spawns the legendary Gatekeeper Boss!
+        const gatekeeper = {
+            name: 'Heavenly Gatekeeper Shen',
+            hp: 1500,
+            maxHp: 1500,
+            atk: 75,
+            def: 40,
+            dialogue: 'A mortal wishes to challenge the laws of heaven? Prove your right to tread upon the celestial path!',
+            nextMove: null
+        };
+
+        state._pendingAscension = true;
+        setTimeout(() => startCombat(gatekeeper), 1500);
+
+        return { success: true, method: 'combat', message: "The sky rips open. Heavenly Gatekeeper Shen descends in a flash of gold light!" };
+    },
+
+    complete(state) {
+        state.player.ascended = true;
+        state.player.cultivation.stage = 'Deity Realm';
+        state.player.cultivation.stageLevel = 1;
+        state.player.cultivation.breakthroughReady = false;
+
+        // Reset XP limits for celestial progression
+        state.player.xp = 0;
+        state.player.maxXp = 1000;
+
+        // Massive celestial attribute bonuses!
+        if (!state.player.cultivation.cultivationBonuses) {
+            state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };
+        }
+        const cb = state.player.cultivation.cultivationBonuses;
+        cb.hp += 1000;
+        cb.mp += 500;
+        cb.atk += 200;
+        cb.def += 100;
+
+        // Fully restore player HP and MP
+        calculateTotalStats();
+        state.player.hp = state.player.maxHp;
+        state.player.mp = state.player.maxMp;
+
+        saveGame();
     }
 };

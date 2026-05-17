@@ -127,5 +127,162 @@ window.LIFE = {
             narrate(`<b>A New Life!</b>: Your spouse ${state.player.spouse.name} has given birth to a healthy child. Your lineage grows stronger.`, "Family");
             if (window.BALANCE) window.BALANCE.applyToState(state); // Re-calculate stat bonuses
         }
+    },
+
+    dualCultivate(state) {
+        if (!state.player.spouse) {
+            return { success: false, message: "You must be married to dual cultivate!" };
+        }
+        
+        const now = Date.now();
+        if (state._lastDualCultivate && now - state._lastDualCultivate < 30000) { 
+            const waitTime = Math.ceil((30000 - (now - state._lastDualCultivate)) / 1000);
+            return { success: false, message: `Your meridians are still recovering. Wait ${waitTime}s.` };
+        }
+        
+        state._lastDualCultivate = now;
+        
+        const baseXP = state.player.lvl * 80;
+        const xpBonus = Math.floor(baseXP * (1 + (state.player.spouse.affinity || 70) / 100));
+        state.player.xp += xpBonus;
+        
+        let levelUp = false;
+        if (state.player.xp >= state.player.maxXp) {
+            state.player.lvl++;
+            state.player.xp -= state.player.maxXp;
+            state.player.maxXp = 100 + (state.player.lvl - 1) * 80;
+            if (state.player.cultivation) {
+                state.player.cultivation.stageLevel++;
+            }
+            levelUp = true;
+        }
+
+        state.player.spouse.affinity = Math.min(100, (state.player.spouse.affinity || 70) + 5);
+
+        let message = `You and <b>${state.player.spouse.name}</b> seat yourselves face-to-face, cycling your Yin and Yang energies in a perfect dual loop. <span class="loot-epic">+${xpBonus} XP</span> gained! Spousal affinity is now <b>${state.player.spouse.affinity}%</b>.`;
+        if (levelUp) {
+            message += `<br><br><span class="loot-epic">🌟 Cultivation Breakthrough! You gained a level!</span>`;
+        }
+
+        if (Math.random() < 0.3) {
+            if (!state.player.inventory.materials) state.player.inventory.materials = {};
+            state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 1;
+            message += `<br><small style="color:var(--secondary)">🎁 Your spouse gifted you a <b>Spirit Herb</b> from their private garden.</small>`;
+        }
+
+        calculateTotalStats();
+        if (typeof updateTopBar === 'function') updateTopBar();
+        saveGame();
+        
+        return { success: true, message };
+    },
+
+    // --- Ancestral Pagoda Upgrade Matrix ---
+    upgradeAncestralPagoda(state) {
+        if (!state.player.familyPagodaLevel) state.player.familyPagodaLevel = 0;
+        const currentLvl = state.player.familyPagodaLevel;
+        if (currentLvl >= 3) return { success: false, message: "Your Ancestral Pagoda has reached its absolute peak!" };
+        
+        const costs = [
+            { wood: 500, iron: 200, stones: 1000 },
+            { wood: 1500, iron: 800, stones: 3000 },
+            { wood: 4000, iron: 2000, stones: 8000 }
+        ];
+        
+        const cost = costs[currentLvl];
+        const dw = state.dwelling || { resources: { wood: 0, iron: 0 } };
+        
+        if ((dw.resources.wood || 0) < cost.wood || (dw.resources.iron || 0) < cost.iron || (state.player.gold || 0) < cost.stones) {
+            return { 
+                success: false, 
+                message: `Not enough resources to upgrade!<br>Requires: 🪵 ${cost.wood} Wood, 🪙 ${cost.iron} Iron, and 💎 ${cost.stones} Spirit Stones.` 
+            };
+        }
+        
+        // Deduct resources
+        dw.resources.wood -= cost.wood;
+        dw.resources.iron -= cost.iron;
+        state.player.gold -= cost.stones;
+        state.player.familyPagodaLevel++;
+        
+        const names = [
+            "Shrine of Remembrance (+10% Meditation Qi)",
+            "Hall of Heroes (+15% Companion Affinity Rate)",
+            "Imperial Mausoleum (+15% global Critical Damage)"
+        ];
+        
+        return { 
+            success: true, 
+            message: `<b>Ancestral Pagoda Upgraded!</b><br>Established the <b>${names[currentLvl]}</b>!` 
+        };
+    },
+
+    // --- Interactive Family Crisis Resolutions ---
+    resolveFamilyCrisis(state, memberId, option) {
+        const member = (state.player.family || []).find(f => f.id === memberId);
+        if (!member || !member.crisis) return { success: false, message: "This family member is safe and sound." };
+        
+        if (option === 'pay') {
+            const cost = member.crisis === 'Kidnapped' ? 2000 : 1500;
+            if (state.player.gold < cost) return { success: false, message: `You lack the ${cost} Spirit Stones required for this action.` };
+            
+            state.player.gold -= cost;
+            member.crisis = null;
+            member.affinity = Math.min(100, member.affinity + 20);
+            return { 
+                success: true, 
+                message: `You paid the sum. <b>${member.name}</b> has been safely restored to health and freedom! Affinity is now <b>${member.affinity}</b>.` 
+            };
+        }
+        
+        if (option === 'disciple') {
+            if (!state.sect || !state.sect.disciples || state.sect.disciples.length === 0) {
+                return { success: false, message: "You do not own a sect or have any disciples to dispatch!" };
+            }
+            
+            // Find highest level available disciple not on expedition
+            const disciple = state.sect.disciples.find(d => d.alive && d.assignment !== 'expedition');
+            if (!disciple) return { success: false, message: "All disciples are currently busy or dead!" };
+            
+            const chance = disciple.lvl * 0.15;
+            const roll = Math.random();
+            
+            if (roll <= chance) {
+                member.crisis = null;
+                member.affinity = Math.min(100, member.affinity + 25);
+                disciple.lvl++;
+                disciple.atk += 3;
+                return {
+                    success: true,
+                    message: `<b>Success!</b> Disciple <b>${disciple.name}</b> defeated the threat and rescued ${member.name}! Disciple leveled up to <b>Lvl ${disciple.lvl}</b>.`
+                };
+            } else {
+                disciple.lvl = Math.max(1, disciple.lvl - 1);
+                return {
+                    success: false,
+                    message: `<b>Failure!</b> Disciple <b>${disciple.name}</b> was defeated and returned heavily injured. ${member.name} remains in danger!`
+                };
+            }
+        }
+        
+        if (option === 'fight') {
+            member._pendingRescue = true;
+            const boss = {
+                id: 'rescue_boss',
+                name: member.crisis === 'Kidnapped' ? 'Demon Blade Enforcer' : 'Poison Spectre',
+                baseHp: 180 + state.player.lvl * 20,
+                hp: 180 + state.player.lvl * 20,
+                maxHp: 180 + state.player.lvl * 20,
+                baseAtk: 18 + state.player.lvl * 3,
+                atk: 18 + state.player.lvl * 3,
+                dialogue: "You dare cross the shadows to claim what is ours?! Pay in blood!",
+                sprite: 'boss'
+            };
+            
+            setTimeout(() => { startCombat(boss); }, 500);
+            return { success: true, message: "Drawing your blade, you head out personally to confront the threat!" };
+        }
+        
+        return { success: false, message: "Invalid crisis resolution option." };
     }
 };

@@ -307,18 +307,28 @@ function parsePerspective(text) {
 }
 
 // Typewriter Animation State
-let currentTypewriteInterval = null;
-let currentTypewriteResolve = null;
-
 function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
-    if (currentTypewriteInterval) {
-        clearInterval(currentTypewriteInterval);
-        currentTypewriteInterval = null;
+    if (!containerElement) return;
+
+    // Clear any existing typing on this specific element
+    if (containerElement._typewriteInterval) {
+        clearInterval(containerElement._typewriteInterval);
+        containerElement._typewriteInterval = null;
+        if (containerElement._skipTypingHandler) {
+            document.removeEventListener('click', containerElement._skipTypingHandler);
+            containerElement._skipTypingHandler = null;
+        }
+        containerElement.innerHTML = containerElement._targetTextHtml || textHtml;
+        if (containerElement._typewriteCallback) {
+            const cb = containerElement._typewriteCallback;
+            containerElement._typewriteCallback = null;
+            cb();
+        }
     }
-    if (currentTypewriteResolve) {
-        currentTypewriteResolve();
-        currentTypewriteResolve = null;
-    }
+
+    // Store target text and callback on the element
+    containerElement._targetTextHtml = textHtml;
+    containerElement._typewriteCallback = callback;
 
     // Separate HTML tags from text characters so tags render instantly
     const tokens = [];
@@ -346,23 +356,35 @@ function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
 
     // Skip typing on click to let impatient players read quickly
     const skipTyping = () => {
-        if (currentTypewriteInterval) {
-            clearInterval(currentTypewriteInterval);
-            currentTypewriteInterval = null;
+        if (containerElement._typewriteInterval) {
+            clearInterval(containerElement._typewriteInterval);
+            containerElement._typewriteInterval = null;
+            if (containerElement._skipTypingHandler) {
+                document.removeEventListener('click', containerElement._skipTypingHandler);
+                containerElement._skipTypingHandler = null;
+            }
             containerElement.innerHTML = textHtml;
-            document.removeEventListener('click', skipTyping);
-            if (callback) callback();
+            
+            const cb = containerElement._typewriteCallback;
+            containerElement._typewriteCallback = null;
+            if (cb) cb();
         }
     };
     
+    containerElement._skipTypingHandler = skipTyping;
     document.addEventListener('click', skipTyping);
 
-    currentTypewriteInterval = setInterval(() => {
+    containerElement._typewriteInterval = setInterval(() => {
         if (tokenIndex >= tokens.length) {
-            clearInterval(currentTypewriteInterval);
-            currentTypewriteInterval = null;
-            document.removeEventListener('click', skipTyping);
-            if (callback) callback();
+            clearInterval(containerElement._typewriteInterval);
+            containerElement._typewriteInterval = null;
+            if (containerElement._skipTypingHandler) {
+                document.removeEventListener('click', containerElement._skipTypingHandler);
+                containerElement._skipTypingHandler = null;
+            }
+            const cb = containerElement._typewriteCallback;
+            containerElement._typewriteCallback = null;
+            if (cb) cb();
             return;
         }
 
@@ -644,6 +666,10 @@ function showScreen(screenId) {
 }
 
 function initGame() {
+    if (window.DWELLING) window.DWELLING.init(state);
+    if (window.SOUL_WANDERING) window.SOUL_WANDERING.init(state);
+    if (window.SECTS) window.SECTS.init(state);
+
     if (window.COMPANIONS) {
         window.COMPANIONS.getRoster().forEach(hero => window.COMPANIONS.init(state, hero.id));
         const defaultId = state.player.class === 'Desert Knight' ? 'tariq_ibn_ziyad' : 'sun_wukong';
@@ -689,6 +715,8 @@ function initGame() {
             }
         }
         if (window.SECTS) window.SECTS.process(state);
+        if (window.DWELLING) window.DWELLING.process(state);
+        if (window.SOUL_WANDERING) window.SOUL_WANDERING.process(state);
 
         // --- DYNAMIC EVENT HEARTBEAT ---
         if (Math.random() < 0.05) {
@@ -831,15 +859,132 @@ function hubLoop() {
 // --- Companion Screen ---
 function showCompanionScreen() {
     clearNarrative();
-    const available = window.COMPANIONS ? window.COMPANIONS.getAvailable(state) : [];
-    narrate(`<b>Companion Roster</b> — Choose who walks beside you.`, "System", null, false, true);
-    const choices = available.map(hero => ({
-        text: `${hero.id === state.companion ? '✅ ' : ''}${hero.name}`,
-        callback: () => {
-            window.COMPANIONS.activate(state, hero.id);
-            hubLoop();
+    const comp = window.COMPANIONS ? window.COMPANIONS.getActive(state) : null;
+    
+    let html = `<b>Companion Roster</b> — Choose who walks beside you.<br><br>`;
+    
+    if (comp) {
+        const tier = window.COMPANIONS.getAffinityTier(comp.affinity);
+        let bonusText = "";
+        if (comp.passiveBuff) {
+            bonusText = `Provides scale-based combat passive: <b>+${Math.floor(comp.passiveBuff.bonus * (0.5 + comp.affinity / 100) * 100)}% ${comp.passiveBuff.stat.toUpperCase()}</b>`;
         }
-    }));
+        
+        let synergyStatus = comp.affinity >= 75 
+            ? `<span style="color:var(--secondary); font-weight:bold;">🔥 Synergy Ultimate UNLOCKED!</span>` 
+            : `<span style="color:var(--text-dim);">🔒 Synergy Ultimate unlocks at 75% Affinity</span>`;
+            
+        html = `
+            <div class="management-card" style="border-left:4px solid var(--secondary); font-family:'Inter', sans-serif;">
+                <div class="management-header">
+                    <h3 style="color:var(--secondary); margin:0;">👥 Active Companion: ${comp.name}</h3>
+                    <span class="management-badge" style="background:${tier.color}; color:#fff;">${tier.label}</span>
+                </div>
+                <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; margin:10px 0; font-size:0.9rem; text-align:left;">
+                    <p style="margin:5px 0;">Affinity Level: <b style="color:var(--secondary);">${comp.affinity}%</b></p>
+                    <p style="margin:5px 0;">${bonusText}</p>
+                    <p style="margin:5px 0;">${synergyStatus}</p>
+                </div>
+            </div>
+            <br>
+        `;
+    }
+    
+    narrate(html, "Companion Hall", null, false, true);
+    
+    const available = window.COMPANIONS ? window.COMPANIONS.getAvailable(state) : [];
+    const choices = [];
+    
+    if (comp) {
+        choices.push({
+            text: "💬 Strategic Counsel (restore 30% HP/MP; costs 50 Spirit Stones)",
+            callback: () => {
+                if (state.player.gold < 50) {
+                    narrate("You do not have enough Spirit Stones.", "System");
+                    setTimeout(showCompanionScreen, 1500);
+                    return;
+                }
+                state.player.gold -= 50;
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + Math.floor(state.player.maxHp * 0.3));
+                state.player.mp = Math.min(state.player.maxMp, state.player.mp + Math.floor(state.player.maxMp * 0.3));
+                
+                const counsel = window.COMPANIONS.getDialogue(state, state.companion, 'greet') || "Walk forward with confidence, Daoist.";
+                narrate(`<b>${comp.name}</b> counsels you: "${counsel}"<br><br><span class="loot-refined">Restored 30% HP and Qi!</span>`, "System");
+                updateTopBar();
+                saveGame();
+                setTimeout(showCompanionScreen, 3000);
+            }
+        });
+        
+        choices.push({
+            text: "⚔️ Sparring Session (Challenges companion, costs 15 Qi)",
+            callback: () => {
+                if (state.player.mp < 15) {
+                    narrate("You lack the Qi to initiate sparring.", "System");
+                    setTimeout(showCompanionScreen, 1500);
+                    return;
+                }
+                state.player.mp -= 15;
+                
+                const mult = state.player.familyPagodaLevel === 2 ? 1.15 : 1.0;
+                const gain = Math.floor(5 * mult);
+                window.COMPANIONS.adjustAffinity(state, state.companion, gain, "Sparred together in martial excellence.");
+                
+                const statChoice = Math.random() < 0.5 ? 'atk' : 'def';
+                if (statChoice === 'atk') {
+                    state.player.atk = (state.player.atk || 10) + 1;
+                    narrate(`You sparred intensely with <b>${comp.name}</b>. Gained <b>+${gain}% Affinity</b> and permanently raised your combat insight (<b>+1 Attack</b>)!`, "System");
+                } else {
+                    state.player.def = (state.player.def || 5) + 1;
+                    narrate(`You sparred intensely with <b>${comp.name}</b>. Gained <b>+${gain}% Affinity</b> and permanently raised your combat insight (<b>+1 Defense</b>)!`, "System");
+                }
+                
+                calculateTotalStats();
+                updateTopBar();
+                saveGame();
+                setTimeout(showCompanionScreen, 3000);
+            }
+        });
+        
+        choices.push({
+            text: "🎁 Offer Gift (100 Spirit Stones)",
+            callback: () => {
+                if (state.player.gold < 100) {
+                    narrate("You lack the Spirit Stones to purchase a suitable gift.", "System");
+                    setTimeout(showCompanionScreen, 1500);
+                    return;
+                }
+                state.player.gold -= 100;
+                const mult = state.player.familyPagodaLevel === 2 ? 1.15 : 1.0;
+                const gain = Math.floor(10 * mult);
+                window.COMPANIONS.adjustAffinity(state, state.companion, gain, "Offered a premium Spiritual Jade pendant.");
+                narrate(`You offered a Spiritual Jade pendant to <b>${comp.name}</b>. Gained <b>+${gain}% Affinity</b>!`, "System");
+                updateTopBar();
+                saveGame();
+                setTimeout(showCompanionScreen, 2200);
+            }
+        });
+    }
+    
+    choices.push({
+        text: "👥 Change Active Companion",
+        callback: () => {
+            clearNarrative();
+            narrate("Choose who walks beside you:", "System", null, false, true);
+            const subchoices = available.map(hero => ({
+                text: `${hero.id === state.companion ? '✅ ' : ''}${hero.name}`,
+                callback: () => {
+                    window.COMPANIONS.activate(state, hero.id);
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    showCompanionScreen();
+                }
+            }));
+            setChoices([...subchoices, { text: "↩ Back", callback: showCompanionScreen }]);
+        }
+    });
+    
     setChoices([...choices, { text: "↩ Return", callback: hubLoop }]);
 }
 
@@ -951,6 +1096,35 @@ function combatLoop() {
             };
         });
         
+        // Check companion affinity for synergy ultimate
+        const activeComp = window.COMPANIONS ? window.COMPANIONS.getActive(state) : null;
+        if (activeComp && activeComp.affinity >= 75) {
+            let synergyName = "Synergy Strike";
+            let synergyId = "synergy_strike";
+            if (activeComp.id.includes('wukong')) {
+                synergyName = "🐒 Cudgel Smash";
+                synergyId = "synergy_wukong";
+            } else if (activeComp.id.includes('tariq')) {
+                synergyName = "🛡️ Desert Aegis";
+                synergyId = "synergy_tariq";
+            } else if (activeComp.id.includes('boushaki') || activeComp.id.includes('sidi')) {
+                synergyName = "🌀 Sufi Breath";
+                synergyId = "synergy_boushaki";
+            } else if (activeComp.id.includes('fatima')) {
+                synergyName = "🌌 Astrolabe Insight";
+                synergyId = "synergy_fatima";
+            }
+            
+            choices.push({
+                text: `💖 Synergy: ${synergyName} (25 Qi)`,
+                callback: () => {
+                    if ((state.player.mp || 0) < 25) { narrate("Not enough Qi for Companion Synergy!", "System"); combatLoop(); return; }
+                    state.player.mp -= 25;
+                    resolveCombatTurn(synergyId);
+                }
+            });
+        }
+        
         choices.push({ text: "🌊 Water Form", callback: () => { state.playerForm = 'water'; combatLoop(); }});
         choices.push({ text: "🏔️ Mountain Form", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
         choices.push({ text: "🌪️ Wind Form", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
@@ -967,6 +1141,65 @@ function resolveCombatTurn(moveId) {
 
     const enemy = state.currentEnemy;
     if (!enemy) { state._combatLock = false; return; }
+
+    if (moveId.startsWith('synergy_')) {
+        let dmg = 0;
+        let blockText = "";
+        
+        if (moveId === 'synergy_wukong') {
+            dmg = Math.floor(state.player.atk * 2.8);
+            state.skipEnemyTurn = true;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Sun Wukong's Cudgel Smash!</span> Sun Wukong slams his staff down, crushing ${enemy.name} for <b>${dmg} damage</b> and stunning them!`;
+        } else if (moveId === 'synergy_tariq') {
+            const heal = Math.floor(state.player.def * 8);
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
+            state.player_invulnerable_turn = true;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Tariq's Desert Aegis!</span> Tariq raises an absolute sand shield, restoring <b>${heal} HP</b> and granting invulnerability!`;
+        } else if (moveId === 'synergy_boushaki') {
+            const heal = Math.floor(state.player.atk * 1.5);
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + 50);
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Sidi Boushaki's Sufi Breath!</span> Sidi Boushaki channels cosmic tranquility, restoring <b>${heal} HP</b> and <b>50 Qi</b>!`;
+        } else if (moveId === 'synergy_fatima') {
+            dmg = Math.floor(state.player.atk * 2.2);
+            enemy.atk = Math.max(1, Math.floor(enemy.atk * 0.6));
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Fatima's Astrolabe Insight!</span> Fatima maps the celestial orbits, blasting ${enemy.name} for <b>${dmg} damage</b> and permanently debuffing their attack!`;
+        } else {
+            dmg = Math.floor(state.player.atk * 2.0);
+            const heal = Math.floor(dmg * 0.15);
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 Companion Synergy Strike!</span> Your companion strikes in perfect tandem, dealing <b>${dmg} damage</b> and restoring <b>${heal} HP</b>!`;
+        }
+
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        
+        narrate(blockText, "System", null, false, true);
+        updateTopBar(); updateMomentumUI();
+        
+        if (window.AUDIO) window.AUDIO.playEffect('combat_hit');
+        if (dmg > 0) spawnFloatingText(`-${dmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
+        
+        let enemyDmg = 0;
+        if (!state.skipEnemyTurn && !state.player_invulnerable_turn) {
+            enemyDmg = Math.max(1, Math.floor(enemy.atk * 0.8 - state.player.def * 0.2));
+            state.player.hp = Math.max(0, state.player.hp - enemyDmg);
+            spawnFloatingText(`-${enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
+            triggerScreenShake(); triggerFlash('damage'); 
+        }
+        state.player_invulnerable_turn = false;
+        state.skipEnemyTurn = false;
+        
+        setTimeout(() => {
+            if (state.player.hp <= 0) {
+                state._combatLock = false; handleDefeat();
+            } else if (enemy.hp <= 0) {
+                state._combatLock = false; handleVictory();
+            } else {
+                state._combatLock = false; combatLoop();
+            }
+        }, 1800);
+        return;
+    }
 
     const result = window.COMBAT ? window.COMBAT.resolveMove(moveId, enemy.nextMove, state.player.atk, enemy.atk, enemy, state) : { playerDmg: 10, enemyDmg: 5, resultText: 'Clash!' };
     
@@ -1030,6 +1263,23 @@ function handleVictory() {
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
         calculateTotalStats();
         updateTopBar();
+        saveGame();
+    }
+    
+    // Check if this was a family rescue crisis mission
+    let rescuedMember = null;
+    if (state.player.family) {
+        rescuedMember = state.player.family.find(f => f._pendingRescue);
+    }
+    if (rescuedMember) {
+        rescuedMember.crisis = null;
+        rescuedMember._pendingRescue = null;
+        rescuedMember.affinity = Math.min(100, rescuedMember.affinity + 30);
+        narrate(`<b>RESCUE MISSION SUCCESS!</b> You have freed <b>${rescuedMember.name}</b> from the clutches of danger! Affinity is now <b>${rescuedMember.affinity}%</b>.`, "System", null, false, true);
+        if (window.AUDIO) window.AUDIO.playEffect('level_up');
+        calculateTotalStats();
+        updateTopBar();
+        saveGame();
     }
     
     if (typeof state.exploreStreak !== 'number') state.exploreStreak = 0;
@@ -1105,8 +1355,16 @@ function handleVictory() {
     
     state.exploreStreak++;
     state.currentEnemy = null;
+    updateTopBar();
     saveGame(); 
     
+    if (rescuedMember) {
+        setChoices([
+            { text: "↩ Return to Family Management", callback: showManagementScreen }
+        ]);
+        return;
+    }
+
     const activeRegion = state.player.currentRegion || 'crossroads';
     setChoices([
         { text: `⚔️ Venture Deeper (+${state.exploreStreak * 5}% Bonus)`, callback: () => exploreRegion(activeRegion) },
@@ -1335,6 +1593,18 @@ function calculateTotalStats() {
     }
     if (sys.id === 'sword_saint') {
         totalStatMult *= 1.5;
+    }
+
+    // 9.5 Spiritual Roots Flat Stats
+    if (state.dwelling && state.dwelling.roots) {
+        const r = state.dwelling.roots;
+        bAtk += (r.gold || 0) * 10;
+        bHp += (r.wood || 0) * 50;
+        bDef += (r.water || 0) * 8;
+        bMp += (r.earth || 0) * 25;
+        state.player.critRate = 0.05 + (r.fire || 0) * 0.01;
+    } else {
+        state.player.critRate = 0.05;
     }
 
     // 10. Final Application

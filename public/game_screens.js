@@ -20,6 +20,58 @@ function showCultivationScreen() {
         narrate(`Active Method: <span class="loot-epic">${activeMethod.name}</span><br><small>${activeMethod.desc}</small>`, 'System', null, false, true);
     }
 
+    // Render Dual Progress Bars & Technique Mastery Panels
+    const currentXp = state.player.xp || 0;
+    const maxXp = state.player.maxXp || 100;
+    const percent = Math.min(100, Math.floor((currentXp / maxXp) * 100));
+
+    const majorPercent = Math.min(100, Math.floor(((cult.stageLevel - 1) / 9) * 100));
+
+    let techProgressHtml = "";
+    if (activeMethod && cult.methodsState && cult.methodsState[activeMethodId]) {
+        const m = cult.methodsState[activeMethodId];
+        const reqMastery = Math.floor(100 * Math.pow(1.6, m.level));
+        const masteryPercent = Math.min(100, Math.floor((m.mastery / reqMastery) * 100));
+        techProgressHtml = `
+            <div style="margin-top: 12px; text-align: left; background: rgba(255,215,0,0.02); padding: 10px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.2);">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 5px;">
+                    <span style="color:var(--secondary);">📖 <b>${activeMethod.name}</b> (Grade ${m.level}/10):</span>
+                    <span style="color:var(--secondary); font-weight:bold;">${m.mastery} / ${reqMastery} (${masteryPercent}%)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${masteryPercent}%; height: 100%; background: linear-gradient(90deg, var(--secondary), #fff); border-radius: 3px; box-shadow: 0 0 6px var(--secondary);"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    let progressBarsHtml = `
+        <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(0,229,160,0.2); border-radius: 12px; font-family:'Inter',sans-serif;">
+            <div style="margin-bottom: 12px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">
+                    <span style="color:#a8e6cf;">🔮 <b>Minor Realm Progress</b>:</span>
+                    <span style="color:var(--jade); font-weight:bold;">${currentXp} / ${maxXp} XP (${percent}%)</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, var(--jade), #00ffbc); border-radius: 4px; box-shadow: 0 0 8px var(--jade);"></div>
+                </div>
+            </div>
+            
+            <div style="text-align: left;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">
+                    <span style="color:#ffd3b6;">☯️ <b>Major Realm Barrier</b>:</span>
+                    <span style="color:#e0a96d; font-weight:bold;">Level ${cult.stageLevel}/9 (${majorPercent}%)</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="width: ${majorPercent}%; height: 100%; background: linear-gradient(90deg, #e0a96d, #d4af37); border-radius: 4px; box-shadow: 0 0 8px #d4af37;"></div>
+                </div>
+            </div>
+            ${techProgressHtml}
+        </div>
+    `;
+
+    narrate(progressBarsHtml, 'System', null, false, true);
+
     narrate(`HP: <b>${state.player.maxHp}</b> | Qi: <b>${state.player.maxMp}</b> | ATK: <b>${state.player.atk}</b> | DEF: <b>${state.player.def}</b>`, 'System', null, false, true);
 
     const choices = [
@@ -54,6 +106,14 @@ function showCultivationScreen() {
             }
         },
         {
+            text: '🏠 Enter Spiritual Dwelling',
+            callback: showDwellingScreen
+        },
+        {
+            text: '🌀 Soul Wandering (Auto-Adventure)',
+            callback: showSoulWanderingScreen
+        },
+        {
             text: '📜 Change Cultivation Method',
             callback: () => {
                 clearNarrative();
@@ -77,6 +137,13 @@ function showCultivationScreen() {
             }
         }
     ];
+
+    if (window.ASCENSION && window.ASCENSION.checkEligible(state)) {
+        choices.push({
+            text: '⚡ APPROACH THE GATE OF ASCENSION (Heavenly Trial)',
+            callback: showAscensionScreen
+        });
+    }
 
     if (cult.breakthroughReady) {
         choices.push({
@@ -429,6 +496,10 @@ function showMarket() {
         callback: () => {
             const res = window.SHOP.buy(state, 'crossroads_market', item.id);
             narrate(res.message, "System");
+            if (res.success) {
+                updateTopBar();
+                saveGame();
+            }
             setTimeout(showMarket, 1000);
         }
     }));
@@ -483,8 +554,8 @@ function showAuctionHouse() {
     const bid2 = Math.floor(a.currentBid * 1.5);
 
     setChoices([
-        { text: `Bid ${bid1} Spirit Stones`, callback: () => { if(state.player.gold >= bid1) { window.AUCTION.placeBid(state, state.player.name, bid1); state.player.gold -= bid1; showAuctionHouse(); } } },
-        { text: `Outbid with ${bid2} Spirit Stones`, callback: () => { if(state.player.gold >= bid2) { window.AUCTION.placeBid(state, state.player.name, bid2); state.player.gold -= bid2; showAuctionHouse(); } } },
+        { text: `Bid ${bid1} Spirit Stones`, callback: () => { if(state.player.gold >= bid1) { window.AUCTION.placeBid(state, state.player.name, bid1); state.player.gold -= bid1; updateTopBar(); saveGame(); showAuctionHouse(); } } },
+        { text: `Outbid with ${bid2} Spirit Stones`, callback: () => { if(state.player.gold >= bid2) { window.AUCTION.placeBid(state, state.player.name, bid2); state.player.gold -= bid2; updateTopBar(); saveGame(); showAuctionHouse(); } } },
         { text: "🔄 Refresh", callback: showAuctionHouse },
         { text: "↩ Return", callback: hubLoop }
     ]);
@@ -562,15 +633,6 @@ function showPropertiesScreen() {
                     <p style="margin:5px 0; text-align:left;">Rebirths: <b>${state.legacy ? state.legacy.rebirthCount : 0}</b></p>
                     <p style="margin:5px 0; text-align:left;">Ancestral Traits: <b>${state.legacy && state.legacy.traits.length ? state.legacy.traits.length : 'None'}</b></p>
                 </div>
-
-            </div>
-        </div>
-    `;
-
-    narrate(html, "System", null, false, true);
-    setChoices([{ text: "↩ Return", callback: hubLoop }]);
-}
-
 function showManagementScreen() {
     clearNarrative();
     narrate("<b>FAMILY & SECT MANAGEMENT</b>", "System", null, false, true);
@@ -578,11 +640,16 @@ function showManagementScreen() {
     let html = `<div class="management-container">`;
     
     // --- Family Card ---
+    let pagodaLvl = state.player.familyPagodaLevel || 0;
+    const pagodaNames = ["None", "Shrine of Remembrance", "Hall of Heroes", "Imperial Mausoleum"];
     html += `
         <div class="management-card">
             <div class="management-header">
                 <h3 style="color:var(--secondary)">👨‍👩‍👧‍👦 Lineage & Relations</h3>
                 ${state.player.spouse ? `<span class="management-badge badge-alive">Married to ${state.player.spouse.name}</span>` : '<span class="management-badge" style="background:rgba(255,255,255,0.1)">Unmarried</span>'}
+            </div>
+            <div style="background:rgba(255,215,0,0.04); border: 1px solid rgba(212,175,55,0.2); padding: 8px; border-radius: 4px; margin-bottom: 12px; font-size: 0.82rem;">
+                🏛️ <b>Ancestral Pagoda</b>: Level ${pagodaLvl}/3 (${pagodaNames[pagodaLvl]})
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
     `;
@@ -591,11 +658,16 @@ function showManagementScreen() {
         state.player.family.forEach(f => {
             const statusClass = f.alive ? 'badge-alive' : 'badge-deceased';
             const statusText = f.alive ? 'Alive' : 'Fallen';
+            let crisisLabel = "";
+            if (f.crisis) {
+                crisisLabel = `<div style="color:var(--danger); font-size:0.75rem; margin-top:4px; font-weight:bold;">⚠️ CRISIS: ${f.crisis}!</div>`;
+            }
             html += `
-                <div class="management-stat-row" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:4px;">
+                <div class="management-stat-row" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:4px; border-left: 3px solid ${f.crisis ? 'var(--danger)' : 'var(--secondary)'};">
                     <div>
                         <div class="management-stat-label">${f.relation}</div>
                         <div class="management-stat-value">${f.name}</div>
+                        ${crisisLabel}
                     </div>
                     <div style="text-align:right;">
                         <div class="management-badge ${statusClass}">${statusText}</div>
@@ -665,11 +737,16 @@ function showManagementScreen() {
             state.sect.disciples.forEach(d => {
                 const statusClass = (d.alive !== false) ? 'badge-alive' : 'badge-deceased';
                 const statusText = (d.alive !== false) ? 'ACTIVE' : 'FALLEN';
+                let dutyText = d.assignment ? d.assignment.toUpperCase() : "IDLE";
+                if (d.assignment === 'expedition') {
+                    dutyText = `EXPEDITION (${d.expeditionTicks}s)`;
+                }
                 html += `
                     <div style="background:rgba(255,255,255,0.02); margin-bottom:8px; padding:8px 12px; border-radius:4px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(255,255,255,0.05);">
                         <div>
                             <span style="font-weight:bold; color:var(--secondary);">${d.name}</span>
                             <span style="font-size:0.75rem; color:var(--text-dim); margin-left:8px;">Lvl ${d.lvl} | Atk ${d.atk}</span>
+                            <div style="font-size:0.75rem; color:var(--jade); margin-top:2px;">Duty: <b>${dutyText}</b></div>
                         </div>
                         <span class="management-badge ${statusClass}">${statusText}</span>
                     </div>
@@ -727,8 +804,21 @@ function showManagementScreen() {
                 narrate("You spent time in quiet contemplation, but your current life lacks close biological relations.", "System");
             }
             showManagementScreen();
-        }}
+        }},
+        { text: "🏛️ Ancestral Pagoda Options", callback: showPagodaUpgradeScreen }
     ];
+
+    // Crises resolving options
+    if (state.player.family) {
+        state.player.family.forEach(f => {
+            if (f.crisis) {
+                choices.push({
+                    text: `⚠️ Save ${f.name} (${f.crisis})`,
+                    callback: () => showResolveCrisisScreen(f.id)
+                });
+            }
+        });
+    }
 
     if (!state.sect) {
         choices.push({ text: "🏠 Found Sect (10,000 Spirit Stones)", callback: () => {
@@ -736,18 +826,24 @@ function showManagementScreen() {
                 state.player.gold -= 10000;
                 window.SECTS.init(state);
                 narrate("Congratulations! You have founded an immortal lineage and established your own sect.", "System");
+                updateTopBar();
+                saveGame();
             } else {
                 narrate("You do not have enough Spirit Stones to establish a grand sect. (Requires 10,000)", "System");
             }
             showManagementScreen();
         }});
     } else {
+        choices.push({ text: "👥 Manage Disciple Duties", callback: showManageDiscipleScreen });
         choices.push({ text: "📜 Choose Sect Path", callback: () => {
             const paths = ["Sword", "Alchemy", "Array"];
             setChoices([
                 ...paths.map(p => ({ text: p + " Path", callback: () => { 
                     const res = window.SECTS.setSpecialization(state, p);
                     narrate(res.message, "System");
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
                     showManagementScreen();
                 }})),
                 { text: "↩ Back", callback: showManagementScreen }
@@ -756,6 +852,10 @@ function showManagementScreen() {
         choices.push({ text: "👤 Recruit Disciple", callback: () => {
             const res = window.SECTS.recruit(state);
             narrate(res.message, "System");
+            if (res.success) {
+                updateTopBar();
+                saveGame();
+            }
             showManagementScreen();
         }});
         choices.push({ text: "⚔️ Enter War Room", callback: showWarRoom });
@@ -768,12 +868,189 @@ function showManagementScreen() {
         } else if (window.LIFE) {
             const res = window.LIFE.seekMarriage(state, narrate);
             narrate(res.message, "System");
+            if (res.success) {
+                calculateTotalStats();
+                updateTopBar();
+                saveGame();
+            }
             showManagementScreen();
         }
     }});
+
+    choices.push({ text: "📜 Sect Hall & Ultimate Skills", callback: showSectHallScreen });
+
+    if (state.player.spouse) {
+        choices.push({ 
+            text: "💖 Spousal Dual Cultivation", 
+            callback: () => {
+                const res = window.LIFE.dualCultivate(state);
+                narrate(res.message, "System");
+                showManagementScreen();
+            } 
+        });
+    }
+
     choices.push({ text: "↩ Return", callback: hubLoop });
 
+    setChoices(choices);
+}
+
+// --- Sub-Screens for Management Screen ---
+function showPagodaUpgradeScreen() {
+    clearNarrative();
+    narrate("<b>ANCESTRAL SHRINE & PAGODA</b>", "System", null, false, true);
     
+    let pagodaLvl = state.player.familyPagodaLevel || 0;
+    const pagodaNames = ["None", "Shrine of Remembrance", "Hall of Heroes", "Imperial Mausoleum"];
+    const benefits = [
+        "Erect Shrine of Remembrance (Provides +10% meditation Qi flow multiplier).",
+        "Upgrade to Hall of Heroes (Provides +15% companion affinity gain multiplier).",
+        "Upgrade to Imperial Mausoleum (Provides +15% global Critical Damage multiplier)."
+    ];
+    
+    let html = `
+        <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; font-family:'Inter', sans-serif;">
+            <p>Your Family's Ancestral Pagoda stands at: <b>Level ${pagodaLvl} / 3</b> (${pagodaNames[pagodaLvl]})</p>
+            ${pagodaLvl < 3 ? `<p style="color:var(--secondary); text-align:left;"><b>Next Tier upgrade benefits:</b><br>${benefits[pagodaLvl]}</p>` : `<p style="color:var(--jade);">Your lineage's shrine has reached peak cosmic resonance!</p>`}
+        </div>
+    `;
+    narrate(html, "System", null, false, true);
+    
+    const choices = [];
+    if (pagodaLvl < 3) {
+        const costs = [
+            "1000 Stones, 500 Wood, 200 Iron",
+            "3000 Stones, 1500 Wood, 800 Iron",
+            "8000 Stones, 4000 Wood, 2000 Iron"
+        ];
+        choices.push({
+            text: `🧱 Upgrade Pagoda (Cost: ${costs[pagodaLvl]})`,
+            callback: () => {
+                const res = window.LIFE.upgradeAncestralPagoda(state);
+                narrate(res.message, "System");
+                if (res.success) {
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                }
+                setTimeout(showManagementScreen, 2200);
+            }
+        });
+    }
+    choices.push({ text: "↩ Back", callback: showManagementScreen });
+    setChoices(choices);
+}
+
+function showResolveCrisisScreen(memberId) {
+    clearNarrative();
+    const member = (state.player.family || []).find(f => f.id === memberId);
+    if (!member || !member.crisis) {
+        narrate("This family member is safe.", "System");
+        setTimeout(showManagementScreen, 1500);
+        return;
+    }
+    
+    narrate(`<b>CRISIS RESOLUTION</b>: Save <b>${member.name}</b>`, "System", null, false, true);
+    narrate(`Your ${member.relation} is currently suffering from <b>${member.crisis}</b>. How will you resolve this?`, "System", null, false, true);
+    
+    const cost = member.crisis === 'Kidnapped' ? 2000 : 1500;
+    
+    const choices = [
+        {
+            text: `💎 Pay Ransom/Medic (${cost} Spirit Stones)`,
+            callback: () => {
+                const res = window.LIFE.resolveFamilyCrisis(state, memberId, 'pay');
+                narrate(res.message, "System");
+                if (res.success) {
+                    updateTopBar();
+                    saveGame();
+                }
+                setTimeout(showManagementScreen, 2200);
+            }
+        },
+        {
+            text: `⚔️ Launch Personal Rescue (FIGHT!)`,
+            callback: () => {
+                const res = window.LIFE.resolveFamilyCrisis(state, memberId, 'fight');
+                narrate(res.message, "System");
+            }
+        }
+    ];
+    
+    if (state.sect && state.sect.disciples && state.sect.disciples.length > 0) {
+        choices.push({
+            text: `👤 Dispatch Sect Disciple (Lvl * 15% Success Chance)`,
+            callback: () => {
+                const res = window.LIFE.resolveFamilyCrisis(state, memberId, 'disciple');
+                narrate(res.message, "System");
+                if (res.success) {
+                    saveGame();
+                }
+                setTimeout(showManagementScreen, 2500);
+            }
+        });
+    }
+    
+    choices.push({ text: "↩ Back", callback: showManagementScreen });
+    setChoices(choices);
+}
+
+function showManageDiscipleScreen() {
+    clearNarrative();
+    narrate("<b>Sect Disciple Assignments</b>", "System", null, false, true);
+    
+    if (!state.sect || !state.sect.disciples || state.sect.disciples.length === 0) {
+        narrate("You have no disciples in your sect. Recruit some first.", "System");
+        setTimeout(showManagementScreen, 1500);
+        return;
+    }
+    
+    const choices = state.sect.disciples.map((d, index) => {
+        let duty = d.assignment ? d.assignment.toUpperCase() : "IDLE";
+        if (d.assignment === 'expedition') duty = `EXPEDITION (${d.expeditionTicks}s)`;
+        return {
+            text: `👤 ${d.name} (Lvl ${d.lvl} | ${duty})`,
+            callback: () => showDiscipleAssignmentScreen(index)
+        };
+    });
+    
+    choices.push({ text: "↩ Back", callback: showManagementScreen });
+    setChoices(choices);
+}
+
+function showDiscipleAssignmentScreen(index) {
+    clearNarrative();
+    const d = state.sect.disciples[index];
+    narrate(`<b>Assign Duty</b>: <b>${d.name}</b>`, "System", null, false, true);
+    
+    const duties = [
+        { name: "🌌 Array Alignment (+5% Meditation Qi per lvl)", id: "array" },
+        { name: "🌾 Resource Harvesting (Herbs/Ores/Food)", id: "harvest" },
+        { name: "🛡️ Sect Border Patrol", id: "patrol" },
+        { name: "💤 Recall to Idle", id: null }
+    ];
+    
+    const choices = duties.map(du => ({
+        text: du.name,
+        callback: () => {
+            const res = window.SECTS.assignDisciple(state, index, du.id);
+            narrate(res.message, "System");
+            saveGame();
+            setTimeout(showManageDiscipleScreen, 1500);
+        }
+    }));
+    
+    choices.push({
+        text: "🌀 Dispatch to Wilderness Expedition (Costs 500 Food)",
+        callback: () => {
+            const res = window.SECTS.sendOnExpedition(state, index);
+            narrate(res.message, "System");
+            saveGame();
+            setTimeout(showManageDiscipleScreen, 2000);
+        }
+    });
+    
+    choices.push({ text: "↩ Back", callback: showManageDiscipleScreen });
     setChoices(choices);
 }
 
@@ -818,6 +1095,262 @@ function showWarRoom() {
     
     choices.push({ text: "↩ Back to Management", callback: showManagementScreen });
     setChoices(choices);
+}
+
+function showDwellingScreen() {
+    clearNarrative();
+    if (window.DWELLING) window.DWELLING.init(state);
+    const d = state.dwelling;
+    
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary);">🏡 SPIRITUAL DWELLING</b>', 'System', null, false, true);
+    
+    let html = `<div style="background:rgba(212,175,55,0.05); padding:15px; border-radius:8px; border:1px solid var(--secondary); margin-bottom:15px; text-align:left;">
+        <b>Spiritual Servants</b>: <span class="loot-epic">${d.servants}/${d.maxServants}</span><br>
+        <small style="color:var(--text-dim);">Servants automate resources. Food keeps them efficient.</small>
+    </div>`;
+
+    html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px; text-align:left;">
+        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+            🍏 <b>Food</b>: <b>${d.resources.food}</b><br>
+            <small style="color:var(--text-dim);">Workers: ${d.nodes.food}</small>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+            🪵 <b>Wood</b>: <b>${d.resources.wood}</b><br>
+            <small style="color:var(--text-dim);">Workers: ${d.nodes.wood}</small>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+            🪙 <b>Iron</b>: <b>${d.resources.iron}</b><br>
+            <small style="color:var(--text-dim);">Workers: ${d.nodes.iron}</small>
+        </div>
+        <div style="background:rgba(0,229,160,0.03); padding:10px; border-radius:6px; border:1px solid var(--jade);">
+            ✨ <b>Array Qi</b>: <b style="color:var(--jade);">${d.qi}</b><br>
+            <small style="color:var(--text-dim);">Workers: ${d.nodes.qi} | Array Lvl: ${d.qiArrayLevel}</small>
+        </div>
+    </div>`;
+
+    html += `<div style="background:rgba(0,168,107,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); text-align:left;">
+        <b style="color:var(--jade);">🌱 SPIRITUAL ROOTS (GRADE)</b><br>
+        🛡️ Gold Root (ATK): <b>Grade ${d.roots.gold}</b> (+${d.roots.gold * 10} ATK)<br>
+        🪵 Wood Root (HP): <b>Grade ${d.roots.wood}</b> (+${d.roots.wood * 50} HP)<br>
+        💧 Water Root (DEF): <b>Grade ${d.roots.water}</b> (+${d.roots.water * 8} DEF)<br>
+        🔥 Fire Root (CRIT): <b>Grade ${d.roots.fire}</b> (+${d.roots.fire * 1}% Crit Rate)<br>
+        🌍 Earth Root (MP): <b>Grade ${d.roots.earth}</b> (+${d.roots.earth * 25} Qi Cap)<br>
+    </div>`;
+
+    narrate(html, 'System', null, false, true);
+
+    const choices = [
+        {
+            text: `👤 Recruit Servant (Cost: ${200 + d.servants * 100} Stones)`,
+            callback: () => {
+                const res = window.DWELLING.buyServant(state);
+                narrate(res.message, 'System');
+                updateTopBar(); saveGame();
+                setTimeout(showDwellingScreen, 1500);
+            }
+        },
+        {
+            text: "👷 Manage Servant Tasks",
+            callback: () => {
+                clearNarrative();
+                narrate("<b>Assign Workers to Spiritual Nodes</b>", "System", null, false, true);
+                setChoices([
+                    { text: "🍏 Food Node [+] Allocate", callback: () => { window.DWELLING.assignServant(state, 'food', 1); showDwellingScreen(); }},
+                    { text: "🍏 Food Node [-] Recall", callback: () => { window.DWELLING.assignServant(state, 'food', -1); showDwellingScreen(); }},
+                    { text: "🪵 Wood Node [+] Allocate", callback: () => { window.DWELLING.assignServant(state, 'wood', 1); showDwellingScreen(); }},
+                    { text: "🪵 Wood Node [-] Recall", callback: () => { window.DWELLING.assignServant(state, 'wood', -1); showDwellingScreen(); }},
+                    { text: "🪙 Iron Node [+] Allocate", callback: () => { window.DWELLING.assignServant(state, 'iron', 1); showDwellingScreen(); }},
+                    { text: "🪙 Iron Node [-] Recall", callback: () => { window.DWELLING.assignServant(state, 'iron', -1); showDwellingScreen(); }},
+                    { text: "✨ Qi Array [+] Allocate", callback: () => { window.DWELLING.assignServant(state, 'qi', 1); showDwellingScreen(); }},
+                    { text: "✨ Qi Array [-] Recall", callback: () => { window.DWELLING.assignServant(state, 'qi', -1); showDwellingScreen(); }},
+                    { text: "↩ Back", callback: showDwellingScreen }
+                ]);
+            }
+        },
+        {
+            text: `⚗️ Upgrade Qi Array (Cost: ${d.qiArrayLevel * 150} Wood / ${d.qiArrayLevel * 80} Iron)`,
+            callback: () => {
+                const res = window.DWELLING.upgradeQiArray(state);
+                narrate(res.message, 'System');
+                saveGame();
+                setTimeout(showDwellingScreen, 1500);
+            }
+        },
+        {
+            text: "🌱 Upgrade Spiritual Roots",
+            callback: () => {
+                clearNarrative();
+                narrate("<b>Cultivate your elemental spiritual roots using Array Qi:</b>", "System", null, false, true);
+                const upgradeChoices = Object.keys(d.roots).map(key => {
+                    const cost = Math.floor(100 * Math.pow(1.5, d.roots[key]));
+                    return {
+                        text: `⚡ Grade ${d.roots[key] + 1} ${key.toUpperCase()} ROOT (Cost: ${cost} Qi)`,
+                        callback: () => {
+                            const res = window.DWELLING.upgradeRoot(state, key);
+                            narrate(res.message, 'System');
+                            calculateTotalStats(); updateTopBar(); saveGame();
+                            setTimeout(showDwellingScreen, 1500);
+                        }
+                    };
+                });
+                setChoices([...upgradeChoices, { text: "↩ Back", callback: showDwellingScreen }]);
+            }
+        },
+        { text: "↩ Back to Cultivation", callback: showCultivationScreen }
+    ];
+
+    setChoices(choices);
+}
+
+function showSoulWanderingScreen() {
+    clearNarrative();
+    if (window.SOUL_WANDERING) window.SOUL_WANDERING.init(state);
+    const sw = state.soulWandering;
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary);">🌀 SOUL WANDERING</b>', 'System', null, false, true);
+
+    if (sw.active) {
+        const r = window.SOUL_WANDERING.regions[sw.regionId];
+        narrate(`Your spiritual soul is currently wandering the <b style="color:var(--secondary);">${r.name}</b>.<br>Remaining ticks: <b>${sw.ticksRemaining}/${sw.totalTicks}</b>.`, 'System', null, false, true);
+        
+        let logHtml = `<div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); padding:10px; border-radius:6px; max-height:200px; overflow-y:auto; text-align:left; font-size:0.9rem; font-family:monospace; line-height:1.4;">
+            ${sw.log.map(line => `• ${line}`).join('<br>')}
+        </div>`;
+        narrate(logHtml, 'Journey Log', null, false, true);
+
+        setChoices([
+            { text: "🔄 Refresh Status Logs", callback: showSoulWanderingScreen },
+            {
+                text: "🛑 Recall Soul Immediately (Claim Progress)",
+                callback: () => {
+                    const res = window.SOUL_WANDERING.stop(state);
+                    narrate(res.message, 'System');
+                    setTimeout(showSoulWanderingScreen, 1500);
+                }
+            },
+            { text: "↩ Return", callback: showCultivationScreen }
+        ]);
+    } else {
+        narrate("Project your soul out of your mortal meridians to wander distant realms and automatically harvest cultivation assets.", 'System', null, false, true);
+
+        const choices = Object.entries(window.SOUL_WANDERING.regions).map(([id, r]) => {
+            const unlocked = (state.player.lvl || 1) >= r.minLvl;
+            return {
+                text: `${unlocked ? '✨' : '🔒'} ${r.name} (Min Lvl: ${r.minLvl})`,
+                callback: () => {
+                    if (!unlocked) {
+                        narrate("Your physical and spiritual foundation is too weak to project to this realm.", "System");
+                        setTimeout(showSoulWanderingScreen, 1500);
+                        return;
+                    }
+                    clearNarrative();
+                    narrate(`Select duration for wandering the <b>${r.name}</b>:`, "System", null, false, true);
+                    setChoices([
+                        { text: "🌀 Short Walk (10 cycles / ~1 min)", callback: () => { window.SOUL_WANDERING.start(state, id, 10); showSoulWanderingScreen(); }},
+                        { text: "🌀 Normal Journey (30 cycles / ~3 mins)", callback: () => { window.SOUL_WANDERING.start(state, id, 30); showSoulWanderingScreen(); }},
+                        { text: "🌀 Grand Expedition (50 cycles / ~5 mins)", callback: () => { window.SOUL_WANDERING.start(state, id, 50); showSoulWanderingScreen(); }},
+                        { text: "↩ Back", callback: showSoulWanderingScreen }
+                    ]);
+                }
+            };
+        });
+
+        setChoices([...choices, { text: "↩ Return to Cultivation", callback: showCultivationScreen }]);
+    }
+}
+
+function showSectHallScreen() {
+    clearNarrative();
+    if (window.SECTS) window.SECTS.init(state);
+    
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary);">📜 SECT HALL</b>', 'System', null, false, true);
+
+    if (state.sect) {
+        const s = (window.SECTS && window.SECTS.sectsDb && state.sect.id && window.SECTS.sectsDb[state.sect.id]) || {
+            ultName: "Primordial Jade Grand Ultimate",
+            ult: "grand_dao",
+            tier: state.sect.tier || 1
+        };
+        narrate(`Current Sect: <b style="color:var(--secondary);">${state.sect.name}</b> (Tier ${state.sect.tier})<br>Sect Contribution Points: <span class="loot-epic">${state.sect.contribution || 0}</span>`, 'System', null, false, true);
+
+        setChoices([
+            {
+                text: `✨ Master Sect Ultimate: ${s.ultName} (Cost: ${s.tier * 500} Contribution)`,
+                callback: () => {
+                    const res = window.SECTS.learnUltimate(state);
+                    narrate(res.message, 'System');
+                    saveGame();
+                    setTimeout(showSectHallScreen, 2200);
+                }
+            },
+            {
+                text: "❌ Depart/Betray Sect (Clears ultimate unless 1,000 Stones paid)",
+                callback: () => {
+                    const res = window.SECTS.leaveSect(state);
+                    narrate(res.message, 'System');
+                    saveGame();
+                    setTimeout(showSectHallScreen, 2500);
+                }
+            },
+            { text: "↩ Back to Management", callback: showManagementScreen }
+        ]);
+    } else {
+        narrate("Seek out grand cultivation mountains and submit your petition to join a martial sect.", 'System', null, false, true);
+
+        const choices = Object.entries(window.SECTS.sectsDb).map(([id, s]) => {
+            const currentRealm = state.player.cultivation?.stage || 'Qi Condensation';
+            const realms = ['Qi Condensation', 'Foundation Establishment', 'Core Formation', 'Nascent Soul'];
+            const playerRealmIdx = realms.indexOf(currentRealm);
+            const reqRealmIdx = realms.indexOf(s.reqRealm);
+            const eligible = playerRealmIdx >= reqRealmIdx;
+
+            return {
+                text: `${eligible ? '✨' : '🔒'} Join ${s.name} (Tier ${s.tier} | Cost: ${s.cost} Stones)`,
+                callback: () => {
+                    const res = window.SECTS.joinSect(state, id);
+                    narrate(res.message, 'System');
+                    updateTopBar(); saveGame();
+                    setTimeout(showSectHallScreen, 2000);
+                }
+            };
+        });
+
+        setChoices([...choices, { text: "↩ Back to Management", callback: showManagementScreen }]);
+    }
+}
+
+function showAscensionScreen() {
+    clearNarrative();
+    narrate('<b style="font-size:1.4em;letter-spacing:2px;color:var(--secondary); text-shadow:0 0 8px var(--secondary);">⚡ GATE OF HEAVENLY ASCENSION</b>', 'System', null, false, true);
+    narrate("The celestial boundary of the mortal plane is before you. Beyond the gate lies the Deity Realm and the Heavenly Continent. Choose your transcendence path:", 'System', null, false, true);
+
+    setChoices([
+        {
+            text: "🛡️ Physical Flesh Ascension (Requires 100 DEF)",
+            callback: () => {
+                const res = window.ASCENSION.attemptPhysical(state);
+                if (!res.success) {
+                    narrate(res.message, 'System', null, false, true);
+                    setTimeout(showCultivationScreen, 4000);
+                } else {
+                    clearNarrative();
+                    narrate("<div class='cinematic-transition' style='text-align:center; padding: 40px;'><h1 style='font-family:Cinzel; letter-spacing:3px; animation: pulse 2s infinite; color:var(--secondary);'>ACT IV: THE HEAVENLY ASCENSION</h1><p>Your physical body turns into a jade statue, resisting the crushing cosmic winds of the boundary. You walk through the gates of heaven unharmed!</p></div>", 'System', null, false, true);
+                    window.ASCENSION.complete(state);
+                    setTimeout(hubLoop, 4000);
+                }
+            }
+        },
+        {
+            text: "⚔️ Combat Spell Ascension (Challenge Gatekeeper Boss)",
+            callback: () => {
+                const res = window.ASCENSION.attemptCombat(state);
+                if (!res.success) {
+                    narrate(res.message, 'System');
+                }
+            }
+        },
+        { text: "↩ Return", callback: showCultivationScreen }
+    ]);
 }
 
 
