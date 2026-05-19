@@ -1366,7 +1366,7 @@ function handleVictory() {
     const bg = state.player.background || {};
     const xpReward = Math.floor(xpBase * (bg.xpMult || 1) * streakMult);
     
-    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()) * streakMult);
+    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()) * streakMult * (state.player.goldMult || 1.0));
     
     state.player.xp += xpReward;
     state.player.gold += goldReward;
@@ -1561,6 +1561,19 @@ function calculateTotalStats() {
     bDef += legacyStats.def ?? 0;
     bHp += legacyStats.hp ?? 0;
     bMp += legacyStats.mp ?? 0;
+
+    // 5.5 Apply Inherited Lineage Trait dynamic bonuses
+    if (state.player.inheritedTrait && window.REBIRTH && window.REBIRTH.traits) {
+        const activeTrait = window.REBIRTH.traits[state.player.inheritedTrait];
+        if (activeTrait && activeTrait.bonus) {
+            if (activeTrait.bonus.hp) bHp += Math.floor(baseMaxHp * activeTrait.bonus.hp);
+            if (activeTrait.bonus.atk) bAtk += Math.floor(baseAtk * activeTrait.bonus.atk);
+            if (activeTrait.bonus.def) bDef += Math.floor(baseDef * activeTrait.bonus.def);
+            if (activeTrait.bonus.crit) state.player.critRate = (state.player.critRate || 0.05) + activeTrait.bonus.crit;
+            if (activeTrait.bonus.goldMult) state.player.goldMult = (state.player.goldMult || 1.0) + activeTrait.bonus.goldMult;
+            if (activeTrait.bonus.xpMult) state.player.xpGainBonus = (state.player.xpGainBonus || 0) + activeTrait.bonus.xpMult;
+        }
+    }
 
     // 6. External Systems (Pets & Cultivation Methods)
     const petBonus = window.PETS?.getBonuses?.(state) ?? {};

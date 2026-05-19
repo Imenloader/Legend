@@ -803,33 +803,159 @@ function showSkillTree() {
 
 function showRebirthScreen() {
     clearNarrative();
-    narrate("<b>قاعة انتقال الأرواح والبعث السماوي</b>", "النظام", null, false, true);
-    narrate("لقد وصلت إلى ذروة ونهاية حياتك البدنية الحالية. هل أنت مستعد للتخلي عن جسدك المادي الفاني، والتحول بطاقة تركيزك وهمتك الطاهرة في سياحة أبدية، لتولد من جديد بجسد أسطوري يحمل صفات موروثة تعينك في سلالتك القادمة؟", "النظام", null, false, true);
+    narrate("<b>📜 ديوان كتابة وصية العهد وتوريث السلالة</b>", "النظام", null, false, true);
+    narrate("هنا تصاغ العهود، ويكتب الفرسان الأجداد وصاياهم ليمر الميراث والدمشقي الحاد وسر الصحراء المباركة إلى الجيل التالي من الأبناء ليكملوا المسار الأسطوري.", "النظام", null, false, true);
     
     if (state.player.lvl < 10) {
-        narrate("<span style='color:var(--danger)'>يجب أن تصل بحد قتالك للمستوى 10 لتتمكن من خوض البعث والارتقاء البدني.</span>");
-        setChoices([{ text: "↩ عودة", callback: hubLoop }]);
+        narrate("<span style='color:var(--danger)'><b>الحد الأدنى لعهد التوريث:</b> يجب أن تصل بحد قتالك وجدعنتك للمستوى 10 على الأقل لتتمكن من صياغة الميراث العائلي ونقل العهد لأبنائك الناضجين.</span>", "النظام", null, false, true);
+        setChoices([{ text: "↩ عودة لواحة التقاطع", callback: hubLoop }]);
         return;
     }
 
-    const traitNamesArabic = {
-        'strength_legacy': 'إرث السيف والصلابة الفولاذية (+15 هجوم دائم)',
-        'vitality_legacy': 'إرث زهرة اللوتس وحيوية الخلود (+80 صحة دائم)',
-        'spirit_legacy': 'إرث الشيخ وسعة التركيز والهمة والأسرار (+40 مانا دائم)'
-    };
+    const family = state.player.family || [];
+    const children = family.filter(f => f.relation === 'Child' && f.alive);
+    const matureChildren = children.filter(c => c.age >= 18);
+    const youngChildren = children.filter(c => c.age < 18);
 
-    const choices = Object.values(window.REBIRTH.traits).map(t => ({
-        text: `اختر بركة: ${traitNamesArabic[t.id] || t.name}`,
-        callback: () => {
-            const success = window.REBIRTH.perform(state, t.id);
-            if (success) {
-                narrate("تطفو تركيزك وهمتك الطاهرة في فراغ الملوك والأزليين... لتستيقظ بجسد وخلية جديدة فائقة القوة!", "النظام");
-                setTimeout(hubLoop, 2500);
-            }
-        }
-    }));
+    let html = `<div style="background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid var(--secondary); margin-bottom:15px; text-align:left;">`;
     
-    setChoices([...choices, { text: "↩ ليس الآن", callback: hubLoop }]);
+    if (matureChildren.length > 0) {
+        html += `<h4 style="color:var(--secondary); margin-top:0;">👑 أبناء سلالتك الناضجون الجاهزون لوراثة العهد (سن 18+):</h4>`;
+        matureChildren.forEach(c => {
+            const trainingDesc = c.education !== 'None' ? `درجة تدريب: ${c.lvl} (${c.education === 'combat' ? 'نصال القتال' : c.education === 'defense' ? 'دروع الصلابة' : 'خيمياء الشفاء'})` : 'لم يتلق تدريب خاص';
+            html += `<div style="padding:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:6px; margin-bottom:10px;">
+                <b>الابن: ${c.name}</b> (سن ${c.age} سنة)<br>
+                🧬 <b>الميزة الموروثة:</b> <span style="color:var(--jade)">${c.trait.name}</span> (${c.trait.desc})<br>
+                🎓 <b>التربية البدنية:</b> ${trainingDesc}
+            </div>`;
+        });
+    } else {
+        html += `<p style="color:var(--danger); font-weight:bold;">⚠️ ليس لديك أبناء بلغوا سن الرشد والجدعنة (18 سنة) بعد في السلالة الحالية ليرثوا عهدك.</p>`;
+    }
+
+    if (youngChildren.length > 0) {
+        html += `<h4 style="color:var(--secondary); margin-top:15px;">👶 الأطفال واليافعون تحت التنشئة (أصغر من 18 سنة):</h4>`;
+        youngChildren.forEach(c => {
+            const trainingDesc = c.education !== 'None' ? `مستوى ${c.lvl} (${c.education === 'combat' ? 'نصال القتال' : c.education === 'defense' ? 'دروع الصلابة' : 'خيمياء الشفاء'})` : 'بلا تدريب محدد';
+            html += `<div style="padding:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:6px; margin-bottom:8px; font-size:0.85rem;">
+                <b>الابن الأصغر: ${c.name}</b> (سن ${c.age} سنة)<br>
+                🧬 الصفة المكنونة: <span style="color:var(--secondary)">${c.trait.name}</span><br>
+                🎓 مستوى التنشئة: ${trainingDesc} ${c.age >= 13 ? `<span style="color:var(--jade)">[جاهز للتدريب بـ 500 ذهب]</span>` : '<span style="color:var(--text-dim)">[صغير جداً على معسكر الجند]</span>'}
+            </div>`;
+        });
+    }
+
+    if (children.length === 0) {
+        html += `<p style="color:var(--text-dim);">لا توجد أي ذرية أو أطفال في سلالتك حالياً. اذهب أولاً <b>للبحث عن شريكة حياة بالزواج الشرعي</b> من ديوان العائلة بالواحة، وتأمل في الخلوة لمرور السنين لينجب الزوجان الأبطال!</p>`;
+    }
+
+    html += `</div>`;
+    narrate(html, "النظام", null, false, true);
+
+    const choices = [];
+
+    // succession choices
+    matureChildren.forEach(c => {
+        choices.push({
+            text: `📜 تنصيب ووراثة العهد لـ ${c.name}`,
+            callback: () => {
+                const res = window.REBIRTH.performInheritance(state, c.id);
+                if (res.success || res.message === "succeeded") {
+                    narrate(`<div style="text-align:center; padding:20px; background:rgba(212,175,55,0.05); border:2px solid var(--secondary); border-radius:12px;">
+                        <span style="font-size:2rem;">👑</span><br>
+                        <h3 style="color:var(--secondary); margin:10px 0;">أقسمت يمين العهد الجديد!</h3>
+                        لقد سلمت روحك المنهكة والمسار وجد النصال العريق لولدك البطل <b>${c.name}</b>.<br>
+                        تقاعد الجد الأكبر ليراقب السلالة من محراب معبد الأسلاف الأثري مانحاً إياك البركة الأبدية!<br><br>
+                        <b style="color:var(--jade)">مرحباً بك كقائد سلالة جديد، ابدأ مسيرتك البدنية من الرتبة 1 بصفات أجداد جبارة!</b>
+                    </div>`, "النظام", null, false, true);
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(hubLoop, 4500);
+                } else {
+                    narrate(`خطأ أثناء التوريث: ${res.message}`, "النظام");
+                }
+            }
+        });
+    });
+
+    // training choices for teenagers (13 to 17)
+    youngChildren.filter(c => c.age >= 13).forEach(c => {
+        choices.push({
+            text: `🎓 إرسال ${c.name} لمعسكر التدريب (500 دينار)`,
+            callback: () => {
+                clearNarrative();
+                narrate(`<b>تنشئة الابن اليافع ${c.name}</b>`, "النظام", null, false, true);
+                narrate(`اختر التخصص والمسار الذي ترغب في صهر وصب تركيز همته البدنية فيه ليتحضر لوراثة العهد مستقبلاً:`, "النظام", null, false, true);
+                
+                const pathChoices = [
+                    {
+                        text: "⚔️ تدريب النصال والقوة البدنية (+3 هجوم موروث)",
+                        callback: () => {
+                            const res = window.REBIRTH.trainChild(state, c.id, 'combat');
+                            narrate(res.message, "النظام");
+                            saveGame();
+                            setTimeout(showRebirthScreen, 2200);
+                        }
+                    },
+                    {
+                        text: "🛡️ تدريب الدروع والصلابة (+2 دفاع موروث)",
+                        callback: () => {
+                            const res = window.REBIRTH.trainChild(state, c.id, 'defense');
+                            narrate(res.message, "النظام");
+                            saveGame();
+                            setTimeout(showRebirthScreen, 2200);
+                        }
+                    },
+                    {
+                        text: "⚗️ دراسة الخيمياء والأوراد (+1 إكسير طاقة موروث)",
+                        callback: () => {
+                            const res = window.REBIRTH.trainChild(state, c.id, 'alchemy');
+                            narrate(res.message, "النظام");
+                            saveGame();
+                            setTimeout(showRebirthScreen, 2200);
+                        }
+                    },
+                    { text: "↩ رجوع لوصية العهد", callback: showRebirthScreen }
+                ];
+                setChoices(pathChoices);
+            }
+        });
+    });
+
+    if (matureChildren.length === 0) {
+        choices.push({
+            text: "🔮 التبرك السريع بإرث عشوائي فوري (وصية العهد التقليدية)",
+            callback: () => {
+                clearNarrative();
+                narrate("<b>وصية العهد العائلية التقليدية</b>", "النظام", null, false, true);
+                narrate("إذا كنت ترغب بالانتقال الفوري دون سليل مباشر، يمكنك التبرك بصفات الأجداد العشوائية لتبدأ مسيرتك مجدداً كقائد بديل:", "النظام", null, false, true);
+                
+                const traitNamesArabic = {
+                    'strength_legacy': 'إرث السيف والصلابة الفولاذية (+15 هجوم دائم)',
+                    'vitality_legacy': 'إرث زهرة اللوتس وحيوية الخلود (+80 صحة دائم)',
+                    'spirit_legacy': 'إرث الشيخ وسعة التركيز والهمة والأسرار (+40 مانا دائم)'
+                };
+
+                const legacyChoices = Object.values(window.REBIRTH.traits).map(t => ({
+                    text: `اختر بركة: ${traitNamesArabic[t.id] || t.name}`,
+                    callback: () => {
+                        const success = window.REBIRTH.perform(state, t.id);
+                        if (success) {
+                            narrate("تطفو تركيزك وهمتك الطاهرة في فراغ الملوك والأزليين... لتستيقظ بجسد وخلية جديدة فائقة القوة!", "النظام");
+                            calculateTotalStats();
+                            updateTopBar();
+                            saveGame();
+                            setTimeout(hubLoop, 2500);
+                        }
+                    }
+                }));
+                setChoices([...legacyChoices, { text: "↩ رجوع لوصية العهد", callback: showRebirthScreen }]);
+            }
+        });
+    }
+
+    setChoices([...choices, { text: "↩ عودة لواحة التقاطع", callback: hubLoop }]);
 }
 
 function showPropertiesScreen() {
@@ -957,13 +1083,27 @@ function showManagementScreen() {
                 crisisLabel = `<div style="color:var(--danger); font-size:0.75rem; margin-top:4px; font-weight:bold;">⚠️ محنة وخطورة: ${crisisTranslations[f.crisis] || f.crisis}</div>`;
             }
             
-            const relationArabic = f.relation === 'Spouse' ? 'شريكة الحياة' : f.relation === 'Child' ? 'ابن السلالة' : f.relation;
+            const relationArabic = f.relation === 'Spouse' ? 'شريكة الحياة' : f.relation === 'Child' ? 'ابن السلالة' : f.relation === 'retired_father' ? 'الوالد المتقاعد (سند روحي)' : f.relation;
+            
+            let extraDetails = "";
+            if (f.relation === 'Child') {
+                const trainingText = f.education !== 'None' ? ` (${f.education === 'combat' ? 'نصال' : f.education === 'defense' ? 'دروع' : 'خيمياء'})` : '';
+                extraDetails = `<div style="font-size:0.72rem; color:var(--text-dim); margin-top:2px;">
+                    سن ${f.age} سنة${trainingText}<br>
+                    الصفة: <span style="color:var(--jade)">${f.trait ? f.trait.name : 'لا يوجد'}</span>
+                </div>`;
+            } else if (f.relation === 'retired_father') {
+                extraDetails = `<div style="font-size:0.72rem; color:var(--jade); margin-top:2px;">
+                    الرتبة الأسطورية السابقة: ${f.lvl}
+                </div>`;
+            }
 
             html += `
-                <div class="management-stat-row" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:4px; border-left: 3px solid ${f.crisis ? 'var(--danger)' : 'var(--secondary)'};">
+                <div class="management-stat-row" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:4px; border-left: 3px solid ${f.crisis ? 'var(--danger)' : 'var(--secondary)'}; min-height: 80px;">
                     <div>
                         <div class="management-stat-label">${relationArabic}</div>
                         <div class="management-stat-value">${f.name}</div>
+                        ${extraDetails}
                         ${crisisLabel}
                     </div>
                     <div style="text-align:right;">

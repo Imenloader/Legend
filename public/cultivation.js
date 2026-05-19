@@ -145,6 +145,11 @@ window.CULTIVATION = {
             message += `<br><br><span class="loot-epic">🌟 ارتقاء شأنك وجدعنتك! مستواك زاد ${levelsGained} درجات. مستواك القتالي الحالي هو <b>الرتبة ${cult.stageLevel}</b>.</span>`;
         }
 
+        if (window.REBIRTH && window.REBIRTH.ageChildren) {
+            const ageMsg = window.REBIRTH.ageChildren(state);
+            if (ageMsg) message += ageMsg;
+        }
+
         if (cult.stageLevel >= 10 && !cult.breakthroughReady) {
             cult.breakthroughReady = true;
             message += `<br><br><span class="loot-mythic" style="text-shadow: 0 0 10px var(--secondary);">⚡ وصلت لعقبة ومحك حقيقي! قدامك عقبة اختبار رتبة <b>${cult.stage}</b>. لازم تعمل اختبار شجاعة مباغت وتخوض التحدي الأكبر.</span>`;

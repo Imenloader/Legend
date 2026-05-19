@@ -130,7 +130,40 @@ window.LIFE = {
         if (!state.player.spouse) return;
         if (Math.random() < 0.1) { // 10% chance per heartbeat if married
             state.player.children = (state.player.children || 0) + 1;
-            narrate(`<b>زيادة في العزوة والولد!</b>: شريكة حياتك ${state.player.spouse.name} ولدت طفل سليم معافى. عزوتك ونسبك بقى أقوى وبصحتك زادت بفضل الله.`, "العائلة");
+            
+            const childNamesMale = ['أحمد', 'يوسف', 'سعد', 'طارق', 'حمزة', 'سليم', 'عمر', 'علي'];
+            const childNamesFemale = ['مريم', 'زينب', 'نور', 'ليلى', 'ياسمين', 'عائشة', 'فاطمة', 'فرح'];
+            const gender = Math.random() > 0.5 ? 'male' : 'female';
+            const name = gender === 'male' ? childNamesMale[Math.floor(Math.random() * childNamesMale.length)] : childNamesFemale[Math.floor(Math.random() * childNamesFemale.length)];
+            
+            const traits = [
+                { id: 'heavenly_bones', name: 'الهيكل الفولاذي الصلب للأجداد', desc: '+20% صحة أساسية دايمة' },
+                { id: 'spirit_eye', name: 'نظرة الصقر والهمة الحادة', desc: '+10% ضربة قاضية دايمة' },
+                { id: 'jinn_luck', name: 'بركة كرم القوافل الأسطورية', desc: '+50% كسب دنانير ذهبية دايمة' },
+                { id: 'sword_master', name: 'نبوغ السيف الدمشقي الحاد', desc: '+15% قوة هجوم دائم' },
+                { id: 'shield_master', name: 'نفوذ درع الفولاذ المتين', desc: '+15% قوة دفاع دائم' },
+                { id: 'quick_learner', name: 'البصيرة والذكاء السريع', desc: '+25% كسب خبرة وتدريب دائم' }
+            ];
+            const trait = traits[Math.floor(Math.random() * traits.length)];
+            
+            const child = {
+                id: `child_${Math.random().toString(36).substr(2, 9)}`,
+                name: name,
+                relation: 'Child',
+                gender: gender,
+                age: 0,
+                affinity: 85,
+                lvl: 1,
+                alive: true,
+                trait: trait,
+                education: 'None',
+                trainingStats: { atk: 0, def: 0, potions: 0 }
+            };
+            
+            if (!state.player.family) state.player.family = [];
+            state.player.family.push(child);
+            
+            narrate(`<b>زيادة في العزوة والولد!</b>: شريكة حياتك ${state.player.spouse.name} ولدت طفل سليم معافى أسميتموه <b>${name}</b>! وعززت ميزات هيكله بـ <b>${trait.name}</b>!`, "العائلة");
             if (window.BALANCE) window.BALANCE.applyToState(state); // Re-calculate stat bonuses
         }
     },
