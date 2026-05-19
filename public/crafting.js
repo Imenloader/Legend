@@ -52,7 +52,7 @@ window.CRAFTING = {
             effect: { hp: 300, maxHp: 30, fullHeal: true }
         },
         'mint_tea': {
-            name: 'شاي النعناع الصوفي الصحراوي المنعش',
+            name: 'شاي النعناع البري الصحراوي المنعش',
             desc: 'شاي صحراوي ساخن معطر بالنعناع والبركة الباطنية. يستعيد كامل نقاط الطاقة البدنية (+100% مانا) وتمنح +10 مانا أقصى دائمة.',
             ingredients: { 'spirit_herb': 2 },
             type: 'permanent',
@@ -91,7 +91,7 @@ window.CRAFTING = {
             set: 'xianxia'
         },
         'robe_of_zuhd': { 
-            name: 'عباءة الزهد الصوفية المتينة للرحالة', 
+            name: 'عباءة الزهد الوبرية المتينة للرحالة', 
             slot: 'body', 
             ingredients: { 'spirit_herb': 6, 'iron_ore': 2 },
             baseStats: { def: 12, hp: 20 },
