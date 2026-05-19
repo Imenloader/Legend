@@ -644,5 +644,194 @@ window.EQUIPMENT_DATA = {
     boots_of_haste: { id: 'boots_of_haste', name: 'خف السرعة والمبادرة العاجلة وسط الغبار والصقيع', slot: 'boots', set: 'mythology', quality: 'Refined', stats: { def: 6, speed: 12 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'خف مريح بيساعد السالك يفادي ضربات الأعادي ويتحرك بخفة الريش.' },
     draupnir_armlet: { id: 'draupnir_armlet', name: 'سوار الملوك المتضاعف السحري الدهبي الباعث بالدنانير', slot: 'relic', set: 'mythology', quality: 'Elite', stats: { def: 18, mp: 30 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'سوار ذهبي ثقيل بيتضاعف لوحده تلقائي، وبيحفظ جيوب السالك مليانة دنانير البركة.' },
     gungnir_replica: { id: 'gpgnir_replica', name: 'رمح الرمي الصائب المستهدف لنقاط الضعف والعظام', slot: 'weapon', set: 'mythology', quality: 'Elite', stats: { atk: 55 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'رمح رمي خفيف من خشب البلوط، مرة ما ترميه بيطير لوحده ويخترق نقاط ضعف العدو مباشرة.' },
-    mjolnir_fragment: { id: 'mjolnir_fragment', name: 'شظية مطرقة الرعد والصواعق الجبارة المستقاة', slot: 'relic', set: 'mythology', quality: 'Super', stats: { atk: 45, mp: 50 }, reqLevel: 23, reqStage: 'Core Formation', desc: 'شظية حديدية من مطرقة زوابع وعواصف الشمال، شرارات الكهربا والبرق بتلعلع عليها باستمرار.' }
+    mjolnir_fragment: { id: 'mjolnir_fragment', name: 'شظية مطرقة الرعد والصواعق الجبارة المستقاة', slot: 'relic', set: 'mythology', quality: 'Super', stats: { atk: 45, mp: 50 }, reqLevel: 23, reqStage: 'Core Formation', desc: 'شظية حديدية من مطرقة زوابع وعواصف الشمال، شرارات الكهربا والبرق بتلعلع عليها باستمرار.' },
+
+    // === الأسلحة التاريخية الملحمية والسيوف الأسطورية (Epic Historical Arabian & Eastern Weapons) ===
+    kilij_ottoman: { 
+        id: 'kilij_ottoman', 
+        name: 'سيف القلج العثماني البتار', 
+        slot: 'weapon', 
+        set: 'silk_road', 
+        quality: 'Elite', 
+        stats: { atk: 75 }, 
+        reqLevel: 15, 
+        reqStage: 'Foundation Establishment', 
+        desc: 'سيف عثماني منحنٍ ذو شفرة عريضة عند الطرف، يمزق الدروع الفولاذية بضربة واحدة خاطفة.' 
+    },
+    shamshir_persian: { 
+        id: 'shamshir_persian', 
+        name: 'سيف الشمشير الفارسي الرشيق', 
+        slot: 'weapon', 
+        set: 'xianxia', 
+        quality: 'Unique', 
+        stats: { atk: 58 }, 
+        reqLevel: 12, 
+        reqStage: 'Qi Condensation', 
+        desc: 'سيف فارسي شديد الانحناء كالهلال المضيء، خفيف الوزن ويمنح حامل سرعة خاطفة في المبارزة.' 
+    },
+    yemeni_blade: { 
+        id: 'yemeni_blade', 
+        name: 'نصل السيف اليماني المأثور', 
+        slot: 'weapon', 
+        set: 'silk_road', 
+        quality: 'Refined', 
+        stats: { atk: 35 }, 
+        reqLevel: 8, 
+        reqStage: 'Qi Condensation', 
+        desc: 'سيف يماني أصيل صُنع بأيدي حدادي مأرب، متزن وصلب ومطلي بماء الذهب والبركة.' 
+    },
+    samsamah_legendary: { 
+        id: 'samsamah_legendary', 
+        name: 'سيف الصمصامة الملحمي العتيق', 
+        slot: 'weapon', 
+        set: 'mythology', 
+        quality: 'Super', 
+        stats: { atk: 150, hp: 100 }, 
+        reqLevel: 35, 
+        reqStage: 'Core Formation', 
+        desc: 'سيف الفارس عمرو بن معديكرب الأسطوري، يقطع الفولاذ والصخر بضربة باطنية من غير أن تثلم شفرته.' 
+    },
+    jambiya_yemeni: { 
+        id: 'jambiya_yemeni', 
+        name: 'خنجر الجنبية اليمانية المذهبة', 
+        slot: 'weapon', 
+        set: 'xianxia', 
+        quality: 'Elite', 
+        stats: { atk: 45, speed: 15 }, 
+        reqLevel: 10, 
+        reqStage: 'Qi Condensation', 
+        desc: 'خنجر يماني ذو نصل منحنٍ ومقبض مرصع بقرن وحيد القرن المذهب، رمز الشرف والطعنات الخاطفة.' 
+    },
+    shibriya_bedouin: { 
+        id: 'shibriya_bedouin', 
+        name: 'خنجر الشبرية البدوية الحادة', 
+        slot: 'weapon', 
+        set: 'silk_road', 
+        quality: 'Normal', 
+        stats: { atk: 18 }, 
+        reqLevel: 2, 
+        reqStage: 'Qi Condensation', 
+        desc: 'خنجر بدوي صغير يُحمل على الحزام، يستعمل للدفاع عن القوافل في دروب الفيافي الوعرة.' 
+    },
+    peshkabz_persian: { 
+        id: 'peshkabz_persian', 
+        name: 'خنجر البيشكابز الفارسي الباتر', 
+        slot: 'weapon', 
+        set: 'vedic', 
+        quality: 'Unique', 
+        stats: { atk: 52 }, 
+        reqLevel: 11, 
+        reqStage: 'Qi Condensation', 
+        desc: 'خنجر تي-شيب هندي فارسي مصمم خصيصاً لاختراق فجوات الدروع الزردية الثقيلة للأعداء.' 
+    },
+    khatti_spear: { 
+        id: 'khatti_spear', 
+        name: 'الرمح الخطّي السمهراني الأصيل', 
+        slot: 'weapon', 
+        set: 'mythology', 
+        quality: 'Elite', 
+        stats: { atk: 85, def: 15 }, 
+        reqLevel: 18, 
+        reqStage: 'Foundation Establishment', 
+        desc: 'الرمح الخطي العربي الشهير المنقوع بالسم، طويل ومرن ومصقول بسنان من الفولاذ الدمشقي اللامع.' 
+    },
+    mizraq_andalusian: { 
+        id: 'mizraq_andalusian', 
+        name: 'رمح المزراق الأندلسي الخفيف', 
+        slot: 'weapon', 
+        set: 'xianxia', 
+        quality: 'Refined', 
+        stats: { atk: 32 }, 
+        reqLevel: 6, 
+        reqStage: 'Qi Condensation', 
+        desc: 'رمح رمي أندلسي خفيف وسريع، يستعمله خيالة طليطلة لإصابة الأهداف البعيدة بدقة باطنية خارقة.' 
+    },
+    seljuk_halberd: { 
+        id: 'seljuk_halberd', 
+        name: 'حربة القوات السلجوقية الفولاذية', 
+        slot: 'weapon', 
+        set: 'silk_road', 
+        quality: 'Elite', 
+        stats: { atk: 90 }, 
+        reqLevel: 20, 
+        reqStage: 'Foundation Establishment', 
+        desc: 'حربة ثقيلة تجمع بين فأس قاطع وسنان رمح حاد، اعتمد عليها حراس السلاطين السلاجقة لتهشيم صفوف الغزاة.' 
+    },
+    byzantine_kontarion: { 
+        id: 'byzantine_kontarion', 
+        name: 'الرمح الكنتاري البيزنطي الثقيل', 
+        slot: 'weapon', 
+        set: 'mythology', 
+        quality: 'Super', 
+        stats: { atk: 130, def: 30 }, 
+        reqLevel: 28, 
+        reqStage: 'Core Formation', 
+        desc: 'رمح بيزنطي ثقيل وطويل جداً، كان يحمله فرسان الكاتافراكت لقصم ظهور الجيوش المهاجمة.' 
+    },
+    composite_bow_hijaz: { 
+        id: 'composite_bow_hijaz', 
+        name: 'القوس المركب الحجازي الأصيل', 
+        slot: 'weapon', 
+        set: 'silk_road', 
+        quality: 'Elite', 
+        stats: { atk: 68 }, 
+        reqLevel: 14, 
+        reqStage: 'Foundation Establishment', 
+        desc: 'قوس مركب فخم من الخشب والقرن والغراء الحيواني، يطلق سهاماً مغلفة بنور التشي تصيب قلب الغيلان.' 
+    },
+    locust_bow_seljuk: { 
+        id: 'locust_bow_seljuk', 
+        name: 'قوس الجراد الطائر السلجوقي السريع', 
+        slot: 'weapon', 
+        set: 'xianxia', 
+        quality: 'Unique', 
+        stats: { atk: 50 }, 
+        reqLevel: 10, 
+        reqStage: 'Qi Condensation', 
+        desc: 'قوس خفيف جداً يطلق رشقات متتالية كأسراب الجراد الطائر، مثالي لفرسان القوس السريع.' 
+    },
+    zanburaq_crossbow: { 
+        id: 'zanburaq_crossbow', 
+        name: 'قوس الزنبورك الأندلسي القاذف للصواعق', 
+        slot: 'weapon', 
+        set: 'mythology', 
+        quality: 'Super', 
+        stats: { atk: 140 }, 
+        reqLevel: 30, 
+        reqStage: 'Core Formation', 
+        desc: 'قوس زنبورك ميكانيكي ثقيل بقوة سحب خارقة، يطلق صواعق من خشب الشهب تخترق الحصون والتنين.' 
+    },
+    ghadanfar_mace: { 
+        id: 'ghadanfar_mace', 
+        name: 'دبوس غضنفر الفرسان المضلع الحديدي', 
+        slot: 'weapon', 
+        set: 'silk_road', 
+        quality: 'Elite', 
+        stats: { atk: 88 }, 
+        reqLevel: 18, 
+        reqStage: 'Foundation Establishment', 
+        desc: 'هراوة حديدية مضلعة حادة الرؤوس، مصممة لتهشيم الدروع والبيض الخارجي للوحوش الصخرية.' 
+    },
+    hashimite_hammer: { 
+        id: 'hashimite_hammer', 
+        name: 'مطرقة الصخر الجبلية الهاشمية', 
+        slot: 'weapon', 
+        set: 'vedic', 
+        quality: 'Super', 
+        stats: { atk: 125, hp: 50 }, 
+        reqLevel: 26, 
+        reqStage: 'Core Formation', 
+        desc: 'مطرقة حرب حجرية صلبة تم نحتها من صخور جبال الحجاز الوعرة، تهز رمال الأرض عند التلويح بها.' 
+    },
+    tabar_axe_persian: { 
+        id: 'tabar_axe_persian', 
+        name: 'فأس الطبر الفارسي المزخرف بماء الذهب', 
+        slot: 'weapon', 
+        set: 'mythology', 
+        quality: 'Super', 
+        stats: { atk: 135 }, 
+        reqLevel: 32, 
+        reqStage: 'Core Formation', 
+        desc: 'فأس هلالية هجومية فخمة، مغلفة بنقوش النور والبركة لحماية حاملي لواء الخلود والعز.' 
+    }
 };

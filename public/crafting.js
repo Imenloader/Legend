@@ -115,6 +115,62 @@ window.CRAFTING = {
             ingredients: { 'iron_ore': 30, 'celestial_silk': 5, 'dragon_vein_shard': 8 },
             baseStats: { atk: 120 },
             set: 'mythology'
+        },
+        'kilij_ottoman': { 
+            name: 'سيف القلج العثماني البتار', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 18, 'monster_core': 6 },
+            baseStats: { atk: 75 },
+            set: 'silk_road'
+        },
+        'shamshir_persian': { 
+            name: 'سيف الشمشير الفارسي الرشيق', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 12, 'spirit_herb': 6 },
+            baseStats: { atk: 58 },
+            set: 'xianxia'
+        },
+        'yemeni_blade': { 
+            name: 'نصل السيف اليماني المأثور', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 8, 'spirit_herb': 4 },
+            baseStats: { atk: 35 },
+            set: 'silk_road'
+        },
+        'samsamah_legendary': { 
+            name: 'سيف الصمصامة الملحمي العتيق', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 35, 'dragon_vein_shard': 10 },
+            baseStats: { atk: 150 },
+            set: 'mythology'
+        },
+        'jambiya_yemeni': { 
+            name: 'خنجر الجنبية اليمانية المذهبة', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 10, 'spirit_herb': 8 },
+            baseStats: { atk: 45 },
+            set: 'xianxia'
+        },
+        'khatti_spear': { 
+            name: 'الرمح الخطّي السمهراني الأصيل', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 20, 'wood': 15 },
+            baseStats: { atk: 85 },
+            set: 'mythology'
+        },
+        'composite_bow_hijaz': { 
+            name: 'القوس المركب الحجازي الأصيل', 
+            slot: 'weapon', 
+            ingredients: { 'wood': 25, 'celestial_silk': 4 },
+            baseStats: { atk: 68 },
+            set: 'silk_road'
+        },
+        'ghadanfar_mace': { 
+            name: 'دبوس غضنفر الفرسان المضلع الحديدي', 
+            slot: 'weapon', 
+            ingredients: { 'iron_ore': 22, 'monster_core': 8 },
+            baseStats: { atk: 88 },
+            set: 'silk_road'
         }
     },
 
