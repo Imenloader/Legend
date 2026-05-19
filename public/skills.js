@@ -7,20 +7,26 @@ window.SKILLS = {
     // Database of learnable techniques
     techniques: {
         // --- الفنون الجسدية والقتالية الفعالة (Martial Techniques - Active) ---
-        'lotus_strike': { id: 'lotus_strike', name: 'ضربة الياسمين الوهيجة', desc: 'وابل من الضربات السريعة والمتتالية بسيفك.', mpCost: 10, power: 1.5, type: 'fast', reqLvl: 1 },
-        'mountain_peak_cleave': { id: 'mountain_peak_cleave', name: 'شطر الصخرة والقمم الفولاذي', desc: 'ضربة ثقيلة بتكسر دروع وحماية العدو تماماً.', mpCost: 20, power: 2.2, type: 'heavy', reqLvl: 5 },
-        'shadow_step': { id: 'shadow_step', name: 'خطوة الطيف الصحراوي', desc: 'بتزود فرصة تفادي وتجنب الضربات بـ 20% لـ 3 أدوار.', mpCost: 15, effect: { dodge: 0.2, duration: 3 }, type: 'buff', reqLvl: 3 },
-        'earth_shatter': { id: 'earth_shatter', name: 'زوبعة دكة الأرض الرهيبة', desc: 'هبدة جبارة في الأرض مع فرصة 30% لشل حركة العدو برعب.', mpCost: 25, power: 2.5, stunChance: 0.3, type: 'heavy', reqLvl: 8 },
-        'blood_qi_burst': { id: 'blood_qi_burst', name: 'غليان عروق الفرسان الحامية', desc: 'بتضحي بـ 10% من صحتك عشان تاخد +50% هجوم في دورك الجاي.', mpCost: 0, hpCost: 0.1, effect: { atkBuff: 1.5, duration: 2 }, type: 'buff', reqLvl: 12 },
-        'dragon_roar': { id: 'dragon_roar', name: 'صرخة مارد النار الزاجر', desc: 'بتشل حركة الأعداء برعب هائل وتسبب تلات أضعاف الضرر.', mpCost: 50, power: 3.0, stunChance: 1.0, type: 'heavy', reqLvl: 18 },
-        'void_step': { id: 'void_step', name: 'ومضة حركة المباغتة', desc: 'بتناور وتتحرك بسرعة خاطفة عشان مفيش هجوم يلمسك لدور كامل.', mpCost: 45, effect: { invulnerable: true, duration: 1 }, type: 'buff', reqLvl: 22 },
+        // --- الفنون الخاصة بسلالات المولد والمنشأ (Lineage Heritage Arts - Active) ---
+        'dust_fist': { id: 'dust_fist', name: 'قبضة التراب الكادحة', desc: 'ضربة باطنية من قهر الفقراء تسبب 1.3x ضرر وتعطل دقة هجوم الخصم بنسبة 25% لدورين.', mpCost: 5, power: 1.3, debuff: { atk: -0.25, duration: 2 }, type: 'fast', reqLvl: 1 },
+        'sham_blade': { id: 'sham_blade', name: 'سيف النور الشامي', desc: 'ضربتان متتاليتان خاطفتان بنصل من الفولاذ الدمشقي تسببان 1.6x ضرر كلي.', mpCost: 12, power: 1.6, type: 'fast', reqLvl: 1 },
+        'wolf_claw': { id: 'wolf_claw', name: 'مخلب الذئب البري', desc: 'مزقة قوية بأظافر التشي تسبب 1.4x ضرر وتحدث نزيفاً باطنياً مستمراً لـ 3 أدوار.', mpCost: 10, power: 1.4, dot: { dmg: 12, duration: 3 }, type: 'heavy', reqLvl: 1 },
+
+        // --- الفنون الجسدية والقتالية الفعالة (Martial Techniques - Active) ---
+        'lotus_strike': { id: 'lotus_strike', name: 'ضربة الياسمين الوهيجة', desc: 'وابل خاطف من الضربات السريعة والمتعاقبة بنصلك المضيء تسبب 1.5x ضرر.', mpCost: 10, power: 1.5, type: 'fast', reqLvl: 1 },
+        'mountain_peak_cleave': { id: 'mountain_peak_cleave', name: 'شطر الصخرة والقمم الفولاذي', desc: 'ضربة غاشمة هائلة تسحق دروع الخصم وتهز بنيانه بالكامل تسبب 2.2x ضرر.', mpCost: 20, power: 2.2, type: 'heavy', reqLvl: 5 },
+        'shadow_step': { id: 'shadow_step', name: 'خطوة الطيف الصحراوي', desc: 'تزيد فرصة تفادي ضربات الأعداء وتجنب الهجمات بنسبة 20% لـ 3 أدوار قتالية.', mpCost: 15, effect: { dodge: 0.2, duration: 3 }, type: 'buff', reqLvl: 3 },
+        'earth_shatter': { id: 'earth_shatter', name: 'زوبعة دكة الأرض الرهيبة', desc: 'ضربة زلزالية عنيفة للأرض تشل حركة العدو مذهولاً بنسبة 30% وتسبب 2.5x ضرر.', mpCost: 25, power: 2.5, stunChance: 0.3, type: 'heavy', reqLvl: 8 },
+        'blood_qi_burst': { id: 'blood_qi_burst', name: 'غليان عروق الفرسان الحامية', desc: 'تضحية طاهرة بـ 10% من جوهر الصحة لمضاعفة الهجوم بنسبة 50% في الدور التالي.', mpCost: 0, hpCost: 0.1, effect: { atkBuff: 1.5, duration: 2 }, type: 'buff', reqLvl: 12 },
+        'dragon_roar': { id: 'dragon_roar', name: 'صرخة مارد النار الزاجر', desc: 'صرخة باطنية مهيبة تشل حركة العدو تماماً وتسبب ثلاثة أضعاف الضرر 3.0x.', mpCost: 50, power: 3.0, stunChance: 1.0, type: 'heavy', reqLvl: 18 },
+        'void_step': { id: 'void_step', name: 'ومضة حركة المباغتة', desc: 'حركة طيفية خاطفة تتجنب بها كافة أشكال الهجوم تماماً لدور كامل.', mpCost: 45, effect: { invulnerable: true, duration: 1 }, type: 'buff', reqLvl: 22 },
         
         // --- فنون التركيز والعزيمة البدنية (Martial Focus Techniques - Active) ---
-        'badr_blessing': { id: 'badr_blessing', name: 'عزيمة التركيز والصلابة الصافية', desc: 'تركيز بدني صافي من طائفتك وقواتك بيرجع 30% من صحتك القصوى.', mpCost: 30, heal: 0.3, type: 'magic', reqLvl: 3 },
-        'heavenly_rain': { id: 'heavenly_rain', name: 'عاصفة السيوف السلطانية الهابطة', desc: 'إعصار من شظايا السيوف الفولاذية المنهمرة على الأعداء.', mpCost: 40, power: 3.5, type: 'magic', reqLvl: 15 },
-        'sun_incineration': { id: 'sun_incineration', name: 'لهب البروق السبعة المحرق', desc: 'تركيز سحري جبار: بيحرق العدو بلهب مستمر وصعب يطفي لـ 5 أدوار.', mpCost: 60, power: 5.0, dot: { dmg: 0.5, duration: 5 }, type: 'magic', reqLvl: 25 },
-        'phoenix_rebirth': { id: 'phoenix_rebirth', name: 'قوة نهوض العنقاء الأسطورية', desc: 'عزيمة أسطورية: بترجع صحتك بالكامل وتديك +25% هجوم ودفاع لـ 3 أدوار.', mpCost: 80, heal: 1.0, effect: { atkBuff: 1.25, defBuff: 1.25, duration: 3 }, type: 'magic', reqLvl: 35 },
-        'heaven_seal': { id: 'heaven_seal', name: 'ختم أقاليم الصحراء العالي الحافظ', desc: 'أسلوب أسطوري: بيشل هالة الأعداء ويقلل هجومهم ودفاعهم بـ 40%.', mpCost: 75, debuff: { atk: -0.4, def: -0.4, duration: 5 }, type: 'magic', reqLvl: 30 },
+        'badr_blessing': { id: 'badr_blessing', name: 'عزيمة التركيز والصلابة الصافية', desc: 'تركيز بدني صافي يستعيد 30% من نقاط الصحة القصوى فوراً.', mpCost: 30, heal: 0.3, type: 'magic', reqLvl: 3 },
+        'heavenly_rain': { id: 'heavenly_rain', name: 'عاصفة السيوف السلطانية الهابطة', desc: 'إعصار من شظايا السيوف الفولاذية المنهمرة على الأعداء تسبب 3.5x ضرر.', mpCost: 40, power: 3.5, type: 'magic', reqLvl: 15 },
+        'sun_incineration': { id: 'sun_incineration', name: 'لهب البروق السبعة المحرق', desc: 'تركيز سحري جبار يحرق الخصم بلهب حارق مستمر لـ 5 أدوار قتالية.', mpCost: 60, power: 5.0, dot: { dmg: 18, duration: 5 }, type: 'magic', reqLvl: 25 },
+        'phoenix_rebirth': { id: 'phoenix_rebirth', name: 'قوة نهوض العنقاء الأسطورية', desc: 'عزيمة أسطورية تستعيد كامل الصحة وتزيد الهجوم والدفاع بنسبة 25% لـ 3 أدوار.', mpCost: 80, heal: 1.0, effect: { atkBuff: 1.25, defBuff: 1.25, duration: 3 }, type: 'magic', reqLvl: 35 },
+        'heaven_seal': { id: 'heaven_seal', name: 'ختم أقاليم الصحراء العالي الحافظ', desc: 'أسلوب أسطوري يشل هالة الأعداء ويقلل من هجومهم ودفاعهم بنسبة 40% لـ 5 أدوار.', mpCost: 75, debuff: { atk: -0.4, def: -0.4, duration: 5 }, type: 'magic', reqLvl: 30 },
 
         // --- القدرات البدنية الكامنة (Passive Techniques) ---
         'spirit_surge': { id: 'spirit_surge', name: 'فيض طاقة مقر الطائفة', desc: 'قدرة كامنة: +10% سرعة استرجاع الطاقة البدنية (المانا).', passive: true, stat: 'mpRegen', bonus: 0.1, reqLvl: 10 },

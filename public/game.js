@@ -1790,68 +1790,52 @@ function calculateTotalStats() {
     let eqMpMult = 1;
 
     // Xianxia Set: Focus ATK / DEF
-    if (setCounts.xianxia >= 6) {
+    if (setCounts.xianxia >= 3) {
         eqAtkMult += 0.40;
         eqDefMult += 0.30;
         state.player.immortalAscensionActive = true;
-    } else if (setCounts.xianxia >= 4) {
-        eqAtkMult += 0.20;
-        eqDefMult += 0.15;
-        state.player.immortalAscensionActive = false;
     } else if (setCounts.xianxia >= 2) {
-        eqAtkMult += 0.10;
-        eqDefMult += 0.05;
+        eqAtkMult += 0.15;
+        eqDefMult += 0.10;
         state.player.immortalAscensionActive = false;
     } else {
         state.player.immortalAscensionActive = false;
     }
 
     // Vedic Set: Focus ATK / HP
-    if (setCounts.vedic >= 6) {
+    if (setCounts.vedic >= 3) {
         eqAtkMult += 0.35;
         eqHpMult += 0.35;
         state.player.supremeMantraActive = true;
-    } else if (setCounts.vedic >= 4) {
-        eqAtkMult += 0.20;
-        eqHpMult += 0.20;
-        state.player.supremeMantraActive = false;
     } else if (setCounts.vedic >= 2) {
-        eqAtkMult += 0.10;
-        eqHpMult += 0.10;
+        eqAtkMult += 0.15;
+        eqHpMult += 0.15;
         state.player.supremeMantraActive = false;
     } else {
         state.player.supremeMantraActive = false;
     }
 
     // Silk Road Set: Focus HP / MP
-    if (setCounts.silk_road >= 6) {
+    if (setCounts.silk_road >= 3) {
         eqHpMult += 0.40;
         eqMpMult += 0.40;
         state.player.silkOasisActive = true;
-    } else if (setCounts.silk_road >= 4) {
-        eqHpMult += 0.20;
-        eqMpMult += 0.20;
-        state.player.silkOasisActive = false;
     } else if (setCounts.silk_road >= 2) {
-        eqHpMult += 0.10;
-        eqMpMult += 0.10;
+        eqHpMult += 0.15;
+        eqMpMult += 0.15;
         state.player.silkOasisActive = false;
     } else {
         state.player.silkOasisActive = false;
     }
 
     // Mythology Set: Focus ATK / DEF
-    if (setCounts.mythology >= 6) {
+    if (setCounts.mythology >= 3) {
         eqAtkMult += 0.50;
         eqDefMult += 0.40;
         state.player.supremeSovereignActive = true;
-    } else if (setCounts.mythology >= 4) {
-        eqAtkMult += 0.30;
-        eqDefMult += 0.20;
-        state.player.supremeSovereignActive = false;
     } else if (setCounts.mythology >= 2) {
-        eqAtkMult += 0.15;
-        eqDefMult += 0.10;
+        eqAtkMult += 0.20;
+        eqDefMult += 0.15;
         state.player.supremeSovereignActive = false;
     } else {
         state.player.supremeSovereignActive = false;

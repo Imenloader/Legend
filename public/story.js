@@ -11,14 +11,77 @@ const STORY_NODES = {
     womb_start: {
         id: 'womb_start',
         act: 0,
-        title: 'الحلم والبدايات الأولى',
-        narration: `في سكون الليل وقبل أن تبدأ رحلتك الكبرى في البراري، تقف مستغرقاً في حلم عميق يجسد طموحك وإرادتك للمستقبل. قوافل التجارة، رياح الصحراء، وصليل السيوف يتردد في خيالك. تشعر بطاقة الهمة والعزيمة تسري في عروقك، وتتأهب للاختيار والتمسك بدربك ومستقبلك.
+        title: 'الحلم وسلالة النشأة الأولى',
+        narration: `في سكون الليل وقبل أن تبدأ رحلتك الكبرى في البراري، تقف مستغرقاً في حلم عميق يحدد سلالة منشئك وقدرات عهدك للأبد. قوافل التجارة، وحوش الفيافي، قلاع الفرسان، وصليل السيوف يتردد في خيالك. تشعر بطاقة الهمة تسري في عروقك، وتتأهب لتحديد منشئك الذي سيشكل مستقبلك.
 
-هتختار وتتمسك بإيه في وسط السكون وأقاليم الصحراء ده؟`,
+اختر سلالة منشئك ومقادير نسبك في هذه الصحراء الواسعة:`,
         choices: [
-            { text: '☀️ التمسك بدرب القوة والجسد الفولاذي (يركز على الهجوم والقتال)', next: 'womb_birth', onEnter: (s) => { s.player.atk += 10; s._wombGift = 'Strength'; s.player.wombGift = 'Strength'; } },
-            { text: '🌊 التدفق مع اللياقة والصحة البدنية الشاملة (يركز على الحيوية والدم)', next: 'womb_birth', onEnter: (s) => { s.player.maxHp += 50; s.player.hp = s.player.maxHp; s._wombGift = 'Vitality'; s.player.wombGift = 'Vitality'; } },
-            { text: '🧘 العزيمة الهادئة والتركيز القتالي العميق (يركز على ميزان التقوى والمانا)', next: 'womb_birth', onEnter: (s) => { s.player.karma += 20; s.player.maxMp += 30; s.player.mp = s.player.maxMp; s._wombGift = 'Spirituality'; s.player.wombGift = 'Spirituality'; } }
+            { 
+                text: '🌾 نشأت يتيماً معدماً فقيراً في هوامش المدائن (عزيمة الصابرين، فن قبضة التراب، 0 ذهب)', 
+                next: 'womb_birth', 
+                onEnter: (s) => { 
+                    s.player.gold = 0; 
+                    s.player.wombLineage = 'poor'; 
+                    s.player.inheritedTrait = 'resolute_will'; 
+                    if (!s.player.skills) s.player.skills = [];
+                    s.player.skills.push('dust_fist'); 
+                    s._wombGift = 'Vitality';
+                } 
+            },
+            { 
+                text: '🐪 ولدت سليل تجار قوافل الحرير الوفيرة (نفوذ الصراف، عتاد مذهب، 800 ذهب)', 
+                next: 'womb_birth', 
+                onEnter: (s) => { 
+                    s.player.gold = 800; 
+                    s.player.wombLineage = 'merchant'; 
+                    s.player.inheritedTrait = 'bankers_eye'; 
+                    if (!s.player.inventory.items) s.player.inventory.items = [];
+                    s.player.inventory.items.push({ 
+                        id: 'gilded_scimitar', 
+                        name: 'سيف التجار البراق المذهب (فريد)', 
+                        type: 'weapon', 
+                        slot: 'weapon', 
+                        quality: 'Unique',
+                        stats: { atk: 18 }, 
+                        price: 400 
+                    });
+                    s._wombGift = 'Strength';
+                } 
+            },
+            { 
+                text: '⚔️ نشأت وريثاً لعائلة من أعيان فرسان النبلاء (عزة الفرسان، فن السيف الشامي، 300 ذهب)', 
+                next: 'womb_birth', 
+                onEnter: (s) => { 
+                    s.player.gold = 300; 
+                    s.player.wombLineage = 'noble'; 
+                    s.player.inheritedTrait = 'royal_pride'; 
+                    if (!s.player.skills) s.player.skills = [];
+                    s.player.skills.push('sham_blade'); 
+                    if (!s.player.inventory.items) s.player.inventory.items = [];
+                    s.player.inventory.items.push({ 
+                        id: 'noble_shield', 
+                        name: 'ترس النبلاء المذهب العريق (نادر)', 
+                        type: 'relic', 
+                        slot: 'relic', 
+                        quality: 'Unique',
+                        stats: { def: 12 }, 
+                        price: 300 
+                    });
+                    s._wombGift = 'Strength';
+                } 
+            },
+            { 
+                text: '🐺 ترعرعت يتيماً تائهاً وسط رمال قفار الواحات الكاسرة (خفة الفهد، فن مخلب الذئب، 50 ذهب)', 
+                next: 'womb_birth', 
+                onEnter: (s) => { 
+                    s.player.gold = 50; 
+                    s.player.wombLineage = 'orphan'; 
+                    s.player.inheritedTrait = 'beast_agility'; 
+                    if (!s.player.skills) s.player.skills = [];
+                    s.player.skills.push('wolf_claw'); 
+                    s._wombGift = 'Spirituality';
+                } 
+            }
         ]
     },
 

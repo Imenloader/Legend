@@ -22,6 +22,12 @@ window.COMBAT = {
         state.playerDmgBonus = 1;
         state.enemyAtkDebuff = 1;
 
+        // --- NEW: Dynamic Hero Class Combat Specialization Counters ---
+        state.swordIntent = 0;          // Sword Immortal intent counter (0 to 3)
+        state.cauldronEssence = 0;      // Medicine Cultivator alchemical counter (0 to 100)
+        state.staggerCounter = 0;       // Desert Knight shield/parry counter (0 to 3)
+        state.magicCombosCount = 0;     // Sufi Mystic magic combo counter (0 to 2)
+
         // Apply active companion passive
         const activeComp = window.COMPANIONS?.getActive(state);
         if (activeComp && activeComp.passiveBuff && activeComp.passiveBuff.effect) {
@@ -37,7 +43,8 @@ window.COMBAT = {
         state.dotEffects = (state.dotEffects || []).filter(dot => {
             const dmg = Math.floor(dot.dmg);
             enemy.hp = Math.max(0, enemy.hp - dmg);
-            msg += `<br><span style="color:var(--danger)">${enemy.name} يتلقى ${dmg} ضرر ${dot.type === 'burn' ? 'لهب حارق' : dot.type}!</span>`;
+            const typeStr = dot.type === 'burn' ? 'لهب حارق' : (dot.type === 'poison' ? 'سم باطني قاتل' : dot.type);
+            msg += `<br><span style="color:var(--danger)">${enemy.name} يتلقى ${dmg} ضرر ${typeStr}!</span>`;
             dot.duration--;
             return dot.duration > 0;
         });
@@ -56,6 +63,12 @@ window.COMBAT = {
         });
 
         // 4. Player Regens
+        if (state.player.supremeMantraActive) {
+            const hReg = Math.floor(state.player.maxHp * 0.05);
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + hReg);
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + 5);
+            msg += `<br><span style="color:var(--jade); font-weight:bold;">[طقم التنوير الباطني]: تجدد ${hReg} صحة و 5 تركيز باطني!</span>`;
+        }
         if (state.player.hpRegen > 0) {
             const hReg = Math.floor(state.player.maxHp * state.player.hpRegen);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + hReg);
@@ -384,6 +397,116 @@ window.COMBAT = {
         if (state.playerForm === 'water' && pDmg > 0) {
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 5);
             msg += ` (وضعية الماء السلسة استعادت 5 نقاط تركيز)`;
+        }
+
+        // ========================================================
+        // DYNAMIC HERO SPECIALIZATION ENGINE
+        // ========================================================
+        const heroClass = state.player.class;
+
+        // 1. Sword Intent Gauge (السياف الأسطوري)
+        if (heroClass === 'Sword Immortal' && pDmg > 0) {
+            state.swordIntent = (state.swordIntent || 0) + 1;
+            if (state.swordIntent >= 3) {
+                pDmg = Math.floor(pDmg * 2.5);
+                state.swordIntent = 0;
+                spec = 'perfect_counter';
+                msg += `<br><span style="color:#ffd700; font-weight:bold; text-shadow: 0 0 10px #ffd700;">⚔️ ضربة النصل الأسطورية القاصمة! انطلقت نية السيف المطلقة ودمرت دفاع الخصم (ضرر مضاعف 2.5x)!</span>`;
+            } else {
+                msg += ` <span style="color:#ffd700; font-weight:bold;">[نية السيف: ${state.swordIntent}/3]</span>`;
+            }
+        }
+
+        // 2. Alchemical Cauldron (الطبيب المعالج)
+        if (heroClass === 'Medicine Cultivator') {
+            if (playerMoveId !== 'deflect' && playerMoveId !== 'slipstream') {
+                state.cauldronEssence = (state.cauldronEssence || 0) + 35;
+                if (state.cauldronEssence >= 100) {
+                    const healAmt = Math.floor(state.player.maxHp * 0.35);
+                    state.player.hp = Math.min(state.player.maxHp, state.player.hp + healAmt);
+                    state.dotEffects = state.dotEffects || [];
+                    state.dotEffects.push({ type: 'poison', dmg: Math.max(5, Math.floor(playerAtk * 0.4)), duration: 4 });
+                    state.cauldronEssence = 0;
+                    msg += `<br><span style="color:#00ffbb; font-weight:bold; text-shadow: 0 0 10px #00ffbb;">⚗️ سيل الترياق وتطهير الجسد! انفجر مرجل الخيمياء، فاستعدت ${healAmt} نقاط صحة وتسمم دم العدو بسم باطني!</span>`;
+                } else {
+                    msg += ` <span style="color:#00ffbb; font-weight:bold;">[شحن المرجل: ${state.cauldronEssence}%]</span>`;
+                }
+            }
+        }
+
+        // 3. Stagger & Rage Shield Stance (فارس الصحراء)
+        if (heroClass === 'Desert Knight') {
+            if (playerMoveId === 'deflect' || playerMoveId === 'mountain_stance' || (eDmg > 0 && eDmg < enemyAtk * 0.5)) {
+                state.staggerCounter = (state.staggerCounter || 0) + 1;
+                if (state.staggerCounter >= 3) {
+                    state.enemyStunned = true;
+                    state.enemyStaggered = true;
+                    pDmg = Math.floor(playerAtk * 2.0);
+                    state.staggerCounter = 0;
+                    spec = 'perfect_counter';
+                    msg += `<br><span style="color:#e0a96d; font-weight:bold; text-shadow: 0 0 10px #e0a96d;">🛡️ صدمة الترس المرتدة! بعد الصد المتين الثالث، هجمت بترسك الفولاذي، شالاً حركته ومسبباً ${pDmg} ضرر حاسم!</span>`;
+                } else {
+                    msg += ` <span style="color:#e0a96d; font-weight:bold;">[شحن الترس: ${state.staggerCounter}/3]</span>`;
+                }
+            }
+        }
+
+        // 4. Celestial Flow & Focus Ecstasy (الفارس المهيب)
+        if (heroClass === 'Sufi Mystic') {
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + 8);
+            if (playerMoveId !== 'deflect' && playerMoveId !== 'slipstream') {
+                state.magicCombosCount = (state.magicCombosCount || 0) + 1;
+                if (state.magicCombosCount >= 2) {
+                    pDmg = Math.floor(pDmg * 1.4);
+                    state.magicCombosCount = 0;
+                    msg += `<br><span style="color:#00ccff; font-weight:bold; text-shadow: 0 0 10px #00ccff;">🧘 وجد السكينة والفيض السماوي! تضاعف فيض الهمة، متجاوزاً حماية الخصم ومسبباً 40% ضرر باطني إضافي!</span>`;
+                } else {
+                    msg += ` <span style="color:#00ccff; font-weight:bold;">[شحنات السكينة: ${state.magicCombosCount}/2]</span>`;
+                }
+            }
+        }
+
+        // ========================================================
+        // PASSIVE BIRTH HERITAGE TRAITS
+        // ========================================================
+        const lineage = state.player.wombLineage;
+        if (lineage === 'poor' && state.player.hp < state.player.maxHp * 0.4) {
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + 10);
+            eDmg = Math.max(1, Math.floor(eDmg * 0.7));
+            msg += `<br><span style="color:var(--jade); font-weight:bold;">[عزيمة الصابرين (سلالة الفقراء): زاد دفاعك 30% وتجدد تركيزك الباطني!]</span>`;
+        } else if (lineage === 'noble' && pDmg > 0) {
+            pDmg = Math.floor(pDmg * 1.15);
+            msg += ` <span style="color:var(--secondary); font-weight:bold;">[عزة الفرسان: +15%]</span>`;
+        } else if (lineage === 'orphan' && pDmg > 0 && Math.random() < 0.15) {
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + 15);
+            msg += ` <span style="color:#ffcc00; font-weight:bold;">[بركة البرية: استعدت 15 تركيز باطني!]</span>`;
+        }
+
+        // ========================================================
+        // ACTIVE GEAR SET COMBAT EFFECTS
+        // ========================================================
+        if (state.player.immortalAscensionActive && pDmg > 0) {
+            pDmg = Math.floor(pDmg * 1.20);
+            msg += ` <span style="color:#ffd700; font-weight:bold;">[طقم الخلود: +20% ضرر]</span>`;
+        }
+
+        if (state.player.silkOasisActive) {
+            if (playerMoveId === 'deflect' || playerMoveId === 'slipstream') {
+                if (enemyAtk > 0) {
+                    const refl = Math.max(1, Math.floor(enemyAtk * 0.20));
+                    enemy.hp = Math.max(0, enemy.hp - refl);
+                    msg += `<br><span style="color:#00ccff; font-weight:bold;">[طقم طريق الحرير]: عكست ${refl} ضرر مرتد إلى الخصم!</span>`;
+                }
+            }
+        }
+
+        if (state.player.supremeSovereignActive) {
+            if (playerMoveId !== 'deflect' && playerMoveId !== 'slipstream' && pDmg > 0) {
+                pDmg = Math.floor(pDmg * 1.30);
+                const drain = Math.floor(pDmg * 0.15);
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + drain);
+                msg += ` <span style="color:#ff0077; font-weight:bold;">[طقم الأساطير: +30% ضرر وشفاء +${drain}]</span>`;
+            }
         }
 
         return { playerDmg: pDmg, enemyDmg: eDmg, resultText: msg, special: spec, momentumShift: mom };
