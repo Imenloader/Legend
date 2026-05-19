@@ -165,18 +165,18 @@ window.SECTS = {
         this.init(state);
         state.sect.specialization = path;
         // Apply immediate bonuses
-        if (path === 'طريق السيف الدمشقي') state.player.atk += 10;
-        else if (path === 'طريق الكيمياء والطب') state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 20;
-        return { success: true, message: `رابطتك وديوانك اختاروا <b>${path}</b>!` };
+        if (path === 'Sword') state.player.atk += 10;
+        else if (path === 'Alchemy') state.player.inventory.materials['spirit_herb'] = (state.player.inventory.materials['spirit_herb'] || 0) + 20;
+        return { success: true, message: `selected` };
     },
 
     // Recruit a random disciple
     recruit(state) {
         this.init(state);
-        if (state.sect.disciples.length >= state.sect.maxDisciples) return { success: false, message: "القلعة مليانة فرسان على الآخر!" };
+        if (state.sect.disciples.length >= state.sect.maxDisciples) return { success: false, message: "max" };
         
         const cost = 1000 * state.sect.level;
-        if (state.player.gold < cost) return { success: false, message: "معندكش دنانير كفاية لتعيين ودعوة فرسان جدد!" };
+        if (state.player.gold < cost) return { success: false, message: "gold" };
         
         const names = ['سعد', 'سليم', 'كريم', 'فارس', 'نجم', 'بشير', 'أمين'];
         const d = {
@@ -190,30 +190,29 @@ window.SECTS = {
         state.player.gold -= cost;
         state.sect.disciples.push(d);
         
-        const qualMap = { 'Genius': 'عبقري اللب', 'Normal': 'عادي' };
-        return { success: true, message: `عينت الفارس <b>${d.name}</b> (${qualMap[d.quality] || d.quality}) بنجاح!` };
+        return { success: true, message: "recruited" };
     },
 
     // Sect Diplomacy database
     rivalSects: [
-        { id: 'demon_blade', name: 'طائفة السيف الأسود الغادرة', relation: 'Hostile', power: 500, territory: 'جبال الظلال الوعرة' },
-        { id: 'heavenly_lotus', name: 'قلعة الياقوت والصلابة البدنية', relation: 'Neutral', power: 300, territory: 'وادي الرمال الساحرة' },
-        { id: 'righteous_sun', name: 'ديوان شمس المشرق العادلة', relation: 'Ally', power: 450, territory: 'هضبة الأنوار الشمسية' }
+        { id: 'shadow_fang', name: 'طائفة مخلب الظل الشيطانية', relation: 'Hostile', power: 500, territory: 'جبال الظلال الوعرة' },
+        { id: 'golden_lotus', name: 'طريقة لوتس البرق الصوفية', relation: 'Neutral', power: 300, territory: 'وادي الرمال الساحرة' },
+        { id: 'vanguard_sect', name: 'فرسان طليعة نصل الرمل الكاسر', relation: 'Ally', power: 450, territory: 'هضبة الأنوار الشمسية' }
     ],
 
     territories: {
         'ضواحي واحة القوافل': { owner: 'Player', income: 100 },
-        'جبال الظلال الوعرة': { owner: 'demon_blade', income: 500 },
-        'وادي الرمال الساحرة': { owner: 'heavenly_lotus', income: 300 },
-        'هضبة الأنوار الشمسية': { owner: 'righteous_sun', income: 450 }
+        'جبال الظلال الوعرة': { owner: 'shadow_fang', income: 500 },
+        'وادي الرمال الساحرة': { owner: 'golden_lotus', income: 300 },
+        'هضبة الأنوار الشمسية': { owner: 'vanguard_sect', income: 450 }
     },
 
     // Declare war on a rival
     declareWar(state, rivalId) {
         const rival = this.rivalSects.find(r => r.id === rivalId);
-        if (!rival) return { success: false, message: "الخصم ده مش موجود." };
+        if (!rival) return { success: false, message: "notfound" };
         rival.relation = 'War';
-        return { success: true, message: `أعلنت الحرب الضروس ورفعت سيفك ضد <b>${rival.name}</b>!` };
+        return { success: true, message: `declared` };
     },
 
     // Resolve a turn of war

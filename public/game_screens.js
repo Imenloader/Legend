@@ -1739,14 +1739,14 @@ function showSectHallScreen() {
         narrate("ارتحل للمرتفعات والجبال البدنية العالية بالشرق، وقدم التماساً مكتوباً وتضحيات من الأحجار لتنضم لإحدى الطوائف العظمى المتاحة وتكتسب فنونهم المطلقة.", 'النظام', null, false, true);
 
         const choices = Object.entries(window.SECTS.sectsDb).map(([id, s]) => {
-            const currentRealm = state.player.cultivation?.stage || 'Qi Condensation';
-            const realms = ['Qi Condensation', 'Foundation Establishment', 'Core Formation', 'Nascent Soul'];
+            const currentRealm = state.player.cultivation?.stage || 'الجدع المبتدئ';
+            const realms = ['الجدع المبتدئ', 'الفتوة الجسور', 'البطل الشهم', 'كبير الجدعان والزعيم'];
             const playerRealmIdx = realms.indexOf(currentRealm);
             const reqRealmIdx = realms.indexOf(s.reqRealm);
             const eligible = playerRealmIdx >= reqRealmIdx;
 
-            const sectNameArabic = s.name === 'Jade Summit Sect' ? 'طائفة قمة اليشم العظمى' : s.name === 'Sufi Order of the Empty Quarter' ? 'طريقة الربع الخالي الصوفية' : s.name;
-            const reqRealmArabic = s.reqRealm === 'Qi Condensation' ? 'تكثيف المانا' : s.reqRealm === 'Foundation Establishment' ? 'تأسيس البنيان' : s.reqRealm === 'Core Formation' ? 'النواة الذهبية' : 'البعث البدني';
+            const sectNameArabic = s.name;
+            const reqRealmArabic = s.reqRealm;
 
             return {
                 text: `${eligible ? '✨' : '🔒'} تقديم التماس انضمام لـ ${sectNameArabic} (الرتبة ${s.tier} | الرسوم: ${s.cost} دينار ذهبي | يتطلب: ملكوت ${reqRealmArabic})`,

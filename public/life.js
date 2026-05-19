@@ -95,8 +95,14 @@ window.LIFE = {
             member.lvl++;
         } else if (roll < 0.85) {
             // Family Crisis
-            const crisisType = Math.random() > 0.5 ? 'Kidnapped' : 'Sick';
-            narrate(`<b>كرب ومصيبة عائلية!</b>: ${member.relation} ${member.name} ${crisisType === 'Kidnapped' ? 'مخطوف ومحبوس عند طائفة السيف الأسود الشرير!' : 'بيعانى من حمى شديدة ومرض عضال يحتاج لعلاج وأعشاب طبية!'}`, "العائلة");
+            const crises = ['Kidnapped', 'Spiritual Poisoning', 'Demonic Incursion'];
+            const crisisType = crises[Math.floor(Math.random() * crises.length)];
+            const crisisArabic = {
+                'Kidnapped': 'مخطوف ومحبوس عند طائفة السيف الأسود الشرير!',
+                'Spiritual Poisoning': 'تسمم هالة قنوات مانا مهدد لحياته!',
+                'Demonic Incursion': 'هجوم كوابيس وأرواح مظلمة سلب بصيرته!'
+            };
+            narrate(`<b>كرب ومصيبة عائلية!</b>: ${member.relation} ${member.name} ${crisisArabic[crisisType]}`, "العائلة");
             narrate(`لازم تتحرك وتنقذهم بسرعة قبل ما يموتوا. (تقدر تحل الكرب ده من شاشة العائلة)`, "ديوان الفتوة");
             member.crisis = crisisType;
         } else if (state.player.karma < -50 && roll < 0.95) {
@@ -109,7 +115,7 @@ window.LIFE = {
 
     // Marriage System
     seekMarriage(state, narrate) {
-        if (state.player.gold < 5000) return { success: false, message: "الجوازة والشبكة وكتب الكتاب محتاجة على الأقل 5000 دينار ذهبي!" };
+        if (state.player.gold < 5000) return { success: false, message: "gold" };
         
         const candidateNames = ['ليلى', 'ياسمين', 'فاطمة', 'عائشة', 'نور'];
         const name = candidateNames[Math.floor(Math.random() * candidateNames.length)];
@@ -117,7 +123,7 @@ window.LIFE = {
         state.player.gold -= 5000;
         state.player.spouse = { name, affinity: 70, children: 0 };
         
-        return { success: true, message: `ألف مبروك! اتجوزت من الست <b>${name}</b>! وعملت فرح هبط البلد وسط واحة القوافل.` };
+        return { success: true, message: `married` };
     },
 
     processBirth(state, narrate) {
@@ -181,7 +187,7 @@ window.LIFE = {
     upgradeAncestralPagoda(state) {
         if (!state.player.familyPagodaLevel) state.player.familyPagodaLevel = 0;
         const currentLvl = state.player.familyPagodaLevel;
-        if (currentLvl >= 3) return { success: false, message: "ديوان الأجداد والمقبرة العائلية وصلت لأعلى درجة عز وجلال!" };
+        if (currentLvl >= 3) return { success: false, message: "max" };
         
         const costs = [
             { wood: 500, iron: 200, stones: 1000 },
@@ -195,7 +201,7 @@ window.LIFE = {
         if ((dw.resources.wood || 0) < cost.wood || (dw.resources.iron || 0) < cost.iron || (state.player.gold || 0) < cost.stones) {
             return { 
                 success: false, 
-                message: `الموارد مش كفاية للتطوير!<br>محتاج: 🪵 ${cost.wood} خشب، 🪙 ${cost.iron} حديد، و 💎 ${cost.stones} دنانير ذهبية.` 
+                message: "resources" 
             };
         }
         
@@ -205,15 +211,9 @@ window.LIFE = {
         state.player.gold -= cost.stones;
         state.player.familyPagodaLevel++;
         
-        const names = [
-            "ديوان الذكرى والترحم والوفاء (+10% همة وتركيز)",
-            "ديوان الفرسان الأبطال والعزوة (+15% سرعة مودة الرفاق)",
-            "المقبرة السلطانية الملكية الكبرى (+15% ضرر الضربات القاضية)"
-        ];
-        
         return { 
             success: true, 
-            message: `<b>تم تطوير ديوان الأجداد بنجاح!</b><br>أنشأت <b>${names[currentLvl]}</b>!` 
+            message: "Upgraded ancestral pagoda" 
         };
     },
 
@@ -231,7 +231,7 @@ window.LIFE = {
             member.affinity = Math.min(100, member.affinity + 20);
             return { 
                 success: true, 
-                message: `دفعت الفدية الودية. <b>${member.name}</b> رجع لبيته وديوانه بسلام وأمان! المودة بينكم بقت <b>${member.affinity}</b>.` 
+                message: "paid" 
             };
         }
         
@@ -254,13 +254,13 @@ window.LIFE = {
                 disciple.atk += 3;
                 return {
                     success: true,
-                    message: `<b>نصر ونجاح!</b> الفارس <b>${disciple.name}</b> هزم قطاع الطرق وحرر ${member.name}! الفارس ارتقى لـ <b>مستوى ${disciple.lvl}</b>.`
+                    message: "succeeded"
                 };
             } else {
                 disciple.lvl = Math.max(1, disciple.lvl - 1);
                 return {
                     success: false,
-                    message: `<b>فشل وخسارة!</b> الفارس <b>${disciple.name}</b> اتهزم ورجع القلعة متصاب بجروح شديدة. ${member.name} لسة في خطر!`
+                    message: "failed"
                 };
             }
         }
@@ -280,7 +280,7 @@ window.LIFE = {
             };
             
             setTimeout(() => { startCombat(boss); }, 500);
-            return { success: true, message: "سحبت سيفك الدمشقي بنفسك، وخرجت فوراً تواجه التهديد وجهاً لوجه!" };
+            return { success: true, message: "fight" };
         }
         
         return { success: false, message: "طريقة غير صالحة للتعامل مع الأزمة." };
