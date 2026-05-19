@@ -1639,4 +1639,33 @@ input[type="text"]:focus {
     }
 }
 
+/* Responsive overrides for new RPG modules on mobile viewports */
+@media (max-width: 768px) {
+    #oasis-screen .class-selector {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    
+    #caravan-screen .entity-panel.glass > div {
+        flex-direction: column !important;
+    }
+    
+    #caravan-grid-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        aspect-ratio: 1 !important;
+    }
+    
+    #caravan-screen .entity-panel.glass {
+        padding: 10px !important;
+    }
+    
+    #logbook-screen #logbook-content {
+        font-size: 0.65rem !important;
+        line-height: 1.1 !important;
+        padding: 10px !important;
+    }
+}
+
+
 

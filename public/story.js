@@ -1172,11 +1172,11 @@ window.BALANCE = {
     // Enemy scaling (relative to player stage)
     enemyHpScale: (playerLvl, stageMin) => {
         const delta = Math.max(0, playerLvl - stageMin);
-        return 1 + (delta * 0.25); // 25% harder per level (Aggressive scaling)
+        return 1.8 + (playerLvl * 0.48) + (stageMin * 0.35) + (delta * 0.30);
     },
     enemyAtkScale: (playerLvl, stageMin) => {
         const delta = Math.max(0, playerLvl - stageMin);
-        return 1 + (delta * 0.20); // 20% harder
+        return 1.5 + (playerLvl * 0.38) + (stageMin * 0.25) + (delta * 0.22);
     },
 
     // XP rewards — scales with enemy level

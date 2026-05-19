@@ -221,15 +221,31 @@ window.COMBAT = {
         let mom = 0; 
         let spec = null;
 
+        // Apply dynamic clock & weather modifiers
+        if (state && state.weather === 'sandstorm') {
+            playerAtk = Math.max(1, Math.floor(playerAtk * 0.80));
+            enemyAtk = Math.max(1, Math.floor(enemyAtk * 0.80));
+            msg += `<span style="color:#e0a96d; font-weight:bold;">[عاصفة رملية: -20% دقة]</span> `;
+        }
+        if (state && state.weather === 'heatwave') {
+            playerAtk = Math.floor(playerAtk * 1.15);
+            msg += `<span style="color:#ff5500; font-weight:bold;">[حرارة الفيافي: +15% هجوم]</span> `;
+        }
+
+        const isNight = state && state.dayTime !== undefined && (state.dayTime < 5 || state.dayTime >= 21);
+        if (isNight) {
+            msg += `<span style="color:#8000ff; font-weight:bold;">[الليل القارس: طاقة الباطن +20%]</span> `;
+        }
+
         // Taming Logic
         if (playerMoveId === 'tame') {
             const chance = (enemy.hp / enemy.maxHp < 0.3) ? 0.8 : 0.2;
             if (Math.random() < chance) {
                 spec = 'tamed';
-                msg = `عملت حركة ترويض الأرواح المباركة بإيدك. ${enemy.name} خضع وأطاع إرادتك بالكامل!`;
+                msg += `عملت حركة ترويض الأرواح المباركة بإيدك. ${enemy.name} خضع وأطاع إرادتك بالكامل!`;
                 mom = 100;
             } else {
-                msg = `${enemy.name} كشر عن أنيابه وصرخ رافضاً محاولاتك لترويضه ولجمه بقسوة!`;
+                msg += `${enemy.name} كشر عن أنيابه وصرخ رافضاً محاولاتك لترويضه ولجمه بقسوة!`;
                 eDmg = enemyAtk;
                 mom = -30;
             }
@@ -239,8 +255,12 @@ window.COMBAT = {
         // --- Handle Learned Skills Specifically ---
         const skill = window.SKILLS.techniques[playerMoveId];
         if (skill) {
-            msg = `أطلقت وفجرت مهارة <b>${skill.name}</b>! `;
-            pDmg = Math.floor(playerAtk * (skill.power || 1));
+            msg += `أطلقت وفجرت مهارة <b>${skill.name}</b>! `;
+            let skillAtk = playerAtk;
+            if (isNight) {
+                skillAtk = Math.floor(skillAtk * 1.20);
+            }
+            pDmg = Math.floor(skillAtk * (skill.power || 1));
             
             if (skill.heal) {
                 const h = Math.floor(state.player.maxHp * skill.heal);

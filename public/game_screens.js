@@ -507,7 +507,211 @@ function showForgeScreen() {
         });
     }
 
+    choices.push({ text: "💎 ورشة صقل وتجويد العتاد وتطوير جودته (+1 إلى +12)", callback: showRefinementScreen });
     choices.push({ text: '↩ عودة إلى واحة التقاطع', callback: hubLoop });
+    setChoices(choices);
+}
+
+function showRefinementScreen() {
+    clearNarrative();
+    
+    if (!state.player.equipment || Object.keys(state.player.equipment).length === 0) {
+        narrate("<b>💎 ورشة صقل وتجويد العتاد الأسطوري</b><br><span style='color:var(--danger)'>مفيش أي عتاد مجهز لصقله وتجويده حالياً. جهز عتاداً من حقيبتك أولاً!</span>", "النظام", null, false, true);
+        setChoices([{ text: "↩ عودة للحدادة", callback: showForgeScreen }]);
+        return;
+    }
+
+    const oreCount = Math.floor((state.oasis?.resources?.ore || 0) + (state.player.inventory.materials?.iron_ore || 0));
+    const currentGold = state.player.gold || 0;
+
+    narrate(`<b>💎 ورشة صقل وتجويد العتاد الأسطوري (رتب وجودة Conquer RPG)</b><br>
+الخامات المتاحة بالحقيبة والواحة: <b style="color:var(--secondary)">x${oreCount} خامات باطنية</b> | الذهب المتوفر: <b style="color:var(--secondary)">${currentGold} دينار ذهبي</b><br>
+<small style="color:var(--text-dim)">صقل العتاد وتجويده يزيد إحصائياتك وقدراتك البدنية بشكل هائل ودائم.</small>`, "النظام", null, false, true);
+
+    const slotNamesArabic = {
+        'weapon': '⚔️ السيف الهجومي (Weapon)',
+        'head': '🪖 خوذة الرأس (Head)',
+        'body': '🥋 درع الجسد (Body)',
+        'legs': '👖 رداء الساقين (Legs)',
+        'boots': '🥾 حذاء المسير (Boots)',
+        'relic': '🕌 الأثر العتيق (Relic)'
+    };
+
+    const qualityNamesArabic = {
+        'normal': '<span style="color:#ffffff;">عادي (Normal)</span>',
+        'refined': '<span style="color:#00bcff; font-weight:bold;">محسن (Refined)</span>',
+        'unique': '<span style="color:#cc00ff; font-weight:bold;">فريد (Unique)</span>',
+        'elite': '<span style="color:#ffae00; font-weight:bold;">نخبة (Elite)</span>',
+        'super': '<span style="color:#ff003c; font-weight:bold; text-shadow:0 0 5px rgba(255,0,0,0.5);">خارق (Super) 🔥</span>'
+    };
+
+    let html = `<div style="text-align:left; max-height:350px; overflow-y:auto; padding-right:5px; margin-bottom:15px;">`;
+    let itemsEquipped = 0;
+
+    Object.entries(state.player.equipment).forEach(([slot, item]) => {
+        if (!item) return;
+        itemsEquipped++;
+        
+        item.quality = item.quality || 'normal';
+        item.refine = item.refine || 0;
+        item.lvl = item.lvl || 15;
+
+        html += `
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:12px; margin-bottom:12px;">
+                <b style="color:var(--secondary); font-size:1.05rem;">${slotNamesArabic[slot] || slot}</b><br>
+                اسم العتاد: <b style="color:#fff;">${item.name}</b><br>
+                الجودة الحالية: <b>${qualityNamesArabic[item.quality] || item.quality}</b><br>
+                المستوى الحالي: <b style="color:var(--jade)">مستوى ${item.lvl}</b><br>
+                درجة الصقل: <b style="color:#00ff55; font-size:1.1rem; text-shadow:0 0 4px rgba(0,255,0,0.3)">+${item.refine}</b>
+            </div>
+        `;
+    });
+
+    if (itemsEquipped === 0) {
+        narrate("<b>💎 ورشة صقل وتجويد العتاد الأسطوري</b><br><span style='color:var(--danger)'>مفيش أي عتاد مجهز لصقله وتجويده حالياً. جهز عتاداً من حقيبتك أولاً!</span>", "النظام", null, false, true);
+        setChoices([{ text: "↩ عودة للحدادة", callback: showForgeScreen }]);
+        return;
+    }
+
+    html += `</div>`;
+    narrate(html, "النظام", null, false, true);
+
+    const choices = [];
+
+    // Build interactive choices for each equipped item
+    Object.entries(state.player.equipment).forEach(([slot, item]) => {
+        if (!item) return;
+
+        // 1. Refine option (+1 to +12)
+        if (item.refine < 12) {
+            const nextRef = item.refine + 1;
+            const goldCost = nextRef * 250;
+            const oreCost = nextRef * 5;
+            const canAfford = currentGold >= goldCost && oreCount >= oreCost;
+
+            choices.push({
+                text: `✨ صقل [${item.name}] إلى +${nextRef} | يتطلب: ${goldCost} ذهب، ${oreCost} خامات`,
+                callback: () => {
+                    if (!canAfford) {
+                        narrate(`<span style="color:var(--danger)"><b>فشل الصقل!</b> مواردك غير كافية لترقية [${item.name}].</span>`, "النظام");
+                        setTimeout(showRefinementScreen, 2000);
+                        return;
+                    }
+                    // Deduct
+                    state.player.gold -= goldCost;
+                    if (state.oasis?.resources?.ore >= oreCost) {
+                        state.oasis.resources.ore -= oreCost;
+                    } else {
+                        const remainder = oreCost - (state.oasis?.resources?.ore || 0);
+                        if (state.oasis?.resources?.ore) state.oasis.resources.ore = 0;
+                        if (state.player.inventory.materials.iron_ore) state.player.inventory.materials.iron_ore -= remainder;
+                    }
+
+                    item.refine = nextRef;
+                    state.player.questProgress = state.player.questProgress || {};
+                    state.player.questProgress.refines = (state.player.questProgress.refines || 0) + 1;
+
+                    if (window.QUESTS) window.QUESTS.updateQuests(state);
+
+                    narrate(`<span style="color:#00ff55; font-weight:bold;">⚡ تم صقل [${item.name}] بنجاح إلى +${nextRef}! لمعت طاقته البدنية واشتد معدنه!</span>`, "النظام");
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showRefinementScreen, 2200);
+                }
+            });
+        }
+
+        // 2. Quality Upgrade option
+        if (item.quality !== 'super') {
+            const qualities = ['normal', 'refined', 'unique', 'elite', 'super'];
+            const currentIdx = qualities.indexOf(item.quality);
+            const nextQuality = qualities[currentIdx + 1];
+            
+            const qualityGoldCosts = { refined: 300, unique: 800, elite: 2000, super: 5000 };
+            const qualityOreCosts = { refined: 8, unique: 18, elite: 40, super: 90 };
+
+            const goldCost = qualityGoldCosts[nextQuality];
+            const oreCost = qualityOreCosts[nextQuality];
+            const canAfford = currentGold >= goldCost && oreCount >= oreCost;
+
+            const qLabelArabic = { refined: 'محسن', unique: 'فريد', elite: 'نخبة', super: 'خارق' };
+
+            choices.push({
+                text: `💎 ترقية جودة [${item.name}] إلى [${qLabelArabic[nextQuality]}] | يتطلب: ${goldCost} ذهب، ${oreCost} خامات`,
+                callback: () => {
+                    if (!canAfford) {
+                        narrate(`<span style="color:var(--danger)"><b>فشل التجويد!</b> مواردك لا تكفي لرفع جودة [${item.name}].</span>`, "النظام");
+                        setTimeout(showRefinementScreen, 2000);
+                        return;
+                    }
+                    // Deduct
+                    state.player.gold -= goldCost;
+                    if (state.oasis?.resources?.ore >= oreCost) {
+                        state.oasis.resources.ore -= oreCost;
+                    } else {
+                        const remainder = oreCost - (state.oasis?.resources?.ore || 0);
+                        if (state.oasis?.resources?.ore) state.oasis.resources.ore = 0;
+                        if (state.player.inventory.materials.iron_ore) state.player.inventory.materials.iron_ore -= remainder;
+                    }
+
+                    item.quality = nextQuality;
+                    state.player.questProgress = state.player.questProgress || {};
+                    state.player.questProgress.refines = (state.player.questProgress.refines || 0) + 1;
+
+                    if (window.QUESTS) window.QUESTS.updateQuests(state);
+
+                    narrate(`<span style="color:#cc00ff; font-weight:bold;">✨ تم الارتقاء بجودة [${item.name}] بنجاح إلى [${qLabelArabic[nextQuality]}]!</span>`, "النظام");
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showRefinementScreen, 2200);
+                }
+            });
+        }
+
+        // 3. Level Upgrade option
+        if (item.lvl < 120) {
+            const nextLvl = item.lvl === 15 ? 40 : item.lvl === 40 ? 70 : item.lvl === 70 ? 100 : 120;
+            const goldCost = nextLvl * 15;
+            const oreCost = Math.floor(nextLvl * 0.4);
+            const canAfford = currentGold >= goldCost && oreCount >= oreCost;
+
+            choices.push({
+                text: `🥏 ترقية مستوى [${item.name}] إلى لفل ${nextLvl} | يتطلب: ${goldCost} ذهب، ${oreCost} خامات`,
+                callback: () => {
+                    if (!canAfford) {
+                        narrate(`<span style="color:var(--danger)"><b>فشل ترقية المستوى!</b> مواردك غير كافية لرفع مستوى عتادك.</span>`, "النظام");
+                        setTimeout(showRefinementScreen, 2000);
+                        return;
+                    }
+                    // Deduct
+                    state.player.gold -= goldCost;
+                    if (state.oasis?.resources?.ore >= oreCost) {
+                        state.oasis.resources.ore -= oreCost;
+                    } else {
+                        const remainder = oreCost - (state.oasis?.resources?.ore || 0);
+                        if (state.oasis?.resources?.ore) state.oasis.resources.ore = 0;
+                        if (state.player.inventory.materials.iron_ore) state.player.inventory.materials.iron_ore -= remainder;
+                    }
+
+                    item.lvl = nextLvl;
+                    state.player.questProgress = state.player.questProgress || {};
+                    state.player.questProgress.refines = (state.player.questProgress.refines || 0) + 1;
+
+                    if (window.QUESTS) window.QUESTS.updateQuests(state);
+
+                    narrate(`<span style="color:var(--jade); font-weight:bold;">🥏 تم ترقية مستوى [${item.name}] بنجاح إلى لفل ${nextLvl}! تضاعفت قوته الأساسية!</span>`, "النظام");
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showRefinementScreen, 2200);
+                }
+            });
+        }
+    });
+
+    choices.push({ text: "↩ عودة للحدادة العامة", callback: showForgeScreen });
     setChoices(choices);
 }
 

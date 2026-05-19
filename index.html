@@ -274,6 +274,103 @@
         </div>
     </div>
 
+    <!-- Oasis Management Screen -->
+    <div id="oasis-screen" class="screen">
+        <h2>⛺ إدارة وتطوير الواحة الباطنية</h2>
+        <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right;">
+            <div id="oasis-stats" style="margin-bottom: 15px; font-size: 0.95rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px;">
+                <!-- Filled dynamically -->
+            </div>
+            
+            <div class="class-selector" style="grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div class="entity-panel" style="padding: 10px; border: 1px solid var(--secondary);">
+                    <h4>🚰 بئر الماء النوراني</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج مياهاً باطنية عذبة لدعم القوافل والترحال.</p>
+                    <div id="well-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('well')">ترقية البئر</button>
+                </div>
+                <div class="entity-panel" style="padding: 10px; border: 1px solid var(--success);">
+                    <h4>🌿 بستان الياسمين والرياحين</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج أعشاباً باطنية عذبة لصناعة الترياق والخيمياء.</p>
+                    <div id="garden-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('garden')">ترقية البستان</button>
+                </div>
+                <div class="entity-panel" style="padding: 10px; border: 1px solid var(--jade);">
+                    <h4>🔨 فرن حديد الشهب والصلب</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج حديداً باطنياً لصقل العتاد والأسلحة والترقيات.</p>
+                    <div id="forge-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('forge')">ترقية الفرن</button>
+                </div>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="hubLoop()">↩ عودة للواحة الرئيسية</button>
+        </div>
+    </div>
+
+    <!-- Caravan Exploration Map Screen -->
+    <div id="caravan-screen" class="screen">
+        <h2>🐪 خريطة قوافل الترحال واستكشاف البرية</h2>
+        <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right;">
+            <div id="caravan-hud" style="margin-bottom: 10px; font-size: 0.9rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px; display: flex; justify-content: space-between;">
+                <!-- Filled dynamically -->
+            </div>
+            
+            <div style="display: flex; gap: 20px; flex-direction: row-reverse;">
+                <!-- Visual Map Grid -->
+                <div id="caravan-grid-container" style="flex: 1.5; display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--secondary); aspect-ratio: 1; justify-content: center; align-content: center;">
+                    <!-- Visual tiles rendered by JS -->
+                </div>
+                
+                <!-- Controls and Details -->
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                    <div class="entity-panel" style="padding: 12px; background: rgba(0,0,0,0.4); text-align: right;">
+                        <h4 style="color: var(--secondary);">🎮 لوحة التحكم والتوجيه</h4>
+                        <p style="font-size: 0.75rem; color: var(--text-dim);">استخدم لوحة الاتجاهات لتحريك القافلة عبر الصحراء. الحركة تستهلك 1 تمر و 1 ماء.</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 140px; margin: 15px auto;">
+                            <div></div>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, -1)">⬆️</button>
+                            <div></div>
+                            
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(-1, 0)">⬅️</button>
+                            <div></div>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(1, 0)">➡️</button>
+                            
+                            <div></div>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, 1)">⬇️</button>
+                            <div></div>
+                        </div>
+                    </div>
+                    
+                    <div id="caravan-event-log" class="entity-panel" style="padding: 10px; height: 160px; overflow-y: auto; font-size: 0.8rem; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); text-align: right;">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="hubLoop()">↩ التخييم والعودة</button>
+                <button class="btn" onclick="resupplyCaravan()">🎒 تموين القافلة من الحقيبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nomad Logbook Screen -->
+    <div id="logbook-screen" class="screen">
+        <h2>📜 ديوان حكايات البدو واليوميات المصورة</h2>
+        <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right; max-height: 600px; overflow-y: auto;">
+            <div id="logbook-content" style="white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; color: #ffd700; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; border: 1px solid var(--secondary); text-align: left; line-height: 1.2;">
+                <!-- Illustrated ASCII pages rendered dynamically -->
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn" onclick="prevLogbookPage()">⬅️ الصفحة السابقة</button>
+                <button class="btn" onclick="nextLogbookPage()">الصفحة التالية ➡️</button>
+                <button class="btn btn-secondary" onclick="hubLoop()" style="margin-right: auto;">↩ عودة</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Inventory / Equipment Screen -->
     <div id="inventory-screen" class="screen">
         <h2>تجهيز العتاد وطاقة قنوات الجسد</h2>
@@ -532,6 +629,7 @@
 <script src="/crafting.js"></script>
 <script src="/cultivation.js"></script>
 <script src="/game_screens.js"></script>
+<script src="/oasis_caravan.js"></script>
 <script src="/game.js"></script>
 
 <!-- PWA Service Worker Registration -->

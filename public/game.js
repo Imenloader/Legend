@@ -943,6 +943,7 @@ function initGame() {
         if (window.SECTS) window.SECTS.process(state);
         if (window.DWELLING) window.DWELLING.process(state);
         if (window.SOUL_WANDERING) window.SOUL_WANDERING.process(state);
+        if (window.OASIS_CARAVAN) window.OASIS_CARAVAN.processTicks(state);
 
         // --- DYNAMIC EVENT HEARTBEAT ---
         if (Math.random() < 0.05) {
@@ -1014,8 +1015,16 @@ function hubLoop() {
                 if (result === 'combat' && state.pendingCombatEnemy) {
                     const enemy = window.LORE ? window.LORE.getAllEnemies()[state.pendingCombatEnemy] : null;
                     state.pendingCombatEnemy = null;
-                    if (enemy) startCombat({ ...enemy, hp: enemy.baseHp, maxHp: enemy.baseHp, atk: enemy.baseAtk });
-                    else { narrate("خطأ: بيانات العدو مفقودة في المخطوطة البدنية. العودة للواحة.", "النظام"); hubLoop(); }
+                    if (enemy) {
+                        const scaledStoryEnemy = {
+                            ...enemy,
+                            hp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, state.player.lvl) : 2)),
+                            maxHp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, state.player.lvl) : 2)),
+                            atk: Math.floor(enemy.baseAtk * (window.BALANCE ? window.BALANCE.enemyAtkScale(state.player.lvl, state.player.lvl) : 1.8)),
+                            def: Math.floor((enemy.baseDef || 5) * (1.2 + state.player.lvl * 0.3))
+                        };
+                        startCombat(scaledStoryEnemy);
+                    } else { narrate("خطأ: بيانات العدو مفقودة في المخطوطة البدنية. العودة للواحة.", "النظام"); hubLoop(); }
                 } else { 
                     if (window.QUESTS) window.QUESTS.updateQuests(state);
                     if (window.SKILLS) window.SKILLS.checkUnlocks(state);
@@ -1045,6 +1054,11 @@ function hubLoop() {
     
     // Exploration
     choices.push({ text: `⚔️ استكشف ${regionName}`, callback: () => exploreRegion(regionId) });
+    
+    // Oasis & Caravan expansion buttons
+    choices.push({ text: "⛺ إدارة وتطوير الواحة الباطنية (إنتاج تلقائي خامل)", callback: () => { if (window.showOasisScreen) window.showOasisScreen(); } });
+    choices.push({ text: "🐪 قافلة الترحال واستكشاف خريطة البرية الشبكية", callback: () => { if (window.showCaravanMapScreen) window.showCaravanMapScreen(); } });
+    choices.push({ text: "📜 ديوان حكايات البدو واليوميات اليومية", callback: () => { if (window.showNomadLogbookScreen) window.showNomadLogbookScreen(); } });
 
     if (regionId === 'crossroads') {
         if (typeof showQuestLog === 'function') choices.push({ text: "📜 لوحة المهام والطلبات", callback: showQuestLog });
@@ -1236,9 +1250,10 @@ function exploreRegion(regionId) {
     const enemy = enemies[Math.floor(Math.random() * enemies.length)];
     const scaledEnemy = {
         ...enemy,
-        hp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, region.minLevel || 1) : 1)),
-        maxHp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, region.minLevel || 1) : 1)),
-        atk: Math.floor(enemy.baseAtk * (window.BALANCE ? window.BALANCE.enemyAtkScale(state.player.lvl, region.minLevel || 1) : 1))
+        hp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, region.minLevel || 1) : 1.8)),
+        maxHp: Math.floor(enemy.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(state.player.lvl, region.minLevel || 1) : 1.8)),
+        atk: Math.floor(enemy.baseAtk * (window.BALANCE ? window.BALANCE.enemyAtkScale(state.player.lvl, region.minLevel || 1) : 1.5)),
+        def: Math.floor((enemy.baseDef || 5) * (1.2 + state.player.lvl * 0.3))
     };
 
     narrate(`ترتحل وتسافر بنورك وعنادك إلى ${region.name}...`, "النظام");
@@ -1515,6 +1530,17 @@ function resolveCombatTurn(moveId) {
 function handleVictory() {
     const enemy = state.currentEnemy;
     narrate(`النصر الحاسم! لقد سحقت وهزمت ${enemy.name} في معركة أسطورية.`, 'النظام');
+
+    // Track quest progress for bandit defeats and raid defeats
+    if (state && state.player) {
+        state.player.questProgress = state.player.questProgress || { caravanMoves: 0, refines: 0, oasisUpgrades: 0, banditKills: 0, raidKills: 0 };
+        if (enemy && enemy.name === "زعيم قطاع الطرق المغيرين") {
+            state.player.questProgress.raidKills = (state.player.questProgress.raidKills || 0) + 1;
+        } else if (enemy && (enemy.name === "قاطع طريق البرية الجسور" || enemy.name === "قاطع طريق الفيافي الجسور" || enemy.name.includes("قاطع طريق"))) {
+            state.player.questProgress.banditKills = (state.player.questProgress.banditKills || 0) + 1;
+        }
+        if (window.QUESTS) window.QUESTS.updateQuests(state);
+    }
     
     // Check if this was a breakthrough Heavenly Tribulation
     if (state._pendingBreakthroughStage && window.CULTIVATION) {
@@ -1548,7 +1574,7 @@ function handleVictory() {
     
     const xpBase = window.BALANCE ? window.BALANCE.xpForEnemy(enemy.minLevel || 1) : 50;
     const bg = state.player.background || {};
-    const xpReward = Math.floor(xpBase * (bg.xpMult || 1) * streakMult);
+    const xpReward = Math.floor(xpBase * (bg.xpMult || 1) * streakMult * (1 + (state.player.xpGainBonus || 0)));
     
     const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()) * streakMult * (state.player.goldMult || 1.0));
     
@@ -1841,13 +1867,38 @@ function calculateTotalStats() {
         state.player.supremeSovereignActive = false;
     }
 
-    // 8. Individual Equipment Flat Stats
+    // 8. Individual Equipment Flat Stats with MMORPG Quality, Level, and Refine Scaling
     Object.values(state.player.equipment ?? {}).forEach(item => {
-        const s = item?.stats ?? {};
-        bAtk += s.atk ?? 0;
-        bDef += s.def ?? 0;
-        bHp += s.hp ?? 0;
-        bMp += s.mp ?? 0;
+        if (!item) return;
+        const s = item.stats ?? {};
+        
+        // Base quality multipliers
+        const qualityMults = { normal: 1.0, refined: 1.35, unique: 1.75, elite: 2.30, super: 3.20 };
+        const q = item.quality || 'normal';
+        const qMult = qualityMults[q] || 1.0;
+
+        // Level multipliers
+        const itemLvl = item.lvl || 15;
+        const lvlMult = 1.0 + (itemLvl - 15) * 0.015;
+
+        // Base scaled stats
+        let itemAtk = Math.floor((s.atk ?? 0) * qMult * lvlMult);
+        let itemDef = Math.floor((s.def ?? 0) * qMult * lvlMult);
+        let itemHp = Math.floor((s.hp ?? 0) * qMult * lvlMult);
+        let itemMp = Math.floor((s.mp ?? 0) * qMult * lvlMult);
+
+        // Refine Level flat bonuses (+1 to +12)
+        const ref = item.refine || 0;
+        if (ref > 0) {
+            if (item.slot === 'weapon') itemAtk += (ref * 35);
+            else if (item.slot === 'body' || item.slot === 'legs') itemDef += (ref * 20);
+            else itemHp += (ref * 60);
+        }
+
+        bAtk += itemAtk;
+        bDef += itemDef;
+        bHp += itemHp;
+        bMp += itemMp;
     });
 
     // 9. Life System & Background Traits
