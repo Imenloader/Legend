@@ -47,70 +47,70 @@ window.CRAFTING = {
     // --- BLACKSMITH (مصفوفة صقل الفولاذ وورشة الحدادة الباطنية) ---
     forgeRecipes: {
         'spirit_scimitar': { 
-            name: 'سيف نصل الهلال الأصيل للمبتدئين', 
+            name: 'سيف نصل الهلال الفولاذي المبتدئ', 
             slot: 'weapon', 
             ingredients: { 'iron_ore': 5, 'spirit_herb': 2 },
             baseStats: { atk: 12 },
             set: 'xianxia'
         },
         'spirit_turban': { 
-            name: 'عمامة الحرب النحاسية للمستجدين', 
+            name: 'عمامة فرسان التقاطع المزخرفة بالفضة', 
             slot: 'head', 
             ingredients: { 'spirit_herb': 4 },
             baseStats: { def: 5, mp: 10 },
             set: 'xianxia'
         },
         'robe_of_zuhd': { 
-            name: 'درع الجلد المقوى البسيط للرحالة', 
+            name: 'عباءة الزهد الصوفية المتينة للرحالة', 
             slot: 'body', 
             ingredients: { 'spirit_herb': 6, 'iron_ore': 2 },
             baseStats: { def: 12, hp: 20 },
             set: 'xianxia'
         },
         'mantra_beads': {
-            name: 'عصا الكهنة والتاو الروحية لتكثيف التشي',
+            name: 'عصا الأسطرلاب النحاسي لحكماء دار الحكمة', 
             slot: 'weapon',
             ingredients: { 'wood': 15, 'monster_core': 6 },
             baseStats: { atk: 45, mp: 40 },
             set: 'vedic'
         },
         'dhoti_of_enlightenment': {
-            name: 'رداء التاو الحريري المحصن بالتعاويذ',
+            name: 'رداء الفتوة الأندلسي المطرز بنور الياسمين', 
             slot: 'body',
             ingredients: { 'spirit_herb': 12, 'monster_core': 4 },
             baseStats: { def: 25, hp: 80 },
             set: 'vedic'
         },
         'dune_crest_scimitar': {
-            name: 'نصل غضب الصحراء الفولاذي الحاد',
+            name: 'سيف ذو الفقار الفولاذي البارق القاطع', 
             slot: 'weapon',
             ingredients: { 'iron_ore': 15, 'monster_core': 5 },
             baseStats: { atk: 55 },
             set: 'silk_road'
         },
         'nomad_tunic': {
-            name: 'درع الجند الثقيل المصفح بالحديد النقي',
+            name: 'درع الفرسان البدوي المصفح بحديد الشهب', 
             slot: 'body',
             ingredients: { 'spirit_herb': 10, 'wood': 10 },
             baseStats: { def: 35, hp: 60 },
             set: 'silk_road'
         },
         'jade_emperor_plate': {
-            name: 'الدرع الإمبراطوري المقدس اللامع الخارق',
+            name: 'درع سليمان الذهبي الأسطوري المرصع بالزمرد', 
             slot: 'body',
             ingredients: { 'iron_ore': 20, 'dragon_vein_shard': 5 },
             baseStats: { def: 80, hp: 200 },
             set: 'mythology'
         },
         'phoenix_crown': {
-            name: 'تاج خوذة العنقاء الذهبية المزدانة بالياقوت',
+            name: 'عمامة الأنوار المذهبة بريش العنقاء العربي', 
             slot: 'head',
             ingredients: { 'spirit_herb': 10, 'celestial_silk': 3 },
             baseStats: { def: 30, mp: 100, mpRegen: 5 },
             set: 'mythology'
         },
         'heavenly_halberd': {
-            name: 'رمح العاصفة والأعاصير السماوي الجبار',
+            name: 'رمح السنان الدمشقي المسحور ذو الرأس البرق', 
             slot: 'weapon',
             ingredients: { 'iron_ore': 30, 'celestial_silk': 5, 'dragon_vein_shard': 8 },
             baseStats: { atk: 120 },
