@@ -196,7 +196,7 @@ window.SECTS = {
     // Sect Diplomacy database
     rivalSects: [
         { id: 'shadow_fang', name: 'طائفة مخلب الظل الشيطانية', relation: 'Hostile', power: 500, territory: 'جبال الظلال الوعرة' },
-        { id: 'golden_lotus', name: 'طريقة لوتس البرق الصوفية', relation: 'Neutral', power: 300, territory: 'وادي الرمال الساحرة' },
+        { id: 'golden_lotus', name: 'طريقة لوتس البرق الباطنية', relation: 'Neutral', power: 300, territory: 'وادي الرمال الساحرة' },
         { id: 'vanguard_sect', name: 'فرسان طليعة نصل الرمل الكاسر', relation: 'Ally', power: 450, territory: 'هضبة الأنوار الشمسية' }
     ],
 

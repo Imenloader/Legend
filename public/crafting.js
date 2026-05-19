@@ -1,11 +1,11 @@
 // ============================================================
-// CRAFTING.JS — محرك الخيمياء ومسبك الفولاذ الدمشقي العتيق
-// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
+// CRAFTING.JS — محرك الخيمياء ومصفوفة صقل الفولاذ الدمشقي العتيق
+// "ملحمة الشرق الساحر: وصية الفرسان وأساطير الصحراء"
 // ============================================================
 
 window.CRAFTING = {
 
-    // --- ALCHEMY (موقد الكيمياء لجابر بن حيان) ---
+    // --- ALCHEMY (مرجل الخيمياء لجابر بن حيان) ---
     alchemyRecipes: {
         'minor_health_potion': {
             name: 'مشروب الصحة البسيط',
@@ -15,22 +15,22 @@ window.CRAFTING = {
             effect: { hp: 40 }
         },
         'foundation_pill': {
-            name: 'شراب القوة والصلابة الجسدية',
-            desc: 'مطلوب لتخطي وعقبة اختبار الفتوة الجسور.',
+            name: 'إكسير القوة والصلابة الباطنية',
+            desc: 'مطلوب لتخطي عقبة اختبار القلب الجسور (تأسيس البنيان).',
             ingredients: { 'spirit_herb': 5, 'monster_core': 2 },
             type: 'special',
             effect: { breakthrough: true }
         },
         'golden_core_pill': {
             name: 'إكسير القوة الخارقة للفرسان',
-            desc: 'مطلوبة لتخطي وعقبة اختبار البطل الشهم.',
+            desc: 'مطلوبة لتخطي عقبة اختبار فارس الطاقة الباطنية (الجوهر المتين).',
             ingredients: { 'spirit_herb': 8, 'monster_core': 4 },
             type: 'special',
             effect: { breakthrough: true }
         },
         'nascent_pill': {
             name: 'مشروب الصمود الأسطوري الجبار',
-            desc: 'مشروب أثري بيدي مناعة ويحمي الجسد من سحق الإرهاق والهلاك.',
+            desc: 'إكسير أثري يمنح مناعة ويحمي الجسد من وهن الإرهاق والهلاك الباطني.',
             ingredients: { 'spirit_herb': 15, 'dragon_vein_shard': 1 },
             type: 'special',
             effect: { breakthrough: true, maxHp: 100 }
@@ -44,7 +44,7 @@ window.CRAFTING = {
         }
     },
 
-    // --- BLACKSMITH (مسبك الفولاذ وورشة صناعة الجن) ---
+    // --- BLACKSMITH (مصفوفة صقل الفولاذ وورشة الحدادة الباطنية) ---
     forgeRecipes: {
         'spirit_scimitar': { 
             name: 'سيف الفارس المستجد الفولاذي', 
@@ -68,7 +68,7 @@ window.CRAFTING = {
             set: 'xianxia'
         },
         'mantra_beads': {
-            name: 'مسبحة الهمة والتركيز العالي',
+            name: 'مسبحة التركيز والطاقة العالية',
             slot: 'weapon',
             ingredients: { 'wood': 15, 'monster_core': 6 },
             baseStats: { atk: 45, mp: 40 },
@@ -138,7 +138,7 @@ window.CRAFTING = {
 
     craftItem(state, recipeId) {
         const recipe = this.forgeRecipes[recipeId];
-        if (!recipe) return { success: false, message: "وصفة مجهولة وغير معروفة للمسبك." };
+        if (!recipe) return { success: false, message: "وصفة مجهولة وغير معروفة لمصفوفة الصقل." };
 
         const matMap = {
             'spirit_herb': 'العشبة الطبية الجبلية',
@@ -153,7 +153,7 @@ window.CRAFTING = {
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
             const matName = matMap[item] || item.replace(/_/g, ' ');
-            if (current < count) return { success: false, message: `معندكش ${matName} كفاية في قلعتك.` };
+            if (current < count) return { success: false, message: `ليس لديك ${matName} كفاية في قلعتك.` };
         }
 
         // Consume ingredients
@@ -188,7 +188,7 @@ window.CRAFTING = {
 
         return { 
             success: true, 
-            message: `المسبك شغال نار والحديد داب! صممت <b class="loot-${quality.toLowerCase()}">${newItem.name}</b> بنجاح!`,
+            message: `نيران مصفوفة الصقل متقدة والحديد ذاب! صقلت وصنعت <b class="loot-${quality.toLowerCase()}">${newItem.name}</b> بنجاح!`,
             item: newItem
         };
     },
@@ -210,7 +210,7 @@ window.CRAFTING = {
         for (const [item, count] of Object.entries(recipe.ingredients)) {
             const current = state.player.inventory.materials[item] || 0;
             const matName = matMap[item] || item.replace(/_/g, ' ');
-            if (current < count) return { success: false, message: `معندكش ${matName} كفاية للطبخ.` };
+            if (current < count) return { success: false, message: `ليس لديك ${matName} كفاية للتحضير.` };
         }
 
         // Consume
@@ -242,9 +242,9 @@ window.CRAFTING = {
 
             if (!state.player.inventory.items) state.player.inventory.items = [];
             state.player.inventory.items.push(newItem);
-            return { success: true, message: `طبخت <b>${newItem.name}</b> بنجاح داخل موقد الكيمياء!`, item: newItem };
+            return { success: true, message: `حضّرت <b>${newItem.name}</b> بنجاح داخل مرجل الخيمياء الباطني!`, item: newItem };
         } else {
-            return { success: false, message: "الهمة والتركيز اضطربوا فجأة في الإناء! المشروب باظ تماماً واتخرّب." };
+            return { success: false, message: "طاقة التشي والتركيز اضطربا فجأة في المرجل! المشروب فسد تماماً وتلاشى." };
         }
     }
 };

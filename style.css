@@ -1573,5 +1573,15 @@ input[type="text"]:focus {
         grid-template-columns: 1fr !important;
         gap: 8px;
     }
+
+    /* Responsive stacking for inventory/equipment panels on mobile */
+    .combat-layout {
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    .combat-layout .entity-panel {
+        flex: 1 1 auto !important;
+        max-height: none !important;
+    }
 }
 

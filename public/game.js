@@ -201,6 +201,8 @@ let state = {
     exploreStreak: 0
 };
 
+window.state = state;
+
 // --- DOM Elements ---
 const UI_ELEMENTS = {};
 let narrativeWindow, choiceEngine;
@@ -222,6 +224,7 @@ function initUIElements() {
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', async () => {
     initUIElements();
+    showScreen('menu-screen');
     if (!localStorage.getItem('rpg_player_id')) {
         localStorage.setItem('rpg_player_id', state.playerId);
     }
@@ -242,10 +245,111 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (selectedCard) {
                 state.player.class = selectedCard.dataset.class;
                 state.player.sprite = selectedCard.dataset.sprite;
-                if (state.player.class === 'Sword Immortal') { state.player.atk += 5; }
-                else if (state.player.class === 'Medicine Cultivator') { state.player.maxHp += 30; state.player.hp = state.player.maxHp; }
-                else if (state.player.class === 'Sufi Mystic') { state.player.maxMp += 20; state.player.mp = state.player.maxMp; }
+                
+                // Clear default starting gear to avoid conflicts
+                state.player.equipment = { head: null, body: null, legs: null, boots: null, weapon: null, relic: null };
+                state.player.inventory.items = [];
+
+                if (state.player.class === 'Sword Immortal') {
+                    // خالد السيف الأسطوري: High Offense, Crit-focused
+                    state.player.atk = 25;
+                    state.player.def = 5;
+                    state.player.maxHp = 100;
+                    state.player.hp = 100;
+                    state.player.maxMp = 50;
+                    state.player.mp = 50;
+                    state.player.critRate = 0.15;
+                    state.player.dodgeRate = 0.05;
+                    state.player.skills = ['lotus_strike']; // Starts with Lotus Strike unlocked
+                    
+                    // Give unique Starting weapon
+                    state.player.equipment.weapon = {
+                        id: 'starting_steel_jian',
+                        name: 'سيف اليشم الممشوق (سلاح مجهز)',
+                        slot: 'weapon',
+                        quality: 'Rare',
+                        stats: { atk: 12, mp: 10 },
+                        desc: 'سيف ذو شفرة مستقيمة ونقش يشم عتيق، يزيد الهجوم والمانا بشكل ملحوظ.'
+                    };
+                }
+                else if (state.player.class === 'Medicine Cultivator') {
+                    // الحكيم المعالج: High Health, Potion abundance, starting Heal skill
+                    state.player.atk = 12;
+                    state.player.def = 8;
+                    state.player.maxHp = 150;
+                    state.player.hp = 150;
+                    state.player.maxMp = 60;
+                    state.player.mp = 60;
+                    state.player.critRate = 0.05;
+                    state.player.dodgeRate = 0.05;
+                    state.player.skills = ['badr_blessing']; // Starts with Badr Blessing Heal unlocked
+                    state.player.inventory.potions = 6;
+                    state.player.inventory.elixirs = 2;
+
+                    // Give unique Starting relic
+                    state.player.equipment.relic = {
+                        id: 'healing_elixir_pouch',
+                        name: 'قلادة الحكيم العشبية (مجهزة)',
+                        slot: 'relic',
+                        quality: 'Rare',
+                        stats: { hp: 30, def: 5 },
+                        desc: 'قلادة منسوجة يدوياً تعج برائحة الأعشاب الشافية والبلسم الحافظ.'
+                    };
+                }
+                else if (state.player.class === 'Desert Knight') {
+                    // فارس الصحراء المنيع: High Defense, Shielded, starting companion
+                    state.player.atk = 15;
+                    state.player.def = 20;
+                    state.player.maxHp = 120;
+                    state.player.hp = 120;
+                    state.player.maxMp = 40;
+                    state.player.mp = 40;
+                    state.player.critRate = 0.05;
+                    state.player.dodgeRate = 0.10;
+                    state.player.skills = ['shadow_step']; // Starts with Evasive step unlocked
+
+                    // Give unique starting equipment
+                    state.player.equipment.body = {
+                        id: 'desert_knight_shield',
+                        name: 'درع الفرسان الجلدي (مجهز)',
+                        slot: 'body',
+                        quality: 'Rare',
+                        stats: { def: 15, hp: 20 },
+                        desc: 'درع منسوج من جلد الإبل المعزز بصفائح فولاذية خفيفة.'
+                    };
+                    state.player.equipment.weapon = {
+                        id: 'scimitar',
+                        name: 'خنجر المغاوير الدمشقي (مجهز)',
+                        slot: 'weapon',
+                        quality: 'Common',
+                        stats: { atk: 8, def: 2 },
+                        desc: 'سيف مقوس تقليدي حاد ومقاوم للصدأ والغبار الصحراوي.'
+                    };
+                }
+                else if (state.player.class === 'Sufi Mystic') {
+                    // الفارس الحر ذو الهيبة الكبرى: High Mana, high Evasion, starting Relic
+                    state.player.atk = 14;
+                    state.player.def = 6;
+                    state.player.maxHp = 90;
+                    state.player.hp = 90;
+                    state.player.maxMp = 100;
+                    state.player.mp = 100;
+                    state.player.critRate = 0.05;
+                    state.player.dodgeRate = 0.20;
+                    state.player.skills = ['shadow_step']; // Starts with Evasive shadow step unlocked
+
+                    // Give unique Starting relics
+                    state.player.equipment.relic = {
+                        id: 'irem_brass_amulet',
+                        name: 'تميمة النحاس الأثرية (مجهزة)',
+                        slot: 'relic',
+                        quality: 'Epic',
+                        stats: { mp: 30, def: 5 },
+                        desc: 'تميمة نحاسية منقوشة بنقوش غامضة من ديوان المعارف الأكبر.'
+                    };
+                }
             }
+            calculateTotalStats();
             initGame();
         });
     }
@@ -653,10 +757,10 @@ function updateTopBar() {
     if (mobName) mobName.innerText = state.player.name;
     if (mobClass) {
         const classNamesArabic = {
-            'Sword Immortal': 'خالد السيف الأسطوري',
-            'Medicine Cultivator': 'الحكيم المعالج ودواي الروح',
-            'Desert Knight': 'فارس الصحراء المنيع',
-            'Sufi Mystic': 'الفارس الحر ذو الهيبة الكبرى'
+            'Sword Immortal': 'السياف الأسطوري',
+            'Medicine Cultivator': 'الطبيب المعالج',
+            'Desert Knight': 'فارس الصحراء',
+            'Sufi Mystic': 'الفارس المهيب'
         };
         mobClass.innerText = classNamesArabic[state.player.class] || state.player.class || 'بطل القلوب';
     }
@@ -702,6 +806,15 @@ window.onMobileTabClick = function(index, actionFunc) {
         }
         return;
     }
+    
+    // Close chronicle modal if switching to any other tab
+    if (index !== 4) {
+        const modal = document.getElementById('chronicle-modal');
+        if (modal && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+        }
+    }
+
     highlightMobileTab(index);
     if (typeof actionFunc === 'function') {
         actionFunc();
@@ -854,7 +967,7 @@ function hubLoop() {
         if (flags['act2_started'] && !flags['act2_transition_shown']) {
             flags['act2_transition_shown'] = true;
             saveGame();
-            triggerActTransition("الفصل الثاني: النزاع السماوي الأعظم", "موجات الصوفية واليشم تتجمع كغيوم الرعد فوق المعبر العالي الجبلي.", () => hubLoop());
+            triggerActTransition("الفصل الثاني: النزاع السماوي الأعظم", "موجات الفرسان واليشم تتجمع كغيوم الرعد فوق المعبر العالي الجبلي.", () => hubLoop());
             return;
         }
 
@@ -908,7 +1021,7 @@ function hubLoop() {
     }
     
     if (state.player.lvl >= 10) {
-        choices.push({ text: "✨ قاعة انتقال الأرواح والبعث", callback: showRebirthScreen });
+        choices.push({ text: "📜 ديوان وصية الأجداد والميراث", callback: showRebirthScreen });
     }
     
     if (state.player.lvl >= 20 && !state.player.isAscended) {
@@ -1245,7 +1358,7 @@ function resolveCombatTurn(moveId) {
             dmg = Math.floor(state.player.atk * 2.0);
             const heal = Math.floor(dmg * 0.15);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة التآزر المشترك والروح الواحد!</span> ضربتما معاً في تناغم أسطوري ومثالي، مسببين <b>${dmg} ضرر</b> واستعدت <b>${heal} نقاط حياة</b>!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة التآزر المشترك والنفس الواحدة!</span> ضربتما معاً في تناغم أسطوري ومثالي، مسببين <b>${dmg} ضرر</b> واستعدت <b>${heal} نقاط حياة</b>!`;
         }
 
         enemy.hp = Math.max(0, enemy.hp - dmg);
@@ -1464,7 +1577,7 @@ function handleDefeat() {
     state.currentEnemy = null;
     saveGame();
     
-    narrate(`<b>الهزيمة المرة!</b> لقد سقطت مغشياً عليك في المعركة. عثر عليك بطل صوفي متجول في الصحراء وقام بسحب جسدك المنهك وداوى جراحك ليعيدك لواحة التقاطع بأمان.<br><br><b>العقوبة:</b> خسرت <span style="color:var(--secondary)">${goldPenalty} دينار ذهبي</span>. وتم إنعاشك بنصف طاقتك وجوهر حياتك.`, "النظام");
+    narrate(`<b>الهزيمة المرة!</b> لقد سقطت مغشياً عليك في المعركة. عثر عليك فارس جوال ذو بصيرة في الصحراء وقام بسحب جسدك المنهك وداوى جراحك ليعيدك لواحة التقاطع بأمان.<br><br><b>العقوبة:</b> خسرت <span style="color:var(--secondary)">${goldPenalty} دينار ذهبي</span>. وتم إنعاشك بنصف طاقتك وجوهر حياتك.`, "النظام");
     
     setChoices([{ text: "قف على قدميك واستمر في طريقك", callback: hubLoop }]);
 }
@@ -1497,14 +1610,17 @@ function calculateTotalStats() {
     // Class-specific base bonuses
     const cls = state.player.class;
     if (cls === 'Sword Immortal') {
-        bAtk += 5;
+        bAtk += 15;
     } else if (cls === 'Medicine Cultivator') {
-        bHp += 30;
-    } else if (cls === 'Sufi Mystic') {
-        bMp += 20;
-    } else if (cls === 'Desert Knight') {
+        bHp += 50;
         bDef += 5;
-        bHp += 15;
+        bMp += 10;
+    } else if (cls === 'Sufi Mystic') {
+        bMp += 50;
+        bAtk += 4;
+    } else if (cls === 'Desert Knight') {
+        bDef += 18;
+        bHp += 30;
     }
 
     // Womb Gift bonuses
@@ -1539,9 +1655,9 @@ function calculateTotalStats() {
 
     // 3. Faction Benefits
     const rank = state.player.factionRank ?? 1;
-    if (state.player.faction === 'Jade Summit Sect') {
+    if (state.player.faction === 'Jade Summit Sect' || state.player.faction === 'طائفة قمة اليشم العظمى') {
         bAtk += (baseAtk * 0.1 * rank);
-    } else if (state.player.faction === 'Sufi Order of the Empty Quarter') {
+    } else if (state.player.faction === 'Sufi Order of the Empty Quarter' || state.player.faction === 'طريقة رابطة أبطال الربع الخالي' || state.player.faction === 'فرسان الربع الخالي الأحرار') {
         bMp += (baseMaxMp * 0.1 * rank);
     }
 
@@ -1698,17 +1814,24 @@ function calculateTotalStats() {
         totalStatMult *= 1.5;
     }
 
-    // 9.5 Spiritual Roots Flat Stats
+    // 9.5 Spiritual Roots Flat Stats & Class Bases
+    let baseCrit = 0.05;
+    let baseDodge = 0.05;
+    if (cls === 'Sword Immortal') baseCrit = 0.15;
+    if (cls === 'Desert Knight') baseDodge = 0.10;
+    if (cls === 'Sufi Mystic') baseDodge = 0.15;
+
     if (state.dwelling && state.dwelling.roots) {
         const r = state.dwelling.roots;
         bAtk += (r.gold || 0) * 10;
         bHp += (r.wood || 0) * 50;
         bDef += (r.water || 0) * 8;
         bMp += (r.earth || 0) * 25;
-        state.player.critRate = 0.05 + (r.fire || 0) * 0.01;
+        state.player.critRate = baseCrit + (r.fire || 0) * 0.01;
     } else {
-        state.player.critRate = 0.05;
+        state.player.critRate = baseCrit;
     }
+    state.player.dodgeRate = baseDodge;
 
     // 10. Final Application
     state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult * eqAtkMult);
@@ -1857,7 +1980,7 @@ function showInventory() {
     updateEquipmentDOM(state);
     
     const factionBenefit = state.player.faction === 'Jade Summit Sect' ? '+10% هجوم' : '+10% مانا بدنية';
-    const factionText = state.player.faction ? `<br><b>الطائفة:</b> ${state.player.faction === 'Jade Summit Sect' ? 'طائفة قمة اليشم' : 'طريقة الربع الخالي الصوفية'} (المرتبة ${state.player.factionRank})<br><small style="color:var(--jade)">المنفعة البدنية: ${factionBenefit} لكل مرتبة</small>` : '';
+    const factionText = state.player.faction ? `<br><b>الطائفة:</b> ${(state.player.faction === 'Jade Summit Sect' || state.player.faction === 'طائفة قمة اليشم العظمى') ? 'طائفة قمة اليشم العظمى' : 'فرسان الربع الخالي الأحرار'} (المرتبة ${state.player.factionRank})<br><small style="color:var(--jade)">المنفعة البدنية: ${factionBenefit} لكل مرتبة</small>` : '';
 
     narrate(`<div style="background:rgba(0,0,0,0.5);padding:15px;border-radius:10px;border:1px solid var(--secondary)">
         <b>الفارس السالك:</b> ${state.player.name} | مستوى ${state.player.lvl}<br>

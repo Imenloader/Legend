@@ -70,7 +70,7 @@ window.REBIRTH = {
                 } else if (f.age === 13) {
                     agedList.push(`👦 كبر ابنك <b>${f.name}</b> وأصبح يافعاً يستطيع التدريب (سن 13 سنة)!`);
                 } else if (f.age === 18) {
-                    agedList.push(`⚔️ كبر ابنك <b>${f.name}</b> وبلغ سن الرشد والجدعنة (سن 18 سنة)! وهو جاهز الآن لوراثة العهد.`);
+                    agedList.push(`⚔️ كبر ابنك <b>${f.name}</b> وبلغ سن الرشد والفروسية (سن 18 سنة)! وهو جاهز الآن لوراثة العهد.`);
                 }
             }
         });
@@ -81,20 +81,20 @@ window.REBIRTH = {
     trainChild(state, childId, path) {
         const child = (state.player.family || []).find(f => f.id === childId && f.relation === 'Child');
         if (!child) return { success: false, message: "الابن غير موجود!" };
-        if (child.age < 13) return { success: false, message: "الابن صغير جداً على التدريب! لازم يتم 13 سنة على الأقل." };
-        if (child.age >= 18) return { success: false, message: "لقد أتم ابنك تدريبه الفتوة وبالفعل أصبح ناضجاً وجاهزاً!" };
+        if (child.age < 13) return { success: false, message: "الابن لا يزال صغيراً على التدريب! يجب أن يبلغ 13 سنة على الأقل." };
+        if (child.age >= 18) return { success: false, message: "لقد أتم سليلك تدريبه القتالي وبالفعل أصبح ناضجاً وجاهزاً لوراثة العهد!" };
         
         const cost = 500;
-        if (state.player.gold < cost) return { success: false, message: `معندكش ${cost} دينار ذهبي لتغطية تكاليف المطبخ والمعدات!` };
+        if (state.player.gold < cost) return { success: false, message: `ليس لديك ${cost} دينار ذهبي لتغطية تكاليف التدريب والمعدات الباطنية!` };
         
         state.player.gold -= cost;
         child.lvl = (child.lvl || 1) + 1;
         child.education = path;
         
         const pathMap = {
-            'combat': '⚔️ تدريب النصال والقوة البدنية (+3 هجوم أساسي موروث)',
-            'defense': '🛡️ تدريب الدروع والصلابة (+2 دفاع أساسي موروث)',
-            'alchemy': '⚗️ دراسة الخيمياء والأوراد (+1 إكسير طاقة موروث)'
+            'combat': '⚔️ تدريب النصال والقوة الهجومية (+3 هجوم أساسي موروث)',
+            'defense': '🛡️ تدريب الدروع والصلابة الدفاعية (+2 دفاع أساسي موروث)',
+            'alchemy': '⚗️ دراسة الخيمياء والرقية (+1 إكسير مانا موروث)'
         };
         
         if (!child.trainingStats) {
@@ -107,7 +107,7 @@ window.REBIRTH = {
         
         return { 
             success: true, 
-            message: `قمت بتعيين <b>${child.name}</b> في <b>${pathMap[path]}</b>! مستوى مهاراته أصبح <b>درجة ${child.lvl}</b>.` 
+            message: `قمت بتعيين <b>${child.name}</b> في <b>${pathMap[path]}</b>! مستوى مهاراته أصبح الآن <b>المرتبة ${child.lvl}</b>.` 
         };
     },
 

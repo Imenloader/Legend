@@ -1,15 +1,15 @@
 // ============================================================
-// CULTIVATION.JS — خلوة التدريب وشحذ الهمة وتصلين الهيكل البدني
-// "ملحمة الشرق الساحر: وصية الفتوة وأساطير الصحراء"
+// CULTIVATION.JS — خلوة التدريب وشحذ الطاقة وتأمل الجسد والنفس
+// "ملحمة الشرق الساحر: وصية الفرسان وأساطير الصحراء"
 // ============================================================
 
 window.CULTIVATION = {
     
     stages: [
-        { name: 'الجدع المبتدئ', requiredPill: null, tribulationId: null, bonus: { hp: 0, mp: 0, atk: 0 } },
-        { name: 'الفتوة الجسور', requiredPill: 'foundation_pill', tribulationId: 'trib_foundation', bonus: { hp: 50, mp: 20, atk: 10 } },
-        { name: 'البطل الشهم', requiredPill: 'golden_core_pill', tribulationId: 'trib_core', bonus: { hp: 150, mp: 50, atk: 30 } },
-        { name: 'كبير الجدعان والزعيم', requiredPill: 'nascent_pill', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
+        { name: 'السالك المبتدئ', requiredPill: null, tribulationId: null, bonus: { hp: 0, mp: 0, atk: 0 } },
+        { name: 'القلب الجسور (تأسيس البنيان)', requiredPill: 'foundation_pill', tribulationId: 'trib_foundation', bonus: { hp: 50, mp: 20, atk: 10 } },
+        { name: 'فارس الطاقة الباطنية (الجوهر المتين)', requiredPill: 'golden_core_pill', tribulationId: 'trib_core', bonus: { hp: 150, mp: 50, atk: 30 } },
+        { name: 'الخالد ذو السيادة (الجسد المكتمل)', requiredPill: 'nascent_pill', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
     ],
 
     bodyRealms: [
@@ -49,7 +49,7 @@ window.CULTIVATION = {
 
     meditate(state) {
         if (!state.player.cultivation) {
-            state.player.cultivation = { stage: 'الجدع المبتدئ', stageLevel: 1, breakthroughReady: false };
+            state.player.cultivation = { stage: 'السالك المبتدئ', stageLevel: 1, breakthroughReady: false };
         }
         const cult = state.player.cultivation;
 
@@ -142,7 +142,7 @@ window.CULTIVATION = {
         }
 
         if (levelsGained > 0) {
-            message += `<br><br><span class="loot-epic">🌟 ارتقاء شأنك وجدعنتك! مستواك زاد ${levelsGained} درجات. مستواك القتالي الحالي هو <b>الرتبة ${cult.stageLevel}</b>.</span>`;
+            message += `<br><br><span class="loot-epic">🌟 ارتقاء شأنك ومقامك الباطني! مستواك زاد ${levelsGained} درجات. مستواك القتالي الحالي هو <b>الرتبة ${cult.stageLevel}</b>.</span>`;
         }
 
         if (window.REBIRTH && window.REBIRTH.ageChildren) {
@@ -160,13 +160,13 @@ window.CULTIVATION = {
 
     attemptBreakthrough(state) {
         if (!state.player.cultivation.breakthroughReady) {
-            return { success: false, message: "عضلاتك وجدعنتك لسة محتاجين شغل أوي. محتاج تعمل تدريب وشحذ همة أكتر!" };
+            return { success: false, message: "بنيتك ومقامك الباطني بحاجة لمزيد من التأمل والتدريب الباطني!" };
         }
 
         const currentStageIdx = this.stages.findIndex(s => s.name === state.player.cultivation.stage);
         const nextStage = this.stages[currentStageIdx + 1];
 
-        if (!nextStage) return { success: false, message: "ألف مبروك! وصلت لأعلى مراتب البطولة والفتونة الأسطورية." };
+        if (!nextStage) return { success: false, message: "ألف مبروك! وصلت لأعلى مراتب البطولة والسيادة الأسطورية." };
 
         // Enforce Required Pill
         if (nextStage.requiredPill) {
@@ -176,7 +176,7 @@ window.CULTIVATION = {
                 const pillName = pillRecipe ? pillRecipe.name : nextStage.requiredPill.replace(/_/g, ' ');
                 return { 
                     success: false, 
-                    message: `<span style="color:var(--danger)"><b>اختبار الشجاعة اتمنع!</b> محتاج <b>${pillName}</b> لتهدئة عضلاتك وحماية هيكلك الجسدي من سحق المجهود الزايد وتخطي عقبة الرتبة الجديدة. اطبخ شراباً أولاً في موقد الكيمياء.</span>` 
+                    message: `<span style="color:var(--danger)"><b>اختبار الشجاعة اتمنع!</b> محتاج <b>${pillName}</b> لتهدئة عضلاتك وحماية هيكلك الجسدي من سحق المجهود الزايد وتخطي عقبة الرتبة الجديدة. حضّر إكسيراً أولاً في مرجل الخيمياء.</span>` 
                 };
             }
             // Consume the pill!
@@ -192,7 +192,7 @@ window.CULTIVATION = {
             // FAILURE: Over-exhaustion
             state.player.hp = Math.floor(state.player.maxHp * 0.1); 
             state.player.xp = Math.floor(state.player.xp * 0.5); 
-            return { success: false, message: `<span style="color:var(--danger)"><b>إرهاق وسحق بدني كامل!</b> عضلاتك مقدرتش تتحمل الضغط الرهيب للتمرين. هيبتك اتأثرت وخسرت نص خبرتك وتدريبك الحالي.</span>` };
+            return { success: false, message: `<span style="color:var(--danger)"><b>إرهاق ووهن باطني كامل!</b> جسدك لم يستطع تحمل الضغط الرهيب للتمرين الباطني. هيبتك تأثرت وخسرت نصف نقاط خبرتك الباطنية الحالية.</span>` };
         }
 
         return { success: true, tribulationId: nextStage.tribulationId, nextStage: nextStage };
@@ -215,12 +215,12 @@ window.CULTIVATION = {
         cb.mp += nextStage.bonus.mp || 0;
         cb.atk += nextStage.bonus.atk || 0;
 
-        return `الميدان بيلعلع والجدعان بتهتف باسمك لهيبتك وشجاعتك العظيمة. نجحت في الاختبار وارتقيت لرتبة <b>${nextStage.name}</b> بسلام وجدارة فرسان!`;
+        return `الأتباع والفرسان يهتفون باسمك لهيبتك وشجاعتك العظيمة. نجحت في الاختبار وارتقيت لرتبة <b>${nextStage.name}</b> بسلام وجدارة فرسان!`;
     },
 
     temperBody(state) {
         if (!state.player.cultivation) {
-            state.player.cultivation = { stage: 'الجدع المبتدئ', stageLevel: 1, breakthroughReady: false };
+            state.player.cultivation = { stage: 'السالك المبتدئ', stageLevel: 1, breakthroughReady: false };
         }
         const cult = state.player.cultivation;
         if (!cult.bodyRealm) cult.bodyRealm = 'الجسد العادي';
@@ -233,13 +233,13 @@ window.CULTIVATION = {
         // Cost in Qi/XP:
         const qiCost = Math.floor(reqXp * 0.7);
         if ((state.player.xp || 0) < qiCost) {
-            return { success: false, message: `معندكش نقاط خبرة وتدريب كافية. محتاج <b>${qiCost} نقاط تدريب</b> لتصلين وتقوية هيكلك الجسدي العادي.` };
+            return { success: false, message: `ليس لديك نقاط خبرة وتدريب كافية. تحتاج إلى <b>${qiCost} نقاط تدريب</b> لتقوية بنيتك الباطنية.` };
         }
 
         state.player.xp -= qiCost;
         cult.bodyXp += qiCost;
 
-        let msg = `وجهت تركيزك ومجهودك التدريبي لعضلاتك وعضمك مباشرة لتقوية وتصلين جسدك من الوهن والكسل. صرفت <b>${qiCost} نقاط تدريب</b>.`;
+        let msg = `وجّهت تركيزك ومجهودك التدريبي لتطهير جسدك وعظامك مباشرة لتقوية بنيتك الباطنية من الوهن والكسل. صرفت <b>${qiCost} نقاط تدريب</b>.`;
         
         if (cult.bodyXp >= reqXp) {
             cult.bodyXp = 0;

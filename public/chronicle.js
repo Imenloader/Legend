@@ -3,6 +3,21 @@
 // "ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية"
 // ============================================================
 
+function highlightTabForCurrentScreen() {
+    if (window.state && typeof window.highlightMobileTab === 'function') {
+        const screen = window.state.screen;
+        if (screen === 'story-screen' || screen === 'hub-screen') {
+            window.highlightMobileTab(0);
+        } else if (screen === 'map-screen') {
+            window.highlightMobileTab(1);
+        } else if (screen === 'inventory-screen') {
+            window.highlightMobileTab(2);
+        } else if (screen === 'cultivation-screen') {
+            window.highlightMobileTab(3);
+        }
+    }
+}
+
 window.toggleChronicleModal = function() {
     const modal = document.getElementById('chronicle-modal');
     if (!modal) return;
@@ -17,6 +32,8 @@ window.toggleChronicleModal = function() {
     // Auto-update contents if opening
     if (active && window.state) {
         window.updateChronicleUI(window.state);
+    } else {
+        highlightTabForCurrentScreen();
     }
 };
 
@@ -120,7 +137,7 @@ window.updateChronicleUI = function(state) {
         if (hasChronicleFlag(state, 'act3_mirror_completed')) {
             nodes.push({
                 title: "مرآة الحيوات السابقة والبرزخ",
-                desc: "بصيت بعمق في مرآة بحر النور اللجي. وفتحت ذكريات الخالد الساقط المدوية وتجليات الروح.",
+                desc: "بصيت بعمق في مرآة بحر النور اللجي. وفتحت ذكريات الخالد الساقط المدوية وتجليات النفس.",
                 type: 'neutral'
             });
         }
