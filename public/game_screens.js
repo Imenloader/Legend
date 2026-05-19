@@ -1173,80 +1173,233 @@ function showPropertiesScreen() {
     if (calculateTotalStats) calculateTotalStats();
     
     let alignmentTitle = "سالك عابر (متوازن)";
-    if (p.karma >= 100) alignmentTitle = "ولّي طاهر (سماوي)";
-    else if (p.karma >= 50) alignmentTitle = "فارس صالح (خَيِّر)";
-    else if (p.karma <= -100) alignmentTitle = "طاغية مظلم (شيطاني)";
-    else if (p.karma <= -50) alignmentTitle = "سائر في مسار الظل الوعر";
+    let alignmentColor = "var(--text-dim)";
+    if (p.karma >= 100) { alignmentTitle = "ولّي طاهر (سماوي)"; alignmentColor = "var(--secondary)"; }
+    else if (p.karma >= 50) { alignmentTitle = "فارس صالح (خَيِّر)"; alignmentColor = "var(--success)"; }
+    else if (p.karma <= -100) { alignmentTitle = "طاغية مظلم (شيطاني)"; alignmentColor = "var(--danger)"; }
+    else if (p.karma <= -50) { alignmentTitle = "سائر في مسار الظل الوعر"; alignmentColor = "#a06cf8"; }
 
     const classNamesArabic = {
         'Sword Immortal': 'السياف الأسطوري',
         'Medicine Cultivator': 'الطبيب المعالج',
         'Sufi Mystic': 'الفارس المهيب',
-        'Desert Knight': 'فارس الصحراء'
+        'Desert Knight': 'فارس الصحراء',
+        'Steelmaster': 'خبير الفولاذ الدمشقي',
+        'Horseman': 'فارس الخيل المغوار',
+        'Astrologer': 'خبير الفلك والأوراد',
+        'Lancer': 'رماح البادية الأبي'
     };
 
+    const xpPct = Math.min(100, Math.floor(((p.xp || 0) / (p.maxXp || 100)) * 100));
+    const hpPct = Math.min(100, Math.floor(((p.hp || 0) / (p.maxHp || 100)) * 100));
+    const mpPct = Math.min(100, Math.floor(((p.mp || 0) / (p.maxMp || 100)) * 100));
+
+    let gearHtml = '';
+    const slots = ['weapon', 'head', 'body', 'legs', 'boots', 'relic'];
+    const slotNames = {
+        weapon: '🗡️ السلاح',
+        head: '🕌 خوذة/عمامة',
+        body: '🛡️ الدرع/الجلباب',
+        legs: '👖 السروال/الرداء',
+        boots: '🥾 الخف/الحذاء',
+        relic: '✨ قلادة/تميمة'
+    };
+
+    slots.forEach(s => {
+        const item = p.equipment[s];
+        if (item) {
+            const qClass = `loot-${item.quality.toLowerCase()}`;
+            let statDetails = [];
+            if (item.stats) {
+                if (item.stats.atk) statDetails.push(`+${item.stats.atk} هجوم`);
+                if (item.stats.def) statDetails.push(`+${item.stats.def} دفاع`);
+                if (item.stats.hp) statDetails.push(`+${item.stats.hp} صحة`);
+                if (item.stats.mp) statDetails.push(`+${item.stats.mp} مانا`);
+            }
+            gearHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding:8px 10px; border-radius:6px; margin-bottom:6px; flex-direction:row-reverse;">
+                    <span style="font-size:0.75rem; color:var(--text-dim); min-width:85px; text-align:left;">${slotNames[s]}</span>
+                    <div style="text-align:right;">
+                        <span class="${qClass}" style="font-weight:bold; font-size:0.85rem;">${item.name}</span>
+                        ${statDetails.length ? `<br><small style="color:var(--success); font-size:0.7rem;">${statDetails.join(', ')}</small>` : ''}
+                    </div>
+                </div>
+            `;
+        } else {
+            gearHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:8px 10px; border-radius:6px; margin-bottom:6px; flex-direction:row-reverse; opacity:0.4;">
+                    <span style="font-size:0.75rem; color:var(--text-dim); min-width:85px; text-align:left;">${slotNames[s]}</span>
+                    <span style="font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:right;">خالٍ</span>
+                </div>
+            `;
+        }
+    });
+
     let html = `
-        <div style="width:100%; text-align:left; font-family:'Inter', sans-serif;">
-            <h2 style="color:var(--secondary); text-align:center;">مخطوطة صفات وجوهر الفارس السالك</h2>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px; margin-top:20px;">
+        <div class="profile-card" style="width:100%; text-align:right; font-family:'Cairo', 'Inter', sans-serif; background: rgba(10,15,25,0.75); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(8px);">
+            
+            <!-- Character Header Block -->
+            <div style="display:flex; align-items:center; gap:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px; margin-bottom:20px; flex-direction:row-reverse;">
+                <div style="width:60px; height:60px; border-radius:50%; overflow:hidden; border:2px solid var(--secondary); background:rgba(0,0,0,0.4); flex-shrink:0;">
+                    <img src="${p.sprite || 'assets/sword_immortal_1778872325571.png'}" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div style="flex-grow:1; text-align:right;">
+                    <h2 style="margin:0; color:var(--secondary); font-family:'El Messiri', serif; font-size:1.6rem; display:flex; align-items:center; gap:8px; justify-content:flex-start; flex-direction:row-reverse;">
+                        <span>${p.name}</span>
+                        <span style="font-size:0.75rem; background:linear-gradient(135deg, var(--secondary), #f5a623); color:#000; padding:2px 8px; border-radius:12px; font-weight:bold;">رتبة الفتوة</span>
+                    </h2>
+                    <div style="font-size:0.85rem; color:var(--text-dim); margin-top:4px;">
+                        <span>المستوى ${p.lvl}</span> | <span style="color:${alignmentColor}; font-weight:bold;">${alignmentTitle}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Progress Bar -->
+            <div style="margin-bottom:25px; background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-bottom:5px; flex-direction:row-reverse;">
+                    <span><b>مسار الخبرة والارتقاء</b></span>
+                    <span>${p.xp} / ${p.maxXp} XP (${xpPct}%)</span>
+                </div>
+                <div style="width:100%; height:8px; background:rgba(0,0,0,0.4); border-radius:4px; overflow:hidden; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="width:${xpPct}%; height:100%; background:linear-gradient(90deg, #f5a623, var(--secondary)); box-shadow: 0 0 8px var(--secondary);"></div>
+                </div>
+            </div>
+
+            <!-- Main Grid Panel -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
                 
-                <!-- Base Stats -->
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--primary);">
-                    <h3 style="margin-top:0; color:var(--text); text-align:right;">⚔️ الجوهر والقدرة القتالية</h3>
-                    <p style="margin:5px 0; text-align:left;">الهجوم الحاد: <b>${p.atk}</b></p>
-                    <p style="margin:5px 0; text-align:left;">الدفاع المحصن: <b>${p.def}</b></p>
-                    <p style="margin:5px 0; text-align:left;">صحة الجسد: <b>${p.hp} / ${p.maxHp}</b></p>
-                    <p style="margin:5px 0; text-align:left;">طاقة الطاقة التركيزية: <b>${p.mp} / ${p.maxMp}</b></p>
-                </div>
- 
-                <!-- Spiritual Path -->
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--secondary);">
-                    <h3 style="margin-top:0; color:var(--text); text-align:right;">✨ مسار التركيز والبدن</h3>
-                    <p style="margin:5px 0; text-align:left;">المرتبة واللقب البدني: <b>${alignmentTitle}</b></p>
-                    <p style="margin:5px 0; text-align:left;">جوهر الكارما: <b style="color:${p.karma >= 0 ? 'var(--jade)' : 'var(--danger)'}">${p.karma}</b></p>
-                    <p style="margin:5px 0; text-align:left;">العقيدة المهيمنة: <b>${classNamesArabic[p.class] || p.class}</b></p>
-                    <p style="margin:5px 0; text-align:left;">الطائفة الحليفة: <b>${(p.faction === 'Jade Summit Sect' || p.faction === 'طائفة قمة اليشم العظمى') ? 'طائفة قمة اليشم العظمى' : (p.faction === 'Sufi Order of the Empty Quarter' || p.faction === 'طريقة رابطة أبطال الربع الخالي' || p.faction === 'فرسان الربع الخالي الأحرار') ? 'فرسان الربع الخالي الأحرار' : 'بلا طائفة (حر)'}</b></p>
+                <!-- Base Stats Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid var(--secondary); border-left:none;">
+                    <h3 style="margin-top:0; color:var(--secondary); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">⚔️ الجوهر والقدرات البدنية</h3>
+                    
+                    <div style="margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:3px; flex-direction:row-reverse;">
+                            <span>صلابة وحياة الجسد</span>
+                            <span><b>${p.hp} / ${p.maxHp}</b></span>
+                        </div>
+                        <div style="width:100%; height:6px; background:rgba(0,0,0,0.3); border-radius:3px; overflow:hidden;">
+                            <div style="width:${hpPct}%; height:100%; background:#e74c3c;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:15px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:3px; flex-direction:row-reverse;">
+                            <span>طاقة التركيز والهمة</span>
+                            <span><b>${p.mp} / ${p.maxMp}</b></span>
+                        </div>
+                        <div style="width:100%; height:6px; background:rgba(0,0,0,0.3); border-radius:3px; overflow:hidden;">
+                            <div style="width:${mpPct}%; height:100%; background:#3498db;"></div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الهجوم الأساسي حاد:</span>
+                        <b style="color:#fff;">${p.atk}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الدفاع الكلي محصن:</span>
+                        <b style="color:#fff;">${p.def}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">نسبة الضربات الحرجة:</span>
+                        <b style="color:#f1c40f;">${(p.critRate * 100).toFixed(0)}%</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">نسبة تفادي الضربات:</span>
+                        <b style="color:#2ecc71;">${(p.dodgeRate * 100).toFixed(0)}%</b>
+                    </div>
                 </div>
 
-                <!-- Life & Background -->
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--primary);">
-                    <h3 style="margin-top:0; color:var(--text); text-align:right;">🧬 هوية الحياة البدنية</h3>
-                    <p style="margin:5px 0; text-align:left;">النشأة والأصول: <b>${(() => {
-                        const bgTranslation = {
-                            'Merchant Scion': 'سليل تجار القوافل',
-                            'Rogue Cultivator': 'سالك براري حر',
-                            'Sect Disciple': 'فارس طائفة مستقل',
-                            'Farmer Scion': 'ابن الفلاح الطيب',
-                            'Beggar Scion': 'ابن الشوارع الفقير',
-                            'ابن التاجر الغني': 'ابن التاجر الغني',
-                            'ابن الشوارع الفقير': 'ابن الشوارع الفقير',
-                            'ابن الباشا والأمير': 'ابن الباشا والأمير',
-                            'ابن الفلاح الطيب': 'ابن الفلاح الطيب'
-                        };
-                        return bgTranslation[p.background?.name] || p.background?.name || 'مجهول النسب';
-                    })()}</b></p>
-                    <p style="margin:5px 0; text-align:left;">الموهبة القتالية الكامنة: <b>${(() => {
-                        const sysTranslation = {
-                            'Sword Immortal System': 'نظام سياف القمم الأسطوري',
-                            'Ancestral Sword Intent': 'بصيرة نصل السلف الخالد',
-                            'Pure Yang Qi': 'شمس طاقة اليانغ النقية',
-                            'Many Children': 'بركة العزوة والذرية',
-                            'Killing Path': 'طريق الجزار والفارس',
-                            'بركة العزوة والذرية': 'بركة العزوة والذرية',
-                            'سر الفارس الجزار': 'سر الفارس الجزار',
-                            'طلسم السيف الدمشقي الأسطوري': 'طلسم السيف الدمشقي الأسطوري'
-                        };
-                        return sysTranslation[p.system?.name] || p.system?.name || 'لا يوجد';
-                    })()}</b></p>
-                    <p style="margin:5px 0; text-align:left;">الأبناء والذرية: <b>${p.children || 0}</b> | وحوش وأعداء هزموا: <b>${p.kills || 0}</b></p>
+                <!-- Equipped Gear Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid var(--jade); border-left:none;">
+                    <h3 style="margin-top:0; color:var(--jade); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">🛡️ العتاد والتمائم المجهزة</h3>
+                    <div style="display:flex; flex-direction:column; gap:4px; margin-top:10px;">
+                        ${gearHtml}
+                    </div>
                 </div>
 
-                <!-- Legacy & Rebirth -->
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border-left:4px solid var(--sapphire);">
-                    <h3 style="margin-top:0; color:var(--text); text-align:right;">⏳ سجل السلف وقوة العهد</h3>
-                    <p style="margin:5px 0; text-align:left;">عدد مرات انتقال الإرث والعهد: <b>${state.legacy ? state.legacy.rebirthCount : 0}</b></p>
-                    <p style="margin:5px 0; text-align:left;">الصفات والبركات الموروثة: <b>${state.legacy && state.legacy.traits.length ? state.legacy.traits.length : 'لا توجد'}</b></p>
+                <!-- Background & Heritage Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid #e67e22; border-left:none;">
+                    <h3 style="margin-top:0; color:#e67e22; font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">🧬 الأصول والموهبة البدنية</h3>
+                    
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">النشأة والنسب:</span>
+                        <b>${(() => {
+                            const bgTranslation = {
+                                'Merchant Scion': 'سليل تجار القوافل',
+                                'Rogue Cultivator': 'سالك براري حر',
+                                'Sect Disciple': 'فارس طائفة مستقل',
+                                'Farmer Scion': 'ابن الفلاح الطيب',
+                                'Beggar Scion': 'ابن الشوارع الفقير',
+                                'ابن التاجر الغني': 'ابن التاجر الغني',
+                                'ابن الشوارع الفقير': 'ابن الشوارع الفقير',
+                                'ابن الباشا والأمير': 'ابن الباشا والأمير',
+                                'ابن الفلاح الطيب': 'ابن الفلاح الطيب'
+                            };
+                            return bgTranslation[p.background?.name] || p.background?.name || 'مجهول النسب';
+                        })()}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الموهبة القتالية الكامنة:</span>
+                        <b>${(() => {
+                            const sysTranslation = {
+                                'Sword Immortal System': 'نظام سياف القمم الأسطوري',
+                                'Ancestral Sword Intent': 'بصيرة نصل السلف الخالد',
+                                'Pure Yang Qi': 'شمس طاقة اليانغ النقية',
+                                'Many Children': 'بركة العزوة والذرية',
+                                'Killing Path': 'طريق الجزار والفارس',
+                                'بركة العزوة والذرية': 'بركة العزوة والذرية',
+                                'سر الفارس الجزار': 'سر الفارس الجزار',
+                                'طلسم السيف الدمشقي الأسطوري': 'طلسم السيف الدمشقي الأسطوري'
+                            };
+                            return sysTranslation[p.system?.name] || p.system?.name || 'لا يوجد';
+                        })()}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">العقيدة والطباع:</span>
+                        <b>${classNamesArabic[p.class] || p.class || 'بطل حر'}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">عدد الأبناء والذرية:</span>
+                        <b>${p.children || 0} أبناء</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">وحوش وأعداء صرعوا:</span>
+                        <b>${p.kills || 0} وحش</b>
+                    </div>
                 </div>
+
+                <!-- Faction & Legacy Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid var(--sapphire); border-left:none;">
+                    <h3 style="margin-top:0; color:var(--sapphire); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">⏳ سجل السلف وقوة العهد</h3>
+                    
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">مرات انتقال الإرث:</span>
+                        <b>${state.legacy ? state.legacy.rebirthCount : 0} مرات انتقال</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">البركات الموروثة:</span>
+                        <b>${state.legacy && state.legacy.traits.length ? `${state.legacy.traits.length} بركات` : 'لا توجد موروثات'}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الطائفة الحليفة:</span>
+                        <b>${(p.faction === 'Jade Summit Sect' || p.faction === 'طائفة قمة اليشم العظمى') ? 'طائفة قمة اليشم العظمى' : (p.faction === 'Sufi Order of the Empty Quarter' || p.faction === 'طريقة رابطة أبطال الربع الخالي' || p.faction === 'فرسان الربع الخالي الأحرار') ? 'فرسان الربع الخالي الأحرار' : 'بلا طائفة (حر)'}</b>
+                    </div>
+
+                    ${p.faction ? `
+                        <div style="display:flex; justify-content:space-between; margin:8px 0; flex-direction:row-reverse; font-size:0.75rem; background:rgba(46,204,113,0.1); padding:6px; border-radius:4px;">
+                            <span style="color:#2ecc71;">المنفعة البدنية للطائفة:</span>
+                            <b style="color:#2ecc71;">${p.faction === 'Jade Summit Sect' ? '+10% هجوم لكل مرتبة' : '+10% مانا بدنية لكل مرتبة'}</b>
+                        </div>
+                    ` : ''}
+                </div>
+
             </div>
         </div>
     `;

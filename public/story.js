@@ -1164,23 +1164,23 @@ window.BALANCE = {
     hpPerLevel:     15,   // Reduced from 22
     atkPerLevel:     3,   // Reduced from 6
     mpPerLevel:      8,   
-    xpMultiplier: 2.10,   // Increased from 1.45 (HELL GRIND)
+    xpMultiplier: 2.65,   // Raised to 2.65 for hardcore, classic grinder progression
 
     // Starting stats
     base: { hp: 100, mp: 50, atk: 12, maxXp: 150 },
 
-    // Enemy scaling (relative to player stage)
+    // Hardcore Enemy scaling (relative to player level and stage minimum)
     enemyHpScale: (playerLvl, stageMin) => {
         const delta = Math.max(0, playerLvl - stageMin);
-        return 1.8 + (playerLvl * 0.48) + (stageMin * 0.35) + (delta * 0.30);
+        return 2.2 + (playerLvl * 0.52) + (stageMin * 0.40) + (delta * 0.35); // Boosted curves
     },
     enemyAtkScale: (playerLvl, stageMin) => {
         const delta = Math.max(0, playerLvl - stageMin);
-        return 1.5 + (playerLvl * 0.38) + (stageMin * 0.25) + (delta * 0.22);
+        return 1.8 + (playerLvl * 0.42) + (stageMin * 0.30) + (delta * 0.25); // Boosted damage curves
     },
 
     // XP rewards — scales with enemy level
-    xpForEnemy: (enemyStageMin) => Math.floor(30 + (enemyStageMin * 18)),
+    xpForEnemy: (enemyStageMin) => Math.floor(25 + (enemyStageMin * 15)),
 
     // Karma thresholds
     karmaLabels: [

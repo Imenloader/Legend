@@ -348,6 +348,86 @@ document.addEventListener('DOMContentLoaded', async () => {
                         desc: 'تميمة نحاسية منقوشة بنقوش غامضة من ديوان المعارف الأكبر.'
                     };
                 }
+                else if (state.player.class === 'Steelmaster') {
+                    // خبير الفولاذ الدمشقي: Balanced High Stats, Damascus starting weapon
+                    state.player.atk = 22;
+                    state.player.def = 12;
+                    state.player.maxHp = 110;
+                    state.player.hp = 110;
+                    state.player.maxMp = 45;
+                    state.player.mp = 45;
+                    state.player.critRate = 0.10;
+                    state.player.dodgeRate = 0.05;
+                    state.player.skills = ['lotus_strike'];
+                    state.player.equipment.weapon = {
+                        id: 'starting_damascus_scimitar',
+                        name: 'سيف الفولاذ الدمشقي الأصيل (مجهز)',
+                        slot: 'weapon',
+                        quality: 'Rare',
+                        stats: { atk: 15, def: 3 },
+                        desc: 'سيف فولاذي معرج بنقوش ماء الصحراء، متزن وقوي البنية.'
+                    };
+                }
+                else if (state.player.class === 'Horseman') {
+                    // فارس الخيل المغوار: Speed, high Evasion, Stirrups relic
+                    state.player.atk = 18;
+                    state.player.def = 8;
+                    state.player.maxHp = 105;
+                    state.player.hp = 105;
+                    state.player.maxMp = 40;
+                    state.player.mp = 40;
+                    state.player.critRate = 0.08;
+                    state.player.dodgeRate = 0.18;
+                    state.player.skills = ['shadow_step'];
+                    state.player.equipment.relic = {
+                        id: 'stirrups_of_wind',
+                        name: 'ركاب ريح البادية المبارك (مجهز)',
+                        slot: 'relic',
+                        quality: 'Rare',
+                        stats: { speed: 15, evasion: 8 },
+                        desc: 'ركاب خيل جلدي خفيف مطعم بنقوش هالة ريح الشمال المسرعة.'
+                    };
+                }
+                else if (state.player.class === 'Astrologer') {
+                    // خبير الفلك والأوراد: High Mana, Spell resistance
+                    state.player.atk = 12;
+                    state.player.def = 5;
+                    state.player.maxHp = 95;
+                    state.player.hp = 95;
+                    state.player.maxMp = 120;
+                    state.player.mp = 120;
+                    state.player.critRate = 0.05;
+                    state.player.dodgeRate = 0.10;
+                    state.player.skills = ['badr_blessing'];
+                    state.player.equipment.relic = {
+                        id: 'astrolabe_of_light',
+                        name: 'أسطرلاب الأنوار النحاسي (مجهز)',
+                        slot: 'relic',
+                        quality: 'Rare',
+                        stats: { mp: 25, def: 5 },
+                        desc: 'أسطرلاب نحاسي لامع مرصع بالفيروز يكشف تدفق طاقة التشي.'
+                    };
+                }
+                else if (state.player.class === 'Lancer') {
+                    // رماح البادية الأبي: High Crit, penetrative Spear starting weapon
+                    state.player.atk = 24;
+                    state.player.def = 6;
+                    state.player.maxHp = 100;
+                    state.player.hp = 100;
+                    state.player.maxMp = 35;
+                    state.player.mp = 35;
+                    state.player.critRate = 0.20;
+                    state.player.dodgeRate = 0.05;
+                    state.player.skills = ['lotus_strike'];
+                    state.player.equipment.weapon = {
+                        id: 'samhari_spear',
+                        name: 'رمح سمهر الحجازي المسنن (مجهز)',
+                        slot: 'weapon',
+                        quality: 'Rare',
+                        stats: { atk: 18 },
+                        desc: 'رمح طويل مرن برأس فولاذي مصقول يخترق أصلب الدروع بسهولة.'
+                    };
+                }
             }
             calculateTotalStats();
             initGame();
@@ -796,7 +876,11 @@ function updateTopBar() {
             'Sword Immortal': 'السياف الأسطوري',
             'Medicine Cultivator': 'الطبيب المعالج',
             'Desert Knight': 'فارس الصحراء',
-            'Sufi Mystic': 'الفارس المهيب'
+            'Sufi Mystic': 'الفارس المهيب',
+            'Steelmaster': 'خبير الفولاذ الدمشقي',
+            'Horseman': 'فارس الخيل المغوار',
+            'Astrologer': 'خبير الفلك والأوراد',
+            'Lancer': 'رماح البادية الأبي'
         };
         mobClass.innerText = classNamesArabic[state.player.class] || state.player.class || 'بطل القلوب';
     }
@@ -841,6 +925,29 @@ window.onMobileTabClick = function(index, actionFunc) {
             showToast("لا يمكنك مغادرة المعركة الحامية الآن يا فتوة! ⚔️");
         }
         return;
+    }
+    
+    // Check feature locks for caravan map (Tab 1) and logbook (Tab 4)
+    if (index === 1) {
+        if (!state.player.unlockedFeatures) state.player.unlockedFeatures = [];
+        if (!state.player.unlockedFeatures.includes('caravan_map')) {
+            window.checkFeatureLock('caravan_map', 'قافلة الترحال واستكشاف خريطة البرية الشبكية', 5, 1000, () => {
+                highlightMobileTab(1);
+                if (typeof actionFunc === 'function') actionFunc();
+            });
+            return;
+        }
+    }
+    
+    if (index === 4) {
+        if (!state.player.unlockedFeatures) state.player.unlockedFeatures = [];
+        if (!state.player.unlockedFeatures.includes('logbook')) {
+            window.checkFeatureLock('logbook', 'ديوان حكايات البدو واليوميات اليومية', 4, 800, () => {
+                highlightMobileTab(4);
+                if (typeof actionFunc === 'function') actionFunc();
+            });
+            return;
+        }
     }
     
     // Close chronicle modal if switching to any other tab
@@ -948,11 +1055,18 @@ function initGame() {
         // --- DYNAMIC EVENT HEARTBEAT ---
         if (Math.random() < 0.05) {
             const eventType = Math.random() > 0.5 ? 'LIFE' : 'SECT';
+            let triggered = false;
             if (eventType === 'LIFE' && window.LIFE && window.LIFE.processRandomEvent) {
                 window.LIFE.processRandomEvent(state, narrate);
                 if (window.LIFE.processBirth) window.LIFE.processBirth(state, narrate);
+                triggered = true;
             } else if (eventType === 'SECT' && window.SECTS && window.SECTS.processRandomEvent) {
                 window.SECTS.processRandomEvent(state, narrate);
+                triggered = true;
+            }
+            if (triggered) {
+                updateTopBar();
+                saveGame();
             }
         }
     }, 5000); // 5s heartbeat for performance
@@ -965,6 +1079,55 @@ function initGame() {
     narrate("توشوش الرياح بأخبار عن تقارب عظيم للأقدار السماوية. مسارك يبدأ الآن.", "النظام", null, false, true);
     hubLoop();
 }
+
+window.checkFeatureLock = function(featureKey, displayName, reqLvl, goldCost, successCallback) {
+    if (!state.player.unlockedFeatures) state.player.unlockedFeatures = [];
+    
+    // If already unlocked, proceed immediately
+    if (state.player.unlockedFeatures.includes(featureKey)) {
+        successCallback();
+        return;
+    }
+    
+    // If not unlocked, show confirmation screen in the narrations
+    clearNarrative();
+    narrate(`<b>🔒 بوابة الارتقاء والفتح الباطني</b>`, displayName, null, false, true);
+    narrate(`تتطلب هذه الميزة مستوى لا يقل عن <b>${reqLvl}</b> ودفع رسم فتح مقداره <b>${goldCost} دينار ذهبي</b>.`, "بوابة الأسرار والارتقاء", null, false, true);
+    narrate(`المستوى الحالي: <b>${state.player.lvl || 1}</b> | الذهب المتوفر: <b>${state.player.gold || 0} دينار ذهبي</b>.`, "بوابة الأسرار والارتقاء", null, false, true);
+    
+    const isLevelMet = (state.player.lvl || 1) >= reqLvl;
+    const isGoldMet = (state.player.gold || 0) >= goldCost;
+    
+    const choiceOptions = [];
+    if (isLevelMet && isGoldMet) {
+        choiceOptions.push({
+            text: `✨ ادفع ${goldCost} ذهب وافتح الميزة بشكل دائم`,
+            callback: () => {
+                state.player.gold -= goldCost;
+                state.player.unlockedFeatures.push(featureKey);
+                saveGame();
+                narrate(`🎉 تهانينا! لقد تم فتح ميزة <b>${displayName}</b> بنجاح ودائم!`, "نظام الارتقاء", null, false, true);
+                if (window.AUDIO) window.AUDIO.playEffect('level_up');
+                updateTopBar();
+                setTimeout(successCallback, 2000);
+            }
+        });
+    } else {
+        if (!isLevelMet) {
+            narrate(`<span style="color:var(--secondary)">⚠️ مستواك منخفض جداً لفتح هذه الميزة (مطلوب مستوى ${reqLvl}).</span>`, "نظام الارتقاء", null, false, true);
+        }
+        if (!isGoldMet) {
+            narrate(`<span style="color:var(--secondary)">⚠️ ليس لديك ما يكفي من الذهب لفتح هذه الميزة (مطلوب ${goldCost} ذهب).</span>`, "نظام الارتقاء", null, false, true);
+        }
+    }
+    
+    choiceOptions.push({
+        text: "↩ العودة لواحة القوافل الكبرى",
+        callback: hubLoop
+    });
+    
+    setChoices(choiceOptions);
+};
 
 function hubLoop() {
     showScreen('story-screen'); // Ensure we are on the narrative/hub screen
@@ -1049,6 +1212,12 @@ function hubLoop() {
     narrate(`<b style="font-size:1.4em;letter-spacing:2px;color:var(--secondary);">${regionName.toUpperCase()}</b>`, 'النظام', null, false, true);
     if (region) narrate(`<i style="color:var(--text-dim);">${region.subtitle}</i><br>${region.description}`, 'النظام', null, false, true);
 
+    if (!state.player.unlockedFeatures) state.player.unlockedFeatures = [];
+    const isUnlocked = (key) => state.player.unlockedFeatures.includes(key);
+    const getLockText = (key, text, reqLvl, goldCost) => {
+        return isUnlocked(key) ? text : `🔒 ${text} (مستوى ${reqLvl} و ${goldCost} ذهب)`;
+    };
+
     const choices = [];
     if (typeof showWorldMap === 'function') choices.push({ text: "🗺️ افتح خريطة العالم الأسطوري", callback: showWorldMap });
     
@@ -1056,15 +1225,44 @@ function hubLoop() {
     choices.push({ text: `⚔️ استكشف ${regionName}`, callback: () => exploreRegion(regionId) });
     
     // Oasis & Caravan expansion buttons
-    choices.push({ text: "⛺ إدارة وتطوير الواحة الباطنية (إنتاج تلقائي خامل)", callback: () => { if (window.showOasisScreen) window.showOasisScreen(); } });
-    choices.push({ text: "🐪 قافلة الترحال واستكشاف خريطة البرية الشبكية", callback: () => { if (window.showCaravanMapScreen) window.showCaravanMapScreen(); } });
-    choices.push({ text: "📜 ديوان حكايات البدو واليوميات اليومية", callback: () => { if (window.showNomadLogbookScreen) window.showNomadLogbookScreen(); } });
+    choices.push({
+        text: getLockText('oasis', '⛺ إدارة وتطوير الواحة الباطنية (إنتاج تلقائي خامل)', 3, 500),
+        callback: () => window.checkFeatureLock('oasis', 'إدارة وتطوير الواحة الباطنية', 3, 500, () => { if (window.showOasisScreen) window.showOasisScreen(); })
+    });
+    choices.push({
+        text: getLockText('caravan_map', '🐪 قافلة الترحال واستكشاف خريطة البرية الشبكية', 5, 1000),
+        callback: () => window.checkFeatureLock('caravan_map', 'قافلة الترحال واستكشاف خريطة البرية الشبكية', 5, 1000, () => { if (window.showCaravanMapScreen) window.showCaravanMapScreen(); })
+    });
+    choices.push({
+        text: getLockText('logbook', '📜 ديوان حكايات البدو واليوميات اليومية', 4, 800),
+        callback: () => window.checkFeatureLock('logbook', 'ديوان حكايات البدو واليوميات اليومية', 4, 800, () => { if (window.showNomadLogbookScreen) window.showNomadLogbookScreen(); })
+    });
 
     if (regionId === 'crossroads') {
-        if (typeof showQuestLog === 'function') choices.push({ text: "📜 لوحة المهام والطلبات", callback: showQuestLog });
-        if (typeof showMarket === 'function') choices.push({ text: "⚖️ سوق واحة التقاطع", callback: showMarket });
-        if (typeof showAuctionHouse === 'function') choices.push({ text: "🏛️ دار مزادات الطائفة العظمى", callback: showAuctionHouse });
-        if (typeof showManagementScreen === 'function') choices.push({ text: "👨‍👩‍👧‍👦 إدارة العائلة والطائفة", callback: showManagementScreen });
+        if (typeof showQuestLog === 'function') {
+            choices.push({
+                text: getLockText('quests', '📜 لوحة المهام والطلبات', 3, 400),
+                callback: () => window.checkFeatureLock('quests', 'لوحة المهام والطلبات', 3, 400, showQuestLog)
+            });
+        }
+        if (typeof showMarket === 'function') {
+            choices.push({
+                text: getLockText('market', '⚖️ سوق واحة التقاطع', 2, 200),
+                callback: () => window.checkFeatureLock('market', 'سوق واحة التقاطع', 2, 200, showMarket)
+            });
+        }
+        if (typeof showAuctionHouse === 'function') {
+            choices.push({
+                text: getLockText('auction', '🏛️ دار مزادات الطائفة العظمى', 10, 4000),
+                callback: () => window.checkFeatureLock('auction', 'دار مزادات الطائفة العظمى', 10, 4000, showAuctionHouse)
+            });
+        }
+        if (typeof showManagementScreen === 'function') {
+            choices.push({
+                text: getLockText('family', '👨‍👩‍👧‍👦 إدارة العائلة والطائفة', 12, 6000),
+                callback: () => window.checkFeatureLock('family', 'إدارة العائلة والطائفة', 12, 6000, showManagementScreen)
+            });
+        }
     } else if (regionId === 'jade_peak') {
         choices.push({ text: "🏯 معبد قمة اليشم والرهبان", callback: () => narrate("شيوخ ورهبان الطائفة في حالة تجلي وتدريب بدني عميق في قنوات المانا.", "النظام") });
         choices.push({ text: "🗡️ منحدر بصير السيف الناري", callback: () => narrate("تشعر بهالة سيف حادة تقطع النسمات وتحفر الصخر في الهواء.", "النظام") });
@@ -1081,8 +1279,19 @@ function hubLoop() {
     }
     
     if (typeof showCultivationScreen === 'function') choices.push({ text: "🧘 راحة واجمع طاقة التركيز والهمة", callback: showCultivationScreen });
-    if (typeof showAlchemyScreen === 'function') choices.push({ text: "⚗️ فرن الخيمياء وتقطير الإكسير", callback: showAlchemyScreen });
-    if (typeof showForgeScreen === 'function') choices.push({ text: "🔨 ورشة سحر الحديد والأسلحة", callback: showForgeScreen });
+    
+    if (typeof showAlchemyScreen === 'function') {
+        choices.push({
+            text: getLockText('alchemy', '⚗️ فرن الخيمياء وتقطير الإكسير', 6, 1500),
+            callback: () => window.checkFeatureLock('alchemy', 'فرن الخيمياء وتقطير الإكسير', 6, 1500, showAlchemyScreen)
+        });
+    }
+    if (typeof showForgeScreen === 'function') {
+        choices.push({
+            text: getLockText('forge', '🔨 ورشة سحر الحديد والأسلحة', 8, 2500),
+            callback: () => window.checkFeatureLock('forge', 'ورشة سحر الحديد والأسلحة', 8, 2500, showForgeScreen)
+        });
+    }
     
     choices.push({ text: "📜 مكتبة الفنون والمهارات", callback: showSkillsScreen });
     choices.push({ text: "🎒 الحقيبة وجوهر الكارما", callback: showInventory });
@@ -1092,7 +1301,10 @@ function hubLoop() {
         if (window.QUESTS) window.QUESTS.updateQuests(state);
         updateTopBar(); saveGame(); setTimeout(hubLoop, 1500);
     }});
-    choices.push({ text: "إدارة الرفيق البطل", callback: showCompanionScreen });
+    choices.push({
+        text: getLockText('companion', '👥 إدارة الرفيق البطل', 7, 2000),
+        callback: () => window.checkFeatureLock('companion', 'إدارة الرفيق البطل', 7, 2000, showCompanionScreen)
+    });
     setChoices(choices);
 }
 
@@ -1631,12 +1843,16 @@ function handleVictory() {
     victoryMsg += `</div>`;
     narrate(victoryMsg, "النظام", null, false, true);
 
-    if (state.player.xp >= state.player.maxXp) { 
+    let leveledUp = false;
+    while (state.player.xp >= state.player.maxXp) { 
         state.player.lvl++; 
         state.player.xp -= state.player.maxXp; 
         state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 2.1)); 
+        leveledUp = true;
+    }
+    if (leveledUp) {
         calculateTotalStats(); 
-        narrate("<span class='loot-epic'><b>🌟 ارتقاء عظيم في الهمة والتركيز!</b> لقد طهرت تركيز وهمةك ووصلت خلوتك البدنية إلى ذروة جديدة وجبارة.</span>", "النظام", null, false, true); 
+        narrate(`<span class='loot-epic'><b>🌟 ارتقاء عظيم في الهمة والتركيز!</b> لقد طهرت تركيزك وهمتك ووصلت خلوتك البدنية إلى ذروة جديدة وجبارة (مستوى ${state.player.lvl}). زادت قدراتك البدنية والروحية بشكل جبار!</span>`, "النظام", null, false, true); 
         if (window.AUDIO) window.AUDIO.playEffect('level_up');
     }
     
@@ -1718,6 +1934,22 @@ function calculateTotalStats() {
     } else if (cls === 'Desert Knight') {
         bDef += 18;
         bHp += 30;
+    } else if (cls === 'Steelmaster') {
+        bAtk += 10;
+        bDef += 8;
+        bHp += 10;
+    } else if (cls === 'Horseman') {
+        bAtk += 6;
+        bDef += 4;
+        bHp += 15;
+        bMp += 5;
+    } else if (cls === 'Astrologer') {
+        bMp += 70;
+        bHp += 5;
+    } else if (cls === 'Lancer') {
+        bAtk += 12;
+        bDef += 2;
+        bHp += 5;
     }
 
     // Womb Gift bonuses
@@ -1926,6 +2158,10 @@ function calculateTotalStats() {
     if (cls === 'Sword Immortal') baseCrit = 0.15;
     if (cls === 'Desert Knight') baseDodge = 0.10;
     if (cls === 'Sufi Mystic') baseDodge = 0.15;
+    if (cls === 'Steelmaster') { baseCrit = 0.10; baseDodge = 0.05; }
+    if (cls === 'Horseman') { baseCrit = 0.08; baseDodge = 0.18; }
+    if (cls === 'Astrologer') { baseCrit = 0.05; baseDodge = 0.10; }
+    if (cls === 'Lancer') { baseCrit = 0.20; baseDodge = 0.05; }
 
     if (state.dwelling && state.dwelling.roots) {
         const r = state.dwelling.roots;

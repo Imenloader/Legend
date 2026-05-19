@@ -1583,6 +1583,33 @@ input[type="text"]:focus {
         flex: 1 1 auto !important;
         max-height: none !important;
     }
+    .divider {
+        width: 100% !important;
+        height: 1px !important;
+        margin: 10px 0 !important;
+    }
+    .satchel-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .satchel-header h3 {
+        text-align: center !important;
+    }
+    #satchel-tabs {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        width: 100% !important;
+        gap: 6px !important;
+    }
+    #satchel-tabs .btn {
+        flex: 1 1 auto !important;
+        min-width: 80px !important;
+        text-align: center !important;
+        padding: 8px 5px !important;
+        font-size: 0.72rem !important;
+    }
 }
 
 /* ────────────────────────────────────────────────────────
@@ -1666,6 +1693,101 @@ input[type="text"]:focus {
         padding: 10px !important;
     }
 }
+
+/* ────────────────────────────────────────────────────────
+   ULTIMATE UNIVERSAL MOBILE RESPONSIVENESS AND CLIPPING PROTECTION
+   ──────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    /* Prevent any external overflow on html, body, and game wrappers */
+    html, body, #game-container, #app {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+        width: 100% !important;
+    }
+
+    /* Force all screens to fit the screen without extending past the boundaries */
+    .screen {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        overflow-x: hidden !important;
+        padding-bottom: 110px !important; /* Ensure content is never clipped behind nav */
+    }
+
+    /* Wrap all grid, flex, and table containers so they scale or wrap elegantly */
+    .class-selector, 
+    .hub-choice-grid, 
+    .combat-choice-grid, 
+    .stats-group, 
+    .entity-panel, 
+    .profile-card,
+    .satchel-header, 
+    #satchel-tabs {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Prevent text or values inside profile grids from stretching or spilling */
+    .profile-card div {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure grid columns in profile card wrap nicely even on 320px screens */
+    .profile-card > div:last-child {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* Scale down large headings slightly to fit single-lines without wrapping or clipping */
+    h1 {
+        font-size: 1.5rem !important;
+        word-break: break-word !important;
+    }
+    h2 {
+        font-size: 1.25rem !important;
+        word-break: break-word !important;
+    }
+    h3 {
+        font-size: 1.05rem !important;
+        word-break: break-word !important;
+    }
+
+    /* Ensure modals and logs never exceed screen height or width */
+    .log-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 10px !important;
+    }
+
+    /* Ensure actions/choices wrap gracefully */
+    .actions, #choice-engine {
+        grid-template-columns: 1fr !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* Fix any images or sprites from bursting parent containers */
+    img, svg {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* World map scaling adjustments */
+    .map-canvas-wrapper {
+        padding: 5px !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+    }
+    #world-map-svg {
+        min-width: 300px !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
 
 
 
