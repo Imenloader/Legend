@@ -1585,3 +1585,58 @@ input[type="text"]:focus {
     }
 }
 
+/* ────────────────────────────────────────────────────────
+   FASCINATING COMBAT VISUAL & MAGICAL PARTICLE EFFECTS
+   ──────────────────────────────────────────────────────── */
+
+.floating-text {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    font-family: 'El Messiri', 'Cairo', serif;
+    font-weight: 900;
+    font-size: 2.2rem;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.95), 0 0 5px currentColor;
+    animation: premiumFloatUp 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes premiumFloatUp {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    15% {
+        transform: translateY(-20px) scale(1.4);
+        opacity: 1;
+    }
+    30% {
+        transform: translateY(-35px) scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-90px) scale(0.8);
+        opacity: 0;
+    }
+}
+
+.combat-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 50%;
+    box-shadow: 0 0 10px currentColor, 0 0 4px #fff;
+    animation: particleOut 0.8s cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes particleOut {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.1);
+        opacity: 0;
+    }
+}
+
+

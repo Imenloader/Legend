@@ -64,7 +64,7 @@ window.COMBAT = {
         if (state.player.mpRegen > 0) {
             const mReg = Math.floor(state.player.maxMp * state.player.mpRegen);
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + mReg);
-            if (mReg > 0) msg += `<br><span style="color:var(--jade)">تجدد تركيزك البدني والمانا بـ ${mReg} نقاط مانا.</span>`;
+            if (mReg > 0) msg += `<br><span style="color:var(--jade)">تجدد تركيزك الباطني بـ ${mReg} نقاط.</span>`;
         }
 
         // 5. Stun recovery
@@ -101,7 +101,7 @@ window.COMBAT = {
             case 'full_party_heal':
                 state.player.hp = state.player.maxHp;
                 state.player.mp = state.player.maxMp;
-                msg += `<br>نور الهي طاهر نزل من أقاليم الصحراء ورجع دمك وقوات المانا بتاعتك كاملة مكملة!`;
+                msg += `<br>نور الهي طاهر نزل من أقاليم الصحراء ورجع دمك وقوة تركيزك الباطني كاملة مكملة!`;
                 break;
             case 'honorable_surrender':
                 if (enemy.hp <= enemy.maxHp * 0.4) {
@@ -124,7 +124,7 @@ window.COMBAT = {
             case 'area_damage_or_bypass':
                 const areaDmg = Math.floor(state.player.atk * 2 * affinityMult);
                 enemy.hp = Math.max(0, enemy.hp - areaDmg);
-                msg += `<br>ضربة قاضية أسطورية سببت ${areaDmg} ضرر متجاهلة الدروع وجدران المانا بالكامل!`;
+                msg += `<br>ضربة قاضية أسطورية سببت ${areaDmg} ضرر متجاهلة الدروع وجدران الحماية الباطنية بالكامل!`;
                 break;
             case 'bluff_stun':
                 state.enemyStaggered = true;
@@ -349,13 +349,13 @@ window.COMBAT = {
         }
         else if (playerMoveId === 'qi_blade') {
             if (enemyMoveType === 'guard' || enemyMoveType === 'deflect') {
-                msg = `سيفك من مانا الأنوار والتركيز وهمة الصافي عدي واخترق درعه ودفاعه الجسدي بالملي!`;
+                msg = `سيفك من طاقة التركيز والهمة الصافية عدي واخترق درعه ودفاعه الجسدي بالملي!`;
                 mom = 30; spec = 'perfect_counter'; pDmg = pBaseDmg * 1.5;
             } else if (enemyMoveType === 'fast') {
-                msg = `تحرك بسرعة البرق وقطع تدفق مانا الأنوار والتركيز وهمة في عروقك في ثانية!`;
+                msg = `تحرك بسرعة البرق وقطع تدفق طاقة التركيز والهمة في عروقك في ثانية!`;
                 mom = -20; eDmg = eBaseDmg * 1.2;
             } else {
-                msg = `السيف البدني والتركيز وهمة ضرب ووجع قنواته البدنية من جوة بنجاح.`;
+                msg = `السيف البدني والتركيز والهمة ضرب ووجع قنواته البدنية من جوة بنجاح.`;
                 mom = 15; pDmg = pBaseDmg * 1.2; eDmg = eBaseDmg * 0.5;
             }
         }
@@ -372,18 +372,18 @@ window.COMBAT = {
                 if (state.player.familyPagodaLevel >= 3) critMult += 0.15;
                 
                 pDmg = Math.floor(pDmg * critMult);
-                msg += ` <span style="color:#ffcc00; font-weight:bold; text-shadow: 0 0 5px #ffcc00;">✨ ضربة قاضية خارقة (كريتيكال)!</span>`;
+                msg += ` <span style="color:#ffcc00; font-weight:bold; text-shadow: 0 0 8px #ffcc00, 0 0 3px #ffcc00;">✨ ضربة قاصمة حاسمة!</span>`;
             }
         }
 
         if (state.player.system && state.player.system.id === 'sword_saint' && pDmg > 0) {
             pDmg *= 2;
-            msg += ` <span style="color:var(--secondary); font-weight:bold;">[بركة خالد السيف الأسطوري: 2x ضرر هائل]</span>`;
+            msg += ` <span style="color:var(--secondary); font-weight:bold;">[بركة السياف الأسطوري: 2x ضرر هائل]</span>`;
         }
 
         if (state.playerForm === 'water' && pDmg > 0) {
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 5);
-            msg += ` (وضعية المية السلسة رجعتلك 5 مانا)`;
+            msg += ` (وضعية الماء السلسة استعادت 5 نقاط تركيز)`;
         }
 
         return { playerDmg: pDmg, enemyDmg: eDmg, resultText: msg, special: spec, momentumShift: mom };

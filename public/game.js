@@ -602,6 +602,42 @@ function spawnFloatingText(text, x, y, color = '#fff') {
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 1200);
 }
+function spawnParticleExplosion(x, y, colorType = 'gold') {
+    const particleCount = 16;
+    const colors = {
+        gold: '#ffd700',
+        green: '#00ffbb',
+        sand: '#e0a96d',
+        blue: '#00ccff',
+        red: '#ff4d4d'
+    };
+    const baseColor = colors[colorType] || '#fff';
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'combat-particle';
+        
+        const size = Math.floor(Math.random() * 8) + 6;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        
+        particle.style.left = (x - size / 2) + 'px';
+        particle.style.top = (y - size / 2) + 'px';
+        particle.style.color = baseColor;
+        particle.style.backgroundColor = baseColor;
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 120 + 60;
+        const dx = Math.cos(angle) * speed;
+        const dy = Math.sin(angle) * speed;
+        
+        particle.style.setProperty('--dx', dx + 'px');
+        particle.style.setProperty('--dy', dy + 'px');
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 800);
+    }
+}
 function triggerScreenShake() {
     const screen = document.querySelector('.screen.active');
     if (screen) {
@@ -1367,13 +1403,31 @@ function resolveCombatTurn(moveId) {
         updateTopBar(); updateMomentumUI();
         
         if (window.AUDIO) window.AUDIO.playEffect('combat_hit');
-        if (dmg > 0) spawnFloatingText(`-${dmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
+        if (dmg > 0) {
+            spawnFloatingText(`-${dmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
+            let synergyParticle = 'gold';
+            if (moveId === 'synergy_wukong') {
+                synergyParticle = 'gold';
+                triggerFlash('damage');
+            } else if (moveId === 'synergy_tariq') {
+                synergyParticle = 'sand';
+                triggerFlash('damage');
+            } else if (moveId === 'synergy_boushaki') {
+                synergyParticle = 'green';
+                triggerFlash('heal');
+            } else if (moveId === 'synergy_fatima') {
+                synergyParticle = 'blue';
+                triggerFlash('jade');
+            }
+            spawnParticleExplosion(window.innerWidth*0.7, window.innerHeight*0.4, synergyParticle);
+        }
         
         let enemyDmg = 0;
         if (!state.skipEnemyTurn && !state.player_invulnerable_turn) {
             enemyDmg = Math.max(1, Math.floor(enemy.atk * 0.8 - state.player.def * 0.2));
             state.player.hp = Math.max(0, state.player.hp - enemyDmg);
             spawnFloatingText(`-${enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
+            spawnParticleExplosion(window.innerWidth*0.3, window.innerHeight*0.4, 'red');
             triggerScreenShake(); triggerFlash('damage'); 
         }
         state.player_invulnerable_turn = false;
@@ -1426,9 +1480,26 @@ function resolveCombatTurn(moveId) {
         }
     }
     
-    if (result.playerDmg > 0) spawnFloatingText(`-${result.playerDmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
+    if (result.playerDmg > 0) {
+        spawnFloatingText(`-${result.playerDmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
+        let particleType = 'gold';
+        if (state.player.class === 'Medicine Cultivator') {
+            particleType = 'green';
+            triggerFlash('jade');
+        } else if (state.player.class === 'Desert Knight') {
+            particleType = 'sand';
+            triggerFlash('damage');
+        } else if (state.player.class === 'Sufi Mystic') {
+            particleType = 'blue';
+            triggerFlash('jade');
+        } else {
+            triggerFlash('damage');
+        }
+        spawnParticleExplosion(window.innerWidth*0.7, window.innerHeight*0.4, particleType);
+    }
     if (result.enemyDmg > 0) { 
         spawnFloatingText(`-${result.enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
+        spawnParticleExplosion(window.innerWidth*0.3, window.innerHeight*0.4, 'red');
         triggerScreenShake(); triggerFlash('damage'); 
     }
 
