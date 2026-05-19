@@ -137,12 +137,12 @@ window.LIFE = {
             const name = gender === 'male' ? childNamesMale[Math.floor(Math.random() * childNamesMale.length)] : childNamesFemale[Math.floor(Math.random() * childNamesFemale.length)];
             
             const traits = [
-                { id: 'heavenly_bones', name: 'الهيكل الفولاذي الصلب للأجداد', desc: '+20% صحة أساسية دايمة' },
-                { id: 'spirit_eye', name: 'نظرة الصقر والهمة الحادة', desc: '+10% ضربة قاضية دايمة' },
-                { id: 'jinn_luck', name: 'بركة كرم القوافل الأسطورية', desc: '+50% كسب دنانير ذهبية دايمة' },
-                { id: 'sword_master', name: 'نبوغ السيف الدمشقي الحاد', desc: '+15% قوة هجوم دائم' },
-                { id: 'shield_master', name: 'نفوذ درع الفولاذ المتين', desc: '+15% قوة دفاع دائم' },
-                { id: 'quick_learner', name: 'البصيرة والذكاء السريع', desc: '+25% كسب خبرة وتدريب دائم' }
+                { id: 'heavenly_bones', name: 'بنية بدنية صلبة', desc: '+20% صحة أساسية دائمة' },
+                { id: 'spirit_eye', name: 'بصيرة حادة', desc: '+10% فرصة ضربة قاضية دائمة' },
+                { id: 'jinn_luck', name: 'بركة في الرزق', desc: '+50% كسب دنانير ذهبية دائمة' },
+                { id: 'sword_master', name: 'براعة النصال', desc: '+15% قوة هجوم دائم' },
+                { id: 'shield_master', name: 'صلابة الدفاع', desc: '+15% قوة دفاع دائم' },
+                { id: 'quick_learner', name: 'سرعة التعلم', desc: '+25% كسب خبرة وتدريب دائم' }
             ];
             const trait = traits[Math.floor(Math.random() * traits.length)];
             
