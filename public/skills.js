@@ -27,6 +27,15 @@ window.SKILLS = {
         'sun_incineration': { id: 'sun_incineration', name: 'لهب البروق السبعة المحرق', desc: 'تركيز سحري جبار يحرق الخصم بلهب حارق مستمر لـ 5 أدوار قتالية.', mpCost: 60, power: 5.0, dot: { dmg: 18, duration: 5 }, type: 'magic', reqLvl: 25 },
         'phoenix_rebirth': { id: 'phoenix_rebirth', name: 'قوة نهوض العنقاء الأسطورية', desc: 'عزيمة أسطورية تستعيد كامل الصحة وتزيد الهجوم والدفاع بنسبة 25% لـ 3 أدوار.', mpCost: 80, heal: 1.0, effect: { atkBuff: 1.25, defBuff: 1.25, duration: 3 }, type: 'magic', reqLvl: 35 },
         'heaven_seal': { id: 'heaven_seal', name: 'ختم أقاليم الصحراء العالي الحافظ', desc: 'أسلوب أسطوري يشل هالة الأعداء ويقلل من هجومهم ودفاعهم بنسبة 40% لـ 5 أدوار.', mpCost: 75, debuff: { atk: -0.4, def: -0.4, duration: 5 }, type: 'magic', reqLvl: 30 },
+        
+        // --- فنون الفروسية والمبارزة العربية الخالدة (Legendary Arabian Furusiyya & Battle Arts - Active) ---
+        'furusiyya_charge': { id: 'furusiyya_charge', name: 'صولة الفروسية الهلالية الجسورة', desc: 'صولة فارس يركب خيلاً كحيلاً أصيلاً، يندفع بقوة 2.8x ضرر ويشل حركة الخصم لدورين بنسبة 45%.', mpCost: 35, power: 2.8, stunChance: 0.45, type: 'heavy', reqLvl: 14 },
+        'zulfiqar_fury': { id: 'zulfiqar_fury', name: 'غضب نصل ذي الفقار الحاسم الماحق', desc: 'فن سيف الخلود القاطع للظلام، يستحضر قوة التشي المسحورة ليضرب 4.0x ضرر فوري ساحق.', mpCost: 50, power: 4.0, type: 'heavy', reqLvl: 28 },
+        'dhikr_trance': { id: 'dhikr_trance', name: 'وجد الجلال الروحاني الباطني الحفيظ', desc: 'خلوة وسكينة روحية باطنية، تستعيد 50% من صحتك وتزيد تفاديك للضربات بنسبة 30% لـ 3 أدوار.', mpCost: 40, heal: 0.5, effect: { dodge: 0.3, duration: 3 }, type: 'magic', reqLvl: 16 },
+        'desert_sarab': { id: 'desert_sarab', name: 'مكر سراب البادية المتلألئ الخاطف', desc: 'حيلة قتالية بدوية، تظهر كطيف سراب يشتت تركيز العدو ويزيد فرصة التفادي بنسبة 50% لـ 3 أدوار.', mpCost: 20, effect: { dodge: 0.5, duration: 3 }, type: 'buff', reqLvl: 9 },
+        'damascus_wall': { id: 'damascus_wall', name: 'جدار الصفيح الدمشقي الحصين المنيع', desc: 'تكتيك دفاعي فولاذي يستند لمتانة الحديد والشهب، يقلل هجوم الخصم بنسبة 50% لـ 3 أدوار.', mpCost: 25, debuff: { atk: -0.5, duration: 3 }, type: 'buff', reqLvl: 11 },
+        'falcon_descent': { id: 'falcon_descent', name: 'انقضاض صقر شاهين الكاسر الحاد', desc: 'فن رماية متقن ينقض به الصقر لشق ثغرة بنقاط الضعف، يسبب 2.0x ضرر قاصم ونسبة ضربة قاضية عالية.', mpCost: 15, power: 2.0, type: 'fast', reqLvl: 6 },
+        'bazaar_tactics': { id: 'bazaar_tactics', name: 'دهاء تاجر درب الحرير وفنون المفاوضة', desc: 'تكتيك باطني يشتت انتباه الأعداء بالدينار والذهب، يقلل دفاع الخصم بنسبة 35% لـ 4 أدوار قتالية.', mpCost: 18, debuff: { def: -0.35, duration: 4 }, type: 'buff', reqLvl: 8 },
 
         // --- القدرات البدنية الكامنة (Passive Techniques) ---
         'spirit_surge': { id: 'spirit_surge', name: 'فيض طاقة مقر الطائفة', desc: 'قدرة كامنة: +10% سرعة استرجاع الطاقة البدنية (المانا).', passive: true, stat: 'mpRegen', bonus: 0.1, reqLvl: 10 },

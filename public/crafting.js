@@ -41,6 +41,36 @@ window.CRAFTING = {
             ingredients: { 'celestial_silk': 2, 'dragon_vein_shard': 2 },
             type: 'permanent',
             effect: { atk: 10, fullHeal: true }
+        },
+
+        // --- المأكولات والطبخ والوصفات العربية التقليدية (Traditional Arabian Cooking & Herbalism Recipes) ---
+        'kabsa_feast': {
+            name: 'ثريد كبسة اللحم الملكية بالبركة',
+            desc: 'طبخة لحم غزلان الصحراء والأرز بالأعشاب البرية. تستعيد كامل نقاط الصحة (+100% صحة) وتمنح +30 صحة قصوى دائمة.',
+            ingredients: { 'spirit_herb': 4, 'wood': 5 },
+            type: 'permanent',
+            effect: { hp: 300, maxHp: 30, fullHeal: true }
+        },
+        'mint_tea': {
+            name: 'شاي النعناع الصوفي الصحراوي المنعش',
+            desc: 'شاي صحراوي ساخن معطر بالنعناع والبركة الباطنية. يستعيد كامل نقاط الطاقة البدنية (+100% مانا) وتمنح +10 مانا أقصى دائمة.',
+            ingredients: { 'spirit_herb': 2 },
+            type: 'permanent',
+            effect: { mp: 100, maxMp: 10 }
+        },
+        'date_halwa': {
+            name: 'حلوى التمر البري وزبد الإبل البدوية',
+            desc: 'حلوى فاخرة مصنوعة من تمر الواحة النادر تمنح السالك شحنة كاملة في تركيز الجسد (+50 هجوم مؤقت).',
+            ingredients: { 'spirit_herb': 3 },
+            type: 'permanent',
+            effect: { atk: 15, hp: 60 }
+        },
+        'habba_oil': {
+            name: 'زيت حبة البركة الروحاني الشافي',
+            desc: 'زيت طبيعي مبارك مستخلص من الحبة السوداء يعيد 200 نقطة صحة ويقهر كافة أنواع شياطين وغيلان الصحراء.',
+            ingredients: { 'spirit_herb': 5, 'monster_core': 1 },
+            type: 'potion',
+            effect: { hp: 200 }
         }
     },
 
