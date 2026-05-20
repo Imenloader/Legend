@@ -134,7 +134,7 @@ window.CULTIVATION = {
             state.player.xp -= state.player.maxXp;
             state.player.lvl++;
             cult.stageLevel++;
-            state.player.maxXp = 100 + (state.player.lvl - 1) * 80;
+            state.player.maxXp = window.BALANCE && window.BALANCE.calculateMaxXp ? window.BALANCE.calculateMaxXp(state.player.lvl) : Math.floor(150 + Math.pow(state.player.lvl, 1.8) * 40);
             levelsGained++;
             
             if (!cult.cultivationBonuses) {
@@ -211,7 +211,7 @@ window.CULTIVATION = {
 
         // Reset XP progress parameters for the new realm
         state.player.xp = 0;
-        state.player.maxXp = 100 + (state.player.lvl - 1) * 80;
+        state.player.maxXp = window.BALANCE && window.BALANCE.calculateMaxXp ? window.BALANCE.calculateMaxXp(state.player.lvl) : Math.floor(150 + Math.pow(state.player.lvl, 1.8) * 40);
 
         if (!state.player.cultivation.cultivationBonuses) {
             state.player.cultivation.cultivationBonuses = { hp: 0, mp: 0, atk: 0, def: 0 };

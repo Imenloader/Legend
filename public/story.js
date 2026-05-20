@@ -1169,18 +1169,21 @@ window.BALANCE = {
     // Starting stats
     base: { hp: 100, mp: 50, atk: 12, maxXp: 150 },
 
-    // Hardcore Enemy scaling (relative to player level and stage minimum)
-    enemyHpScale: (playerLvl, stageMin) => {
-        const delta = Math.max(0, playerLvl - stageMin);
-        return 2.2 + (playerLvl * 0.52) + (stageMin * 0.40) + (delta * 0.35); // Boosted curves
-    },
-    enemyAtkScale: (playerLvl, stageMin) => {
-        const delta = Math.max(0, playerLvl - stageMin);
-        return 1.8 + (playerLvl * 0.42) + (stageMin * 0.30) + (delta * 0.25); // Boosted damage curves
+    // Calculate Max XP based on a polynomial curve for a progressive 100-level game
+    calculateMaxXp: (lvl) => {
+        return Math.floor(150 + Math.pow(lvl, 1.8) * 40);
     },
 
-    // XP rewards — scales with enemy level
-    xpForEnemy: (enemyStageMin) => Math.floor(25 + (enemyStageMin * 15)),
+    // Hardcore Enemy scaling (balanced via Square Root so level 100 is tough but not infinite)
+    enemyHpScale: (playerLvl, stageMin) => {
+        return 1.5 + (Math.sqrt(playerLvl) * 0.4) + (Math.sqrt(stageMin) * 0.2); 
+    },
+    enemyAtkScale: (playerLvl, stageMin) => {
+        return 1.2 + (Math.sqrt(playerLvl) * 0.3) + (Math.sqrt(stageMin) * 0.15);
+    },
+
+    // XP rewards — Boosted to match the new XP curve
+    xpForEnemy: (enemyStageMin) => Math.floor(40 + (Math.pow(enemyStageMin, 1.4) * 12)),
 
     // Karma thresholds
     karmaLabels: [

@@ -218,7 +218,7 @@ window.LIFE = {
         if (state.player.xp >= state.player.maxXp) {
             state.player.lvl++;
             state.player.xp -= state.player.maxXp;
-            state.player.maxXp = 100 + (state.player.lvl - 1) * 80;
+            state.player.maxXp = window.BALANCE && window.BALANCE.calculateMaxXp ? window.BALANCE.calculateMaxXp(state.player.lvl) : Math.floor(150 + Math.pow(state.player.lvl, 1.8) * 40);
             if (state.player.cultivation) {
                 state.player.cultivation.stageLevel++;
             }

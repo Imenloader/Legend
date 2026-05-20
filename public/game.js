@@ -253,16 +253,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (state.player.class === 'Sword Immortal') {
                     // خالد السيف الأسطوري: High Offense, Crit-focused
                     state.player.atk = 25;
-                    state.player.def = 5;
-                    state.player.maxHp = 100;
-                    state.player.hp = 100;
-                    state.player.maxMp = 50;
-                    state.player.mp = 50;
+                    state.player.def = 8;
+                    state.player.maxHp = 200; // Doubled
+                    state.player.hp = 200;
+                    state.player.maxMp = 80;
+                    state.player.mp = 80;
                     state.player.critRate = 0.15;
                     state.player.dodgeRate = 0.05;
-                    state.player.skills = ['lotus_strike']; // Starts with Lotus Strike unlocked
+                    state.player.skills = ['lotus_strike', 'sham_blade']; // Starts with 2 skills
                     
-                    // Give unique Starting weapon
                     state.player.equipment.weapon = {
                         id: 'starting_steel_jian',
                         name: 'سيف اليشم الممشوق (سلاح مجهز)',
@@ -274,47 +273,45 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 else if (state.player.class === 'Medicine Cultivator') {
                     // الحكيم المعالج: High Health, Potion abundance, starting Heal skill
-                    state.player.atk = 12;
-                    state.player.def = 8;
-                    state.player.maxHp = 150;
-                    state.player.hp = 150;
-                    state.player.maxMp = 60;
-                    state.player.mp = 60;
+                    state.player.atk = 15;
+                    state.player.def = 12;
+                    state.player.maxHp = 300; // Doubled
+                    state.player.hp = 300;
+                    state.player.maxMp = 100;
+                    state.player.mp = 100;
                     state.player.critRate = 0.05;
                     state.player.dodgeRate = 0.05;
-                    state.player.skills = ['badr_blessing']; // Starts with Badr Blessing Heal unlocked
+                    state.player.skills = ['badr_blessing', 'dust_fist']; 
                     state.player.inventory.potions = 6;
                     state.player.inventory.elixirs = 2;
 
-                    // Give unique Starting relic
                     state.player.equipment.relic = {
                         id: 'healing_elixir_pouch',
                         name: 'قلادة الحكيم العشبية (مجهزة)',
                         slot: 'relic',
                         quality: 'Rare',
-                        stats: { hp: 30, def: 5 },
+                        stats: { hp: 40, def: 10 },
                         desc: 'قلادة منسوجة يدوياً تعج برائحة الأعشاب الشافية والبلسم الحافظ.'
                     };
                 }
                 else if (state.player.class === 'Desert Knight') {
                     // فارس الصحراء المنيع: High Defense, Shielded, starting companion
-                    state.player.atk = 15;
-                    state.player.def = 20;
-                    state.player.maxHp = 120;
-                    state.player.hp = 120;
-                    state.player.maxMp = 40;
-                    state.player.mp = 40;
+                    state.player.atk = 18;
+                    state.player.def = 25;
+                    state.player.maxHp = 250; // Doubled
+                    state.player.hp = 250;
+                    state.player.maxMp = 60;
+                    state.player.mp = 60;
                     state.player.critRate = 0.05;
                     state.player.dodgeRate = 0.10;
-                    state.player.skills = ['shadow_step']; // Starts with Evasive step unlocked
+                    state.player.skills = ['shadow_step', 'caravan_guard']; 
 
-                    // Give unique starting equipment
                     state.player.equipment.body = {
                         id: 'desert_knight_shield',
                         name: 'درع الفرسان الجلدي (مجهز)',
                         slot: 'body',
                         quality: 'Rare',
-                        stats: { def: 15, hp: 20 },
+                        stats: { def: 15, hp: 30 },
                         desc: 'درع منسوج من جلد الإبل المعزز بصفائح فولاذية خفيفة.'
                     };
                     state.player.equipment.weapon = {
@@ -322,109 +319,112 @@ document.addEventListener('DOMContentLoaded', async () => {
                         name: 'خنجر المغاوير الدمشقي (مجهز)',
                         slot: 'weapon',
                         quality: 'Common',
-                        stats: { atk: 8, def: 2 },
+                        stats: { atk: 10, def: 5 },
                         desc: 'سيف مقوس تقليدي حاد ومقاوم للصدأ والغبار الصحراوي.'
                     };
                 }
                 else if (state.player.class === 'Sufi Mystic') {
                     // الفارس الحر ذو الهيبة الكبرى: High Mana, high Evasion, starting Relic
-                    state.player.atk = 14;
-                    state.player.def = 6;
-                    state.player.maxHp = 90;
-                    state.player.hp = 90;
-                    state.player.maxMp = 100;
-                    state.player.mp = 100;
+                    state.player.atk = 16;
+                    state.player.def = 10;
+                    state.player.maxHp = 180; // Doubled
+                    state.player.hp = 180;
+                    state.player.maxMp = 150;
+                    state.player.mp = 150;
                     state.player.critRate = 0.05;
                     state.player.dodgeRate = 0.20;
-                    state.player.skills = ['shadow_step']; // Starts with Evasive shadow step unlocked
+                    state.player.skills = ['shadow_step', 'badr_blessing']; 
 
-                    // Give unique Starting relics
                     state.player.equipment.relic = {
                         id: 'irem_brass_amulet',
                         name: 'تميمة النحاس الأثرية (مجهزة)',
                         slot: 'relic',
                         quality: 'Epic',
-                        stats: { mp: 30, def: 5 },
+                        stats: { mp: 40, def: 8 },
                         desc: 'تميمة نحاسية منقوشة بنقوش غامضة من ديوان المعارف الأكبر.'
                     };
                 }
                 else if (state.player.class === 'Steelmaster') {
                     // خبير الفولاذ الدمشقي: Balanced High Stats, Damascus starting weapon
-                    state.player.atk = 22;
-                    state.player.def = 12;
-                    state.player.maxHp = 110;
-                    state.player.hp = 110;
-                    state.player.maxMp = 45;
-                    state.player.mp = 45;
+                    state.player.atk = 24;
+                    state.player.def = 15;
+                    state.player.maxHp = 220; // Doubled
+                    state.player.hp = 220;
+                    state.player.maxMp = 70;
+                    state.player.mp = 70;
                     state.player.critRate = 0.10;
                     state.player.dodgeRate = 0.05;
-                    state.player.skills = ['lotus_strike'];
+                    state.player.skills = ['lotus_strike', 'mountain_peak_cleave'];
+
                     state.player.equipment.weapon = {
                         id: 'starting_damascus_scimitar',
                         name: 'سيف الفولاذ الدمشقي الأصيل (مجهز)',
                         slot: 'weapon',
                         quality: 'Rare',
-                        stats: { atk: 15, def: 3 },
+                        stats: { atk: 18, def: 5 },
                         desc: 'سيف فولاذي معرج بنقوش ماء الصحراء، متزن وقوي البنية.'
                     };
                 }
                 else if (state.player.class === 'Horseman') {
                     // فارس الخيل المغوار: Speed, high Evasion, Stirrups relic
-                    state.player.atk = 18;
-                    state.player.def = 8;
-                    state.player.maxHp = 105;
-                    state.player.hp = 105;
-                    state.player.maxMp = 40;
-                    state.player.mp = 40;
+                    state.player.atk = 20;
+                    state.player.def = 12;
+                    state.player.maxHp = 210; // Doubled
+                    state.player.hp = 210;
+                    state.player.maxMp = 60;
+                    state.player.mp = 60;
                     state.player.critRate = 0.08;
-                    state.player.dodgeRate = 0.18;
-                    state.player.skills = ['shadow_step'];
+                    state.player.dodgeRate = 0.25;
+                    state.player.skills = ['shadow_step', 'crescent_sweep'];
+
                     state.player.equipment.relic = {
                         id: 'stirrups_of_wind',
                         name: 'ركاب ريح البادية المبارك (مجهز)',
                         slot: 'relic',
                         quality: 'Rare',
-                        stats: { speed: 15, evasion: 8 },
+                        stats: { speed: 20, evasion: 10 },
                         desc: 'ركاب خيل جلدي خفيف مطعم بنقوش هالة ريح الشمال المسرعة.'
                     };
                 }
                 else if (state.player.class === 'Astrologer') {
                     // خبير الفلك والأوراد: High Mana, Spell resistance
-                    state.player.atk = 12;
-                    state.player.def = 5;
-                    state.player.maxHp = 95;
-                    state.player.hp = 95;
-                    state.player.maxMp = 120;
-                    state.player.mp = 120;
+                    state.player.atk = 14;
+                    state.player.def = 8;
+                    state.player.maxHp = 190; // Doubled
+                    state.player.hp = 190;
+                    state.player.maxMp = 180;
+                    state.player.mp = 180;
                     state.player.critRate = 0.05;
-                    state.player.dodgeRate = 0.10;
-                    state.player.skills = ['badr_blessing'];
+                    state.player.dodgeRate = 0.12;
+                    state.player.skills = ['badr_blessing', 'bazaar_tactics'];
+
                     state.player.equipment.relic = {
                         id: 'astrolabe_of_light',
                         name: 'أسطرلاب الأنوار النحاسي (مجهز)',
                         slot: 'relic',
                         quality: 'Rare',
-                        stats: { mp: 25, def: 5 },
+                        stats: { mp: 40, def: 10 },
                         desc: 'أسطرلاب نحاسي لامع مرصع بالفيروز يكشف تدفق طاقة التشي.'
                     };
                 }
                 else if (state.player.class === 'Lancer') {
                     // رماح البادية الأبي: High Crit, penetrative Spear starting weapon
-                    state.player.atk = 24;
-                    state.player.def = 6;
-                    state.player.maxHp = 100;
-                    state.player.hp = 100;
-                    state.player.maxMp = 35;
-                    state.player.mp = 35;
-                    state.player.critRate = 0.20;
+                    state.player.atk = 26;
+                    state.player.def = 10;
+                    state.player.maxHp = 200; // Doubled
+                    state.player.hp = 200;
+                    state.player.maxMp = 50;
+                    state.player.mp = 50;
+                    state.player.critRate = 0.25; // Massive early crit
                     state.player.dodgeRate = 0.05;
-                    state.player.skills = ['lotus_strike'];
+                    state.player.skills = ['lotus_strike', 'falcon_descent'];
+
                     state.player.equipment.weapon = {
                         id: 'samhari_spear',
                         name: 'رمح سمهر الحجازي المسنن (مجهز)',
                         slot: 'weapon',
                         quality: 'Rare',
-                        stats: { atk: 18 },
+                        stats: { atk: 22 },
                         desc: 'رمح طويل مرن برأس فولاذي مصقول يخترق أصلب الدروع بسهولة.'
                     };
                 }
@@ -1818,7 +1818,7 @@ function handleVictory() {
     if (realmIdx >= 6) { // أمير القوافل والبادية (+30% غنائم ذهب)
         baseGoldMult += 0.30;
     }
-    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()) * streakMult * baseGoldMult);
+    const goldReward = Math.floor((enemy.minLevel || 1) * 13 * (1 + Math.random()) * streakMult * baseGoldMult);
 
     if (realmIdx >= 7) { // المقاتل الأسطوري المهيب (+20% شفاء بعد سحق العدو)
         const healAmt = Math.floor(state.player.maxHp * 0.20);
@@ -1883,7 +1883,7 @@ function handleVictory() {
     while (state.player.xp >= state.player.maxXp) { 
         state.player.lvl++; 
         state.player.xp -= state.player.maxXp; 
-        state.player.maxXp = Math.floor(state.player.maxXp * (window.BALANCE ? window.BALANCE.xpMultiplier : 2.1)); 
+        state.player.maxXp = window.BALANCE && window.BALANCE.calculateMaxXp ? window.BALANCE.calculateMaxXp(state.player.lvl) : Math.floor(150 + Math.pow(state.player.lvl, 1.8) * 40); 
         leveledUp = true;
     }
     if (leveledUp) {
