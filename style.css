@@ -2192,3 +2192,70 @@ input[type="text"]:focus {
 .combat-log-entry { animation: combatLogSlide 0.3s ease-out forwards; }
 .enemy-hp-danger { animation: poisonPulse 0.8s ease-in-out infinite; background: linear-gradient(90deg,#5e1313,var(--danger)) !important; }
 
+/* Combat Avatar Animations */
+@keyframes attackLunge {
+    0% { transform: translateX(0); }
+    40% { transform: translateX(25px) scale(1.05); }
+    60% { transform: translateX(25px) scale(1.05); }
+    100% { transform: translateX(0) scale(1); }
+}
+@keyframes attackLungePlayer {
+    0% { transform: translateX(0); }
+    40% { transform: translateX(-25px) scale(1.05); }
+    60% { transform: translateX(-25px) scale(1.05); }
+    100% { transform: translateX(0) scale(1); }
+}
+@keyframes hitRecoil {
+    0% { transform: translateX(0); filter: brightness(1); }
+    20% { transform: translateX(-15px) rotate(-3deg); filter: brightness(2) drop-shadow(0 0 15px red); }
+    50% { transform: translateX(5px) rotate(2deg); filter: brightness(1.5) drop-shadow(0 0 5px red); }
+    100% { transform: translateX(0); filter: brightness(1); }
+}
+@keyframes hitRecoilPlayer {
+    0% { transform: translateX(0); filter: brightness(1); }
+    20% { transform: translateX(15px) rotate(3deg); filter: brightness(2) drop-shadow(0 0 15px red); }
+    50% { transform: translateX(-5px) rotate(-2deg); filter: brightness(1.5) drop-shadow(0 0 5px red); }
+    100% { transform: translateX(0); filter: brightness(1); }
+}
+@keyframes dodgeSlide {
+    0% { transform: translateX(0); opacity: 1; }
+    30% { transform: translateX(-30px); opacity: 0.5; filter: blur(2px); }
+    70% { transform: translateX(-30px); opacity: 0.5; filter: blur(2px); }
+    100% { transform: translateX(0); opacity: 1; filter: blur(0); }
+}
+@keyframes dodgeSlidePlayer {
+    0% { transform: translateX(0); opacity: 1; }
+    30% { transform: translateX(30px); opacity: 0.5; filter: blur(2px); }
+    70% { transform: translateX(30px); opacity: 0.5; filter: blur(2px); }
+    100% { transform: translateX(0); opacity: 1; filter: blur(0); }
+}
+@keyframes castMagic {
+    0% { transform: translateY(0); filter: drop-shadow(0 0 0 var(--jade)); }
+    50% { transform: translateY(-10px); filter: drop-shadow(0 0 20px var(--jade)); }
+    100% { transform: translateY(0); filter: drop-shadow(0 0 0 var(--jade)); }
+}
+
+.anim-attack { animation: attackLunge 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.anim-attack-player { animation: attackLungePlayer 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.anim-hit { animation: hitRecoil 0.4s ease-out; }
+.anim-hit-player { animation: hitRecoilPlayer 0.4s ease-out; }
+.anim-dodge { animation: dodgeSlide 0.5s ease-in-out; }
+.anim-dodge-player { animation: dodgeSlidePlayer 0.5s ease-in-out; }
+.anim-magic { animation: castMagic 0.6s ease-in-out; }
+
+/* Dynamic Lighting Overlay */
+#combat-lighting-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    z-index: 9990;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+.combat-spotlight {
+    position: relative;
+    z-index: 9995 !important;
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8));
+    transition: filter 0.3s ease-out;
+}

@@ -45,6 +45,7 @@
             ctx.shadowBlur = p.blur || 8;
             ctx.beginPath();
             if (p.shape === 'star') drawStar(ctx, p.x, p.y, p.size);
+            else if (p.shape === 'slash') drawSlash(ctx, p.x, p.y, p.size, p.angle || 0);
             else ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
@@ -58,6 +59,14 @@
             c.lineTo(x + r * Math.sin((i * 4 * Math.PI) / 5), y - r * Math.cos((i * 4 * Math.PI) / 5));
         }
         c.closePath();
+    }
+
+    function drawSlash(c, x, y, r, angle) {
+        c.translate(x, y);
+        c.rotate(angle);
+        c.ellipse(0, 0, r * 2, r * 0.3, 0, 0, Math.PI * 2);
+        c.rotate(-angle);
+        c.translate(-x, -y);
     }
 
     function spawnParticles(x, y, count, opts) {
@@ -76,7 +85,8 @@
                 drag: opts.drag || 0.97,
                 life: 1,
                 decay: opts.decay || 0.022,
-                shape: opts.shape || 'circle'
+                shape: opts.shape || 'circle',
+                angle: angle // for slashes
             });
         }
     }
@@ -183,6 +193,18 @@
         hit: ({ x, y }) => {
             shakeScreen(4, 150);
             spawnParticles(x, y, 20, { speed:4, size:3, color:['#ff4d4d','#fff','#ffcccb'], glow:'#ff4d4d', blur:8, decay:0.03 });
+        },
+        slash: ({ x, y }) => {
+            shakeScreen(6, 200);
+            flashScreen('rgba(255,255,255,0.2)', 150);
+            spawnParticles(x, y, 15, { speed:8, size:12, color:['#fff','#ccc'], glow:'#fff', blur:15, decay:0.04, shape:'slash' });
+            spawnParticles(x, y, 30, { speed:5, size:4, color:['#ffcc00','#fff'], glow:'#ffcc00', blur:10, decay:0.03 });
+        },
+        magic_burst: ({ x, y }) => {
+            shakeScreen(8, 300);
+            flashScreen('rgba(123,104,238,0.4)', 250);
+            spawnParticles(x, y, 80, { speed:6, size:6, color:['#7b68ee','#00ced1','#bf5fff','#fff'], glow:'#7b68ee', blur:20, decay:0.02, shape:'star' });
+            spawnParticles(x, y, 40, { speed:2, size:8, color:['#00ced1','#fff'], glow:'#00ced1', blur:15, decay:0.015 });
         }
     };
 
@@ -191,26 +213,32 @@
         const pos = getTargetPos(target);
         const el = document.createElement('div');
         const sign = value > 0 ? '+' : '';
+        const dx = (Math.random() - 0.5) * 100;
+        const dy = -(Math.random() * 50 + 50);
+        
         Object.assign(el.style, {
             position: 'fixed',
             left: `${pos.x - 20}px`,
             top: `${pos.y - 20}px`,
             color: color || (value < 0 ? '#ff4d4d' : '#ffd700'),
             fontFamily: "'El Messiri', serif",
-            fontSize: `${Math.min(2.5, 1.2 + Math.abs(value)/100)}rem`,
-            fontWeight: 'bold',
-            textShadow: `0 0 10px ${color || '#ffd700'}`,
+            fontSize: `${Math.min(3.5, 1.5 + Math.abs(value)/50)}rem`,
+            fontWeight: '900',
+            textShadow: `0 0 15px ${color || '#ffd700'}, 0 0 5px #000`,
             pointerEvents: 'none',
             zIndex: '10000',
-            transition: 'transform 1s ease-out, opacity 1s ease-out',
+            transition: 'transform 1.1s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.1s ease-in',
             opacity: '1',
-            transform: 'translateY(0)'
+            transform: 'translate(0, 0) scale(0.5)'
         });
         el.textContent = `${sign}${value}`;
         document.body.appendChild(el);
+        
         requestAnimationFrame(() => {
-            el.style.transform = 'translateY(-60px)';
-            el.style.opacity = '0';
+            requestAnimationFrame(() => {
+                el.style.transform = `translate(${dx}px, ${dy}px) scale(1.2)`;
+                el.style.opacity = '0';
+            });
         });
         setTimeout(() => el.remove(), 1100);
     }

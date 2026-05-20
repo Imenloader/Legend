@@ -1640,6 +1640,11 @@ function updateMomentumUI() {
 }
 
 function startCombat(enemy) {
+    if (!document.getElementById('combat-lighting-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'combat-lighting-overlay';
+        document.body.appendChild(overlay);
+    }
     state.currentEnemy = enemy;
     state.momentum = 0; state.playerForm = 'water';
     state.skillCooldowns = {};
@@ -1805,31 +1810,53 @@ function resolveCombatTurn(moveId) {
         
         if (window.AUDIO) window.AUDIO.playEffect('combat_hit');
         if (dmg > 0) {
-            spawnFloatingText(`-${dmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
-            let synergyParticle = 'gold';
+            window.COMBAT_UI?.showDamage(dmg, 'enemy');
+            let synergyParticle = 'magic_burst';
             if (moveId === 'synergy_wukong') {
-                synergyParticle = 'gold';
+                synergyParticle = 'execution';
                 triggerFlash('damage');
             } else if (moveId === 'synergy_tariq') {
-                synergyParticle = 'sand';
+                synergyParticle = 'guard_break';
                 triggerFlash('damage');
             } else if (moveId === 'synergy_boushaki') {
-                synergyParticle = 'green';
+                synergyParticle = 'heal';
                 triggerFlash('heal');
             } else if (moveId === 'synergy_fatima') {
-                synergyParticle = 'blue';
+                synergyParticle = 'magic';
                 triggerFlash('jade');
             }
-            spawnParticleExplosion(window.innerWidth*0.7, window.innerHeight*0.4, synergyParticle);
+            window.COMBAT_UI?.playEffect(synergyParticle, 'enemy');
+            
+            // Dramatic lighting for synergy
+            const overlay = document.getElementById('combat-lighting-overlay');
+            if (overlay) {
+                overlay.style.opacity = '1';
+                setTimeout(() => overlay.style.opacity = '0', 600);
+            }
+            const pPortrait = document.getElementById('story-portrait');
+            if (pPortrait) {
+                pPortrait.classList.add('combat-spotlight', 'anim-attack-player');
+                setTimeout(() => pPortrait.classList.remove('combat-spotlight', 'anim-attack-player'), 600);
+            }
+            const ePortrait = document.getElementById('story-enemy-portrait');
+            if (ePortrait) {
+                ePortrait.classList.add('combat-spotlight', 'anim-hit');
+                setTimeout(() => ePortrait.classList.remove('combat-spotlight', 'anim-hit'), 600);
+            }
         }
         
         let enemyDmg = 0;
         if (!state.skipEnemyTurn && !state.player_invulnerable_turn) {
             enemyDmg = Math.max(1, Math.floor(enemy.atk * 0.8 - state.player.def * 0.2));
             state.player.hp = Math.max(0, state.player.hp - enemyDmg);
-            spawnFloatingText(`-${enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
-            spawnParticleExplosion(window.innerWidth*0.3, window.innerHeight*0.4, 'red');
+            window.COMBAT_UI?.showDamage(enemyDmg, 'player');
+            window.COMBAT_UI?.playEffect('slash', 'player');
             triggerScreenShake(); triggerFlash('damage'); 
+            const pPortrait = document.getElementById('story-portrait');
+            if (pPortrait) {
+                pPortrait.classList.add('anim-hit-player');
+                setTimeout(() => pPortrait.classList.remove('anim-hit-player'), 400);
+            }
         }
         state.player_invulnerable_turn = false;
         state.skipEnemyTurn = false;
@@ -1882,32 +1909,71 @@ function resolveCombatTurn(moveId) {
     }
     
     if (result.playerDmg > 0) {
-        spawnFloatingText(`-${result.playerDmg}`, window.innerWidth*0.7, window.innerHeight*0.4, 'var(--secondary)');
-        let particleType = 'gold';
-        if (state.player.class === 'Medicine Cultivator') {
-            particleType = 'green';
-            triggerFlash('jade');
-        } else if (state.player.class === 'Desert Knight') {
-            particleType = 'sand';
-            triggerFlash('damage');
-        } else if (state.player.class === 'Sufi Mystic') {
-            particleType = 'blue';
-            triggerFlash('jade');
-        } else {
-            triggerFlash('damage');
-        }
-        spawnParticleExplosion(window.innerWidth*0.7, window.innerHeight*0.4, particleType);
+        window.COMBAT_UI?.showDamage(result.playerDmg, 'enemy');
+        let particleType = 'slash';
+        const skillDef = window.SKILLS?.techniques?.[moveId];
+        if (skillDef?.type === 'magic') particleType = 'magic_burst';
+        else if (skillDef?.type === 'heavy') particleType = 'execution';
         
-        // Trigger visual hit slash slice and ground shatter effects
+        window.COMBAT_UI?.playEffect(particleType, 'enemy');
         triggerVisualHitEffect(moveId, false);
-    }
-    if (result.enemyDmg > 0) { 
-        spawnFloatingText(`-${result.enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
-        spawnParticleExplosion(window.innerWidth*0.3, window.innerHeight*0.4, 'red');
-        triggerScreenShake(); triggerFlash('damage'); 
         
-        // Trigger damage visual impact ring animation
+        // CSS Avatar Animations
+        const pPortrait = document.getElementById('story-portrait');
+        if (pPortrait) {
+            pPortrait.classList.add('anim-attack-player');
+            setTimeout(() => pPortrait.classList.remove('anim-attack-player'), 350);
+        }
+        const ePortrait = document.getElementById('story-enemy-portrait');
+        if (ePortrait) {
+            ePortrait.classList.add('anim-hit');
+            setTimeout(() => ePortrait.classList.remove('anim-hit'), 400);
+        }
+        
+        // Critical Light Spotlight
+        if (result.special === 'crit') {
+            const overlay = document.getElementById('combat-lighting-overlay');
+            if (overlay) {
+                overlay.style.opacity = '1';
+                setTimeout(() => overlay.style.opacity = '0', 300);
+            }
+            if (ePortrait) {
+                ePortrait.classList.add('combat-spotlight');
+                setTimeout(() => ePortrait.classList.remove('combat-spotlight'), 300);
+            }
+        }
+    } else if (result.playerDmg === 0 && moveId !== 'tame' && !moveId.startsWith('synergy')) {
+        // Player Dodged/Missed
+        const pPortrait = document.getElementById('story-portrait');
+        if (pPortrait) {
+            pPortrait.classList.add('anim-dodge-player');
+            setTimeout(() => pPortrait.classList.remove('anim-dodge-player'), 500);
+        }
+    }
+    
+    if (result.enemyDmg > 0) { 
+        window.COMBAT_UI?.showDamage(result.enemyDmg, 'player');
+        window.COMBAT_UI?.playEffect(enemy.nextMove === 'magic' ? 'magic_burst' : 'slash', 'player');
+        triggerScreenShake(); triggerFlash('damage'); 
         triggerVisualHitEffect(moveId, true);
+        
+        const ePortrait = document.getElementById('story-enemy-portrait');
+        if (ePortrait) {
+            ePortrait.classList.add('anim-attack');
+            setTimeout(() => ePortrait.classList.remove('anim-attack'), 350);
+        }
+        const pPortrait = document.getElementById('story-portrait');
+        if (pPortrait) {
+            pPortrait.classList.add('anim-hit-player');
+            setTimeout(() => pPortrait.classList.remove('anim-hit-player'), 400);
+        }
+    } else if (result.enemyDmg === 0 && moveId !== 'tame' && !moveId.startsWith('synergy')) {
+        // Enemy Dodged/Missed
+        const ePortrait = document.getElementById('story-enemy-portrait');
+        if (ePortrait) {
+            ePortrait.classList.add('anim-dodge');
+            setTimeout(() => ePortrait.classList.remove('anim-dodge'), 500);
+        }
     }
 
     // Decrement skill cooldowns at the end of each active round
