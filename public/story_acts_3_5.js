@@ -341,8 +341,8 @@ const EXTENDED_STORY_NODES = {
 };
 
 // Merge into main STORY object
-if (window.STORY && window.STORY.STORY_NODES) {
-    Object.assign(window.STORY.STORY_NODES, EXTENDED_STORY_NODES);
-} else {
-    window.STORY = { STORY_NODES: EXTENDED_STORY_NODES };
+if (typeof window !== 'undefined') {
+    window.STORY = window.STORY || {};
+    window.STORY.nodes = Object.assign(window.STORY.nodes || {}, EXTENDED_STORY_NODES);
+    window.STORY.STORY_NODES = window.STORY.nodes;
 }

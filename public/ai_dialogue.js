@@ -175,6 +175,41 @@ window.AIDialogue = {
         return `"تاريخ البادية مليء بقصص الفرسان النبلاء الذين واجهوا المحن الكبرى بثبات وشهامة. خذ من سيرتهم قبس نور يضيء لك دروب الصحراء المظلمة."`;
     },
 
+    // Retrieve unique backstory / personal history option
+    getPersonalStory(state, target) {
+        const relation = target.relation || 'companion';
+        const name = target.name;
+
+        if (relation === 'retired_father' || relation.includes('أب') || relation.includes('والد')) {
+            return `"قصتي يا بني بدأت في واحة الفيافي المجهولة، حيث واجهت قطاع الطرق بمساعدة سيف خالي الفولاذي. في معركة الهجير العظيمة سنة 42 بطلحة الصحراء، حميت القوافل ولقبت بالفارس الحكيم صائن العهود لأسرتنا."`;
+        }
+        if (relation === 'Spouse' || relation.includes('زوجة')) {
+            return `"نشأت ابنة لشيخ تجار درب الحرير، كنت أراقب الفرسان الشجعان من نافذتي وأتمنى شريك طموح يحمل نور العجائب. عندما التقيتك تحمل نور عزيمة السالكين الأبية، علمت أن قدري ارتبط بك للأبد يا مهجة عيني."`;
+        }
+        if (relation === 'Child' || relation.includes('ابن')) {
+            return `"قصتي؟ أنا ولدت في عائلة أبطال عظيمة! جدتي تحكي لي أن دم الفرسان يجري في عروقنا الكريمة، وأريد كتابة فصول قصة جديدة بهزيمة الغيلان الكبار!"`;
+        }
+
+        // Active Companions stories
+        if (target.id === 'tariq_ibn_ziyad') {
+            return `"ولدت في ثغور بربر طنجة الأبية، ومخرت البحار بنور عقيدتي وصمودي الصادق. قصة حياتي تلخصت في عبور المضيق الكبير وفتح الأندلس، محطماً يأس التردد ومسطراً نصر الخلود للرجال المخلصين."`;
+        }
+        if (target.id === 'al_khidr') {
+            return `"عمري يمتد لآلاف السنين يا بني، شربت من عين الحياة الخالدة المخبأة في واد الظلمات ببركة قدسية تامة. رأيت وسرت مع ذي القرنين، ومهمتي تنوير السالكين الصادقين في شتى أزمنة الملاحم."`;
+        }
+        if (target.id === 'sinbad') {
+            return `"سبع رحلات بحرية مذهلة غيّرت حياتي! خسرت ثروتي عدة مرات وواجهت وحيد قرن عملاق وجزيرة واق الواق الطائرة ومردة البحر اللجي؛ لكني عدت دائماً بكنوز أسطر بها قصيدة انتصار لا فناء لها!"`;
+        }
+        if (target.id === 'saladin') {
+            return `"نشأت متعصباً لقيم الفروسية ونصرة الحق في ديوان أسد الدين جيرمان. قصة حياتي هي توحيد كلمة العرب وتحرير القدس الشريف بنبل العفو وسماحة القوة في زمن الفتن العويصة."`;
+        }
+        if (target.id === 'antar_ibn_shaddad') {
+            return `"أنا عنترة بن عمرو بن شداد العبسي! ولدت عبداً أسود أرعى النياق ببادية نجد، لكن همتي وسيفي رفعتاني لمقام السيادة والملوك. حكايات عشقي لعبلة وجلادي في البراري ملأت طباق الأرض صموداً وفخاراً!"`;
+        }
+
+        return `"عشت حياة هادئة في أطراف درب الحرير، وتفانيت لخدمة السالكين فرسان النقاء. قصتي تدور حول البحث عن الأمل والاستقرار خلف الكثبان الحارة مع الأصدقاء الأوفياء."`;
+    },
+
     // Main Interactive Dialogue View
     talkToNPC(npcIdOrKey) {
         clearNarrative();
@@ -284,6 +319,108 @@ window.AIDialogue = {
                     narrate(loreHtml, target.name, target.sprite || 'assets/avatar.png', false, true);
                     setChoices([
                         { text: "↩ عودة للمحادثة", callback: () => this.talkToNPC(npcIdOrKey) }
+                    ]);
+                }
+            },
+            {
+                text: "📖 الاستفسار عن قصة وتاريخ حياتهم الشخصية",
+                callback: () => {
+                    const story = this.getPersonalStory(state, target);
+                    let storyHtml = `
+                        <div class="management-card" style="border-left:4px solid #3498db; font-family:'Inter', sans-serif;">
+                            <p style="font-size:1rem; line-height:1.8; padding:12px; background:rgba(52,152,219,0.05); border-radius:6px; border:1px solid rgba(52,152,219,0.15);">
+                                👑 <b>المخطوطة الشخصية لـ ${target.name}:</b><br>${story}
+                            </p>
+                        </div>
+                    `;
+                    clearNarrative();
+                    narrate(storyHtml, target.name, target.sprite || 'assets/avatar.png', false, true);
+                    setChoices([
+                        { text: "↩ عودة للمحادثة", callback: () => this.talkToNPC(npcIdOrKey) }
+                    ]);
+                }
+            },
+            {
+                text: "📋 طلب مهمة أو تكليف خاص لصالح الواحة",
+                callback: () => {
+                    clearNarrative();
+                    
+                    let taskTitle = "";
+                    let taskDesc = "";
+                    let cost = 0;
+                    let actionText = "";
+                    let rewardAction = () => {};
+
+                    if (target.relation === 'retired_father' || target.relation?.includes('أب') || target.relation?.includes('والد')) {
+                        cost = 200;
+                        taskTitle = "⚔️ مراجعة تدريب السيادة وتأصيل السلالة";
+                        taskDesc = "الوالد الحكيم يريد تعزيز حاميات القلعة وتدريب فرسان السلالة على الجسارة البدنية ورموز السيف. يتطلب هذا تمويلاً مالياً وقدره <b>200 ذهب</b>.";
+                        actionText = "👍 التبرع بـ 200 ذهب لصالح القلعة (+3% ضربات قاصمة دائمة)";
+                        rewardAction = () => {
+                            state.player.critRate = (state.player.critRate || 0.05) + 0.03;
+                            target.affinity = Math.min(100, (target.affinity || 50) + 5);
+                            narrate(`✨ <b>أثبّت جدارتك للوالد!</b> بارك تدريبك السديد قائلاً: "أرى في مهارة ضرباتك ثقة الملوك يا بني!". زاد معدل الضربات القاصمة لديك بمقدار <b>+3% بشكل دائم</b>!`, "الوالد الحكيم");
+                        };
+                    } else if (target.relation === 'Spouse' || target.relation?.includes('زوجة')) {
+                        cost = 100;
+                        taskTitle = "💍 حياكة تميمة الحماية المبروكة للديار";
+                        taskDesc = "شريكة حياتك تود حبك كتان نادر مع تميمة مروكة لحماية طاقتك الباطنية وزيادة طاقتك العقلية أثناء الترحال. يتطلب شراء الموارد <b>100 ذهب</b>.";
+                        actionText = "👍 تقديم 100 ذهب للموارد (+10 عزيمة هالة باطنية دائمة)";
+                        rewardAction = () => {
+                            state.player.maxMp = (state.player.maxMp || 100) + 10;
+                            state.player.mp = (state.player.mp || 100) + 10;
+                            state.player.spouse.affinity = Math.min(100, (state.player.spouse.affinity || 70) + 5);
+                            narrate(`✨ <b>تمت الحياكة ببركة وسرور!</b> ألبستك شريكة حياتك التميمة بنبرة عهد دافئة. زادت مصفوفة العزيمة القصوى لديك بمقدار <b>+10 نقاط بشكل دائم</b>!`, "شريكة الحياة");
+                        };
+                    } else {
+                        cost = 50;
+                        taskTitle = "🏮 تحدي صقل عروق الهالة الباطنية";
+                        taskDesc = "الرفيق النشط يقترح تنظيم تحدي فحص الهالة ودعم عروق تماسك فقراء طلائع القوافل في الواحة لزيادة قوتك البدنية. يتطلب كفالة بقيمة <b>50 ذهب</b>.";
+                        actionText = "👍 كفالة التدريب بـ 50 ذهباً (+20 نقاط حياة قصوى دائمة)";
+                        rewardAction = () => {
+                            state.player.maxHp = (state.player.maxHp || 200) + 20;
+                            state.player.hp = (state.player.hp || 200) + 20;
+                            if (isCompanion) {
+                                window.COMPANIONS.adjustAffinity(state, target.id, 8, "إنجاز تحدي صقل الهالة الباطنية.");
+                            } else {
+                                target.affinity = Math.min(100, (target.affinity || 50) + 8);
+                            }
+                            narrate(`✨ <b>اكتمل صقل الهالة!</b> توهجت عروق جسدك لتعزز ركائزك الجسدية ضد هجمات هجير البرية. زادت نقاط حياتك القصوى بمقدار <b>+20 نقطة بشكل دائم</b>!`, target.name);
+                        };
+                    }
+
+                    let taskHtml = `
+                        <div class="management-card" style="border-left:4px solid var(--secondary); font-family:'Inter', sans-serif;">
+                            <h3 style="color:var(--secondary); margin-top:0;">📋 تكليف الرفيق الخاص: ${taskTitle}</h3>
+                            <p style="font-size:1rem; line-height:1.7; background:rgba(0,0,0,0.35); padding:12px; border-radius:6px;">
+                                ${taskDesc}
+                            </p>
+                        </div>
+                    `;
+                    narrate(taskHtml, target.name, target.sprite || 'assets/avatar.png', false, true);
+                    
+                    setChoices([
+                        {
+                            text: actionText,
+                            callback: () => {
+                                if (state.player.gold < cost) {
+                                    narrate(`⚠️ عذراً يا بطل! ليس لديك ما يكفي من ذهب قوافل درب الحرير الحالي لإكمال التكليف (تحتاج ${cost} ذهب، لديك ${state.player.gold} ذهب).`, "النظام");
+                                    setTimeout(() => this.talkToNPC(npcIdOrKey), 2500);
+                                    return;
+                                }
+                                state.player.gold -= cost;
+                                rewardAction();
+                                updateTopBar();
+                                saveGame();
+                                setChoices([
+                                    { text: "↩ عودة للمواد الحوارية", callback: () => this.talkToNPC(npcIdOrKey) }
+                                ]);
+                            }
+                        },
+                        {
+                            text: "↩ تراجع، ربما لاحقاً",
+                            callback: () => this.talkToNPC(npcIdOrKey)
+                        }
                     ]);
                 }
             },

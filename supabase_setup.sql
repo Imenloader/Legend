@@ -5,11 +5,13 @@
 CREATE TABLE IF NOT EXISTS game_saves (
     player_id TEXT PRIMARY KEY,                       -- Unique player identifier (anonymous UUID/localstorage ID)
     state JSONB NOT NULL,                             -- Complete JSON-serialized game state (level, stats, inventory, achievements, etc.)
-    last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+    last_login TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, -- Last login timestamp
+    last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL -- Last updated timestamp
 );
 
 -- 2. Safely alter table to add columns in case the table existed previously with a different schema
 ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS state JSONB;
+ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS last_login TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE game_saves ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 -- 3. Enable Row Level Security (RLS)

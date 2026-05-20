@@ -1464,7 +1464,7 @@ input[type="text"]:focus {
     .hud-stats {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 10px;
     }
     
     .hud-resource {
@@ -1475,6 +1475,50 @@ input[type="text"]:focus {
         padding: 4px 8px;
         border-radius: 4px;
         border: 1px solid rgba(255,215,0,0.15);
+        transition: all 0.2s;
+    }
+    
+    /* Responsive Adaptations for Narrow Mobile Devices */
+    @media (max-width: 480px) {
+        .mobile-top-hud {
+            padding: 5px 8px !important;
+            height: 52px !important;
+        }
+        .hud-player-info {
+            gap: 6px !important;
+        }
+        .hud-avatar {
+            width: 32px !important;
+            height: 32px !important;
+            border-width: 1.5px !important;
+        }
+        .hud-stats {
+            gap: 5px !important;
+        }
+        .hud-resource {
+            padding: 2px 6px !important;
+            font-size: 0.72rem !important;
+        }
+        #hud-player-name-val {
+            font-size: 0.74rem !important;
+            max-width: 80px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #hud-class-val {
+            font-size: 0.58rem !important;
+            display: none; /* Hide class label on tiny screens to avoid layout wrapping */
+        }
+        #hud-hp-val, #hud-mp-val, #hud-gold-val {
+            font-size: 0.72rem !important;
+        }
+        .resource-icon {
+            font-size: 0.78rem !important;
+        }
+        .screen {
+            padding-top: 60px !important; /* Retain nice fit when top HUD height shrinks */
+        }
     }
     
     .resource-icon {
@@ -1790,6 +1834,294 @@ input[type="text"]:focus {
     }
 }
 
+/* ────────────────────────────────────────────────────────
+   ENHANCED RPG TOOLTIPS & GEAR SYSTEM STYLE DECORATORS
+   ──────────────────────────────────────────────────────── */
 
+/* Allow equipment slots and containers to properly position tooltip overlays */
+.inventory-slot {
+    position: relative !important;
+    overflow: visible !important; /* Extremely critical so tooltips are not clipped */
+}
 
+/* Base style for individual gear slots tooltip */
+.gear-slot-tooltip-content {
+    visibility: hidden;
+    opacity: 0;
+    width: 260px;
+    background: rgba(12, 10, 8, 0.98) !important;
+    color: #f5eedf !important;
+    text-align: right;
+    border: 1.5px solid var(--secondary) !important;
+    border-radius: 8px;
+    padding: 12px;
+    position: absolute;
+    z-index: 10002;
+    bottom: 110%; /* Place right above the gear slot block */
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.95), inset 0 0 10px rgba(212, 175, 55, 0.15) !important;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    direction: rtl; /* Elegant RTL formatting for Arabic */
+    pointer-events: none; /* Do not block clicking on slots */
+}
 
+/* Caret for slot tooltips */
+.gear-slot-tooltip-content::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: var(--secondary) transparent transparent transparent;
+}
+
+/* Toggle visibility on slot hover */
+.inventory-slot:hover .gear-slot-tooltip-content {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Unified Gear Summary Tooltips */
+.gear-tooltip-trigger {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.gear-summary-tooltip-content {
+    visibility: hidden;
+    opacity: 0;
+    width: 300px;
+    background: rgba(12, 10, 8, 0.98) !important;
+    color: #f5eedf !important;
+    text-align: right;
+    border: 2px solid var(--secondary) !important;
+    border-radius: 8px;
+    padding: 16px;
+    position: absolute;
+    z-index: 10001;
+    bottom: 110%; /* Render above the summary pill */
+    right: 0px;
+    transform: translateY(5px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.95), inset 0 0 15px rgba(212, 175, 55, 0.2) !important;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    direction: rtl;
+    pointer-events: none;
+}
+
+.gear-tooltip-trigger:hover .gear-summary-tooltip-content {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(0);
+}
+
+/* Enhanced Skill Tooltips */
+.skill-tooltip-trigger {
+    position: relative !important;
+    overflow: visible !important;
+    display: inline-block;
+}
+
+.skill-tooltip-trigger .skill-tooltip-content {
+    visibility: hidden;
+    opacity: 0;
+    width: 260px;
+    background: rgba(10, 8, 6, 0.98) !important;
+    color: #eedfcc !important;
+    text-align: right;
+    border: 1.5px solid var(--secondary) !important;
+    border-radius: 8px;
+    padding: 12px;
+    position: absolute;
+    z-index: 10001;
+    bottom: 125%; /* Render above the info pill */
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.95), inset 0 0 10px rgba(255, 220, 100, 0.1) !important;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    direction: rtl;
+    pointer-events: none;
+}
+
+/* Caret for skill tooltips */
+.skill-tooltip-trigger .skill-tooltip-content::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: var(--secondary) transparent transparent transparent;
+}
+
+.skill-tooltip-trigger:hover .skill-tooltip-content {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Enhanced skill card layout inside the log */
+.skill-card-enhanced {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    overflow: visible !important;
+}
+
+/* Responsive adjustment rules for tooltips on tiny mobile viewport dimensions */
+@media (max-width: 600px) {
+    .skill-tooltip-trigger .skill-tooltip-content {
+        width: 220px !important;
+        left: 20px !important;
+        transform: none !important;
+    }
+    .skill-tooltip-trigger .skill-tooltip-content::after {
+        left: 15px !important;
+    }
+    .skill-tooltip-trigger:hover .skill-tooltip-content {
+        transform: translateY(0) !important;
+    }
+    .gear-summary-tooltip-content {
+        width: 250px !important;
+        right: auto !important;
+        left: -10px !important;
+    }
+    .gear-slot-tooltip-content {
+        width: 220px !important;
+        left: 10px !important;
+        transform: none !important;
+    }
+    .gear-slot-tooltip-content::after {
+        left: 20px !important;
+    }
+    .inventory-slot:hover .gear-slot-tooltip-content {
+        transform: translateY(0) !important;
+    }
+}
+
+/* ============================================================
+   COMBAT VISUAL EFFECTS & ANIMATIONS
+   ============================================================ */
+
+/* Visual Hit Slash */
+.visual-hit-slash {
+    position: absolute;
+    left: 20%;
+    width: 60%;
+    height: 8px;
+    background: linear-gradient(90deg, transparent, #ff3333, #ffcc00, #ff3333, transparent);
+    box-shadow: 0 0 10px #ffcc00, 0 0 20px #ff3333;
+    z-index: 10000;
+    pointer-events: none;
+    animation: visualHitSlashAnim 0.4s cubic-bezier(0.15, 0.85, 0.3, 1) forwards;
+}
+
+@keyframes visualHitSlashAnim {
+    0% { transform: scaleX(0); opacity: 0; }
+    30% { transform: scaleX(1); opacity: 1; }
+    100% { transform: scaleX(1.3); opacity: 0; filter: blur(3px); }
+}
+
+/* Ground Shatter Debris effect */
+.visual-impact-ground {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%);
+    box-shadow: inset 0 0 50px rgba(212,175,55,0.4);
+    z-index: 9999;
+    pointer-events: none;
+    animation: impactGroundAnim 0.8s ease-out forwards;
+}
+
+@keyframes impactGroundAnim {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Fire Ring for flame skills */
+.visual-fire-ring {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 150px;
+    height: 150px;
+    transform: translate(-50%, -50%) scale(0.1);
+    border: 6px solid #ff4500;
+    border-radius: 50%;
+    box-shadow: 0 0 30px #ff4500, inset 0 0 30px #ff8c00;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fireRingAnim 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes fireRingAnim {
+    0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3.0); opacity: 0; filter: blur(4px); }
+}
+
+/* Impact Ring for player being hit */
+.visual-impact-ring {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 120px;
+    height: 120px;
+    transform: translate(-50%, -50%) scale(0.1);
+    border: 5px solid #ff3333;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #ff3333;
+    z-index: 9999;
+    pointer-events: none;
+    animation: impactRingAnim 0.5s ease-out forwards;
+}
+
+@keyframes impactRingAnim {
+    0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+/* Stagger Alert */
+.visual-stagger-alert {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(138, 28, 28, 0.9);
+    border: 2px solid #ff3333;
+    padding: 6px 16px;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: bold;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1.1rem;
+    z-index: 10001;
+    box-shadow: 0 0 15px rgba(255,51,51,0.6);
+    pointer-events: none;
+    animation: staggerAlertAnim 1.5s ease-in-out forwards;
+    letter-spacing: 1px;
+}
+
+@keyframes staggerAlertAnim {
+    0% { transform: translateX(-50%) scale(0.6); opacity: 0; }
+    15% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+    30% { transform: translateX(-50%) scale(1.0); opacity: 1; }
+    80% { transform: translateX(-50%) scale(1.0); opacity: 1; }
+    100% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+}/* Interactive Gear Tooltip Hover Selector */
+.gear-tooltip-anchor:hover .gear-tooltip-box {
+    display: block !important;
+}
+.gear-tooltip-anchor:hover span {
+    background: rgba(0,168,107,0.3) !important;
+    border-color: var(--jade) !important;
+    box-shadow: 0 0 8px rgba(0,250,154,0.3);
+}

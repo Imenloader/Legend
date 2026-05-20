@@ -865,6 +865,33 @@ function showWorldMap() {
 window.buyLibrarySkill = function(skillId) {
     const skill = window.SKILLS.techniques[skillId];
     if (!skill) return;
+
+    // 1. Level Requirement Check
+    if ((state.player.lvl || 1) < skill.reqLvl) {
+        if (typeof showToast === 'function') showToast(`يتطلب مستوى ${skill.reqLvl} لتعلم هذا الفن قتالياً!`);
+        return;
+    }
+
+    // 2. Cultivation Stage Requirement Check
+    if (skill.reqCultivationStage && window.CULTIVATION && state.player.cultivation) {
+        const currentStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === state.player.cultivation.stage);
+        const reqStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === skill.reqCultivationStage);
+        if (currentStageIdx === -1 || currentStageIdx < reqStageIdx) {
+            if (typeof showToast === 'function') showToast(`يتطلب بلوغ المرتبة والعمق العالي: ${skill.reqCultivationStage}!`);
+            return;
+        }
+    }
+
+    // 3. Required Item Check (must possess item in inventory)
+    if (skill.reqItem) {
+        const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+        const hasItem = state.player.inventory && state.player.inventory.some(item => item.id === skill.reqItem);
+        if (!hasItem) {
+            if (typeof showToast === 'function') showToast(`يتطلب حيازة غرض: ${itemNames[skill.reqItem] || skill.reqItem} لفك رموز هذا الفن القتالي!`);
+            return;
+        }
+    }
+
     if (state.player.gold < skill.cost) {
         if (typeof showToast === 'function') showToast("لا تملك دنانير ذهبية كافية لتعلم هذا الفن القتالي! 🪙");
         return;
@@ -885,6 +912,23 @@ function showSkillsScreen() {
     clearNarrative();
     narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary)">📜 ديوان ومكتبة الفنون والمهارات القتالية</b>', 'النظام', null, false, true);
     
+    // Helper function to translate stats to human Arabic labels
+    function translateStat(stat) {
+        const table = {
+            'atk': 'الهجوم البدني',
+            'def': 'دفاع الجسد والفروسية',
+            'maxHp': 'الصحة القصوى والتحمل',
+            'hpRegen': 'التجديد التلقائي للصحة',
+            'mpRegen': 'شحذ وتجديد العزيمة والتركيز',
+            'critDmg': 'ضرر الضربات الحاسمة القاضية',
+            'speed': 'سرعة الحركة والمبادرة',
+            'goldMult': 'الغنائم الذهبية الحصرية',
+            'crit': 'فرصة الضربة القاضية',
+            'allStats': 'كامل قيم البارامترات الأساسية مجمعة'
+        };
+        return table[stat] || stat;
+    }
+
     // --- Part 1: Current Learned Skills ---
     narrate('<h3 style="color:var(--jade);border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:5px;margin-bottom:10px;margin-top:15px;">⚔️ الفنون والمهارات التي تتقنها حالياً</h3>', 'النظام', null, false, true);
     
@@ -900,25 +944,114 @@ function showSkillsScreen() {
         const skillDescsArabic = {
             'strike': 'ضربة سيف سريعة وموجهة نحو ثغرات العدو المادية.',
             'heal': 'استرجاع فوري لحيويتك ونقاط حياتك بتوجيه طاقة العزيمة الشافية.',
-            'shield': 'استدعاء حائظ ودرع بدني يمتص هجمات العدو ويقلل تأثيرها.',
+            'shield': 'استدعاء حائط ودرع بدني يمتص هجمات العدو ويقلل تأثيرها.',
             'slash': 'قطع هجومي جبار مستمد من صهر السيف بلهب وشرارات النور.'
         };
 
+        let skillsHtml = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-top:10px; direction: rtl;">
+        `;
+
         state.player.skills.forEach(sId => {
-            const s = window.SKILLS.techniques[sId];
+            let s = window.SKILLS.techniques[sId];
+            if (!s) {
+                // Core basic fallback skills definition
+                if (skillNamesArabic[sId]) {
+                    s = {
+                        id: sId,
+                        name: skillNamesArabic[sId],
+                        desc: skillDescsArabic[sId],
+                        mpCost: sId === 'strike' ? 0 : sId === 'heal' ? 15 : sId === 'shield' ? 10 : 20,
+                        reqLvl: 1,
+                        power: sId === 'strike' ? 1.0 : sId === 'slash' ? 1.8 : 0,
+                        heal: sId === 'heal' ? 0.35 : 0,
+                        passive: false,
+                        effect: sId === 'shield' ? { defBuff: 1.5, duration: 2 } : null
+                    };
+                }
+            }
+
             if (s) {
                 const typeColor = s.passive ? '#00e5a0' : '#d4af37';
-                narrate(`<div style="background:rgba(255,255,255,0.02);padding:8px;border-left:3px solid ${typeColor};margin-bottom:8px;border-radius:0 4px 4px 0;"><span style="color:${typeColor};font-weight:bold;">[${s.passive ? 'مهارة كامنة' : 'فن بدني نشط'}] ${skillNamesArabic[sId] || s.name}</span><br><small style="color:var(--text-dim);">${skillDescsArabic[sId] || s.desc}</small></div>`, 'النظام', null, false, true);
+                const typeLabel = s.passive ? 'كامنة (Passive)' : 'نشطة (Active)';
+                const icon = s.passive ? '✨' : s.heal ? '💚' : s.mpCost === 0 ? '🩸' : '🌀';
+                
+                let costBadge = '';
+                if (s.passive) {
+                    costBadge = `<span style="font-size:0.75rem; color:#00e5a0; background:rgba(0, 229, 160, 0.1); border:1px solid rgba(0, 229, 160, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">✨ كامنة</span>`;
+                } else if (s.hpCost > 0) {
+                    costBadge = `<span style="font-size:0.75rem; color:#ff4d4d; background:rgba(255, 77, 77, 0.1); border:1px solid rgba(255, 77, 77, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">🩸 ${Math.round(s.hpCost * 100)}% الجسد</span>`;
+                } else {
+                    costBadge = `<span style="font-size:0.75rem; color:#3498db; background:rgba(52, 152, 219, 0.1); border:1px solid rgba(52, 152, 219, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">⚡ ${s.mpCost || 0} تركيز</span>`;
+                }
+                
+                let reqBadgesHtml = `<span style="font-size:0.75rem; color:#e67e22; background:rgba(230, 126, 34, 0.1); border:1px solid rgba(230, 126, 34, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">⚖️ مستوى ${s.reqLvl || 1}</span>`;
+                if (s.reqCultivationStage) {
+                    reqBadgesHtml += `<span style="font-size:0.75rem; color:#9b59b6; background:rgba(155, 89, 182, 0.1); border:1px solid rgba(155, 89, 182, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">🧘 ${s.reqCultivationStage}</span>`;
+                }
+                if (s.reqItem) {
+                    const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+                    reqBadgesHtml += `<span style="font-size:0.75rem; color:#00ffbb; background:rgba(0, 255, 187, 0.1); border:1px solid rgba(0, 255, 187, 0.2); padding:2px 6px; border-radius:4px; display:inline-block;">📦 ${itemNames[s.reqItem] || s.reqItem}</span>`;
+                }
+                
+                let tooltipContent = '';
+                if (s.passive) {
+                    tooltipContent = `<b>نظام الفنون الكامنة:</b><br>هذه المهارة تزيد من إحصائيات بطلنا بشكل تلقائي مستمر دون الحاجة لاستهلاك التركيز في المعارك.<br><b>تأثير الدعم:</b> +${Math.round((s.bonus || 0) * 100)}% لـ ${translateStat(s.stat)}.`;
+                } else {
+                    let mechanics = [];
+                    if (s.power) mechanics.push(`• قوة الفن البدني الكلية: ${Math.round(s.power * 100)}% من ضرر الهجوم`);
+                    if (s.heal) mechanics.push(`• شفاء الجراح المباشر: ${Math.round(s.heal * 100)}% من أقصى صحتك`);
+                    if (s.dot) mechanics.push(`• ضرر نزيف/لهب مستمر: ${s.dot.dmg} نقطة لـ ${s.dot.duration} أدوار`);
+                    if (s.debuff) mechanics.push(`• خفض طاقة الخصم: ${s.debuff.atk ? `هجوم بنسبة ${Math.round(s.debuff.atk * -100)}%` : s.debuff.def ? `دفاع بنسبة ${Math.round(s.debuff.def * -100)}%` : ''} لـ ${s.debuff.duration} أدوار`);
+                    if (s.effect && s.effect.dodge) mechanics.push(`• تكتيك تفادي الهجمات: تفادي بنسبة ${Math.round(s.effect.dodge * 100)}% لـ ${s.effect.duration} أدوار`);
+                    if (s.effect && s.effect.defBuff) mechanics.push(`• تحصين درع الدفاع البدني: +${Math.round((s.effect.defBuff - 1) * 100)}% دفاع لـ ${s.effect.duration} أدوار`);
+                    if (s.stunChance) mechanics.push(`• فرصة إخلال وشل هالة العدو: ${Math.round(s.stunChance * 100)}%`);
+                    if (s.cooldown) mechanics.push(`• فترة الفتور والاسترداد (Cooldown): ${s.cooldown} دور/أدوار`);
+                    
+                    tooltipContent = `<b>ميكانيكا المعركة والتوجيه:</b><br>${mechanics.length > 0 ? mechanics.join('<br>') : 'تأثير قتالي خاص يتم توجيهه أثناء المواجهة.'}`;
+                }
+
+                skillsHtml += `
+                <div class="skill-card-enhanced" style="position:relative; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.08); border-right:4px solid ${typeColor}; padding:12px; border-radius:6px; transition:all 0.25s ease;" onmouseover="this.style.borderColor='${typeColor}'; this.style.transform='translateY(-1px)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.transform='none';">
+                    <!-- Tooltip trigger container -->
+                    <div class="skill-tooltip-trigger" style="position:absolute; top:8px; left:8px; cursor:help; color:var(--secondary); font-size:1.05rem;" title="عرض ميكانيكا الفن البدني">
+                        ℹ️
+                        <div class="skill-tooltip-content" style="direction:rtl; text-align:right;">
+                            <h4 style="margin:0 0 5px 0; color:${typeColor}; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:3px; font-size:0.85rem; font-family:'Cairo',sans-serif;">🔮 تفاصيل الفن البدني الباطنية</h4>
+                            <p style="margin:5px 0; font-size:0.75rem; color:#eee; line-height:1.4;">${tooltipContent}</p>
+                            <div style="font-size:0.7rem; color:var(--text-dim); margin-top:5px; border-top:1px solid rgba(255,220,100,0.1); padding-top:4px;">مستوى التوجيه المطلوب: ${s.reqLvl || 1}</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; text-align:right; flex-direction:row-reverse; justify-content:flex-end;">
+                        <span style="font-size:1.1rem;">${icon}</span>
+                        <b style="color:${typeColor}; font-size:0.92rem; font-family:'Cairo',sans-serif;">${s.name}</b>
+                    </div>
+                    
+                    <p style="font-size:0.8rem; color:var(--text-dim); margin:0 0 10px 0; line-height:1.4; padding-left:15px; text-align:right;">${s.desc}</p>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-direction:row-reverse; margin-top:8px;">
+                        <span style="font-size:0.7rem; color:var(--text-dim); font-style:italic;">النوع: ${typeLabel}</span>
+                        <div style="display:flex; gap:4px; flex-wrap: wrap; justify-content: flex-end;">
+                            ${costBadge}
+                            ${reqBadgesHtml}
+                        </div>
+                    </div>
+                </div>
+                `;
             }
         });
+        
+        skillsHtml += `</div>`;
+        narrate(skillsHtml, 'النظام', null, false, true);
     }
 
     // --- Part 2: Premium Academy Library ---
     let libHtml = `
     <div style="margin-top:25px;border-top:2px solid rgba(212,175,55,0.15);padding-top:15px;">
-        <h3 style="color:var(--secondary);border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:5px;margin-bottom:15px;font-family:'Cinzel';">📜 مكتبة الفنون والمهارات (أكاديمية اليقين والفروسية)</h3>
-        <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:15px;">في محراب الأكاديمية العريقة، يمكن لفرسان الأقدار تعلم أسرار الفنون والتقنيات العربية النورانية والقتالية المتقدمة مقابل الذهب والتجلي الباطني.</p>
-        <div style="display:grid;grid-template-columns:1fr;gap:12px;">
+        <h3 style="color:var(--secondary);border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:5px;margin-bottom:15px;font-family:'El Messiri',serif;">📜 مكتبة الفنون والمهارات (أكاديمية اليقين والفروسية)</h3>
+        <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:15px;text-align:right;">في محراب الأكاديمية العريقة، يمكن لفرسان الأقدار تعلم أسرار الفنون والتقنيات العربية النورانية والقتالية المتقدمة مقابل الذهب والتجلي الباطني.</p>
+        <div style="display:grid;grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));gap:12px; direction:rtl;">
     `;
 
     const librarySkills = Object.values(window.SKILLS.techniques).filter(s => s.libraryOnly);
@@ -926,29 +1059,101 @@ function showSkillsScreen() {
     librarySkills.forEach(s => {
         const isLearned = state.player.skills && state.player.skills.includes(s.id);
         const hasLvl = (state.player.lvl || 1) >= s.reqLvl;
+        
+        let hasCult = true;
+        if (s.reqCultivationStage && window.CULTIVATION && state.player.cultivation) {
+            const currentStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === state.player.cultivation.stage);
+            const reqStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === s.reqCultivationStage);
+            if (currentStageIdx === -1 || currentStageIdx < reqStageIdx) {
+                hasCult = false;
+            }
+        }
+        
+        let hasItem = true;
+        if (s.reqItem) {
+            hasItem = state.player.inventory && state.player.inventory.some(item => item.id === s.reqItem);
+        }
+        
+        const meetOtherReqs = hasCult && hasItem;
         const hasGold = (state.player.gold || 0) >= s.cost;
+        
+        let extraBadgeHtml = '';
+        if (s.reqCultivationStage) {
+            const color = hasCult ? '#9b59b6' : '#ff4d4d';
+            extraBadgeHtml += `<span style="font-size:0.7rem; color:${color}; background:rgba(155, 89, 182, 0.05); border:1px solid rgba(155, 89, 182, 0.15); padding:1px 5px; border-radius:3px; margin-right:4px;">🧘 ${s.reqCultivationStage}</span>`;
+        }
+        if (s.reqItem) {
+            const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+            const color = hasItem ? '#00ffbb' : '#ff4d4d';
+            extraBadgeHtml += `<span style="font-size:0.7rem; color:${color}; background:rgba(0, 255, 187, 0.05); border:1px solid rgba(0, 255, 187, 0.15); padding:1px 5px; border-radius:3px; margin-right:4px;">📦 ${itemNames[s.reqItem] || s.reqItem}</span>`;
+        }
         
         let actionBtn = '';
         if (isLearned) {
             actionBtn = `<span style="color:var(--jade);font-weight:bold;font-size:0.85rem;display:inline-block;margin-top:8px;">✨ تم الإتقان والتعلم</span>`;
         } else if (!hasLvl) {
             actionBtn = `<button disabled style="background:rgba(255,255,255,0.05);color:#7f8c8d;border:1px solid rgba(255,255,255,0.1);padding:6px 12px;border-radius:4px;font-size:0.8rem;cursor:not-allowed;font-family:'Cairo';font-weight:bold;margin-top:8px;">🔒 مغلق (يتطلب مستوى ${s.reqLvl})</button>`;
+        } else if (!meetOtherReqs) {
+            let reason = '🔒 مغلق (الشرط ناقص)';
+            if (!hasCult) reason = `🧘 مرتبة ${s.reqCultivationStage}`;
+            else if (!hasItem) {
+                const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+                reason = `📦 ${itemNames[s.reqItem] || s.reqItem}`;
+            }
+            actionBtn = `<button disabled style="background:rgba(255,255,255,0.03);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2);padding:6px 12px;border-radius:4px;font-size:0.75rem;cursor:not-allowed;font-family:'Cairo';font-style:italic;margin-top:8px;">🔒 يتطلب ${reason}</button>`;
         } else {
             const btnStyle = hasGold 
                 ? "background:rgba(212,175,55,0.15);color:var(--secondary);border:1px solid var(--secondary);cursor:pointer;font-family:'Cairo';font-weight:bold;padding:6px 12px;border-radius:4px;font-size:0.8rem;transition:all 0.2s;"
                 : "background:rgba(255,0,0,0.05);color:#e74c3c;border:1px solid rgba(255,0,0,0.2);cursor:not-allowed;font-family:'Cairo';font-weight:bold;padding:6px 12px;border-radius:4px;font-size:0.8rem;margin-top:8px;";
-            const btnOnClick = hasGold ? `onclick="window.buyLibrarySkill('${s.id}')"` : '';
-            actionBtn = `<button ${btnOnClick} style="${btnStyle}">تعلم الفن القتالي 🪙 ${s.cost} دينار</button>`;
+            const btnOnClick = hasGold ? `window.buyLibrarySkill('${s.id}')` : '';
+            actionBtn = `<button onclick="${btnOnClick}" style="${btnStyle}">تعلم الفن القتالي 🪙 ${s.cost} دينار</button>`;
         }
 
+        const typeColor = s.passive ? '#00e5a0' : 'var(--secondary)';
+        const typeLabel = s.passive ? 'كامنة (Passive)' : 'نشطة (Active)';
+        const icon = s.passive ? '✨' : s.heal ? '💚' : s.id === 'samum_strike' ? '🔥' : '🌀';
+
+        // Construct tooltip content for academy skill
+        let tooltipContent = '';
+        if (s.passive) {
+            tooltipContent = `<b>الفنون الأكاديمية الكامنة:</b><br>تمنح البطل مكافأة باطنية تلقائية جبارة لا تستهلك تركيزاً.<br><b>تأثير الدعم:</b> +${Math.round((s.bonus || 0) * 100)}% لـ ${translateStat(s.stat)}.`;
+        } else {
+            let mechanics = [];
+            if (s.power) mechanics.push(`• القوة التدميرية: ${Math.round(s.power * 100)}% من الهجوم الجسدي`);
+            if (s.heal) mechanics.push(`• الشفاء الكلي: يسترجع ${Math.round(s.heal * 100)}% من نقاط صحتكم`);
+            if (s.dot) mechanics.push(`• عاصفة ريح السموم: ضرر ناري مستمر بمقدار ${s.dot.dmg} لدورين متتاليين`);
+            if (s.stunChance) mechanics.push(`• شل حركة الأعداء: فرصة نجاح شل الحركة ${Math.round(s.stunChance * 100)}%`);
+            if (s.effect && s.effect.invulnerable) mechanics.push(`• حصانة غيبية مطلقة: حماية كاملة من الضرر لدورين!`);
+            tooltipContent = `<b>طاقة الأكاديمية والسر المكنون:</b><br>${mechanics.length > 0 ? mechanics.join('<br>') : 'فن قتال حصري من مكاتب واحة التقاطع الراقية.'}`;
+        }
+
+        let costBadge = s.passive 
+            ? `<span style="font-size:0.72rem; color:#00e5a0; background:rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.2); padding:1px 5px; border-radius:3px;">كامنة</span>`
+            : `<span style="font-size:0.72rem; color:#3498db; background:rgba(52,152,219,0.1); border:1px solid rgba(52,152,219,0.2); padding:1px 5px; border-radius:3px;">⚡ ${s.mpCost || 0} MP</span>`;
+
         libHtml += `
-            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(212,175,55,0.1);padding:12px;border-radius:6px;border-left:4px solid var(--secondary);">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <b style="color:var(--secondary);font-size:0.95rem;">${s.name}</b>
-                    <span style="font-size:0.75rem;background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;color:var(--text-dim);">مستوى ${s.reqLvl}</span>
+            <div class="skill-card-enhanced" style="background:rgba(0,0,0,0.3); border:1px solid rgba(212,175,55,0.12); padding:12px; border-radius:6px; border-right:4px solid var(--secondary); position:relative; overflow:visible;">
+                <!-- Tooltip trigger -->
+                <div class="skill-tooltip-trigger" style="position:absolute; top:8px; left:8px; cursor:help; color:var(--secondary); font-size:1.05rem;" title="عرض تفاصيل الفن الحصري">
+                    ℹ️
+                    <div class="skill-tooltip-content" style="direction:rtl; text-align:right; border-color:var(--secondary);">
+                        <h4 style="margin:0 0 5px 0; color:var(--secondary); border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:3px; font-size:0.85rem; font-family:'Cairo',sans-serif;">📜 أسرار وقنوات الفرسان الحصرية</h4>
+                        <p style="margin:5px 0; font-size:0.75rem; color:#eee; line-height:1.4;">${tooltipContent}</p>
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-top:5px; border-top:1px solid rgba(212,175,55,0.1); padding-top:4px;">المستوى الأكاديمي المطلوب: ${s.reqLvl || 1}</div>
+                    </div>
                 </div>
-                <p style="font-size:0.82rem;color:var(--text-dim);margin:5px 0 10px 0;line-height:1.4;">${s.desc}</p>
-                <div style="text-align:left;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-direction:row-reverse; margin-bottom:5px; padding-left:15px; text-align:right;">
+                    <b style="color:var(--secondary); font-size:0.95rem; font-family:'Cairo',sans-serif;">${s.name}</b>
+                    <div style="display:flex; gap:4px; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
+                        ${costBadge}
+                        <span style="font-size:0.75rem; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:3px; color:var(--text-dim); margin-left: 2px;">مطلب لفل ${s.reqLvl}</span>
+                        ${extraBadgeHtml}
+                    </div>
+                </div>
+                <p style="font-size:0.82rem; color:var(--text-dim); margin:5px 0 10px 0; line-height:1.4; padding-left:15px; text-align:right;">${s.desc}</p>
+                <div style="text-align:left; display:flex; justify-content:space-between; align-items:center; flex-direction:row-reverse; margin-top:10px;">
+                    <span style="font-size:0.75rem; color:var(--text-dim);">النوع: ${typeLabel}</span>
                     ${actionBtn}
                 </div>
             </div>
@@ -1281,6 +1486,94 @@ function showPropertiesScreen() {
     const hpPct = Math.min(100, Math.floor(((p.hp || 0) / (p.maxHp || 100)) * 100));
     const mpPct = Math.min(100, Math.floor(((p.mp || 0) / (p.maxMp || 100)) * 100));
 
+    // Calculate total gear stats and set bonuses dynamically
+    let gearAtk = 0, gearDef = 0, gearHp = 0, gearMp = 0;
+    const qualityMults = { normal: 1.0, refined: 1.35, unique: 1.75, elite: 2.30, super: 3.20 };
+    Object.values(p.equipment ?? {}).forEach(item => {
+        if (!item) return;
+        const s = item.stats ?? {};
+        const q = item.quality || 'normal';
+        const qMult = qualityMults[q] || 1.0;
+        const itemLvl = item.lvl || 15;
+        const lvlMult = 1.0 + (itemLvl - 15) * 0.015;
+
+        let itemAtk = Math.floor((s.atk ?? 0) * qMult * lvlMult);
+        let itemDef = Math.floor((s.def ?? 0) * qMult * lvlMult);
+        let itemHp = Math.floor((s.hp ?? 0) * qMult * lvlMult);
+        let itemMp = Math.floor((s.mp ?? 0) * qMult * lvlMult);
+
+        const ref = item.refine || 0;
+        if (ref > 0) {
+            if (item.slot === 'weapon') itemAtk += (ref * 35);
+            else if (item.slot === 'body' || item.slot === 'legs') itemDef += (ref * 20);
+            else itemHp += (ref * 60);
+        }
+        gearAtk += itemAtk;
+        gearDef += itemDef;
+        gearHp += itemHp;
+        gearMp += itemMp;
+    });
+
+    const setCounts = { xianxia: 0, vedic: 0, silk_road: 0, mythology: 0 };
+    Object.values(p.equipment ?? {}).forEach(item => {
+        if (item && item.set && setCounts[item.set] !== undefined) {
+            setCounts[item.set]++;
+        }
+    });
+
+    const setTitles = {
+        xianxia: 'طيف الملوك الخالدين (Xianxia)',
+        vedic: 'الأوراد الفيدية الأزلية (Vedic)',
+        silk_road: 'واحة حرير درب الحرير (Silk Road)',
+        mythology: 'السيادة الأسطورية السلطانية (Mythology)'
+    };
+
+    let setBonusesHtml = '';
+    Object.keys(setCounts).forEach(set => {
+        const cnt = setCounts[set];
+        if (cnt >= 2) {
+            const bonusDesc = cnt >= 3 
+                ? (set === 'xianxia' ? 'بركة طيف الخلود (+40% هجوم، +30% دفاع، وشفاء ذاتي مستمر)' 
+                   : set === 'vedic' ? 'العزيمة الكافرة المطلقة (+35% هجوم، +35% صحة، وحقنة تجدد مستمرة)'
+                   : set === 'silk_road' ? 'نعمة التاجر الأكبر (+40% صحة، +40% مانا، وحفظ العزيمة)'
+                   : 'السيادة المطلقة المشرقة (+50% هجوم، +40% دفاع، وامتصاص حياة الأعداء بمقدار 15%)')
+                : (set === 'xianxia' ? 'المستوى 1 (+15% هجوم، +10% دفاع)' 
+                   : set === 'vedic' ? 'المستوى 1 (+15% هجوم، +15% صحة)'
+                   : set === 'silk_road' ? 'المستوى 1 (+15% صحة، +15% مانا)'
+                   : 'المستوى 1 (+20% هجوم، +15% دفاع)');
+            setBonusesHtml += `
+                <div style="border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; margin-bottom:5px; text-align:right;">
+                    <span style="color:#f1c40f; font-weight:bold; font-size:0.75rem;">🌟 طقم ${setTitles[set]} (${cnt}/3):</span><br>
+                    <small style="color:var(--success); font-size:0.7rem; line-height:1.3;">حالة: ${bonusDesc}</small>
+                </div>
+            `;
+        }
+    });
+    if (!setBonusesHtml) {
+        setBonusesHtml = '<span style="color:var(--text-dim); font-size:0.75rem; line-height:1.3; text-align:right; display:block;">لم يتم تفعيل أي مكافأة طقم عتاد حالياً. جهز قطعتين أو أكثر لتفعيل الدعم الباطني.</span>';
+    }
+
+    const gearTooltipHtml = `
+        <div class="gear-tooltip-anchor" style="position:relative; display:inline-block; cursor:help;">
+            <span style="font-size:0.7rem; background:rgba(0,168,107,0.15); border:1px solid rgba(0,168,107,0.30); color:var(--jade); padding:3px 8px; border-radius:12px; font-weight:bold; display:flex; align-items:center; gap:4px; flex-direction:row-reverse; transition:all 0.2s;">
+                📊 مكافآت الأطقم والدعم
+            </span>
+            <div class="gear-tooltip-box" style="position:absolute; left:0; top:28px; width:280px; background:#0e131f; border:2px solid var(--jade); padding:12px; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,0.85); z-index:999; text-align:right; transition:all 0.2s;">
+                <h4 style="margin:0 0 6px 0; color:var(--jade); font-size:0.85rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; font-family:\'El Messiri\', serif; font-weight:bold;">📊 خصائص العتاد المجهّز المضافة</h4>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:8px; font-size:0.75rem; text-align:right;">
+                    <div style="color:var(--text-dim);">الهجوم: <b style="color:#fff;">+${gearAtk}</b></div>
+                    <div style="color:var(--text-dim);">الدفاع: <b style="color:#fff;">+${gearDef}</b></div>
+                    <div style="color:var(--text-dim);">الصحة: <b style="color:#fff;">+${gearHp}</b></div>
+                    <div style="color:var(--text-dim);">التركيز: <b style="color:#fff;">+${gearMp}</b></div>
+                </div>
+                <h4 style="margin:8px 0 6px 0; color:#f1c40f; font-size:0.8rem; font-family:\'El Messiri\', serif; font-weight:bold;">✨ أطقم الدعم الباطني المفعّلة</h4>
+                <div style="line-height:1.4;">
+                    ${setBonusesHtml}
+                </div>
+            </div>
+        </div>
+    `;
+
     let gearHtml = '';
     const slots = ['weapon', 'head', 'body', 'legs', 'boots', 'relic'];
     const slotNames = {
@@ -1399,7 +1692,10 @@ function showPropertiesScreen() {
 
                 <!-- Equipped Gear Column -->
                 <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid var(--jade); border-left:none;">
-                    <h3 style="margin-top:0; color:var(--jade); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">🛡️ العتاد والتمائم المجهزة</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; margin-bottom:10px; flex-direction:row-reverse;">
+                        <span style="color:var(--jade); font-size:1.1rem; font-family:'El Messiri', serif; font-weight:bold;">🛡️ العتاد والتمائم المجهزة</span>
+                        ${gearTooltipHtml}
+                    </div>
                     <div style="display:flex; flex-direction:column; gap:4px; margin-top:10px;">
                         ${gearHtml}
                     </div>
@@ -1591,6 +1887,8 @@ function showManagementScreen() {
     } else if (!state.player.spouse) {
         html += `<p style="grid-column: span 2; color:var(--text-dim); font-style:italic;">لا يوجد روابط دم وعائلة مسجلة في حياتك الحالية.</p>`;
     }
+    
+    html += `
             </div>
             ${state.player.children ? `<div style="margin-top:10px; text-align:center; color:var(--jade); font-family:'Cinzel';">إجمالي أفراد الذرية الممتدة: ${state.player.children}</div>` : ''}
         </div>

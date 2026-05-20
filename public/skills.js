@@ -13,30 +13,30 @@ window.SKILLS = {
         'lotus_strike': { id: 'lotus_strike', name: 'ضربة الياسمين الوهيجة', desc: 'وابل خاطف من الضربات السريعة والمتعاقبة بنصلك المضيء تسبب 1.5x ضرر.', mpCost: 10, power: 1.5, type: 'fast', reqLvl: 1 },
 
         // --- المهارات المبكرة والبدنية العامة (Levels 2-10) ---
-        'crescent_sweep': { id: 'crescent_sweep', name: 'ضربة هلال الصحراء الخاطفة', desc: 'ضربة قوسية واسعة بحد النصل تضرب بقوة 1.4x ضرر وتسبب خفض دفاع الخصم 10% لدورين.', mpCost: 8, power: 1.4, debuff: { def: -0.1, duration: 2 }, type: 'fast', reqLvl: 2 },
-        'shadow_step': { id: 'shadow_step', name: 'خطوة الطيف الصحراوي', desc: 'تزيد فرصة تفادي ضربات الأعداء وتجنب الهجمات بنسبة 20% لـ 3 أدوار قتالية.', mpCost: 15, effect: { dodge: 0.2, duration: 3 }, type: 'buff', reqLvl: 3 },
-        'badr_blessing': { id: 'badr_blessing', name: 'عزيمة التركيز والصلابة الصافية', desc: 'تركيز بدني صافي يستعيد 30% من نقاط الصحة القصوى فوراً.', mpCost: 30, heal: 0.3, type: 'magic', reqLvl: 3 },
-        'bedouin_grit': { id: 'bedouin_grit', name: 'صلابة البدو وعزيمة الصمود', desc: 'عزيمة مستوحاة من رماح البادية تزيد دفاعك بنسبة 25% لـ 3 أدوار قتالية.', mpCost: 12, effect: { defBuff: 1.25, duration: 3 }, type: 'buff', reqLvl: 4 },
-        'mountain_peak_cleave': { id: 'mountain_peak_cleave', name: 'شطر الصخرة والقمم الفولاذي', desc: 'ضربة غاشمة هائلة تسحق دروع الخصم وتهز بنيانه بالكامل تسبب 2.2x ضرر.', mpCost: 20, power: 2.2, type: 'heavy', reqLvl: 5 },
-        'sand_veil': { id: 'sand_veil', name: 'رداء الرمال الباردة الحامي', desc: 'حاجز من غبار الكثبان يرفع فرصة التفادي بنسبة 25% لـ 2 أدوار قتالية.', mpCost: 14, effect: { dodge: 0.25, duration: 2 }, type: 'buff', reqLvl: 5 },
-        'falcon_descent': { id: 'falcon_descent', name: 'انقضاض صقر شاهين الكاسر الحاد', desc: 'فن رماية متقن ينقض به الصقر لشق ثغرة بنقاط الضعف، يسبب 2.0x ضرر قاصم ونسبة ضربة قاضية عالية.', mpCost: 15, power: 2.0, type: 'fast', reqLvl: 6 },
-        'dune_crest': { id: 'dune_crest', name: 'وثبة ذروة الكثبان الصحراوية', desc: 'تزيد من سرعة تحرك الفارس وتمنحه زيادة 15% هجوم في الدور التالي.', mpCost: 10, effect: { atkBuff: 1.15, duration: 2 }, type: 'buff', reqLvl: 7 },
-        'earth_shatter': { id: 'earth_shatter', name: 'زوبعة دكة الأرض الرهيبة', desc: 'ضربة ززلزالية عنيفة للأرض تشل حركة العدو مذهولاً بنسبة 30% وتسبب 2.5x ضرر.', mpCost: 25, power: 2.5, stunChance: 0.3, type: 'heavy', reqLvl: 8 },
-        'bazaar_tactics': { id: 'bazaar_tactics', name: 'دهاء تاجر درب الحرير وفنون المفاوضة', desc: 'تكتيك باطني يشتت انتباه الأعداء بالدينار والذهب، يقلل دفاع الخصم بنسبة 35% لـ 4 أدوار قتالية.', mpCost: 18, debuff: { def: -0.35, duration: 4 }, type: 'buff', reqLvl: 8 },
-        'desert_sarab': { id: 'desert_sarab', name: 'مكر سراب البادية المتلألئ الخاطف', desc: 'حيلة قتالية بدوية، تظهر كطيف سراب يشتت تركيز العدو ويزيد فرصة التفادي بنسبة 50% لـ 3 أدوار.', mpCost: 20, effect: { dodge: 0.5, duration: 3 }, type: 'buff', reqLvl: 9 },
-        'caravan_guard': { id: 'caravan_guard', name: 'حراسة الركب وتأمين السبيل', desc: 'ضربة دفاعية فولاذية تحمي قوافل الشرق وتضرب الخصم بقوة 1.8x ضرر مع استعادة 10 عزيمة.', mpCost: 5, power: 1.8, type: 'heavy', reqLvl: 9 },
+        'crescent_sweep': { id: 'crescent_sweep', name: 'ضربة هلال الصحراء الخاطفة', desc: 'ضربة قوسية واسعة بحد النصل تضرب بقوة 1.4x ضرر وتسبب خفض دفاع الخصم 10% لدورين.', mpCost: 8, power: 1.4, debuff: { def: -0.1, duration: 2 }, type: 'fast', reqLvl: 2, cooldown: 2 },
+        'shadow_step': { id: 'shadow_step', name: 'خطوة الطيف الصحراوي', desc: 'تزيد فرصة تفادي ضربات الأعداء وتجنب الهجمات بنسبة 20% لـ 3 أدوار قتالية.', mpCost: 15, effect: { dodge: 0.2, duration: 3 }, type: 'buff', reqLvl: 3, cooldown: 3 },
+        'badr_blessing': { id: 'badr_blessing', name: 'عزيمة التركيز والصلابة الصافية', desc: 'تركيز بدني صافي يستعيد 30% من نقاط الصحة القصوى فوراً.', mpCost: 30, heal: 0.3, type: 'magic', reqLvl: 3, reqCultivationStage: 'الفارس المغوار', cooldown: 3 },
+        'bedouin_grit': { id: 'bedouin_grit', name: 'صلابة البدو وعزيمة الصمود', desc: 'عزيمة مستوحاة من رماح البادية تزيد دفاعك بنسبة 25% لـ 3 أدوار قتالية.', mpCost: 12, effect: { defBuff: 1.25, duration: 3 }, type: 'buff', reqLvl: 4, cooldown: 3 },
+        'mountain_peak_cleave': { id: 'mountain_peak_cleave', name: 'شطر الصخرة والقمم الفولاذي', desc: 'ضربة غاشمة هائلة تسحق دروع الخصم وتهز بنيانه بالكامل تسبب 2.2x ضرر.', mpCost: 20, power: 2.2, type: 'heavy', reqLvl: 5, cooldown: 2 },
+        'sand_veil': { id: 'sand_veil', name: 'رداء الرمال الباردة الحامي', desc: 'حاجز من غبار الكثبان يرفع فرصة التفادي بنسبة 25% لـ 2 أدوار قتالية.', mpCost: 14, effect: { dodge: 0.25, duration: 2 }, type: 'buff', reqLvl: 5, cooldown: 2 },
+        'falcon_descent': { id: 'falcon_descent', name: 'انقضاض صقر شاهين الكاسر الحاد', desc: 'فن رماية متقن ينقض به الصقر لشق ثغرة بنقاط الضعف، يسبب 2.0x ضرر قاصم ونسبة ضربة قاضية عالية.', mpCost: 15, power: 2.0, type: 'fast', reqLvl: 6, cooldown: 2 },
+        'dune_crest': { id: 'dune_crest', name: 'وثبة ذروة الكثبان الصحراوية', desc: 'تزيد من سرعة تحرك الفارس وتمنحه زيادة 15% هجوم في الدور التالي.', mpCost: 10, effect: { atkBuff: 1.15, duration: 2 }, type: 'buff', reqLvl: 7, cooldown: 2 },
+        'earth_shatter': { id: 'earth_shatter', name: 'زوبعة دكة الأرض الرهيبة', desc: 'ضربة ززلزالية عنيفة للأرض تشل حركة العدو مذهولاً بنسبة 30% وتسبب 2.5x ضرر.', mpCost: 25, power: 2.5, stunChance: 0.3, type: 'heavy', reqLvl: 8, cooldown: 4 },
+        'bazaar_tactics': { id: 'bazaar_tactics', name: 'دهاء تاجر درب الحرير وفنون المفاوضة', desc: 'تكتيك باطني يشتت انتباه الأعداء بالدينار والذهب، يقلل دفاع الخصم بنسبة 35% لـ 4 أدوار قتالية.', mpCost: 18, debuff: { def: -0.35, duration: 4 }, type: 'buff', reqLvl: 8, cooldown: 3 },
+        'desert_sarab': { id: 'desert_sarab', name: 'مكر سراب البادية المتلألئ الخاطف', desc: 'حيلة قتالية بدوية، تظهر كطيف سراب يشتت تركيز العدو ويزيد فرصة التفادي بنسبة 50% لـ 3 أدوار.', mpCost: 20, effect: { dodge: 0.5, duration: 3 }, type: 'buff', reqLvl: 9, cooldown: 4 },
+        'caravan_guard': { id: 'caravan_guard', name: 'حراسة الركب وتأمين السبيل', desc: 'ضربة دفاعية فولاذية تحمي قوافل الشرق وتضرب الخصم بقوة 1.8x ضرر مع استعادة 10 عزيمة.', mpCost: 5, power: 1.8, type: 'heavy', reqLvl: 9, reqItem: 'iron_ore', cooldown: 2 },
         'spirit_surge': { id: 'spirit_surge', name: 'فيض طاقة مقر الطائفة', desc: 'قدرة كامنة: +10% سرعة استرجاع الطاقة البدنية والتركيز.', passive: true, stat: 'mpRegen', bonus: 0.1, reqLvl: 10 },
 
         // --- المهارات المتوسطة وفنون المبارزة الصافية (Levels 11-20) ---
-        'damascus_wall': { id: 'damascus_wall', name: 'جدار الصفيح الدمشقي الحصين المنيع', desc: 'تكتيك دفاعي فولاذي يستند لمتانة الحديد والشهب، يقلل هجوم الخصم بنسبة 50% لـ 3 أدوار.', mpCost: 25, debuff: { atk: -0.5, duration: 3 }, type: 'buff', reqLvl: 11 },
-        'mirage_strike': { id: 'mirage_strike', name: 'ضربة السراب اللامع المشتتة', desc: 'ضربة باطنية من نصل مضلل يضرب 1.9x ضرر ويعطل هجوم العدو بنسبة 20% لـ 2 أدوار.', mpCost: 15, power: 1.9, debuff: { atk: -0.2, duration: 2 }, type: 'fast', reqLvl: 11 },
-        'blood_qi_burst': { id: 'blood_qi_burst', name: 'غليان عروق الفرسان الحامية', desc: 'تضحية طاهرة بـ 10% من جوهر الصحة لمضاعفة الهجوم بنسبة 50% في الدور التالي.', mpCost: 0, hpCost: 0.1, effect: { atkBuff: 1.5, duration: 2 }, type: 'buff', reqLvl: 12 },
+        'damascus_wall': { id: 'damascus_wall', name: 'جدار الصفيح الدمشقي الحصين المنيع', desc: 'تكتيك دفاعي فولاذي يستند لمتانة الحديد والشهب، يقلل هجوم الخصم بنسبة 50% لـ 3 أدوار.', mpCost: 25, debuff: { atk: -0.5, duration: 3 }, type: 'buff', reqLvl: 11, reqItem: 'iron_ore', cooldown: 3 },
+        'mirage_strike': { id: 'mirage_strike', name: 'ضربة السراب اللامع المشتتة', desc: 'ضربة باطنية من نصل مضلل يضرب 1.9x ضرر ويعطل هجوم العدو بنسبة 20% لـ 2 أدوار.', mpCost: 15, power: 1.9, debuff: { atk: -0.2, duration: 2 }, type: 'fast', reqLvl: 11, cooldown: 2 },
+        'blood_qi_burst': { id: 'blood_qi_burst', name: 'غليان عروق الفرسان الحامية', desc: 'تضحية طاهرة بـ 10% من جوهر الصحة لمضاعفة الهجوم بنسبة 50% في الدور التالي.', mpCost: 0, hpCost: 0.1, effect: { atkBuff: 1.5, duration: 2 }, type: 'buff', reqLvl: 12, reqCultivationStage: 'الفارس الصنديد', cooldown: 3 },
         'iron_bone_body': { id: 'iron_bone_body', name: 'هيكل الحديد والصلابة الصخرية', desc: 'قدرة كامنة: +15% زيادة للصحة والتحمل الأقصى.', passive: true, stat: 'maxHp', bonus: 0.15, reqLvl: 12 },
-        'oasis_dew': { id: 'oasis_dew', name: 'ندى الواحة الحامي من الهلاك', desc: 'جرعة من مياه الواحة المصفاة بالأعشاب الطبية تستعيد 40% من صحة الفارس.', mpCost: 25, heal: 0.4, type: 'magic', reqLvl: 13 },
-        'furusiyya_charge': { id: 'furusiyya_charge', name: 'صولة الفروسية الهلالية الجسورة', desc: 'صولة فارس يركب خيلاً كحيلاً أصيلاً، يندفع بقوة 2.8x ضرر ويشل حركة الخصم لدورين بنسبة 45%.', mpCost: 35, power: 2.8, stunChance: 0.45, type: 'heavy', reqLvl: 14 },
-        'heavenly_rain': { id: 'heavenly_rain', name: 'عاصفة السيوف السلطانية الهابطة', desc: 'إعصار من شظايا السيوف الفولاذية المنهمرة على الأعداء تسبب 3.5x ضرر.', mpCost: 40, power: 3.5, type: 'magic', reqLvl: 15 },
-        'scimitar_gale': { id: 'scimitar_gale', name: 'عاصفة السيوف الهوائية السريعة', desc: 'فولاذ دمك بالرياح يضرب ضربتين بقوة 2.1x ضرر إجمالي ونسبة ضربة قاضية عالية.', mpCost: 22, power: 2.1, type: 'fast', reqLvl: 15 },
-        'dhikr_trance': { id: 'dhikr_trance', name: 'تركيز السكينة والهدوء الباطني', desc: 'جلسة تركيز وسكينة باطنية حكيمة، تستعيد 50% من صحتك وتزيد تفاديك للضربات بنسبة 30% لـ 3 أدوار.', mpCost: 40, heal: 0.5, effect: { dodge: 0.3, duration: 3 }, type: 'magic', reqLvl: 16 },
+        'oasis_dew': { id: 'oasis_dew', name: 'ندى الواحة الحامي من الهلاك', desc: 'جرعة من مياه الواحة المصفاة بالأعشاب الطبية تستعيد 40% من صحة الفارس.', mpCost: 25, heal: 0.4, type: 'magic', reqLvl: 13, reqItem: 'spirit_herb', cooldown: 3 },
+        'furusiyya_charge': { id: 'furusiyya_charge', name: 'صولة الفروسية الهلالية الجسورة', desc: 'صولة فارس يركب خيلاً كحيلاً أصيلاً، يندفع بقوة 2.8x ضرر ويشل حركة الخصم لدورين بنسبة 45%.', mpCost: 35, power: 2.8, stunChance: 0.45, type: 'heavy', reqLvl: 14, reqCultivationStage: 'حارس الثغور الأبي', cooldown: 4 },
+        'heavenly_rain': { id: 'heavenly_rain', name: 'عاصفة السيوف السلطانية الهابطة', desc: 'إعصار من شظايا السيوف الفولاذية المنهمرة على الأعداء تسبب 3.5x ضرر.', mpCost: 40, power: 3.5, type: 'magic', reqLvl: 15, cooldown: 4 },
+        'scimitar_gale': { id: 'scimitar_gale', name: 'عاصفة السيوف الهوائية السريعة', desc: 'فولاذ دمك بالرياح يضرب ضربتين بقوة 2.1x ضرر إجمالي ونسبة ضربة قاضية عالية.', mpCost: 22, power: 2.1, type: 'fast', reqLvl: 15, cooldown: 2 },
+        'dhikr_trance': { id: 'dhikr_trance', name: 'تركيز السكينة والهدوء الباطني', desc: 'جلسة تركيز وسكينة باطنية حكيمة، تستعيد 50% من صحتك وتزيد تفاديك للضربات بنسبة 30% لـ 3 أدوار.', mpCost: 40, heal: 0.5, effect: { dodge: 0.3, duration: 3 }, type: 'magic', reqLvl: 16, reqCultivationStage: 'الفارس الصنديد', cooldown: 4 },
         'iron_anchor': { id: 'iron_anchor', name: 'مرساة الفرسان الفولاذية الراسخة', desc: 'وقفة قتالية صلبة تزيد دفاعك بنسبة 35% وتمنحك مناعة ضد الشلل لدورين.', mpCost: 18, effect: { defBuff: 1.35, duration: 2 }, type: 'buff', reqLvl: 17 },
         'dragon_roar': { id: 'dragon_roar', name: 'صرخة مارد النار الزاجر', desc: 'صرخة باطنية مهيبة تشل حركة العدو تماماً وتسبب ثلاثة أضعاف الضرر 3.0x.', mpCost: 50, power: 3.0, stunChance: 1.0, type: 'heavy', reqLvl: 18 },
         'sword_intent': { id: 'sword_intent', name: 'همة السيف الدمشقي العازمة', desc: 'قدرة كامنة: +20% ضرر للضربات القاضية البديعة.', passive: true, stat: 'critDmg', bonus: 0.2, reqLvl: 18 },
@@ -155,10 +155,36 @@ window.SKILLS = {
         if (!state.player.skills) state.player.skills = [];
         Object.values(this.techniques).forEach(skill => {
             if (skill.libraryOnly) return; // Skip library-exclusive premium skills!
-            if (state.player.lvl >= skill.reqLvl && !state.player.skills.includes(skill.id)) {
+            if (state.player.skills.includes(skill.id)) return; // Already learned
+
+            // 1. Level Requirement Check
+            const lvlMet = (state.player.lvl || 1) >= (skill.reqLvl || 1);
+
+            // 2. Cultivation Stage Requirement Check
+            let cultMet = true;
+            if (skill.reqCultivationStage && window.CULTIVATION && state.player.cultivation) {
+                const currentStageIdx = window.CULTIVATION.stages.findIndex(s => s.name === state.player.cultivation.stage);
+                const reqStageIdx = window.CULTIVATION.stages.findIndex(s => s.name === skill.reqCultivationStage);
+                if (currentStageIdx === -1 || currentStageIdx < reqStageIdx) {
+                    cultMet = false;
+                }
+            }
+
+            // 3. Required Item Check (must possess item in inventory items or materials)
+            let itemMet = true;
+            if (skill.reqItem) {
+                const hasItemInItems = state.player.inventory?.items?.some(item => item.id === skill.reqItem);
+                const hasItemInMaterials = !!state.player.inventory?.materials?.[skill.reqItem];
+                if (!hasItemInItems && !hasItemInMaterials) {
+                    itemMet = false;
+                }
+            }
+
+            // Only unlock if all three aspects are fully met
+            if (lvlMet && cultMet && itemMet) {
                 state.player.skills.push(skill.id);
                 if (typeof narrate === 'function') {
-                    narrate(`<b>تم تعلم مهارة وفن جديد:</b> ${skill.name}!`, "ديوان الفرسان");
+                    narrate(`<b>🎉 تم فتح وإتقان فن جديد:</b> ${skill.name}!`, "ديوان الفرسان");
                 }
             }
         });

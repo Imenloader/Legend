@@ -224,9 +224,7 @@ const EPIC_STORY_NODES = {
 
 // Merge into main STORY object
 if (typeof window !== 'undefined') {
-    if (window.STORY && window.STORY.STORY_NODES) {
-        Object.assign(window.STORY.STORY_NODES, EPIC_STORY_NODES);
-    } else {
-        window.STORY = { STORY_NODES: EPIC_STORY_NODES };
-    }
+    window.STORY = window.STORY || {};
+    window.STORY.nodes = Object.assign(window.STORY.nodes || {}, EPIC_STORY_NODES);
+    window.STORY.STORY_NODES = window.STORY.nodes;
 }

@@ -290,7 +290,7 @@ const ARABIAN_HEROES = {
 };
 
 // --- قائمة غيلان وأعداء الصحراء والجن ---
-const ARABIAN_ENEMIES = {
+const ARABIAN_ENEMIES_PART2 = {
     iraqi_silawah: {
         id: 'iraqi_silawah',
         name: 'السعلوة النهرية (أسطورة العراق)',
@@ -691,7 +691,7 @@ const NPC_ENGINE = {
 // --- التصدير العام والد مج لمحرك الأساطير ---
 window.LORE = Object.assign(window.LORE || {}, {
     ARABIAN_HEROES,
-    ARABIAN_ENEMIES,
+    ARABIAN_ENEMIES: Object.assign({}, window.LORE.ARABIAN_ENEMIES || {}, ARABIAN_ENEMIES_PART2),
     LOOT_TABLES,
     NPC_ENGINE,
     getAllHeroes: function() { 

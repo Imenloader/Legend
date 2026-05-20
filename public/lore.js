@@ -13,7 +13,7 @@ const REGIONS = {
         stageRange: [1, 3],
         unlocked: true,
         ambientColor: '#8a4a00',
-        enemies: ['silk_road_bandit', 'corrupted_merchant', 'street_ghost'],
+        enemies: ['silk_road_bandit', 'corrupted_merchant', 'street_ghost', 'crossroads_venomous_spider'],
         npcs: ['scheherazade', 'harun_al_rashid', 'li_bai'],
         lootTable: 'crossroads_loot',
         x: 400, y: 280
@@ -39,7 +39,7 @@ const REGIONS = {
         stageRange: [4, 8],
         unlocked: false,
         ambientColor: '#c8860a',
-        enemies: ['desert_ghoul', 'ifrit', 'whispering_shaitan', 'sand_wraith', 'marid_soldier'],
+        enemies: ['desert_ghoul', 'ifrit', 'whispering_shaitan', 'sand_wraith', 'marid_soldier', 'sand_dune_titan', 'shaitan_nightmare'],
         npcs: ['al_khidr', 'sinbad', 'antar_ibn_shaddad', 'fatima_al_fihri'],
         lootTable: 'arabian_loot',
         x: 185, y: 360
@@ -327,6 +327,21 @@ const CROSSROADS_ENEMIES = {
         },
         archetype: 'mage',
         loot: ['Ghost Essence', 'Faded Beggar\'s Bowl']
+    },
+    crossroads_venomous_spider: {
+        id: 'crossroads_venomous_spider',
+        name: 'عنكبوت الرمال السموم',
+        region: 'crossroads',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 48, baseAtk: 13, xpReward: 32,
+        description: 'عنكبوت ضخم ينتشر في شقوق واحة القوافل، يفرز لزوجة مسمومة تشل وتبطئ فرائسه.',
+        moves: {
+            heavy: { name: 'عضة الفكوك الكاشرة', text: 'يندفع بوزنه الثقيل ليغرز مخلبيه في درع حمايتك.' },
+            fast: { name: 'الطعنة السريعة الواخزة', text: 'طعنة مباغتة بمؤخرته المدببة تسبب ألماً قاطعاً.' },
+            magic: { name: 'بث السموم الباطنية', text: 'يبخ غيمة من سم رملي نضير تلوث وترهق قنوات النور في جسدك.' }
+        },
+        archetype: 'poisoner',
+        loot: ['Spider Venom', 'Venomous Gland']
     }
 };
 
@@ -548,6 +563,32 @@ const ARABIAN_ENEMIES = {
             magic: { name: 'إعصار Twin الجحيم والجليد المطلق', text: ' Twin شعاعين من حرارة الشمس وبرد الفراغ المطلق بتضرب تركيزك وهمتك.' }
         },
         loot: ['Trishula of the Three Realms', 'Taiji Yin-Yang Ring']
+    },
+    sand_dune_titan: {
+        id: 'sand_dune_titan', name: 'عملاق كثبان الجسد المتحول', region: 'empty_quarter',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 150, baseAtk: 24, xpReward: 120,
+        description: 'كيان ترابي ضخم يتشكل من ذرات رمال الربع الخالي. يستخدم التضاريس لحماية هيكله ويتحول بين أشكال معادية متعددة.',
+        moves: {
+            heavy: { name: 'عناق هرس التضاريس والتربة', text: 'يسحق عظامك بهجمة عملاقة مستمداً قوة التراب الحامية.' },
+            fast: { name: 'العصف السريع الدوار للرماد', text: 'التفاف رملي عاتٍ يضرب دفاعك ويصنع زوبعة تشتيت مباغتة.' },
+            magic: { name: 'التحور لشكل إعصار الكثبان الثائر', text: 'يسحب الرياح من أطراف الربع الخالي ليتحول لهيكل عاصفة رملية غاضبة!' }
+        },
+        archetype: 'shifter',
+        loot: ['Titan Sandstone', 'Shifting Clay Core']
+    },
+    shaitan_nightmare: {
+        id: 'shaitan_nightmare', name: 'كابوس الشيطان الغابر ملقي الذعر', region: 'empty_quarter',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 110, baseAtk: 26, xpReward: 110,
+        description: 'كيان طيفي شيطاني ينشأ من تيه الربع الخالي. يهز أمن القلوب ويلقي الرعب والذعر في أفئدة السالكين الأقوياء.',
+        moves: {
+            heavy: { name: 'قبضة الغمر والوهم المظلم', text: 'ضربة غامرة تملأ قلب سالك المعركة بالشك لتمزيق ثبات الروح.' },
+            fast: { name: 'القبس المظلم الشيطاني الخارق', text: 'قبس من نار الكبريت والسموم يخترق الصدر والدفاع مباشرة.' },
+            magic: { name: 'الزئير المرعب والذعر الأبدي', text: 'زئير شيطاني مرعب يعذب هالتك ويفسد ثباتك بالذعر والرهبة.' }
+        },
+        archetype: 'mind_destroyer',
+        loot: ['Shattered Nightmare Horn', 'Essence of Dread']
     }
 };
 

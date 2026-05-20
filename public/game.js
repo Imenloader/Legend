@@ -82,14 +82,27 @@ async function loadGameCloud() {
                 .eq('player_id', state.playerId)
                 .single();
             
-            if (data && data.state) {
+            if (error) {
+                const errMsg = error.message || '';
+                if (errMsg.includes('schema cache') || error.code === 'PGRST116' || errMsg.includes('relation "game_saves" does not exist')) {
+                    console.warn(
+                        "⚠️ [Supabase DB Warning] 'game_saves' table not found in schema cache. " +
+                        "Please run 'supabase_setup.sql' in your Supabase SQL Editor. Game will save locally using localStorage.",
+                        errMsg
+                    );
+                } else {
+                    console.warn('Cloud load sync error:', errMsg);
+                }
+            } else if (data && data.state) {
                 deepMerge(state, data.state);
                 validateState();
                 console.log('Cloud state synchronized.');
                 document.getElementById('continue-btn').style.display = 'block';
                 return true;
             }
-        } catch (e) { console.warn('Cloud sync unavailable', e); }
+        } catch (e) { 
+            console.warn('Cloud sync unavailable during load', e); 
+        }
     }
     return false;
 }
@@ -115,18 +128,57 @@ async function saveGame() {
     // Attempt cloud save
     if (supabaseClient) {
         try {
+            const saveData = { 
+                player_id: state.playerId, 
+                state: state,
+                last_login: new Date().toISOString(),
+                last_updated: new Date().toISOString()
+            };
+            
             const { error } = await supabaseClient
                 .from('game_saves')
-                .upsert({ 
-                    player_id: state.playerId, 
-                    state: state,
-                    last_login: new Date().toISOString()
-                }, { onConflict: 'player_id' });
+                .upsert(saveData, { onConflict: 'player_id' });
             
-            if (error) throw error;
+            if (error) {
+                const errMsg = error.message || '';
+                // Check if it's the schema cache / missing relation issue
+                if (errMsg.includes('schema cache') || error.code === 'PGRST116' || errMsg.includes('relation "game_saves" does not exist')) {
+                    console.warn(
+                        "⚠️ [Supabase DB Warning] 'game_saves' table not found in schema cache. " +
+                        "Save succeeded locally, but cloud sync is pending. To activate cloud saving, please execute the SQL setup " +
+                        "code in 'supabase_setup.sql' in your Supabase SQL Editor.", 
+                        errMsg
+                    );
+                    return;
+                }
+                // Check if it's a field mismatch error (if they created table without last_login or last_updated)
+                if (errMsg.includes('column') && (errMsg.includes('last_login') || errMsg.includes('last_updated'))) {
+                    console.warn("⚠️ Column mismatch detected. Retrying cloud save with a minimal column set...");
+                    // Retry with a minimal schema payload (just player_id and state, which are guaranteed to always exist)
+                    const { error: retryError } = await supabaseClient
+                        .from('game_saves')
+                        .upsert({
+                            player_id: state.playerId,
+                            state: state
+                        }, { onConflict: 'player_id' });
+                    if (retryError) throw retryError;
+                    console.log('Cloud save successful after column fallback retry.');
+                    return;
+                }
+                throw error;
+            }
             console.log('Cloud save successful.');
         } catch (e) {
-            console.error('Cloud save failed:', e.message);
+            const errStr = e.message || String(e);
+            if (errStr.includes('schema cache') || errStr.includes('does not exist') || errStr.includes('table')) {
+                console.warn(
+                    "⚠️ [Supabase DB Warning] 'game_saves' table not found on Supabase. " +
+                    "Game saved successfully in your browser's LocalStorage. To enable cloud saves, run supabase_setup.sql in your Supabase SQL console.",
+                    errStr
+                );
+            } else {
+                console.error('Cloud save failed:', errStr);
+            }
         }
     }
 }
@@ -733,6 +785,74 @@ function triggerFlash(type = 'damage') {
     activeScreen.appendChild(flash);
     setTimeout(() => flash.remove(), 800);
 }
+function triggerVisualHitEffect(moveId, isPlayerHit) {
+    const activeScreen = document.querySelector('.screen.active') || document.body;
+    if (!activeScreen) return;
+    
+    if (!isPlayerHit) {
+        const slash = document.createElement('div');
+        slash.className = 'visual-hit-slash';
+        const rot = -15 + Math.floor(Math.random() * 30);
+        const top = 30 + Math.floor(Math.random() * 20);
+        slash.style.top = `${top}%`;
+        slash.style.transform = `rotate(${rot}deg) scaleX(0)`;
+        
+        // Custom animation styling dynamically adjusted based on skill types
+        const skill = window.SKILLS ? window.SKILLS.techniques[moveId] : null;
+        if (skill) {
+            if (skill.type === 'fast') {
+                slash.style.background = 'linear-gradient(90deg, transparent, #00ffcc, #39ff14, #00ffcc, transparent)';
+                slash.style.boxShadow = '0 0 12px #39ff14, 0 0 24px #00ffcc';
+                slash.style.height = '6px';
+            } else if (skill.type === 'magic') {
+                slash.style.background = 'linear-gradient(95deg, transparent, #bd00ff, #00f0ff, #bd00ff, transparent)';
+                slash.style.boxShadow = '0 0 14px #00f0ff, 0 0 28px #bd00ff';
+                slash.style.height = '10px';
+            } else if (skill.type === 'heavy') {
+                slash.style.background = 'linear-gradient(90deg, transparent, #ff3333, #ffcc00, #ff3333, transparent)';
+                slash.style.boxShadow = '0 0 15px #ffcc00, 0 0 30px #ff3333';
+                slash.style.height = '12px';
+            }
+        }
+        
+        activeScreen.appendChild(slash);
+        setTimeout(() => slash.remove(), 400);
+        
+        if (skill) {
+            if (moveId === 'earth_shatter' || moveId === 'dune_storm') {
+                const shatter = document.createElement('div');
+                shatter.className = 'visual-impact-ground';
+                activeScreen.appendChild(shatter);
+                setTimeout(() => shatter.remove(), 800);
+                triggerScreenShake();
+                setTimeout(triggerScreenShake, 200);
+            } else if (moveId === 'samum_strike' || moveId === 'sun_incineration' || moveId === 'blazing_embers') {
+                const fire = document.createElement('div');
+                fire.className = 'visual-fire-ring';
+                activeScreen.appendChild(fire);
+                setTimeout(() => fire.remove(), 600);
+            }
+            if (skill.stunChance > 0) {
+                triggerStaggerVisual();
+            }
+        }
+    } else {
+        const ring = document.createElement('div');
+        ring.className = 'visual-impact-ring';
+        activeScreen.appendChild(ring);
+        setTimeout(() => ring.remove(), 500);
+    }
+}
+function triggerStaggerVisual() {
+    const activeScreen = document.querySelector('.screen.active') || document.body;
+    if (!activeScreen) return;
+    
+    const stagger = document.createElement('div');
+    stagger.className = 'visual-stagger-alert';
+    stagger.innerHTML = '⚡ دُهش الخصم (مترنح / Staggered) ⚡';
+    activeScreen.appendChild(stagger);
+    setTimeout(() => stagger.remove(), 1500);
+}
 function triggerActTransition(title, desc, onComplete) {
     const overlay = document.getElementById('act-transition-overlay');
     const titleEl = document.getElementById('act-transition-title');
@@ -868,9 +988,10 @@ function updateTopBar() {
     const mobClass = document.getElementById('hud-class-val');
     const mobGold = document.getElementById('hud-gold-val');
     const mobHp = document.getElementById('hud-hp-val');
+    const mobMp = document.getElementById('hud-mp-val');
     const mobAvatar = document.getElementById('hud-avatar-img');
 
-    if (mobName) mobName.innerText = state.player.name;
+    if (mobName) mobName.innerText = `${state.player.name} (lvl ${state.player.lvl})`;
     if (mobClass) {
         const classNamesArabic = {
             'Sword Immortal': 'السياف الأسطوري',
@@ -886,6 +1007,7 @@ function updateTopBar() {
     }
     if (mobGold) mobGold.innerText = state.player.gold || 0;
     if (mobHp) mobHp.innerText = `${state.player.hp}/${state.player.maxHp}`;
+    if (mobMp) mobMp.innerText = `${state.player.mp}/${state.player.maxMp}`;
     if (mobAvatar && state.player.sprite) {
         mobAvatar.src = state.player.sprite;
     }
@@ -1520,6 +1642,7 @@ function updateMomentumUI() {
 function startCombat(enemy) {
     state.currentEnemy = enemy;
     state.momentum = 0; state.playerForm = 'water';
+    state.skillCooldowns = {};
     updateTopBar(); updateMomentumUI();
     narrate(enemy.dialogue || `يقف ${enemy.name} في طريقك شاهراً سلاحه ويتحدّاك بسخرية!`, enemy.name, enemy.sprite, true);
     setTimeout(combatLoop, 1500);
@@ -1557,18 +1680,44 @@ function combatLoop() {
     setTimeout(() => {
         // 3. Player choices
         const moves = window.COMBAT ? window.COMBAT.getActionsForForm(state.playerForm, state) : [];
+        if (!state.skillCooldowns) state.skillCooldowns = {};
+
         const choices = moves.map(m => {
             let actualCost = m.cost;
             if (state.player.supremeMantraActive && actualCost > 0) {
                 actualCost = Math.max(1, Math.floor(actualCost * 0.8));
             }
+
+            // Check if this skill is currently on cooldown
+            const currentCD = state.skillCooldowns[m.id] || 0;
+            const isOnCD = currentCD > 0;
+
+            let btnText = m.name;
+            if (isOnCD) {
+                btnText += ` ⏳ فتور (${currentCD} دور)`;
+            } else {
+                btnText += (actualCost > 0 ? ` (${actualCost} عزيمة)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} دم)` : '');
+            }
+
             return {
-                text: m.name + (actualCost > 0 ? ` (${actualCost} عزيمة)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} دم)` : ''),
+                text: btnText,
                 callback: () => {
+                    if (isOnCD) {
+                        narrate(`هذا الفن القتالي يمر بفترة فتور واسترداد حركي! انتظر ${currentCD} دور/أدوار إضافية لتمكينه.`, "النظام");
+                        combatLoop();
+                        return;
+                    }
                     if (actualCost > (state.player.mp || 0)) { narrate("معندكش طاقة تركيز (عزيمة) كافية لتفعيل الفن!", "النظام"); combatLoop(); return; }
                     if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("لا تملك ما يكفي من جوهر دم الحياة لتضحية الفن!", "النظام"); combatLoop(); return; }
                     
                     if (actualCost > 0) state.player.mp -= actualCost;
+
+                    // Set cooldown on successful skill usage
+                    const skillDef = window.SKILLS.techniques[m.id];
+                    if (skillDef) {
+                        state.skillCooldowns[m.id] = skillDef.cooldown || 2;
+                    }
+
                     resolveCombatTurn(m.id);
                 }
             };
@@ -1748,11 +1897,26 @@ function resolveCombatTurn(moveId) {
             triggerFlash('damage');
         }
         spawnParticleExplosion(window.innerWidth*0.7, window.innerHeight*0.4, particleType);
+        
+        // Trigger visual hit slash slice and ground shatter effects
+        triggerVisualHitEffect(moveId, false);
     }
     if (result.enemyDmg > 0) { 
         spawnFloatingText(`-${result.enemyDmg}`, window.innerWidth*0.3, window.innerHeight*0.4, 'var(--danger)'); 
         spawnParticleExplosion(window.innerWidth*0.3, window.innerHeight*0.4, 'red');
         triggerScreenShake(); triggerFlash('damage'); 
+        
+        // Trigger damage visual impact ring animation
+        triggerVisualHitEffect(moveId, true);
+    }
+
+    // Decrement skill cooldowns at the end of each active round
+    if (state.skillCooldowns) {
+        for (const sId in state.skillCooldowns) {
+            if (state.skillCooldowns[sId] > 0) {
+                state.skillCooldowns[sId]--;
+            }
+        }
     }
 
     if (state.player.hp <= 0) {
@@ -2228,6 +2392,11 @@ function calculateTotalStats() {
     
     state.player.hp = Math.min(state.player.hp ?? 0, state.player.maxHp);
     state.player.mp = Math.min(state.player.mp ?? 0, state.player.maxMp);
+
+    // Dynamic Skill Unlocks Check
+    if (window.SKILLS) {
+        window.SKILLS.checkUnlocks(state);
+    }
 }
 
 function equipItem(index) {
@@ -2251,11 +2420,17 @@ function unequipItem(slot) {
 function updateEquipmentDOM(state) {
     if (!state.player || !state.player.equipment) return;
     
+    let flatAtk = 0;
+    let flatDef = 0;
+    let flatHp = 0;
+    let flatMp = 0;
+    
     const slots = ['head', 'body', 'legs', 'boots', 'weapon', 'relic'];
     slots.forEach(s => {
         const item = state.player.equipment[s];
         const nameEl = document.getElementById(`eq-${s}-name`);
         const statsEl = document.getElementById(`eq-${s}-stats`);
+        const tooltipEl = document.getElementById(`eq-${s}-tooltip`);
         
         if (nameEl) {
             nameEl.textContent = item ? item.name : 'لا يوجد';
@@ -2271,84 +2446,284 @@ function updateEquipmentDOM(state) {
                 nameEl.style.color = 'var(--text-dim)';
             }
         }
-        if (statsEl) {
-            if (item && item.stats) {
-                let statText = [];
-                if (item.stats.atk) statText.push(`+${item.stats.atk} هجوم`);
-                if (item.stats.def) statText.push(`+${item.stats.def} دفاع`);
-                if (item.stats.hp) statText.push(`+${item.stats.hp} صحة`);
-                if (item.stats.mp) statText.push(`+${item.stats.mp} مانا`);
-                statsEl.textContent = statText.join(', ');
-            } else {
-                statsEl.textContent = '';
+        
+        if (item) {
+            const stats = item.stats ?? {};
+            // Base quality multipliers
+            const qualityMults = { normal: 1.0, refined: 1.35, unique: 1.75, elite: 2.30, super: 3.20 };
+            const q = item.quality || 'normal';
+            const qMult = qualityMults[q] || 1.0;
+
+            // Level multipliers
+            const itemLvl = item.lvl || 15;
+            const lvlMult = 1.0 + (itemLvl - 15) * 0.015;
+
+            // Base scaled stats
+            let itemAtk = Math.floor((stats.atk ?? 0) * qMult * lvlMult);
+            let itemDef = Math.floor((stats.def ?? 0) * qMult * lvlMult);
+            let itemHp = Math.floor((stats.hp ?? 0) * qMult * lvlMult);
+            let itemMp = Math.floor((stats.mp ?? 0) * qMult * lvlMult);
+
+            // Refine Level flat bonuses (+1 to +12)
+            const ref = item.refine || 0;
+            if (ref > 0) {
+                if (item.slot === 'weapon') itemAtk += (ref * 35);
+                else if (item.slot === 'body' || item.slot === 'legs') itemDef += (ref * 20);
+                else itemHp += (ref * 60);
             }
+
+            flatAtk += itemAtk;
+            flatDef += itemDef;
+            flatHp += itemHp;
+            flatMp += itemMp;
+
+            if (statsEl) {
+                let statText = [];
+                if (itemAtk) statText.push(`+${itemAtk} هجوم`);
+                if (itemDef) statText.push(`+${itemDef} دفاع`);
+                if (itemHp) statText.push(`+${itemHp} صحة`);
+                if (itemMp) statText.push(`+${itemMp} مانا`);
+                statsEl.textContent = statText.join(', ');
+            }
+
+            // Create individual slot tooltip
+            if (tooltipEl) {
+                const qualityArabic = q === 'normal' ? 'عادي (Normal)' : q === 'refined' ? 'مصقول (Refined)' : q === 'unique' ? 'نادر (Unique)' : q === 'elite' ? 'نخبة (Elite)' : 'خارق (Super)';
+                const setNames = { xianxia: 'يشم الملوك', vedic: 'الورد القدسي', silk_road: 'درب القوافل', mythology: 'أساطير الشرق' };
+                const setName = item.set ? setNames[item.set] : 'لا يوجد طقم';
+                
+                let itemStatsHtml = '';
+                if (itemAtk) itemStatsHtml += `<div style="display:flex; justify-content:space-between; color:#ffcc00; margin-bottom:3px; font-weight:bold;"><span>🗡️ هجوم بدني:</span> <span>+${itemAtk}</span></div>`;
+                if (itemDef) itemStatsHtml += `<div style="display:flex; justify-content:space-between; color:#00ffcc; margin-bottom:3px; font-weight:bold;"><span>🛡️ دفاع الجسد:</span> <span>+${itemDef}</span></div>`;
+                if (itemHp) itemStatsHtml += `<div style="display:flex; justify-content:space-between; color:#ff4d4d; margin-bottom:3px; font-weight:bold;"><span>❤️ الصحة القصوى:</span> <span>+${itemHp}</span></div>`;
+                if (itemMp) itemStatsHtml += `<div style="display:flex; justify-content:space-between; color:#33ccff; margin-bottom:3px; font-weight:bold;"><span>✨ التركيز والمانا:</span> <span>+${itemMp}</span></div>`;
+
+                tooltipEl.innerHTML = `
+                    <div style="border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:6px; margin-bottom:8px; text-align:right;">
+                        <span style="font-size:0.68rem; text-transform:uppercase; color:var(--secondary); font-weight:bold; letter-spacing:0.5px;">تجهيز slot: ${s.toUpperCase()}</span>
+                        <h4 style="margin:2px 0 0 0; color:#fff; font-size:0.92rem; font-family:'Cairo',sans-serif;">${item.name}</h4>
+                    </div>
+                    <div style="margin-bottom:8px; font-size:0.75rem; color:var(--text-dim); text-align:right;">
+                        <div>• جودة العتاد: <span style="color:var(--secondary); font-weight:bold;">${qualityArabic}</span></div>
+                        <div>• مستوى العتاد: <span>مستوى ${item.lvl || 1}</span></div>
+                        ${ref > 0 ? `<div>• مستوى الصقل: <span style="color:#00ffcc; font-weight:bold;">+${ref}</span></div>` : ''}
+                        ${item.set ? `<div>• ينتمي لطقم: <span style="color:var(--secondary); font-weight:bold;">${setName}</span></div>` : ''}
+                    </div>
+                    <div style="border-top:1px dashed rgba(255,255,255,0.1); padding-top:6px; font-family:'Cairo',sans-serif; text-align:right;">
+                        <span style="font-size:0.72rem; color:#fff; font-weight:bold; display:block; margin-bottom:4px;">📊 المزايا المضافة لقنوات الجسد:</span>
+                        ${itemStatsHtml}
+                    </div>
+                `;
+            }
+        } else {
+            if (statsEl) statsEl.textContent = '';
+            if (tooltipEl) tooltipEl.innerHTML = `<div style="text-align:center; padding:5px; color:var(--text-dim);">لا يوجد عتاد مجهز حالياً في هذا الجزء.</div>`;
         }
     });
 
-    // Populate active set bonuses
-    const activeSetEl = document.getElementById('active-set-bonuses');
-    if (activeSetEl) {
-        const counts = getEquippedSetCounts(state);
-        let bonusHtml = '';
+    const setCounts = getEquippedSetCounts(state);
+
+    // Update Inline Gear Summary Pill
+    const totalsSummaryEl = document.getElementById('gear-totals-summary-inline');
+    if (totalsSummaryEl) {
+        totalsSummaryEl.innerHTML = `🗡️ هجوم +${flatAtk} | 🛡️ دفاع +${flatDef} | ❤️ صحة +${flatHp} | ⚡ تركيز +${flatMp}`;
+    }
+
+    // Update Master Tooltip and Active List
+    const summaryTooltipEl = document.getElementById('gear-summary-tooltip');
+    if (summaryTooltipEl) {
+        let setMultsHtml = '';
+        let hasActiveSet = false;
         
         const setDetails = {
+            xianxia: {
+                name: 'طقم الارتقاء الأبدي (يشم الملوك)',
+                color: 'var(--jade)',
+                effects: {
+                    2: '+15% هجوم، +10% دفاع',
+                    3: '⚔️ <b>الارتقاء الأبدي</b>: +40% هجوم، +30% دفاع، ويشفي جسدك تلقائياً بـ 5 نقاط حياة في بداية كل جولة قتال!'
+                }
+            },
+            vedic: {
+                name: 'طقم الورد القدسي (الهمة والتركيز)',
+                color: '#d4af37',
+                effects: {
+                    2: '+15% هجوم، +15% صحة',
+                    3: '🕉️ <b>الهمة والتركيز العالي</b>: +35% هجوم، +35% صحة، ويقلل استهلاك طاقة التركيز للمهارات بنسبة 20%!'
+                }
+            },
+            silk_road: {
+                name: 'طقم درب القوافل (واحة الحرير)',
+                color: 'var(--secondary)',
+                effects: {
+                    2: '+15% صحة، +15% مانا',
+                    3: '🐪 <b>واحة الحرير</b>: +40% صحة، +40% مانا، ويزيد كسب خبرة التركيز في المعارك بنسبة 25%!'
+                }
+            },
+            mythology: {
+                name: 'طقم أساطير الشرق (السيادة المطلقة)',
+                color: 'var(--danger)',
+                effects: {
+                    2: '+20% هجوم، +15% دفاع',
+                    3: '👑 <b>السيادة المطلقة</b>: +50% هجوم، +40% دفاع، ويمنحك امتصاص حياة وسرقة طاقة بنسبة 15% من كل ضربة قتال!'
+                }
+            }
+        };
+
+        Object.entries(setCounts).forEach(([setKey, count]) => {
+            if (count > 0) {
+                const details = setDetails[setKey];
+                let bonusActiveText = '';
+                let multDesc = '';
+                
+                if (setKey === 'xianxia') {
+                    if (count >= 3) {
+                        multDesc = `<span style="color:var(--jade)">+40% هجوم، +30% دفاع (بركة الارتقاء نشطة)</span>`;
+                        bonusActiveText = `<span style="color:var(--success); font-weight:bold;">● نشط [${count}/3]</span>`;
+                    } else if (count === 2) {
+                        multDesc = `<span style="color:#bbb">+15% هجوم، +10% دفاع</span>`;
+                        bonusActiveText = `<span style="color:var(--secondary); font-weight:bold;">● نشط [2/3]</span>`;
+                    } else {
+                        multDesc = `<span style="color:var(--text-dim)">+15% هجوم، +10% دفاع (يتطلب قطعتين)</span>`;
+                        bonusActiveText = `<span style="color:var(--text-dim);">● غير متكامل [1/3]</span>`;
+                    }
+                } else if (setKey === 'vedic') {
+                    if (count >= 3) {
+                        multDesc = `<span style="color:#d4af37">+35% هجوم، +35% صحة (بركة الهمة نشطة)</span>`;
+                        bonusActiveText = `<span style="color:var(--success); font-weight:bold;">● نشط [${count}/3]</span>`;
+                    } else if (count === 2) {
+                        multDesc = `<span style="color:#bbb">+15% هجوم، +15% صحة</span>`;
+                        bonusActiveText = `<span style="color:var(--secondary); font-weight:bold;">● نشط [2/3]</span>`;
+                    } else {
+                        multDesc = `<span style="color:var(--text-dim)">+15% هجوم، +15% صحة (يتطلب قطعتين)</span>`;
+                        bonusActiveText = `<span style="color:var(--text-dim);">● غير متكامل [1/3]</span>`;
+                    }
+                } else if (setKey === 'silk_road') {
+                    if (count >= 3) {
+                        multDesc = `<span style="color:var(--secondary)">+40% صحة، +40% مانا (بركة الواحة نشطة)</span>`;
+                        bonusActiveText = `<span style="color:var(--success); font-weight:bold;">● نشط [${count}/3]</span>`;
+                    } else if (count === 2) {
+                        multDesc = `<span style="color:#bbb">+15% صحة، +15% مانا</span>`;
+                        bonusActiveText = `<span style="color:var(--secondary); font-weight:bold;">● نشط [2/3]</span>`;
+                    } else {
+                        multDesc = `<span style="color:var(--text-dim)">+15% صحة، +15% مانا (يتطلب قطعتين)</span>`;
+                        bonusActiveText = `<span style="color:var(--text-dim);">● غير متكامل [1/3]</span>`;
+                    }
+                } else if (setKey === 'mythology') {
+                    if (count >= 3) {
+                        multDesc = `<span style="color:var(--danger)">+50% هجوم، +40% دفاع (بركة السيادة نشطة)</span>`;
+                        bonusActiveText = `<span style="color:var(--success); font-weight:bold;">● نشط [${count}/3]</span>`;
+                    } else if (count === 2) {
+                        multDesc = `<span style="color:#bbb">+20% هجوم، +15% دفاع</span>`;
+                        bonusActiveText = `<span style="color:var(--secondary); font-weight:bold;">● نشط [2/3]</span>`;
+                    } else {
+                        multDesc = `<span style="color:var(--text-dim)">+20% هجوم، +15% دفاع (يتطلب قطعتين)</span>`;
+                        bonusActiveText = `<span style="color:var(--text-dim);">● غير متكامل [1/3]</span>`;
+                    }
+                }
+
+                if (count >= 2) hasActiveSet = true;
+
+                setMultsHtml += `
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-right:3px solid ${details.color}; padding:6px 10px; margin-bottom:6px; border-radius:4px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:2px; flex-direction:row-reverse;">
+                            <span style="color:${details.color}; font-weight:bold;">${details.name}</span>
+                            ${bonusActiveText}
+                        </div>
+                        <div style="font-size:0.72rem; color:#eee; text-align:right;">${multDesc}</div>
+                    </div>
+                `;
+            }
+        });
+
+        if (!hasActiveSet) {
+            setMultsHtml = `<div style="text-align:center; font-style:italic; color:var(--text-dim); font-size:0.72rem; padding:10px 0;">لا يوجد أطقم مفعّلة حالياً بالكامل. جهز قطعتين أو أكثر متطابقتين للحصول على البركة الإضافية!</div>`;
+        }
+
+        summaryTooltipEl.innerHTML = `
+            <div style="border-bottom:1.5px solid var(--secondary); padding-bottom:6px; margin-bottom:10px; text-align:right;">
+                <h4 style="margin:0; color:var(--secondary); font-size:0.92rem; font-family:'Cairo',sans-serif;">📜 صحيفة قوة وإضافات المعدات الحالية</h4>
+            </div>
+            
+            <div style="margin-bottom:12px; text-align:right;">
+                <span style="font-size:0.78rem; color:#fff; font-weight:bold; display:block; margin-bottom:6px; text-shadow: 0 0 2px #fff;">🛡️ مجموع المزايا الثابتة من القطع مجمعة (Raw Stats):</span>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:0.74rem; background:rgba(0,0,0,0.3); padding:8px; border-radius:4px; border:1px solid rgba(255,255,255,0.04); direction:rtl;">
+                    <div style="color:#ffcc00; text-align:right;">🗡️ هجوم كلي: <b>+${flatAtk}</b></div>
+                    <div style="color:#00ffcc; text-align:right;">🛡️ دفاع كلي: <b>+${flatDef}</b></div>
+                    <div style="color:#ff4d4d; text-align:right;">❤️ صحة إضافية: <b>+${flatHp}</b></div>
+                    <div style="color:#33ccff; text-align:right;">⚡ مانا وتركيز كافٍ: <b>+${flatMp}</b></div>
+                </div>
+            </div>
+
+            <div style="text-align:right;">
+                <span style="font-size:0.78rem; color:#fff; font-weight:bold; display:block; margin-bottom:6px;">✨ مضاعفات وبركات الأطقم النشطة (Set Multipliers):</span>
+                ${setMultsHtml}
+            </div>
+            
+            <div style="border-top:1px dashed rgba(255,255,255,0.12); padding-top:6px; margin-top:8px; font-size:0.68rem; color:var(--text-dim); text-align:center; font-style:italic;">
+                المقادير المضافة السابقة تم صهرها وتكثيفها في حساب إجمالي قوة البدن الحالية للفارس.
+            </div>
+        `;
+    }
+
+    // Populate active set bonuses (legacy panel)
+    const activeSetEl = document.getElementById('active-set-bonuses');
+    if (activeSetEl) {
+        let bonusHtml = '';
+        
+        const legacySetDetails = {
             xianxia: {
                 name: 'الارتقاء الأبدي (يشم الملوك)',
                 color: 'var(--jade)',
                 effects: {
-                    2: '+10% هجوم، +5% دفاع',
-                    4: '+20% هجوم، +15% دفاع',
-                    6: '⚔️ <b>الارتقاء الأبدي</b>: +40% هجوم، +30% دفاع، ويشفي جسدك تلقائياً بـ 5 نقاط حياة في بداية كل جولة قتال!'
+                    2: '+15% هجوم، +10% دفاع',
+                    3: '⚔️ <b>الارتقاء الأبدي</b>: +40% هجوم، +30% دفاع، ويشفي جسدك تلقائياً بـ 5 نقاط حياة في بداية كل جولة قتال!'
                 }
             },
             vedic: {
                 name: 'التركيز والهمة العظيمة',
                 color: '#d4af37',
                 effects: {
-                    2: '+10% هجوم، +10% صحة',
-                    4: '+20% هجوم، +20% صحة',
-                    6: '🕉️ <b>الهمة والتركيز العالي</b>: +35% هجوم، +35% صحة، ويقلل استهلاك طاقة التركيز للمهارات بنسبة 20%!'
+                    2: '+15% هجوم، +15% صحة',
+                    3: '🕉️ <b>الهمة والتركيز العالي</b>: +35% هجوم، +35% صحة، ويقلل استهلاك طاقة التركيز للمهارات بنسبة 20%!'
                 }
             },
             silk_road: {
                 name: 'واحة الحرير (درب القوافل)',
                 color: 'var(--secondary)',
                 effects: {
-                    2: '+10% صحة، +10% مانا',
-                    4: '+20% صحة، +20% مانا',
-                    6: '🐪 <b>واحة الحرير</b>: +40% صحة، +40% مانا، ويزيد كسب خبرة التركيز في المعارك بنسبة 25%!'
+                    2: '+15% صحة، +15% مانا',
+                    3: '🐪 <b>واحة الحرير</b>: +40% صحة، +40% مانا، ويزيد كسب خبرة التركيز في المعارك بنسبة 25%!'
                 }
             },
             mythology: {
                 name: 'السيادة المطلقة (أساطير الشرق)',
                 color: 'var(--danger)',
                 effects: {
-                    2: '+15% هجوم، +10% دفاع',
-                    4: '+30% هجوم، +20% دفاع',
-                    6: '👑 <b>السيادة المطلقة</b>: +50% هجوم، +40% دفاع، ويمنحك امتصاص حياة وسرقة طاقة بنسبة 15% من كل ضربة قتال!'
+                    2: '+20% هجوم، +15% دفاع',
+                    3: '👑 <b>السيادة المطلقة</b>: +50% هجوم، +40% دفاع، ويمنحك امتصاص حياة وسرقة طاقة بنسبة 15% من كل ضربة قتال!'
                 }
             }
         };
 
         let hasAnyBonus = false;
-        Object.entries(counts).forEach(([setKey, count]) => {
+        Object.entries(setCounts).forEach(([setKey, count]) => {
             if (count >= 2) {
                 hasAnyBonus = true;
-                const details = setDetails[setKey];
+                const details = legacySetDetails[setKey];
                 let currentBonusText = '';
-                if (count >= 6) currentBonusText = details.effects[6];
-                else if (count >= 4) currentBonusText = details.effects[4];
+                if (count >= 3) currentBonusText = details.effects[3];
                 else currentBonusText = details.effects[2];
 
                 bonusHtml += `<div style="margin-bottom: 8px; padding: 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px;">
-                    <span style="color:${details.color}; font-weight:bold;">${details.name} [${count}/6]</span><br>
+                    <span style="color:${details.color}; font-weight:bold;">${details.name} [${count}/3]</span><br>
                     <span style="color:#fff; font-size:0.75rem;">${currentBonusText}</span>
                 </div>`;
             }
         });
 
         if (!hasAnyBonus) {
-            bonusHtml = `<div style="text-align:center; color:var(--text-dim); padding:10px 0;">مفيش مكافآت طقم نشطة. البس قطع متطابقة من نفس الطقم لتفعيل البركات الجبارة!</div>`;
+            bonusHtml = `<div style="text-align:center; color:var(--text-dim); padding:10px 0;">مفيش مكافآت طقم نشطة. البس قطعتين أو أكتر متطابقتين لتفعيل البركات الجبارة!</div>`;
         }
         
         activeSetEl.innerHTML = bonusHtml;

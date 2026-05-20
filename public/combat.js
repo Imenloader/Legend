@@ -80,6 +80,21 @@ window.COMBAT = {
             if (mReg > 0) msg += `<br><span style="color:var(--jade)">تجدد تركيزك الباطني بـ ${mReg} نقاط.</span>`;
         }
 
+        // --- Player Poison and Fear status effects ---
+        if (state.playerPoisonTurns && state.playerPoisonTurns > 0) {
+            const poisonDmg = Math.max(2, Math.floor(state.player.maxHp * 0.06));
+            state.player.hp = Math.max(1, state.player.hp - poisonDmg);
+            msg += `<br><span style="color:#2ecc71; font-weight:bold;">🤢 [مسموم]: تسرب السم النضير في عروقك مسبباً ${poisonDmg} ضرر مستمر!</span>`;
+            state.playerPoisonTurns--;
+        }
+
+        if (state.playerFearTurns && state.playerFearTurns > 0) {
+            const fearMpDrain = 10;
+            state.player.mp = Math.max(0, state.player.mp - fearMpDrain);
+            msg += `<br><span style="color:#9b59b6; font-weight:bold;">😨 [مذعور]: يرتعد قلبك ذعراً من رهبة الكابوس فاقداً ${fearMpDrain} نقاط تركيز (عزيمة)!</span>`;
+            state.playerFearTurns--;
+        }
+
         // 4.5 Realm-Specific Start of Turn Mechanics
         const stageIdx = window.CULTIVATION ? window.CULTIVATION.stages.findIndex(s => s.name === state.player.cultivation?.stage) : -1;
         if (stageIdx === 0) { // الفارس المبتدئ: بركة الواحة
@@ -317,6 +332,32 @@ window.COMBAT = {
         // Base damage calculation
         const pBaseDmg = Math.max(1, playerAtk - (enemy.def || 0));
         const eBaseDmg = Math.max(1, enemyAtk - (state.player.def || 0));
+
+        // Custom Enemy Archetype mechanics (Spider poison, Titan form shifters, Nightmare Fear)
+        if (enemy) {
+            if (enemy.id === 'crossroads_venomous_spider' && enemyMoveType === 'magic') {
+                state.playerPoisonTurns = 3;
+                msg += `<br><span style="color:#2ecc71; font-weight:bold;">🤢 [عض مسموم]: رش العنكبوت غيمة من السموم الباطنية لتصيب دمك بالسم لـ 3 أدوار!</span>`;
+            }
+            if (enemy.id === 'shaitan_nightmare' && enemyMoveType === 'magic') {
+                state.playerFearTurns = 3;
+                msg += `<br><span style="color:#9b59b6; font-weight:bold;">😨 [زئير الرعب]: أطلق الشيطان زئيراً عتيقاً ملأ فؤادك بذعر باطني مهول لـ 3 أدوار!</span>`;
+            }
+            if (enemy.id === 'sand_dune_titan') {
+                if (enemyMoveType === 'heavy') {
+                    enemy.def = Math.floor((enemy.def || 5) * 1.5);
+                    msg += `<br><span style="color:#d4af37; font-weight:bold;">🏜️ [بلع التراب]: غاص العملاق جزئياً في الكثبان مستمداً حماية التضاريس لقوة دفاعه!</span>`;
+                } else if (enemyMoveType === 'magic') {
+                    if (!enemy.isStormForm) {
+                        enemy.isStormForm = true;
+                        enemy.name = "إعصار الكثبان الثائر (شكل العاصفة)";
+                        enemy.atk = Math.floor(enemy.atk * 1.5);
+                        enemy.def = Math.floor(enemy.def * 0.7);
+                        msg += `<br><span style="color:#e67e22; font-weight:bold;">🌀 [تجسد الإعصار]: تطاير جسد العملاق ليتجسد كإعصار رملي نشط وهائل (+50% ضرر هجوم، -30% دفاع)!</span>`;
+                    }
+                }
+            }
+        }
 
         // Execution logic (Staggered state)
         if (state.enemyStaggered) {
