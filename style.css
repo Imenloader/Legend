@@ -2125,3 +2125,61 @@ input[type="text"]:focus {
     border-color: var(--jade) !important;
     box-shadow: 0 0 8px rgba(0,250,154,0.3);
 }
+/* ============================================================
+   COMBAT VISUAL EFFECTS — CSS Animations
+   ============================================================ */
+:root {
+    --effect-fire: #ff4500;
+    --effect-lightning: #ffd700;
+    --effect-poison: #2ecc71;
+    --effect-fear: #9b59b6;
+    --effect-ice: #00ced1;
+    --effect-heal: #00ffcc;
+    --effect-crit: #ffcc00;
+    --effect-guard-break: #ff4d4d;
+}
+@keyframes hpFlashDamage {
+    0%   { box-shadow: 0 0 20px var(--effect-guard-break); }
+    100% { box-shadow: none; }
+}
+@keyframes critBurst {
+    0%   { box-shadow: none; transform: scale(1); }
+    30%  { box-shadow: 0 0 30px var(--effect-crit); transform: scale(1.04); }
+    100% { box-shadow: none; transform: scale(1); }
+}
+@keyframes shakeHit {
+    0%,100% { transform: translate(0,0); }
+    20% { transform: translate(-6px,3px); }
+    40% { transform: translate(6px,-4px); }
+    60% { transform: translate(-4px,5px); }
+    80% { transform: translate(5px,-3px); }
+}
+@keyframes poisonPulse {
+    0%,100% { filter: none; }
+    50% { filter: drop-shadow(0 0 8px var(--effect-poison)); }
+}
+@keyframes fearFlicker {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.6; filter: hue-rotate(30deg); }
+}
+@keyframes swordIntentCharge {
+    0%,100% { text-shadow: 0 0 5px var(--effect-lightning); }
+    50% { text-shadow: 0 0 20px var(--effect-lightning), 0 0 40px var(--effect-lightning); }
+}
+@keyframes staggerWobble {
+    0%,100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+@keyframes combatLogSlide {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+.fx-shake { animation: shakeHit 0.35s ease-out; }
+.fx-crit { animation: critBurst 0.5s ease-out; }
+.fx-poison { animation: poisonPulse 1s ease-in-out 3; }
+.fx-fear { animation: fearFlicker 0.4s ease-in-out 4; }
+.fx-stagger { animation: staggerWobble 0.5s ease-in-out; }
+.fx-sword-intent { animation: swordIntentCharge 0.6s ease-in-out; }
+.combat-log-entry { animation: combatLogSlide 0.3s ease-out forwards; }
+.enemy-hp-danger { animation: poisonPulse 0.8s ease-in-out infinite; background: linear-gradient(90deg,#5e1313,var(--danger)) !important; }

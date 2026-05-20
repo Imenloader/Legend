@@ -592,17 +592,277 @@ const ARABIAN_ENEMIES = {
     }
 };
 
-window.LORE = Object.assign(window.LORE || {}, { 
-    REGIONS, 
-    CHINESE_HEROES, 
+
+// --- أعداء بحر النور اللجي ---
+const SEA_ENEMIES = {
+    sea_dragon_young: {
+        id: 'sea_dragon_young', name: 'تنين البحر الصغير', region: 'abyssal_sea',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 130, baseAtk: 28, xpReward: 110, archetype: 'brute',
+        description: 'تنين بحر فتي غاضب يحمي أعشاشه في قاع الضوء الساكن بعنف شديد.',
+        moves: {
+            heavy: { name: 'صفعة الذيل العملاقة', text: 'التنين يلف ذيله الهائل ويضربك بقوة تطير من موجتها.' },
+            fast:  { name: 'اندفاعة الفك النحاسي', text: 'يندفع بسرعة البرق نحوك بأسنانه الحادة كالرماح.' },
+            magic: { name: 'نفث الضوء المائي', text: 'يبصق شعاعاً من الماء المبارك يخترق الدروع ويحرق الروح.' }
+        },
+        loot: ['Dragon Scale Fragment', 'Sea Dragon Pearl']
+    },
+    drowned_immortal: {
+        id: 'drowned_immortal', name: 'الخالد الغريق', region: 'abyssal_sea',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 90, baseAtk: 22, xpReward: 75, archetype: 'mage',
+        description: 'سالك قديم غرق في نور البحر وتحوّل لشبح مائي جائع يبحث عن روح تحل محله.',
+        moves: {
+            heavy: { name: 'قبضة الغرق الباردة', text: 'يمد أصابعه الطويلة الباردة ليسحبك معه للقاع.' },
+            fast:  { name: 'خطف الهالة البدنية', text: 'يمر خلالك كالريح مسحباً جزءاً من حياتك.' },
+            magic: { name: 'موجة الوحدة والغرق', text: 'يصرخ صرخة تملأ رئتيك بالماء النوراني الثقيل.' }
+        },
+        loot: ['Ghost Fire Shard', 'Drowned Immortal Seal']
+    },
+    qi_leech: {
+        id: 'qi_leech', name: 'عَلَقة الطاقة البدنية', region: 'abyssal_sea',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 50, baseAtk: 16, xpReward: 45, archetype: 'mind_destroyer',
+        description: 'كائن طفيلي شفاف يعيش على امتصاص تركيز السالكين حتى يفنى.',
+        moves: {
+            heavy: { name: 'عض الامتصاص العميق', text: 'يلتصق بك ويبدأ بامتصاص طاقتك مباشرة.' },
+            fast:  { name: 'اللسعة الخاطفة', text: 'لسعة سريعة تترك جرحاً يسرب منه الطاقة.' },
+            magic: { name: 'سيفون التركيز الكلي', text: 'يسحب كل طاقة تركيزك الباطنية في ثانية واحدة.' }
+        },
+        loot: ['Qi Leech Shard', 'Essence of Focus']
+    },
+    phantom_admiral: {
+        id: 'phantom_admiral', name: 'أميرال الأسطول الشبحي', region: 'abyssal_sea',
+        sprite: 'assets/sufi_mystic_1778872363338.png',
+        baseHp: 200, baseAtk: 35, xpReward: 180, archetype: 'balanced',
+        description: 'قائد أسطول غرق منذ ألف عام يقود سفنه الشبحية بكبرياء الموتى المحاربين.',
+        moves: {
+            heavy: { name: 'عصا القيادة الحديدية', text: 'يضرب بعصا قيادته الغليظة كأنه يعطي أمر إطلاق المدافع.' },
+            fast:  { name: 'سيف الرياح البحرية', text: 'يسلّ سيفه الطويل بسرعة فائقة كما يتحرك ربان السفينة.' },
+            magic: { name: 'استدعاء الأسطول الشبحي', text: 'يصفر بأصابعه فيظهر طاقم شبحي يطوقك من كل جانب.' }
+        },
+        loot: ['Admiral\'s Compass', 'Ghost Ship Plank']
+    },
+    celestial_crab: {
+        id: 'celestial_crab', name: 'سرطان البحر السماوي', region: 'abyssal_sea',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 160, baseAtk: 30, xpReward: 130, archetype: 'brute',
+        description: 'سرطان ضخم بدرع من نور متحجر يحرس كنوز القاع الضوئي بمخالبه الهائلة.',
+        moves: {
+            heavy: { name: 'قرص المخلب الضخم', text: 'مخلبه العملاق ينقلق ويقبض على درعك بقوة سحق.' },
+            fast:  { name: 'رذاذ رمل القاع', text: 'يقذف رملاً من القاع يعمي عيونك ويشل دقتك.' },
+            magic: { name: 'دوامة قاع البحر', text: 'يحرك مخالبه ليصنع دوامة تسحبك للأسفل.' }
+        },
+        loot: ['Celestial Crab Claw', 'Sea Gem']
+    }
+};
+
+// --- أعداء مدينة النحاس ---
+const BRASS_ENEMIES = {
+    brass_guardian: {
+        id: 'brass_guardian', name: 'حارس النحاس الآلي', region: 'brass_city',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 180, baseAtk: 32, xpReward: 150, archetype: 'brute',
+        description: 'تمثال آلي نحاسي ضخم يعمل بطلسم قديم، مبرمج بأوامر الملك المختفي.',
+        moves: {
+            heavy: { name: 'هبدة مطرقة النحاس', text: 'يرفع مطرقته النحاسية العملاقة ويهوي بها بقوة مدمرة.' },
+            fast:  { name: 'ضربة المرفق الدوارة', text: 'ذراعه الآلية تدور بسرعة آلية تضرب كل ما حوله.' },
+            magic: { name: 'نبضة كهرباء النحاس', text: 'يطلق تيار كهربائي من طلاسمه الداخلية يصعق الأعداء.' }
+        },
+        loot: ['Brass Gear', 'Automaton Core']
+    },
+    marid_king_guard: {
+        id: 'marid_king_guard', name: 'حرس ملك المردة', region: 'brass_city',
+        sprite: 'assets/sufi_mystic_1778872363338.png',
+        baseHp: 250, baseAtk: 40, xpReward: 220, archetype: 'balanced',
+        description: 'مارد ضخم يرتدي درع النحاس المذهب، من أخلص حراس الملك مرقباد.',
+        moves: {
+            heavy: { name: 'ضربة الهراوة النحاسية', text: 'هراوة نحاسية هائلة تصنع حفرة في الأرض أين وقعت.' },
+            fast:  { name: 'طعنة الرمح الجيني', text: 'رمح طويل يندفع كالصاعقة يثقب درعك قبل أن تتفادى.' },
+            magic: { name: 'صرخة سيادة المردة', text: 'صرخة تهز الجدران النحاسية وتزعزع ثباتك الداخلي.' }
+        },
+        loot: ['Marid King Token', 'Brass City Map Fragment']
+    },
+    corrupted_jinn: {
+        id: 'corrupted_jinn', name: 'الجني الممسوخ الضال', region: 'brass_city',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 100, baseAtk: 26, xpReward: 90, archetype: 'assassin',
+        description: 'جني كان يخدم الملك لكن الطلاسم المنكسرة شوّهت عقله وروحه.',
+        moves: {
+            heavy: { name: 'تشابك الأظافر السامة', text: 'أظافره الطويلة المسمومة تمزق الدروع والجلد معاً.' },
+            fast:  { name: 'ومض الاختفاء والظهور', text: 'يختفي ثم يظهر خلفك مباشرة ليضربك من الخلف.' },
+            magic: { name: 'لعنة الطلسم المكسور', text: 'يلقي طلسماً مشوهاً يفسد قنوات طاقتك لدورين.' }
+        },
+        loot: ['Corrupted Jinn Essence', 'Broken Talisman']
+    },
+    iron_ghoul: {
+        id: 'iron_ghoul', name: 'غيلان الحديد الأبدي', region: 'brass_city',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 140, baseAtk: 24, xpReward: 120, archetype: 'brute',
+        description: 'غول يأكل المعادن ويمتص النحاس حتى صار جسده أصلب من الحجر.',
+        moves: {
+            heavy: { name: 'رمي شظايا حديد', text: 'يقطع جزءاً من جسده ويرميه كشظايا حديد لاذعة.' },
+            fast:  { name: 'عضة المعدن الصلب', text: 'فكوكه الحديدية تعض درعك وتحفر فيه كالمثقاب.' },
+            magic: { name: 'قشرة الحديد السميكة', text: 'يسحب معادن الجدران ويطلي نفسه بدرع حديدي مضاعف.' }
+        },
+        loot: ['Iron Core', 'Ghoul Tooth']
+    },
+    shaitan_elder: {
+        id: 'shaitan_elder', name: 'شيخ الشياطين القديم', region: 'brass_city',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        baseHp: 320, baseAtk: 48, xpReward: 350, archetype: 'mage',
+        description: 'شيطان عتيق يعمره آلاف السنين، يحفظ سر الطلاسم الكبرى لمدينة النحاس.',
+        moves: {
+            heavy: { name: 'عصا الجحيم اللاهبة', text: 'عصاه تضرب الأرض فتنبثق نيران الجحيم تحت قدميك.' },
+            fast:  { name: 'سوط اللهب الأسود', text: 'يصفق سوطاً من لهب أسود يحرق حتى النفوس.' },
+            magic: { name: 'دائرة الطلاسم الكبرى', text: 'يرسم دائرة سحرية تستدعي طاقة الجحيم لتقيدك.' }
+        },
+        loot: ['Shaitan Elder Scroll', 'Hellfire Core', 'Ancient Jinn Contract']
+    }
+};
+
+// --- أعداء المجلس السلطاني الأعلى ---
+const CELESTIAL_ENEMIES = {
+    heavenly_guard: {
+        id: 'heavenly_guard', name: 'حارس المجلس الأعلى', region: 'celestial_court',
+        sprite: 'assets/sword_immortal_1778872325571.png',
+        baseHp: 280, baseAtk: 45, xpReward: 280, archetype: 'balanced',
+        description: 'جندي سماوي نقي يحمل رمح النور ويرتدي درع السحاب.',
+        moves: {
+            heavy: { name: 'طعنة رمح السماء', text: 'رمحه المضيء يطعن بقوة الرعد مباشرة في مركز دفاعك.' },
+            fast:  { name: 'سيف ريش الريح', text: 'يسحب سيفاً خفيفاً كريشة يضرب أسرع من الريح.' },
+            magic: { name: 'ختم الأمانة والطاعة', text: 'يرسم ختماً يقيّد أي مخالف لأوامر المجلس الأعلى.' }
+        },
+        loot: ['Heavenly Guard Badge', 'Celestial Spear Shard']
+    },
+    fallen_immortal_patriarch: {
+        id: 'fallen_immortal_patriarch', name: 'أبو الخالدين الساقط', region: 'celestial_court',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        baseHp: 500, baseAtk: 65, xpReward: 600, archetype: 'mage',
+        description: 'خالد عظيم سقط من نعمة المجلس بسبب كبريائه وعاد يريد تدمير ما بناه.',
+        moves: {
+            heavy: { name: 'بصمة الخلود الساقطة', text: 'يضرب بكلتا يديه ضربة تحمل ثقل عمر خلود كامل.' },
+            fast:  { name: 'رمح الندم المحترق', text: 'يطلق رمحاً من طاقته الندامة المحترقة بسرعة هائلة.' },
+            magic: { name: 'صيحة العرش المفقود', text: 'يصرخ فتتشقق السماء ويسقط مطر الدمار على ساحة القتال.' }
+        },
+        loot: ['Fallen Patriarch Relic', 'Void Tear Crystal']
+    },
+    jade_emperor_guardian: {
+        id: 'jade_emperor_guardian', name: 'حارس السلطان الزمردي', region: 'celestial_court',
+        sprite: 'assets/sword_immortal_1778872325571.png',
+        baseHp: 400, baseAtk: 55, xpReward: 450, archetype: 'brute',
+        description: 'أقوى حراس المجلس يرتدي درع الزمرد ويحمل عصا السلطان.',
+        moves: {
+            heavy: { name: 'عصا السلطان الزمردية', text: 'عصاه الزمردية تهبط كالصاعقة محطمة كل دفاع أمامها.' },
+            fast:  { name: 'اندفاعة درع الزمرد', text: 'يندفع بدرعه الزمردي الثقيل يصطدم بك كجبل يتحرك.' },
+            magic: { name: 'مجال الحماية الزمردي', text: 'يفعّل مجالاً يعكس 40% من أي ضرر سحري ترسله.' }
+        },
+        loot: ['Living Jade Chip', 'Imperial Guard Seal']
+    },
+    divine_council_enforcer: {
+        id: 'divine_council_enforcer', name: 'منفذ قرارات المجلس الإلهي', region: 'celestial_court',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        baseHp: 600, baseAtk: 75, xpReward: 750, archetype: 'balanced',
+        description: 'كيان يجسد إرادة المجلس السلطاني — لا رحمة ولا هوادة في تنفيذ الأحكام.',
+        moves: {
+            heavy: { name: 'حكم الإعدام الإلهي', text: 'يُصدر حكماً فيشعل النور الأزرق حولك يحرق بلا رحمة.' },
+            fast:  { name: 'تنفيذ الأمر الفوري', text: 'يتحرك بسرعة لا تراها العين تنفيذاً فورياً لأمر المجلس.' },
+            magic: { name: 'ختم الحبس الإلهي', text: 'يختم كيانك بطلسم إلهي يشل حركتك ثلاثة أدوار.' }
+        },
+        loot: ['Divine Council Decree', 'Pangu\'s Axe Fragment', 'Celestial Core']
+    }
+};
+
+// --- عناصر الواحة للطريق (إضافة للكروس رودز) ---
+const CROSSROADS_EXTRA_ENEMIES = {
+    whispering_shaitan: {
+        id: 'whispering_shaitan', name: 'شيطان الهمس الخفي', region: 'crossroads',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 55, baseAtk: 18, xpReward: 42, archetype: 'mind_destroyer',
+        description: 'شيطان صغير يختبئ في ظلال القوافل ويهمس الوسواس في آذان المسافرين.',
+        moves: {
+            heavy: { name: 'قبضة وسواس الصدر', text: 'يضغط على صدرك وقلبك بوسواسه الثقيل فتفقد الثبات.' },
+            fast:  { name: 'سهم الشك الخاطف', text: 'سهم من وسواسه يخترق تركيزك ويزرع الشك المُقعِد.' },
+            magic: { name: 'همسة القلق الأبدي', text: 'يهمس في أذنك كلمات تستنزف روحك وتسرب تركيزك.' }
+        },
+        loot: ['Whisper Fragment', 'Shaitan Dust'],
+        archetype: 'mind_destroyer'
+    },
+    sand_wraith: {
+        id: 'sand_wraith', name: 'غارق الرمال الشبحي', region: 'crossroads',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 45, baseAtk: 20, xpReward: 38, archetype: 'assassin',
+        description: 'روح تاهت في رمال الواحة ترتدي شكل عاصفة رملية صغيرة.',
+        moves: {
+            heavy: { name: 'اندماج الرمل والجسد', text: 'يتحول لرمل ويعصف بك من الداخل بقوة العاصفة.' },
+            fast:  { name: 'اختراق رملي سريع', text: 'يمر خلالك كرمل ناعم تاركاً جروحاً صغيرة لا تراها.' },
+            magic: { name: 'عاصفة الإخفاء الرملي', text: 'يثير عاصفة رملية تخفيه وتعميك وتفسد توجهك.' }
+        },
+        loot: ['Sand Wraith Essence', 'Desert Crystal']
+    },
+    marid_soldier: {
+        id: 'marid_soldier', name: 'جندي المردة المتجول', region: 'crossroads',
+        sprite: 'assets/sufi_mystic_1778872363338.png',
+        baseHp: 80, baseAtk: 22, xpReward: 58, archetype: 'balanced',
+        description: 'جندي من جيش المردة انفصل عن وحدته ويتجول باحثاً عن غريمه القديم.',
+        moves: {
+            heavy: { name: 'ضربة درع المردة الثقيلة', text: 'يصطدم بدرعه الضخم بقوة تدفعك عدة أمتار للخلف.' },
+            fast:  { name: 'طعنة رمح الجني', text: 'طعنة رمح خفيفة وسريعة من مردة مدرّب على الكر والفر.' },
+            magic: { name: 'صرخة جيش المردة', text: 'يصرخ بصوت يستدعي قوة جيش المردة يرعب به خصمه.' }
+        },
+        loot: ['Marid Soldier Badge', 'Jinn Copper Coin']
+    }
+};
+
+// --- أعداء إضافية لجبل الطور ---
+const JADE_EXTRA_ENEMIES = {
+    stone_snake: {
+        id: 'stone_snake', name: 'أفعى الحجر الصامتة', region: 'jade_peak',
+        sprite: 'assets/corrupted_taoist_1778872375046.png',
+        baseHp: 65, baseAtk: 16, xpReward: 48, archetype: 'poisoner',
+        description: 'أفعى ضخمة نامت آلاف السنين في صخور الجبل المقدس وتيقظت بسبب اهتزاز الطاقة.',
+        moves: {
+            heavy: { name: 'عصر اللفافة الحجرية', text: 'تلتف حولك بجسمها الحجري الثقيل وتضغط بلا رحمة.' },
+            fast:  { name: 'لدغة المفاجأة الحجرية', text: 'تنقض عليك بسرعة خارقة من وسط الصخور بلا إنذار.' },
+            magic: { name: 'بث سم الحجارة الباطن', text: 'تحقن سماً يتحول لرمل داخل دمك يشل حركتك.' }
+        },
+        loot: ['Stone Snake Scale', 'Mountain Venom Sac']
+    },
+    rogue_sword_spirit: {
+        id: 'rogue_sword_spirit', name: 'روح السيف الضالة', region: 'jade_peak',
+        sprite: 'assets/sword_immortal_1778872325571.png',
+        baseHp: 75, baseAtk: 24, xpReward: 65, archetype: 'assassin',
+        description: 'سيف أسطوري كُسر وتحرّرت روحه العدائية تبحث عن سالك تملأ فراغ صاحبها القديم.',
+        moves: {
+            heavy: { name: 'شقّ الفضاء بشفرة', text: 'تشق الفضاء وتضرب من زاوية مستحيلة لا يمكن الدفاع عنها.' },
+            fast:  { name: 'ومض ثلاثي المتتالي', text: 'ثلاث ضربات في أجزاء من الثانية من اتجاهات مختلفة.' },
+            magic: { name: 'صرخة السيف المكسور', text: 'تصرخ صرخة تهزّ الهواء وتبلبل تركيزك تماماً.' }
+        },
+        loot: ['Rogue Sword Spirit Core', 'Broken Blade Fragment']
+    }
+};
+
+window.LORE = Object.assign(window.LORE || {}, {
+    REGIONS,
+    CHINESE_HEROES,
     CHINESE_ENEMIES,
     CROSSROADS_ENEMIES,
     ARABIAN_ENEMIES,
+    SEA_ENEMIES,
+    BRASS_ENEMIES,
+    CELESTIAL_ENEMIES,
+    CROSSROADS_EXTRA_ENEMIES,
+    JADE_EXTRA_ENEMIES,
     getAllEnemies: function() {
-        return { 
-            ...(this.CHINESE_ENEMIES || {}), 
-            ...(this.ARABIAN_ENEMIES || {}), 
-            ...(this.CROSSROADS_ENEMIES || {}) 
+        return {
+            ...(this.CHINESE_ENEMIES || {}),
+            ...(this.ARABIAN_ENEMIES || {}),
+            ...(this.CROSSROADS_ENEMIES || {}),
+            ...(this.SEA_ENEMIES || {}),
+            ...(this.BRASS_ENEMIES || {}),
+            ...(this.CELESTIAL_ENEMIES || {}),
+            ...(this.CROSSROADS_EXTRA_ENEMIES || {}),
+            ...(this.JADE_EXTRA_ENEMIES || {})
         };
     },
     getRegionEnemies: function(regionId) {
@@ -610,6 +870,7 @@ window.LORE = Object.assign(window.LORE || {}, {
         return Object.values(all).filter(e => e.region === regionId);
     }
 });
+
 
 // ============================================================
 // EQUIPMENT DATA - ترسانة الأسلحة والدروع الأسطورية للشرق
