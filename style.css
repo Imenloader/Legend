@@ -1529,12 +1529,14 @@ input[type="text"]:focus {
         font-size: 1.4rem;
         margin-bottom: 2px;
         transition: transform 0.2s ease;
+        pointer-events: none;
     }
     
     .nav-label {
         font-size: 0.72rem;
         font-family: 'Cairo', sans-serif;
         font-weight: 600;
+        pointer-events: none;
     }
     
     .nav-tab:active .nav-icon {

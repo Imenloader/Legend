@@ -35,6 +35,48 @@ window.CRAFTING = {
             type: 'special',
             effect: { breakthrough: true, maxHp: 100 }
         },
+        'lion_sinews_oil': {
+            name: 'دهان عصب السباع والبادية',
+            desc: 'دهان عضلي أثري مستخلص من بتلات ورد الصحراء النادر، مطلوب لتخطي عقبة الرتبة الخامسة.',
+            ingredients: { 'spirit_herb': 20, 'monster_core': 5 },
+            type: 'special',
+            effect: { breakthrough: true }
+        },
+        'spear_horse_scroll': {
+            name: 'مخطوطة فرس الرماح العسكرية',
+            desc: 'مخطوطة تكتيكية من ديوان الجند تفصل أساليب الكر والفر للفرسان، مطلوبة لتخطي عقبة الرتبة السادسة.',
+            ingredients: { 'spirit_herb': 15, 'wood': 10 },
+            type: 'special',
+            effect: { breakthrough: true }
+        },
+        'polished_blade_sip': {
+            name: 'جرعة النصل المصقول الغليظ',
+            desc: 'جرعة حديدية مطهرة للعروق من شوائب القلق والخوف، مطلوبة لتخطي عقبة الرتبة السابعة.',
+            ingredients: { 'spirit_herb': 25, 'iron_ore': 15 },
+            type: 'special',
+            effect: { breakthrough: true }
+        },
+        'royal_sidr_honey': {
+            name: 'عسل السدر الباطني الصحراوي النادر',
+            desc: 'عسل ملكي من رحيق أشجار السدر المعمرة يشحذ التركيز، مطلوب لتخطي عقبة الرتبة الثامنة.',
+            ingredients: { 'spirit_herb': 30, 'monster_core': 8 },
+            type: 'special',
+            effect: { breakthrough: true }
+        },
+        'ultimate_resolve_herb': {
+            name: 'عشبة العزيمة الفائقة المذهبة',
+            desc: 'نبات نادر ينمو في قمم جبال السرو المرتفعة يمد الفارس بعزيمة الفرسان الأحرار، مطلوبة لتخطي عقبة الرتبة التاسعة.',
+            ingredients: { 'spirit_herb': 35, 'dragon_vein_shard': 3 },
+            type: 'special',
+            effect: { breakthrough: true }
+        },
+        'grandmaster_elixir': {
+            name: 'إكسير الخلود واليقين الأسطوري الشامل',
+            desc: 'الجرعة الكيميائية العظمى التي تخلد اسم الفارس في ديوان ملوك الأقدار والشرق، مطلوبة لتخطي عقبة الرتبة العاشرة.',
+            ingredients: { 'spirit_herb': 50, 'celestial_silk': 3, 'dragon_vein_shard': 5 },
+            type: 'special',
+            effect: { breakthrough: true }
+        },
         'immortal_elixir': {
             name: 'إكسير الطاقة اللانهائية والتحمل الأقصى',
             desc: 'بيدي +10 هجوم دايم وبيشفي جروح الجسد بالكامل.',
@@ -53,7 +95,7 @@ window.CRAFTING = {
         },
         'mint_tea': {
             name: 'شاي النعناع البري الصحراوي المنعش',
-            desc: 'شاي صحراوي ساخن معطر بالنعناع والبركة الباطنية. يستعيد كامل نقاط الطاقة البدنية (+100% مانا) وتمنح +10 مانا أقصى دائمة.',
+            desc: 'شاي صحراوي ساخن معطر بالنعناع والبركة الباطنية. يستعيد كامل نقاط الطاقة البدنية (+100% عزيمة) وتمنح +10 عزيمة أقصى دائمة.',
             ingredients: { 'spirit_herb': 2 },
             type: 'permanent',
             effect: { mp: 100, maxMp: 10 }

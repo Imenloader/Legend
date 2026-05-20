@@ -7,7 +7,7 @@ window.SOUL_WANDERING = {
     regions: {
         'crossroads': { name: 'ضواحي واحة القوافل', minLvl: 1, monsters: ['ذئب الصحراء الكاسر', 'صعلوك القافلة الشرير', 'عقرب الرمال المسموم'], mats: ['spirit_herb', 'iron_ore'] },
         'empty_quarter': { name: 'الربع الخالي العظيم', minLvl: 5, monsters: ['طيف الجان الهائم', 'أفعى الواحة الرهيبة', 'مارد العواصف الرملية'], mats: ['monster_core', 'spirit_herb'] },
-        'shadow_peaks': { name: 'جبال الظلال الوعرة', minLvl: 12, monsters: ['كاهن الطائفة السوداء', 'غراب الفراغ المظلم', 'نمر البرزخ الرهيب'], mats: ['dragon_vein_shard', 'monster_core'] }
+        'shadow_peaks': { name: 'جبال الظلال الوعرة', minLvl: 12, monsters: ['كاهن الطائفة السوداء', 'غراب الفراغ المظلم', 'نمر الفيافي الرهيب'], mats: ['dragon_vein_shard', 'monster_core'] }
     },
 
     init(state) {

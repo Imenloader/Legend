@@ -10,7 +10,7 @@ window.SHOP = {
             { id: 'iron_ore', name: 'خام الحديد الدمشقي العتيق', price: 10, type: 'material', desc: 'مادة أساسية لصناعة الفولاذ والأسلحة بمصفوفة الصقل القتالية.' },
             { id: 'spirit_herb', name: 'أعشاب النور الطبية الطازجة', price: 15, type: 'material', desc: 'تستخدم في تحضير الإكسير والحبوب العشبية بمرجل الخيمياء.' },
             { id: 'healing_ointment', name: 'مرهم الشفاء المبارك والبركة', price: 50, type: 'consumable', desc: 'مرهم طبيعي بيرجع 50 نقطة صحة.', effect: { hp: 50 } },
-            { id: 'spirit_water', name: 'ماء النخيل النقي والمنعش', price: 40, type: 'consumable', desc: 'ماء نقي منعش يستعيد 30 نقطة مانا وتركيز بدني.', effect: { mp: 30 } }
+            { id: 'spirit_water', name: 'ماء النخيل النقي والمنعش', price: 40, type: 'consumable', desc: 'ماء نقي منعش يستعيد 30 نقطة عزيمة وتركيز بدني.', effect: { mp: 30 } }
         ],
         jade_sect_shop: [
             { id: 'foundation_pill', name: 'إكسير التمكين وقوة البنيان', price: 1000, type: 'consumable', desc: 'مطلوب لتخطي عقبة مقام التمكين وقوة البنيان البدني.' },
@@ -18,7 +18,7 @@ window.SHOP = {
             { id: 'disciple_sword', name: 'سيف الفارس الحديدي المصقول البديع', price: 800, type: 'weapon', slot: 'weapon', stats: { atk: 25 }, desc: 'السيف المعتمد والمنشور لفرسان طائفة جبل الطور.' }
         ],
         sufi_bazaar: [
-            { id: 'empty_quarter_dates', name: 'تمر الصحراء السكري اللذيذ', price: 60, type: 'consumable', desc: 'ثمرة مباركة بترجع 40 نقطة صحة و 20 نقطة مانا.', effect: { hp: 40, mp: 20 } },
+            { id: 'empty_quarter_dates', name: 'تمر الصحراء السكري اللذيذ', price: 60, type: 'consumable', desc: 'ثمرة مباركة بترجع 40 نقطة صحة و 20 نقطة عزيمة.', effect: { hp: 40, mp: 20 } },
             { id: 'prayer_beads', name: 'قلادة الخشب والسكينة للتركيز', price: 600, type: 'relic', slot: 'relic', stats: { mp: 50, def: 10 }, desc: 'قلادة من خشب العود المعطر تجلب الهدوء وتزيد التركيز والسكينة بالقلب.' },
             { id: 'sufi_tunic', name: 'عباءة الصوف المتينة للمسافرين الأحرار', price: 450, type: 'body', slot: 'body', stats: { def: 20, hp: 30 }, desc: 'ملابس سفر وبساطة متينة جداً وبتحمي من الأذى والضربات.' }
         ]

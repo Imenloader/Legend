@@ -80,6 +80,23 @@ window.COMBAT = {
             if (mReg > 0) msg += `<br><span style="color:var(--jade)">تجدد تركيزك الباطني بـ ${mReg} نقاط.</span>`;
         }
 
+        // 4.5 Realm-Specific Start of Turn Mechanics
+        const stageIdx = window.CULTIVATION ? window.CULTIVATION.stages.findIndex(s => s.name === state.player.cultivation?.stage) : -1;
+        if (stageIdx === 0) { // الفارس المبتدئ: بركة الواحة
+            const hReg = Math.floor(state.player.maxHp * 0.05);
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + hReg);
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + 5);
+            msg += `<br><span style="color:var(--jade); font-weight:bold;">🌴 [بركة الواحة]: تجدد ${hReg} صحة و 5 عزيمة!</span>`;
+        }
+        
+        // Revive for Realm 10 (stageIdx === 9)
+        if (stageIdx === 9 && state.player.hp <= 0 && !state._ultimateReviveUsed) {
+            state.player.hp = Math.floor(state.player.maxHp * 0.5);
+            state._ultimateReviveUsed = true;
+            state.enemyStunned = true;
+            msg += `<br><span style="color:#ffcc00; font-weight:bold; text-shadow:0 0 10px #ffcc00;">☀️ [شمس الهجير الشامخة]: نهضت من الموت بروح وضاءة مستعيداً نصف صحتك وشالاً حركة العدو لبرهة!</span>`;
+        }
+
         // 5. Stun recovery
         if (state.enemyStunned) {
             msg += `<br><b>${enemy.name} دايخ ومغمى عليه بالكامل وميقدرش يتحرك اللفة دي!</b>`;
@@ -500,6 +517,58 @@ window.COMBAT = {
         } else if (lineage === 'orphan' && pDmg > 0 && Math.random() < 0.15) {
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 15);
             msg += ` <span style="color:#ffcc00; font-weight:bold;">[بركة البرية: استعدت 15 تركيز باطني!]</span>`;
+        }
+
+        // ========================================================
+        // REALM-SPECIFIC ARABIAN PROGRESSION MECHANICS
+        // ========================================================
+        const realmIdx = window.CULTIVATION ? window.CULTIVATION.stages.findIndex(s => s.name === state.player.cultivation?.stage) : -1;
+        if (realmIdx === 1) { // الفارس المغوار: جسارة الهجير (+15% ضرر عند انخفاض الصحة عن 50%)
+            if (state.player.hp < state.player.maxHp * 0.5 && pDmg > 0) {
+                pDmg = Math.floor(pDmg * 1.15);
+                msg += ` <span style="color:#ffaa00; font-weight:bold;">[جسارة الهجير: +15% ضرر]</span>`;
+            }
+        }
+        else if (realmIdx === 2) { // الفارس الصنديد: الجبل الراسخ (امتصاص 15% من الضرر الوارد)
+            if (eDmg > 0) {
+                eDmg = Math.floor(eDmg * 0.85);
+                msg += ` <span style="color:#a88534; font-weight:bold;">[الجبل الراسخ: تم امتصاص 15% من الضرر الوارد]</span>`;
+            }
+        }
+        else if (realmIdx === 3) { // حارس الثغور الأبي: هيبة الترس والصمود (تقليل 10% من الضرر)
+            if (eDmg > 0) {
+                eDmg = Math.floor(eDmg * 0.90);
+                msg += ` <span style="color:#4a90e2; font-weight:bold;">[هيبة الترس والصمود: -10% ضرر وارد]</span>`;
+            }
+        }
+        else if (realmIdx === 4) { // فارس الكثبان المغوار: وقفة ريح السموم (12% تفادي وهجوم مضاد)
+            if (eDmg > 0 && Math.random() < 0.12) {
+                const counter = Math.floor(playerAtk * 0.5);
+                enemy.hp = Math.max(0, enemy.hp - counter);
+                eDmg = 0;
+                msg += `<br><span style="color:#00e5ff; font-weight:bold;">🌪️ [وقفة ريح السموم]: تفاديت الهجوم تماماً وضربت ضربة مضادة بقيمة ${counter} ضرر!</span>`;
+            }
+        }
+        else if (realmIdx === 5) { // سيد النصال والديوان: غليان عروق الفرسان (critical hits restore 10 focus)
+            if (pDmg > 0 && msg.includes('ضربة قاصمة')) {
+                state.player.mp = Math.min(state.player.maxMp, state.player.mp + 10);
+                msg += ` <span style="color:#e60000; font-weight:bold;">[غليان عروق الفرسان: استعدت 10 عزيمة]</span>`;
+            }
+        }
+        else if (realmIdx === 7) { // المقاتل الأسطوري المهيب: سورة النخوة والغضب (+10% ضرر ملحمي)
+            if (pDmg > 0) {
+                pDmg = Math.floor(pDmg * 1.10);
+                msg += ` <span style="color:#ff3b30; font-weight:bold;">[سورة النخوة والغضب: +10% ضرر]</span>`;
+            }
+        }
+        else if (realmIdx === 8) { // شيخ فرسان بابل والشرق: هالة الشهامة المطلقة (skills restore 25% of focus cost upon use)
+            if (playerMoveId !== 'deflect' && playerMoveId !== 'slipstream' && skill) {
+                const refund = Math.floor((skill.mpCost || 0) * 0.25);
+                if (refund > 0) {
+                    state.player.mp = Math.min(state.player.maxMp, state.player.mp + refund);
+                    msg += ` <span style="color:#9b59b6; font-weight:bold;">[هالة الشهامة المطلقة: استرجعت ${refund} عزيمة]</span>`;
+                }
+            }
         }
 
         // ========================================================

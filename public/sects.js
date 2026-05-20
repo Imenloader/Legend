@@ -11,7 +11,7 @@ window.SECTS = {
             id: 'jade_summit', 
             name: 'ديوان جبل الطور للفرسان', 
             tier: 1, 
-            reqRealm: 'الجدع المبتدئ', 
+            reqRealm: 'الفارس المبتدئ', 
             cost: 0, 
             ult: 'jade_storm', 
             ultName: 'عاصفة الطور السحابية الجبارة' 
@@ -20,7 +20,7 @@ window.SECTS = {
             id: 'sufi_order', 
             name: 'رابطة أبطال الربع الخالي', 
             tier: 2, 
-            reqRealm: 'الفتوة الجسور', 
+            reqRealm: 'الفارس المغوار', 
             cost: 1000, 
             ult: 'sand_mantra', 
             ultName: 'ضربة رمال واحة الربع الخالي الجبارة' 
@@ -29,7 +29,7 @@ window.SECTS = {
             id: 'solar_temple', 
             name: 'ديوان الفرسان الأحرار البهي', 
             tier: 3, 
-            reqRealm: 'البطل الشهم', 
+            reqRealm: 'الفارس الصنديد', 
             cost: 5000, 
             ult: 'solar_flare', 
             ultName: 'ضربة وميض البرق الشمسي الجبارة' 
@@ -38,7 +38,7 @@ window.SECTS = {
             id: 'nascent_void', 
             name: 'قلعة النور والشهامة الخالصة', 
             tier: 4, 
-            reqRealm: 'كبير الجدعان والزعيم', 
+            reqRealm: 'سيد الفرسان والديوان', 
             cost: 15000, 
             ult: 'void_annihilation', 
             ultName: 'طلسم ضربة الإعصار الأكبر' 
@@ -90,9 +90,9 @@ window.SECTS = {
         if (!s) return { success: false, message: "الرابطة دي مش موجودة في سجلات العوالم." };
         
         // Check realm requirement
-        const currentRealm = state.player.cultivation?.stage || 'الجدع المبتدئ';
+        const currentRealm = state.player.cultivation?.stage || 'الفارس المبتدئ';
         if (s.tier > 1) {
-            const realms = ['الجدع المبتدئ', 'الفتوة الجسور', 'البطل الشهم', 'كبير الجدعان والزعيم'];
+            const realms = ['الفارس المبتدئ', 'الفارس المغوار', 'الفارس الصنديد', 'سيد الفرسان والديوان'];
             const playerRealmIdx = realms.indexOf(currentRealm);
             const reqRealmIdx = realms.indexOf(s.reqRealm);
             if (playerRealmIdx < reqRealmIdx) {

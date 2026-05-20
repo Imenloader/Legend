@@ -19,15 +19,44 @@ window.LIFE = {
 
     // Roll a new life
     rollLife(state) {
-        const bgKeys = Object.keys(this.backgrounds);
-        const sysKeys = Object.keys(this.systems);
+        let bgKey = 'farmer';
+        if (state.player.wombLineage) {
+            if (state.player.wombLineage === 'poor') bgKey = 'beggar';
+            else if (state.player.wombLineage === 'merchant') bgKey = 'merchant';
+            else if (state.player.wombLineage === 'noble') bgKey = 'royal';
+            else if (state.player.wombLineage === 'orphan') bgKey = 'farmer';
+        } else {
+            const bgKeys = Object.keys(this.backgrounds);
+            bgKey = bgKeys[Math.floor(Math.random() * bgKeys.length)];
+        }
         
-        state.player.background = this.backgrounds[bgKeys[Math.floor(Math.random() * bgKeys.length)]];
-        state.player.system = this.systems[sysKeys[Math.floor(Math.random() * sysKeys.length)]];
+        let sysKey = 'many_children';
+        if (state.player.inheritedTrait) {
+            if (state.player.inheritedTrait === 'beast_agility' || state._wombGift === 'Strength') {
+                sysKey = 'sword_saint';
+            } else if (state.player.inheritedTrait === 'royal_pride') {
+                sysKey = 'killing';
+            } else if (state.player.inheritedTrait === 'bankers_eye') {
+                sysKey = 'many_children';
+            } else {
+                const sysKeys = Object.keys(this.systems);
+                sysKey = sysKeys[Math.floor(Math.random() * sysKeys.length)];
+            }
+        } else {
+            const sysKeys = Object.keys(this.systems);
+            sysKey = sysKeys[Math.floor(Math.random() * sysKeys.length)];
+        }
+
+        state.player.background = this.backgrounds[bgKey];
+        state.player.system = this.systems[sysKey];
         
-        // Apply immediate background changes
-        state.player.gold = state.player.background.gold;
-        if (state.player.background.karma) state.player.karma = state.player.background.karma;
+        // Apply immediate background changes, respecting existing gold if higher
+        if (state.player.gold === undefined || state.player.gold < state.player.background.gold) {
+            state.player.gold = state.player.background.gold;
+        }
+        if (state.player.background.karma) {
+            state.player.karma = (state.player.karma || 0) + state.player.background.karma;
+        }
         
         this.generateFamily(state);
     },

@@ -6,20 +6,26 @@
 window.CULTIVATION = {
     
     stages: [
-        { name: 'السالك المبتدئ', requiredPill: null, tribulationId: null, bonus: { hp: 0, mp: 0, atk: 0 } },
-        { name: 'القلب الجسور (تأسيس البنيان)', requiredPill: 'foundation_pill', tribulationId: 'trib_foundation', bonus: { hp: 50, mp: 20, atk: 10 } },
-        { name: 'فارس الطاقة الباطنية (الجوهر المتين)', requiredPill: 'golden_core_pill', tribulationId: 'trib_core', bonus: { hp: 150, mp: 50, atk: 30 } },
-        { name: 'الخالد ذو السيادة (الجسد المكتمل)', requiredPill: 'nascent_pill', tribulationId: 'trib_nascent', bonus: { hp: 500, mp: 200, atk: 100 } }
+        { name: 'الفارس المبتدئ', requiredPill: null, tribulationId: null, bonus: { hp: 0, mp: 0, atk: 0 } },
+        { name: 'الفارس المغوار', requiredPill: 'foundation_pill', tribulationId: 'trib_foundation', bonus: { hp: 120, mp: 40, atk: 20 } },
+        { name: 'الفارس الصنديد', requiredPill: 'golden_core_pill', tribulationId: 'trib_core', bonus: { hp: 350, mp: 100, atk: 55 } },
+        { name: 'حارس الثغور الأبي', requiredPill: 'nascent_pill', tribulationId: 'trib_nascent', bonus: { hp: 900, mp: 250, atk: 120 } },
+        { name: 'فارس الكثبان المغوار', requiredPill: 'lion_sinews_oil', tribulationId: 'trib_stage_5', bonus: { hp: 2200, mp: 600, atk: 280 } },
+        { name: 'سيد النصال والديوان', requiredPill: 'spear_horse_scroll', tribulationId: 'trib_stage_6', bonus: { hp: 5000, mp: 1200, atk: 580 } },
+        { name: 'أمير القوافل والبادية', requiredPill: 'polished_blade_sip', tribulationId: 'trib_stage_7', bonus: { hp: 11000, mp: 2400, atk: 1100 } },
+        { name: 'المقاتل الأسطوري المهيب', requiredPill: 'royal_sidr_honey', tribulationId: 'trib_stage_8', bonus: { hp: 24000, mp: 4800, atk: 2100 } },
+        { name: 'شيخ فرسان بابل والشرق', requiredPill: 'ultimate_resolve_herb', tribulationId: 'trib_stage_9', bonus: { hp: 50000, mp: 9000, atk: 4000 } },
+        { name: 'سيد ملوك الفرسان والأقدار', requiredPill: 'grandmaster_elixir', tribulationId: 'trib_stage_10', bonus: { hp: 120000, mp: 20000, atk: 9000 } }
     ],
 
     bodyRealms: [
         { name: 'الجسد العادي', bonus: { hp: 0, def: 0 } },
-        { name: 'الهيكل الفولاذي الصلب', bonus: { hp: 80, def: 4 } },
-        { name: 'الجلد النحاسي المنيع', bonus: { hp: 200, def: 10 } },
-        { name: 'العظام الحديدية المتينة', bonus: { hp: 500, def: 25 } },
-        { name: 'الدرع الفولاذي الكامل', bonus: { hp: 1200, def: 60 } },
-        { name: 'الهيكل الفضي الصامد', bonus: { hp: 2500, def: 130 } },
-        { name: 'الهيكل الذهبي الخارق', bonus: { hp: 6000, def: 300 } }
+        { name: 'الساعد القوي', bonus: { hp: 80, def: 4 } },
+        { name: 'الكتف الصلب', bonus: { hp: 200, def: 10 } },
+        { name: 'الظهر المتين', bonus: { hp: 500, def: 25 } },
+        { name: 'الوقفة الراسخة', bonus: { hp: 1200, def: 60 } },
+        { name: 'الجسد الفولاذي', bonus: { hp: 2500, def: 130 } },
+        { name: 'البنية الصامدة للهجير', bonus: { hp: 6000, def: 300 } }
     ],
 
     // --- طرائق التدريب البدني وفنون المبارزة ---
@@ -49,7 +55,7 @@ window.CULTIVATION = {
 
     meditate(state) {
         if (!state.player.cultivation) {
-            state.player.cultivation = { stage: 'السالك المبتدئ', stageLevel: 1, breakthroughReady: false };
+            state.player.cultivation = { stage: 'الفارس المبتدئ', stageLevel: 1, breakthroughReady: false };
         }
         const cult = state.player.cultivation;
 
@@ -220,7 +226,7 @@ window.CULTIVATION = {
 
     temperBody(state) {
         if (!state.player.cultivation) {
-            state.player.cultivation = { stage: 'السالك المبتدئ', stageLevel: 1, breakthroughReady: false };
+            state.player.cultivation = { stage: 'الفارس المبتدئ', stageLevel: 1, breakthroughReady: false };
         }
         const cult = state.player.cultivation;
         if (!cult.bodyRealm) cult.bodyRealm = 'الجسد العادي';

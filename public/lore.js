@@ -307,7 +307,7 @@ const CROSSROADS_ENEMIES = {
         description: 'تاجر باع ذمته ونوره عشان دنانير الذهب. بيحارب بدنانير ملعونة بتنفجر بطمع النفوس.',
         moves: {
             heavy: { name: 'ثقل دنانير الجشع', text: 'بيرمي كيس دنانير ملعونة بتتقل تركيزك وهمتك وتضعف همتك.' },
-            fast: { name: 'ضربة الرشوة البدنية', text: 'ضربة بتمتص مانا تركيزك وهمتك وتشتت تركيزك عشان يشتري هزيمتك.' },
+            fast: { name: 'ضربة الرشوة البدنية', text: 'ضربة بتمتص عزيمتك وهمتك وتشتت تركيزك عشان يشتري هزيمتك.' },
             magic: { name: 'انفجار دنانير النار', text: 'فلوسه بتنفجر بلهب أسود مدعوم بطمع جارف.' }
         },
         archetype: 'balanced',
@@ -344,7 +344,7 @@ const CHINESE_ENEMIES = {
         moves: {
             heavy: { name: 'ضربة الكف الأسود الملعون', text: 'الحكيم بيرفع إيديه، وهالة ظلام سودا بتلف وتضرب هالتك البدنية.' },
             fast: { name: 'طعنة طيف السيف المنحني', text: 'بيختفي في الضلمة ويظهر فجأة وراك بسيفه الفولاذي الحاد.' },
-            magic: { name: 'ختم قنوات النور البدني', text: 'بيرسم طلسم مشوه في الهوا — لو صابك، قنوات النور والمانا بتاعتك هتتقفل لدور كامل.' }
+            magic: { name: 'ختم قنوات النور البدني', text: 'بيرسم طلسم مشوه في الهوا — لو صابك، قنوات النور والعزيمة بتاعتك هتتقفل لدور كامل.' }
         },
         weakness: 'interrupt_magic',
         loot: ['Demonic Cultivation Scroll', 'Black Qi Stone', 'Stolen Sect Token'],
@@ -361,8 +361,8 @@ const CHINESE_ENEMIES = {
         description: 'نفس تاهت بين الرحيل والميراث. زوره ضيق جداً ومبيقدرش ياكل أكل عادي — فبيتغذى على سحب وامتصاص نور السالكين.',
         moves: {
             heavy: { name: 'عضة الجوع الكافر', text: 'الغول بيمد كفوفه العضم الطويلة عشان يمسكك ويقرقش همتك.' },
-            fast: { name: 'لمسة سحب المانا الصامتة', text: 'بيمد صابعه الساقع زي التلج لقلب جوهرك البدني عشان يسحب طاقتك.' },
-            magic: { name: 'الصرخة الموحشة المحبطة', text: 'بيصرخ صرخة بتهز أعصابك ونفسيتك، ومانا تركيزك وهمتك بتبدأ تتسرب.' }
+            fast: { name: 'لمسة سحب العزيمة الصامتة', text: 'بيمد صابعه الساقع زي التلج لقلب جوهرك البدني عشان يسحب طاقتك.' },
+            magic: { name: 'الصرخة الموحشة المحبطة', text: 'بيصرخ صرخة بتهز أعصابك ونفسيتك، وعزيمة تركيزك وهمتك بتبدأ تتسرب.' }
         },
         weakness: 'guard_blocks_mp_drain',
         loot: ['Ghost Fire Shard', 'Grieving Spirit Talisman'],
@@ -460,7 +460,7 @@ const ARABIAN_ENEMIES = {
         description: 'دورية نخبة من جنود المجلس السلطاني الأعلى، مسلحين برماح نحاسية مباركة ودروع تقيلة.',
         moves: {
             heavy: { name: 'جدار الدروع السلطاني الثقيل', text: 'بيقفلوا دروعهم النحاسية مع بعض، وبيرفعوا دفاعهم لـ 200% وهم بيندفعوا عليك.' },
-            fast: { name: 'عاصفة الرماح النحاسية الخاطفة', text: 'طعنات رماح سريعة ومنظمة بتستهدف قنوات المانا والنور عندك.' },
+            fast: { name: 'عاصفة الرماح النحاسية الخاطفة', text: 'طعنات رماح سريعة ومنظمة بتستهدف قنوات العزيمة والنور عندك.' },
             magic: { name: 'ختم الميثاق السلطاني العالي', text: 'بيقولوا صيحة بتعمل دايرة سحرية بتشل حركتك لمنع أي هروب.' }
         },
         loot: ['Broken Jade Pendant', 'Sect Archive Key']
@@ -473,7 +473,7 @@ const ARABIAN_ENEMIES = {
         moves: {
             heavy: { name: 'ضربة مطرقة الكثبان الرملية', text: 'هبدة تقيلة بـ مطرقة رملية بتدمر أي درع دفاعي في ثانية.' },
             fast: { name: 'عاصفة السموم الدوارة', text: 'لفة دوارة سريعة بتطلق نار وسموم حواليك بالكامل.' },
-            magic: { name: 'زوبعة النار البركانية الأزلية', text: 'موجة نار جبارة بتسخن الهوا وتحرق مانا السالكين.' }
+            magic: { name: 'زوبعة النار البركانية الأزلية', text: 'موجة نار جبارة بتسخن الهوا وتحرق عزيمة السالكين.' }
         },
         loot: ['Fire Essence', 'Monster Core']
     },
@@ -485,7 +485,7 @@ const ARABIAN_ENEMIES = {
         moves: {
             heavy: { name: 'مخالب الطيف الزمردية القاسية', text: 'ضربة مخالب خيالية بتمزق الهالة البدنية مباشرة.' },
             fast: { name: 'شظايا النجم الزمردي المتساقطة', text: 'بيطلق شظايا زمردية حادة من السما فوق دماغك.' },
-            magic: { name: 'سحب البركة والمانا الصامتة', text: 'سيفون بدني ساقع بيمتص صحتك ومانتك ويضيفها لنفسه.' }
+            magic: { name: 'سحب البركة والعزيمة الصامتة', text: 'سيفون بدني ساقع بيمتص صحتك وعزيمتك ويضيفها لنفسه.' }
         },
         loot: ['Living Jade Chip', 'Monster Core']
     },
@@ -521,7 +521,7 @@ const ARABIAN_ENEMIES = {
         moves: {
             heavy: { name: 'هدم الممالك والقصور القديمة', text: 'ضربة جبارة بوزن إمبراطوريات بادت وضاعت فوق دماغك.' },
             fast: { name: 'رمح محو السنن والقوانين', text: 'رمح أبيض من مادة مضادة بيمسح أي دروع أو بركة سحرية.' },
-            magic: { name: 'تفريغ الهوا وقطع الأنفاس', text: 'بيسحب كل الأكسجين والمانا من الهوا ويخنق سالكين المعركة.' }
+            magic: { name: 'تفريغ الهوا وقطع الأنفاس', text: 'بيسحب كل الأكسجين والعزيمة من الهوا ويخنق سالكين المعركة.' }
         },
         loot: ['Rigveda Pages', 'Seven Star Sword of Dao']
     },
@@ -533,7 +533,7 @@ const ARABIAN_ENEMIES = {
         moves: {
             heavy: { name: 'هجوم الأذرع الستة الجبار الماحي', text: 'ست ضربات خيالية متتالية بتضرب درعك في نفس الثانية.' },
             fast: { name: 'سيف فوضى الظلام الكلي الباغت', text: 'ضربة سيف حادة بتتجاهل 50% من دفاعك الجسدي وتنزفك.' },
-            magic: { name: 'انفجار شمس الظلام واللعنة الكبرى', text: 'انفجار طاقة سلبية ملعونة بيمحي أي نور أو مانا متبقية.' }
+            magic: { name: 'انفجار شمس الظلام واللعنة الكبرى', text: 'انفجار طاقة سلبية ملعونة بيمحي أي نور أو عزيمة متبقية.' }
         },
         loot: ['Kavacha Golden Breastplate', 'Wukong\'s Golden Band']
     },
@@ -544,7 +544,7 @@ const ARABIAN_ENEMIES = {
         description: 'تجسد الفراغ المتمرد اللي بيتحداك وبيتحدى ادعائك لحماية طريق الحرير والاتزان.',
         moves: {
             heavy: { name: 'زلزال كسر اتزان العوالم السبعة', text: 'بيشق الأرض نصين تحتك ويشتت وقفتك واتزانك البدني.' },
-            fast: { name: 'الضربة المتناظرة للتركيز والجسد', text: 'ضربة مزدوجة سريعة بتضرب المانا والدم في نفس الثانية.' },
+            fast: { name: 'الضربة المتناظرة للتركيز والجسد', text: 'ضربة مزدوجة سريعة بتضرب العزيمة والدم في نفس الثانية.' },
             magic: { name: 'إعصار Twin الجحيم والجليد المطلق', text: ' Twin شعاعين من حرارة الشمس وبرد الفراغ المطلق بتضرب تركيزك وهمتك.' }
         },
         loot: ['Trishula of the Three Realms', 'Taiji Yin-Yang Ring']
@@ -577,10 +577,10 @@ window.EQUIPMENT_DATA = {
     // === طقم المشرقيين العتيق (Xianxia Set) ===
     seven_star_sword: { id: 'seven_star_sword', name: 'سيف الكواكب السباعي الأثري', slot: 'weapon', set: 'xianxia', quality: 'Super', stats: { atk: 85, mp: 30 }, reqLevel: 20, reqStage: 'Core Formation', desc: 'سيف منقوش عليه أسرار النجوم السبعة، بيربط شفرتك بفيض النور الكوني.' },
     qingping_sword: { id: 'qingping_sword', name: 'سيف النقاء الصامت العريق', slot: 'weapon', set: 'xianxia', quality: 'Elite', stats: { atk: 50 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'سيف أثري عريق مر بمئات الفرسان والعارفين، بيطلق هالة نقاء وقوة رهيبة.' },
-    xuanwu_plate: { id: 'xuanwu_plate', name: 'درع السلحفاة البرزخية الجبار', slot: 'body', set: 'xianxia', quality: 'Super', stats: { def: 75, hp: 200 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'درع متين اتصنع من صدف سلحفاة بحرية أسطورية عتيقة. مستحيل يتكسر بدرع عادي.' },
+    xuanwu_plate: { id: 'xuanwu_plate', name: 'درع السلحفاة العتيقة الجبار', slot: 'body', set: 'xianxia', quality: 'Super', stats: { def: 75, hp: 200 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'درع متين اتصنع من صدف سلحفاة بحرية أسطورية عتيقة. مستحيل يتكسر بدرع عادي.' },
     phoenix_feather_crown: { id: 'phoenix_feather_crown', name: 'عمامة ريش العنقاء الأسطوري المضيئة', slot: 'head', set: 'xianxia', quality: 'Super', stats: { def: 25, mp: 50 }, reqLevel: 22, reqStage: 'Core Formation', desc: 'عمامة منسوجة بريش العنقاء المضيء الصافي، بتمنح صفاء وتركيز بدني عالي.' },
-    nine_dragons_cauldron: { id: 'nine_dragons_cauldron', name: 'إناء البركة لتصفية الأنفاس والبدنية', slot: 'relic', set: 'xianxia', quality: 'Super', stats: { mp: 120 }, reqLevel: 24, reqStage: 'Core Formation', desc: 'إناء نحاسي صغير منقوش عليه نقوش البركة، بينضف قنوات المانا والنور للسالك باستمرار.' },
-    taiji_yin_yang_ring: { id: 'taiji_yin_yang_ring', name: 'خاتم الاتزان البدني (الظلمة والنور)', slot: 'relic', set: 'xianxia', quality: 'Unique', stats: { def: 12, mp: 40 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'خاتم زمردي بيمثل التوازن بين الخير والشر، بيسمح بتدفق المانا بسهولة رهيبة.' },
+    nine_dragons_cauldron: { id: 'nine_dragons_cauldron', name: 'إناء البركة لتصفية الأنفاس والبدنية', slot: 'relic', set: 'xianxia', quality: 'Super', stats: { mp: 120 }, reqLevel: 24, reqStage: 'Core Formation', desc: 'إناء نحاسي صغير منقوش عليه نقوش البركة، بينضف قنوات العزيمة والنور للسالك باستمرار.' },
+    taiji_yin_yang_ring: { id: 'taiji_yin_yang_ring', name: 'خاتم الاتزان البدني (الظلمة والنور)', slot: 'relic', set: 'xianxia', quality: 'Unique', stats: { def: 12, mp: 40 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'خاتم زمردي بيمثل التوازن بين الخير والشر، بيسمح بتدفق العزيمة بسهولة رهيبة.' },
     kunlun_frost_boots: { id: 'kunlun_frost_boots', name: 'خف السير فوق جبال الثلج والرياح', slot: 'boots', set: 'xianxia', quality: 'Elite', stats: { def: 18, speed: 12 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'خف مصنوع من جلد ذئب الجليد، بيسيب خطوط تلج ورا رجلك وأنت ماشي في عز الصحرا.' },
     pangu_axe_fragment: { id: 'pangu_axe_fragment', name: 'شظية فأس بابل لشق الصخر والجبال', slot: 'relic', set: 'xianxia', quality: 'Super', stats: { atk: 40, def: 20 }, reqLevel: 28, reqStage: 'Core Formation', desc: 'شظية صغيرة سودا من فأس أثري قديم شق جبال بابل في غابر الأزمان.' },
     fuxi_zither: { id: 'fuxi_zither', name: 'قانون العارف لتهدئة القلوب التائهة', slot: 'relic', set: 'xianxia', quality: 'Elite', stats: { mp: 80 }, reqLevel: 16, reqStage: 'Foundation Establishment', desc: 'آلة قانون موسيقية مباركة، عزفها بيأنس القلوب والغيلان وبيمنع تشتت النور البدني.' },
@@ -596,13 +596,13 @@ window.EQUIPMENT_DATA = {
     brahmastra_scroll: { id: 'brahmastra_scroll', name: 'مخطوطة طلسم الدمار القديم والأكوان', slot: 'relic', set: 'vedic', quality: 'Super', stats: { atk: 60, mp: 100 }, reqLevel: 28, reqStage: 'Core Formation', desc: 'مخطوطة نحاسية مكتوب عليها نقش تكتيكي عسكري جبار استدعائه بيزلزل الجبال والأرض. استخدمها بحذر شديد.' },
     pinaka_bow: { id: 'pinaka_bow', name: 'قوس الرعد والصواعق الجبار المدوي', slot: 'weapon', set: 'vedic', quality: 'Super', stats: { atk: 90 }, reqLevel: 23, reqStage: 'Core Formation', desc: 'قوس عظيم اتصنع من خشب أثري مبارك. صوته بيعمل صدمة هوا قوية تضرب عظام الأعادي.' },
     kaumodaki_gada: { id: 'kaumodaki_gada', name: 'مقام جرس الفولاذ الثقيل والمطارق الأسرية', slot: 'weapon', set: 'vedic', quality: 'Elite', stats: { atk: 65, def: 20 }, reqLevel: 18, reqStage: 'Foundation Establishment', desc: 'هراوة دهبية تقيلة وجبارة تقدر تطحن دروع كتيبة كاملة من غيلان الصحراء بضربة واحدة.' },
-    gilded_sitar_saraswati: { id: 'gilded_sitar_saraswati', name: 'سيتار الحكمة والنقاء والتدريب والتركيز المضيء', slot: 'relic', set: 'vedic', quality: 'Elite', stats: { mp: 70 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'سيتار خشبي بديع مزخرف بالعاج، عزفه الموزون بيصفي الهالة البدنية ويسرع تدفق المانا.' },
+    gilded_sitar_saraswati: { id: 'gilded_sitar_saraswati', name: 'سيتار الحكمة والنقاء والتدريب والتركيز المضيء', slot: 'relic', set: 'vedic', quality: 'Elite', stats: { mp: 70 }, reqLevel: 14, reqStage: 'Foundation Establishment', desc: 'سيتار خشبي بديع مزخرف بالعاج، عزفه الموزون بيصفي الهالة البدنية ويسرع تدفق العزيمة.' },
     rudraksha_mala: { id: 'rudraksha_mala', name: 'قلادة الخشب والسكينة للتركيز والصفاء البدني', slot: 'relic', set: 'vedic', quality: 'Normal', stats: { mp: 20 }, reqLevel: 1, reqStage: 'Qi Condensation', desc: 'قلادة مصنوعة من بذور شجر الجبل تساعد في تنظيم الأنفاس وتثبيت الطاقة والتركيز البدني.' },
     kavacha_of_karna: { id: 'kavacha_of_karna', name: 'درع الحماية الذهبي الأزلي المتين اللامع', slot: 'body', set: 'vedic', quality: 'Super', stats: { def: 90, hp: 300 }, reqLevel: 29, reqStage: 'Core Formation', desc: 'درع دهبي أسطوري مبارك ومستحيل يخترقه سهم أو خنجر عادي. بيمتص 40% من أي ضربة جسدية.' },
     kundala_earrings: { id: 'kundala_earrings', name: 'حلقان النور السمعي البدني وأسرار أقاليم الصحراء', slot: 'head', set: 'vedic', quality: 'Elite', stats: { def: 20, mp: 50 }, reqLevel: 16, reqStage: 'Foundation Establishment', desc: 'حلقان دهبية خفيفة بتسمح للسالك يسمع همسات النور وتحذيرات الغيب قبل الخطر.' },
     agneyastra_ring: { id: 'agneyastra_ring', name: 'خاتم لهب الصحراء الحارقة المستعرة', slot: 'relic', set: 'vedic', quality: 'Elite', stats: { atk: 35 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'خاتم مبارك بنار البروق، بيطلق ومضات نارية حامية مع كل سحبة سيف أو ضربة قبضة.' },
     varunastra_core: { id: 'varunastra_core', name: 'جوهرة عمق البحار السبعة والأمواج والماء', slot: 'relic', set: 'vedic', quality: 'Elite', stats: { def: 30 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'كرة بلورية زرقا شايلة طاقة وقوة الأمواج العظيمة للبحر اللجي.' },
-    gandiva_bow: { id: 'gandiva_bow', name: 'قوس البرق الأسطوري وسهام الضوء', slot: 'weapon', set: 'vedic', quality: 'Super', stats: { atk: 105 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'قوس بيلمع أول ما تشد وتره، وبيعمل سهام من طاقة نور ومانا صافية لوحده تلقائي.' },
+    gandiva_bow: { id: 'gandiva_bow', name: 'قوس البرق الأسطوري وسهام الضوء', slot: 'weapon', set: 'vedic', quality: 'Super', stats: { atk: 105 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'قوس بيلمع أول ما تشد وتره، وبيعمل سهام من طاقة نور وعزيمة صافية لوحده تلقائي.' },
     sudarshana_chakra: { id: 'sudarshana_chakra', name: 'قرص الضوء الدوار القاطع الجبار المحصن', slot: 'weapon', set: 'vedic', quality: 'Super', stats: { atk: 115 }, reqLevel: 27, reqStage: 'Core Formation', desc: 'ترس دائري مسنن من دهب ونور بيدور بسرعة خيالية ويقطع دروع ملوك الجن كأنه ورق.' },
     yudhisthira_crown: { id: 'yudhisthira_crown', name: 'تاج الصدق والعدالة المطلقة العالي البهي', slot: 'head', set: 'vedic', quality: 'Elite', stats: { def: 22, mp: 30 }, reqLevel: 17, reqStage: 'Foundation Establishment', desc: 'تاج بسيط ومحترم بيمثل الاستقامة والصدق، بيثبت تركيزك ويمنع الخوف والضياع.' },
     shiva_tandava_drums: { id: 'shiva_tandava_drums', name: 'طبلة إيقاع النبض والهمة والجسارة المتقدة', slot: 'relic', set: 'vedic', quality: 'Elite', stats: { atk: 30, speed: 8 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'طبلة صغيرة من خشب وجلد غزال، إيقاع دقاتها بيسرع حركتك وردود أفعالك البدنية والجسدية.' },
@@ -618,7 +618,7 @@ window.EQUIPMENT_DATA = {
     blade_of_badr: { id: 'blade_of_badr', name: 'سيف بدر المبارك المضيء لنور الصادقين', slot: 'weapon', set: 'silk_road', quality: 'Elite', stats: { atk: 45 }, reqLevel: 10, reqStage: 'Foundation Establishment', desc: 'سيف عريق مبارك بنور الفجر، شفرته بتلمع أول ما سالك صالح يمسكه بنية الخير.' },
     heaven_cleaving_sword: { id: 'heaven_cleaving_sword', name: 'سيف السماء الحاد القاطع العظيم الشان', slot: 'weapon', set: 'silk_road', quality: 'Super', stats: { atk: 120 }, reqLevel: 30, reqStage: 'Core Formation', desc: 'سيف أسطوري مبارك بيشاع منه نور سماوي شديد يقدر يقطع عواصف الكثبان والغي.' },
     spirit_turban: { id: 'spirit_turban', name: 'عمامة الفرسان المطرزة بالنقوش البدنية الأثيلة', slot: 'head', set: 'silk_road', quality: 'Refined', stats: { def: 5, mp: 10 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'عمامة حرير مطرزة بخيوط دهب ونور بتثبت حماية السالك.' },
-    imamah_of_light: { id: 'imamah_of_light', name: 'عمامة الأنوار والتجلي المضيء لأولياء الصفا', slot: 'head', set: 'silk_road', quality: 'Elite', stats: { def: 15, mp: 40 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'عمامة بيضا ناصعة البياض بتنور في ليل الصحرا الصامت، بتزيد البصيرة والمانا.' },
+    imamah_of_light: { id: 'imamah_of_light', name: 'عمامة الأنوار والتجلي المضيء لأولياء الصفا', slot: 'head', set: 'silk_road', quality: 'Elite', stats: { def: 15, mp: 40 }, reqLevel: 15, reqStage: 'Foundation Establishment', desc: 'عمامة بيضا ناصعة البياض بتنور في ليل الصحرا الصامت، بتزيد البصيرة والعزيمة.' },
     robe_of_zuhd: { id: 'robe_of_zuhd', name: 'عباءة السفر والصفاء البدني الخشنة المباركة', slot: 'body', set: 'silk_road', quality: 'Refined', stats: { def: 12, hp: 20 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'عباءة صوف خشنة وبسيطة جداً، بس بتمنح السالك حماية رهيبة بفضل قوة السفر والصفاء البدني.' },
     cloak_of_the_dervish: { id: 'cloak_of_the_dervish', name: 'عباءة الأبطال السالكة وسر الرياح والمدد', slot: 'body', set: 'silk_road', quality: 'Unique', stats: { def: 25 }, reqLevel: 12, reqStage: 'Foundation Establishment', desc: 'خرقة بطل خفيفة بتطير مع الهوا، بتخلي حركتك سريعة وصعب العدو يلمسك بضربة مباشرة.' },
     ihram_of_purity: { id: 'ihram_of_purity', name: 'رداء الطهر والنية البيضاء الجلالية', slot: 'body', set: 'silk_road', quality: 'Super', stats: { def: 60, hp: 150 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'رداء أبيض طاهر معطر ببركة الأوردة العريقة، بيحمي السالك الصالح من كيد شياطين الفراغ.' },
@@ -638,7 +638,7 @@ window.EQUIPMENT_DATA = {
     // === طقم الملاحم والأساطير الغربية (Classic Fantasy RPG Set) ===
     excalibur_shard: { id: 'excalibur_shard', name: 'شظية سيف الملوك الصخرية المباركة الغربية البهاء', slot: 'weapon', set: 'mythology', quality: 'Super', stats: { atk: 95 }, reqLevel: 24, reqStage: 'Core Formation', desc: 'شظية معدنية بتلمع من سيف غربي قديم كان بيمنع الكذب ويفرض الحق بنوره الجبار.' },
     aegis_shield: { id: 'aegis_shield', name: 'ترس ميدوسا المانع للصدمات والوهن واللعنات العريق', slot: 'relic', set: 'mythology', quality: 'Super', stats: { def: 55 }, reqLevel: 22, reqStage: 'Core Formation', desc: 'ترس برونزي ثقيل مرسوم عليه وجه جرجونة مرعب بيجمد حركة الأعداء اللي بيقربوا منك.' },
-    muramasa_blade: { id: 'muramasa_blade', name: 'سيف الساموراي الملعون القاطع والنزيف الدائم الحامي', slot: 'weapon', set: 'mythology', quality: 'Super', stats: { atk: 110 }, reqLevel: 26, reqStage: 'Core Formation', desc: 'سيف كاتانا شرقي ملعون بيطلب المانا والدم عشان يقطع أي درع فولاذي قدامه.' },
+    muramasa_blade: { id: 'muramasa_blade', name: 'سيف الساموراي الملعون القاطع والنزيف الدائم الحامي', slot: 'weapon', set: 'mythology', quality: 'Super', stats: { atk: 110 }, reqLevel: 26, reqStage: 'Core Formation', desc: 'سيف كاتانا شرقي ملعون بيطلب العزيمة والدم عشان يقطع أي درع فولاذي قدامه.' },
     sandals_of_hermes: { id: 'sandals_of_hermes', name: 'خف الرياح المجنح الأسطوري الطاير بالسرعة الأنيقة', slot: 'boots', set: 'mythology', quality: 'Super', stats: { def: 14, speed: 30 }, reqLevel: 25, reqStage: 'Core Formation', desc: 'خف خفيف جداً عليه جناحين صغيرين بيخلوك تجري بسرعة الريح العاصفة.' },
     ring_of_nibelung: { id: 'ring_of_nibelung', name: 'خاتم ذهب الراين وقدر الفرسان الوهج القديم الموهوب', slot: 'relic', set: 'mythology', quality: 'Super', stats: { atk: 25, def: 25 }, reqLevel: 27, reqStage: 'Core Formation', desc: 'خاتم ذهبي ملعون وخطير بيدي صاحبه ثروة وجاه سحري فخم بس بيجيب معاه غضب الجن وسلاطين الظلام.' },
     boots_of_haste: { id: 'boots_of_haste', name: 'خف السرعة والمبادرة العاجلة وسط الغبار والصقيع', slot: 'boots', set: 'mythology', quality: 'Refined', stats: { def: 6, speed: 12 }, reqLevel: 5, reqStage: 'Qi Condensation', desc: 'خف مريح بيساعد السالك يفادي ضربات الأعادي ويتحرك بخفة الريش.' },

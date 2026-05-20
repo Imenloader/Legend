@@ -136,7 +136,7 @@ window.updateChronicleUI = function(state) {
         }
         if (hasChronicleFlag(state, 'act3_mirror_completed')) {
             nodes.push({
-                title: "مرآة الحيوات السابقة والبرزخ",
+                title: "مرآة الذاكرة وعزم الأوائل",
                 desc: "بصيت بعمق في مرآة بحر النور اللجي. وفتحت ذكريات الخالد الساقط المدوية وتجليات النفس.",
                 type: 'neutral'
             });
@@ -236,7 +236,7 @@ function calculateStoryProgress(state) {
         const names = {
             1: "الفصل الأول: رمال الصحراء الهائمة",
             2: "الفصل الثاني: فتنة العوالم والأنوار",
-            3: "الفصل الثالث: مرآة الحيوات السابقة والبرزخ",
+            3: "الفصل الثالث: مرآة الذاكرة وعزم الأوائل",
             4: "الفصل الرابع: حصار واحة القوافل الكبرى",
             5: "الفصل الخامس: ملتقى الفجوات الأعظم وقدر النهاية"
         };
@@ -251,7 +251,7 @@ function calculateStoryProgress(state) {
             actName = "الفصل الرابع: حصار واحة القوافل الكبرى";
             pct = 40;
         } else if (hasChronicleFlag(state, 'act3_started')) {
-            actName = "الفصل الثالث: مرآة الحيوات السابقة والبرزخ";
+            actName = "الفصل الثالث: مرآة الذاكرة وعزم الأوائل";
             pct = 30;
         } else if (hasChronicleFlag(state, 'act2_started')) {
             actName = "الفصل الثاني: فتنة العوالم والأنوار";

@@ -9,14 +9,14 @@ window.ASCENSION = {
         const stage = state.player.cultivation.stage;
         const stageLvl = state.player.cultivation.stageLevel;
         // Peak of Great Boss (Stage 4) is level 10 and breakthrough is ready!
-        return (stage === 'كبير الجدعان والزعيم' && stageLvl >= 10 && state.player.cultivation.breakthroughReady);
+        return (stage === 'سيد الفرسان والديوان' && stageLvl >= 10 && state.player.cultivation.breakthroughReady);
     },
-
+ 
     attemptPhysical(state) {
         if (!this.checkEligible(state)) {
-            return { success: false, message: "جسدك وهمتك لسة موصلوش لقمة مقام كبير الجدعان والزعيم." };
+            return { success: false, message: "جسدك وهمتك لسة موصلوش لقمة مقام سيد الفرسان والديوان." };
         }
-
+ 
         // Physical Ascension requires raw physical toughness: Defense >= 100
         if ((state.player.def || 0) < 100) {
             return { 
@@ -24,13 +24,13 @@ window.ASCENSION = {
                 message: `<span style="color:var(--danger)"><b>فشل ارتقاء الجسد!</b> هيكلك الجسدي اتمزق فوراً بفعل رياح الفراغ والرمال الوعرة الرهيبة. محتاج على الأقل <b>100 دفاع</b> عشان تعبر. طور ينابيع المياه في قلعتك أو أتقن سر الجسد الصخري الصلب أولاً!</span>` 
             };
         }
-
+ 
         return { success: true, method: 'physical' };
     },
-
+ 
     attemptCombat(state) {
         if (!this.checkEligible(state)) {
-            return { success: false, message: "جسدك وهمتك لسة موصلوش لقمة مقام كبير الجدعان والزعيم." };
+            return { success: false, message: "جسدك وهمتك لسة موصلوش لقمة مقام سيد الفرسان والديوان." };
         }
 
         // Spawns the legendary Gatekeeper Boss!

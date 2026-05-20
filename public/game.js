@@ -995,6 +995,8 @@ function showScreen(screenId) {
         highlightMobileTab(1);
     } else if (screenId === 'inventory-screen') {
         highlightMobileTab(2);
+    } else if (screenId === 'cultivation-screen') {
+        highlightMobileTab(3);
     }
 }
 
@@ -1349,7 +1351,12 @@ function showCompanionScreen() {
     
     if (comp) {
         choices.push({
-            text: "💬 استشارة استراتيجية (تستعيد 30% صحة ومانا؛ تكلف 50 دينار ذهبي)",
+            text: "🗣️ محادثة تفاعلية ذكية (ذكاء اصطناعي)",
+            callback: () => { window.AIDialogue.talkToNPC('companion'); }
+        });
+
+        choices.push({
+            text: "💬 استشارة استراتيجية (تستعيد 30% صحة وعزيمة؛ تكلف 50 دينار ذهبي)",
             callback: () => {
                 if (state.player.gold < 50) {
                     narrate("معندكش دنانير ذهبية كفاية في صرتك لتكلفة الاستشارة.", "النظام");
@@ -1369,7 +1376,7 @@ function showCompanionScreen() {
         });
         
         choices.push({
-            text: "⚔️ جلسة تدريب وقتال ودي (تحدي الرفيق، تكلف 15 مانا)",
+            text: "⚔️ جلسة تدريب وقتال ودي (تحدي الرفيق، تكلف 15 عزيمة)",
             callback: () => {
                 if (state.player.mp < 15) {
                     narrate("معندكش تركيز بدني كافي في خلاياك لبدء المبارزة والتدريب الودي.", "النظام");
@@ -1385,10 +1392,10 @@ function showCompanionScreen() {
                 const statChoice = Math.random() < 0.5 ? 'atk' : 'def';
                 if (statChoice === 'atk') {
                     state.player.atk = (state.player.atk || 10) + 1;
-                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت فرسانك وقافلتك القتالية بشكل دائم (<b>+1 هجوم</b>)!`, "النظام");
+                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+${gain}%</b> وارتفعت فرسانك وقافلتك القتالية بشكل دائم (<b>+1 هجوم</b>)!`, "النظام");
                 } else {
                     state.player.def = (state.player.def || 5) + 1;
-                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+{gain}%</b> وارتفعت فرسانك وقافلتك القتالية بشكل دائم (<b>+1 دفاع</b>)!`, "النظام");
+                    narrate(`خضت مبارزة وتدريباً حاداً مع <b>${comp.name}</b>. زادت الألفة بنسبة <b>+${gain}%</b> وارتفعت فرسانك وقافلتك القتالية بشكل دائم (<b>+1 دفاع</b>)!`, "النظام");
                 }
                 
                 calculateTotalStats();
@@ -1538,9 +1545,9 @@ function combatLoop() {
                 actualCost = Math.max(1, Math.floor(actualCost * 0.8));
             }
             return {
-                text: m.name + (actualCost > 0 ? ` (${actualCost} مانا)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} دم)` : ''),
+                text: m.name + (actualCost > 0 ? ` (${actualCost} عزيمة)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)} دم)` : ''),
                 callback: () => {
-                    if (actualCost > (state.player.mp || 0)) { narrate("معندكش طاقة تركيز (مانا) كافية لتفعيل الفن!", "النظام"); combatLoop(); return; }
+                    if (actualCost > (state.player.mp || 0)) { narrate("معندكش طاقة تركيز (عزيمة) كافية لتفعيل الفن!", "النظام"); combatLoop(); return; }
                     if (m.hpCost && (state.player.hp <= Math.floor(state.player.maxHp * m.hpCost))) { narrate("لا تملك ما يكفي من جوهر دم الحياة لتضحية الفن!", "النظام"); combatLoop(); return; }
                     
                     if (actualCost > 0) state.player.mp -= actualCost;
@@ -1569,9 +1576,9 @@ function combatLoop() {
             }
             
             choices.push({
-                text: `💖 تآزر: ${synergyName} (25 مانا)`,
+                text: `💖 تآزر: ${synergyName} (25 عزيمة)`,
                 callback: () => {
-                    if ((state.player.mp || 0) < 25) { narrate("طاقة تركيزك ضعيفة ولا تكفي لتفعيل التآزر مع الرفيق!", "النظام"); combatLoop(); return; }
+                    if ((state.player.mp || 0) < 25) { narrate("طاقة تركيزك (عزيمة) ضعيفة ولا تكفي لتفعيل التآزر مع الرفيق!", "النظام"); combatLoop(); return; }
                     state.player.mp -= 25;
                     resolveCombatTurn(synergyId);
                 }
@@ -1602,26 +1609,26 @@ function resolveCombatTurn(moveId) {
         if (moveId === 'synergy_wukong') {
             dmg = Math.floor(state.player.atk * 2.8);
             state.skipEnemyTurn = true;
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة هراوة سون ووكونغ القاضية!</span> هوى سون ووكونغ بهراوته الذهبية الأسطورية في الجو، ساحقاً ${enemy.name} بـ <b>${dmg} ضرر هائل</b> ودمره ودوخه بالكامل!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة الهراوة الأسطورية القاضية!</span> هوى الرفيق في الجو بهراوة الفولاذ والذهب الشامخة، ساحقاً ${enemy.name} بـ <b>${dmg} ضرر هائل</b> ودمره ودوخه بالكامل تحت سحابة ترابية عظيمة!`;
         } else if (moveId === 'synergy_tariq') {
             const heal = Math.floor(state.player.def * 8);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
             state.player_invulnerable_turn = true;
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 درع رمال طارق بن زياد المطلق!</span> استدعى طارق بن زياد جدار رمال ذهبي عظيم حماه من الهلاك، مستعيداً <b>${heal} نقاط حياة</b> وجعلك محصناً بالكامل ضد كل شيء!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 درع رمال طارق بن زياد المطلق!</span> استدعى طارق قائد فرسان الأبي جدار رمال ذهبي شاهق حماك من عواصف الهلاك، مستعيداً <b>${heal} نقاط حياة</b> وجعل جسدك محصناً بالكامل تحت حماية رداء المروءة!`;
         } else if (moveId === 'synergy_boushaki') {
             const heal = Math.floor(state.player.atk * 1.5);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
             state.player.mp = Math.min(state.player.maxMp, state.player.mp + 50);
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 النفحة التكتيكية الحكيمة للبطل سيدي بوشاكي!</span> رتل الشيخ دعاء السكينة والتجلي، مستعيداً طهارة عروقك بـ <b>${heal} نقاط حياة</b> و <b>50 تركيز (مانا)</b>!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 النفحة التكتيكية الحكيمة للبطل سيدي بوشاكي!</span> رتل الشيخ دعاء السكينة والتجلي، مستعيداً طهارة عروقك وصحة بدنك بـ <b>${heal} نقاط حياة</b> و <b>50 تركيز (عزيمة)</b>!`;
         } else if (moveId === 'synergy_fatima') {
             dmg = Math.floor(state.player.atk * 2.2);
             enemy.atk = Math.max(1, Math.floor(enemy.atk * 0.6));
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 بصيرة فاطمة الفلكية وحساب الأسطرلاب!</span> رصدت فاطمة مسارات الكواكب الحارقة، صاعقة ${enemy.name} بـ <b>${dmg} ضرر تركيزي</b> وضعفت هجومه للأبد!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 بصيرة فاطمة الفلكية وحساب الأسطرلاب المذهل!</span> رصدت فاطمة مسارات النجوم الحارقة وخطوط الفلك، صاعقة ${enemy.name} بـ <b>${dmg} ضرر تركيزي</b> من شهاب عاتٍ وضعفت هجومه للأبد!`;
         } else {
             dmg = Math.floor(state.player.atk * 2.0);
             const heal = Math.floor(dmg * 0.15);
             state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
-            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة التآزر المشترك والنفس الواحدة!</span> ضربتما معاً في تناغم أسطوري ومثالي، مسببين <b>${dmg} ضرر</b> واستعدت <b>${heal} نقاط حياة</b>!`;
+            blockText = `<span style="color:var(--secondary); font-weight:bold;">💖 ضربة التآزر المشترك والنفس الواحدة الملحمية!</span> ضربتما معاً في تناغم أسطوري ومثالي، مسببين <b>${dmg} ضرر</b> واستعدت <b>${heal} نقاط حياة</b>!`;
         }
 
         enemy.hp = Math.max(0, enemy.hp - dmg);
@@ -1788,7 +1795,18 @@ function handleVictory() {
     const bg = state.player.background || {};
     const xpReward = Math.floor(xpBase * (bg.xpMult || 1) * streakMult * (1 + (state.player.xpGainBonus || 0)));
     
-    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()) * streakMult * (state.player.goldMult || 1.0));
+    let baseGoldMult = (state.player.goldMult || 1.0);
+    const realmIdx = window.CULTIVATION ? window.CULTIVATION.stages.findIndex(s => s.name === state.player.cultivation?.stage) : -1;
+    if (realmIdx >= 6) { // أمير القوافل والبادية (+30% غنائم ذهب)
+        baseGoldMult += 0.30;
+    }
+    const goldReward = Math.floor((enemy.minLevel || 1) * 10 * (1 + Math.random()) * streakMult * baseGoldMult);
+
+    if (realmIdx >= 7) { // المقاتل الأسطوري المهيب (+20% شفاء بعد سحق العدو)
+        const healAmt = Math.floor(state.player.maxHp * 0.20);
+        state.player.hp = Math.min(state.player.maxHp, state.player.hp + healAmt);
+        narrate(`<span style="color:#ff3b30; font-weight:bold;">[سورة النخوة والغضب الملحمية]:</span> التقطت أنفاسك واستعدت <b>${healAmt} نقاط حياة</b> إثر انتصارك الأسطوري!`, "النظام", null, false, true);
+    }
     
     state.player.xp += xpReward;
     state.player.gold += goldReward;
@@ -2174,6 +2192,15 @@ function calculateTotalStats() {
         state.player.critRate = baseCrit;
     }
     state.player.dodgeRate = baseDodge;
+
+    // 9.7 Realm-Specific Passive Bonuses
+    const stageIdx = window.CULTIVATION ? window.CULTIVATION.stages.findIndex(s => s.name === state.player.cultivation?.stage) : -1;
+    if (stageIdx === 5) { // سيد النصال والديوان: غليان عروق الفرسان (+15% Crit Rate)
+        state.player.critRate = (state.player.critRate || 0.05) + 0.15;
+    }
+    if (stageIdx === 6) { // أمير القوافل والبادية: زيادة العزيمة القصوى (+50)
+        bMp += 50;
+    }
 
     // 10. Final Application
     state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult * eqAtkMult);
