@@ -80,6 +80,17 @@ export function processTurnEffects(state, enemy) {
     } else {
         state.skipEnemyTurn = false;
     }
+
+    // Weather effects during combat
+    if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.getModifiers === 'function') {
+        const wMods = window.WEATHER_SYSTEM.getModifiers();
+        if (wMods.hpDrainMult > 0) {
+            const d = Math.max(1, Math.floor(state.player.maxHp * wMods.hpDrainMult));
+            state.player.hp = Math.max(1, state.player.hp - d);
+            msg += `<br><span style="color:#ff4500;font-weight:bold;">🔥 [طقس قاسي] استنزاف -${d} صحة!</span>`;
+        }
+        window.WEATHER_SYSTEM.advanceTurns(state, 1);
+    }
     return msg;
 }
 
@@ -239,6 +250,30 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
             else { state.player.mp-=20; pDmg=pBase*1.8; msg='سيف النور اخترق الدروع!'; mom=20; } break;
         default:
             pDmg=pBase; eDmg=eBase*.8; msg='تبادلتم ضربات متكافئة.'; mom=5;
+    }
+
+    // Heritage Trait Active Effects
+    const trait = state.player.inheritedTrait;
+    if (trait === 'resolute_will' && state.player.hp < state.player.maxHp * 0.3 && eDmg > 0) {
+        const reduced = Math.floor(eDmg * 0.25);
+        eDmg -= reduced;
+        msg += `<br><span style="color:#bdc3c7;font-weight:bold;">[عزيمة الصابرين]: قلل الضرر بمقدار ${reduced}!</span>`;
+    }
+    if (trait === 'royal_pride' && spec === 'crit') {
+        const mpGain = Math.floor(state.player.maxMp * 0.05);
+        state.player.mp = Math.min(state.player.maxMp, state.player.mp + mpGain);
+        msg += ` <span style="color:#9b59b6;">[عزة الفرسان: +${mpGain} تركيز]</span>`;
+    }
+    if (trait === 'bankers_eye' && eDmg > 0 && Math.random() < 0.15) {
+        const goldDrops = Math.floor(Math.random() * 5) + 2;
+        state.player.gold = (state.player.gold || 0) + goldDrops;
+        msg += `<br><span style="color:#f1c40f;font-weight:bold;">💰 [نفوذ الصراف]: سقطت ${goldDrops} ذهب أثناء المعركة!</span>`;
+    }
+    if (trait === 'beast_agility' && eDmg === 0 && Math.random() < 0.25 && enemyMoveType !== 'guard' && enemyMoveType !== 'deflect') {
+        const counter = Math.floor(playerAtk * 0.5);
+        pDmg += counter;
+        msg += `<br><span style="color:#e67e22;font-weight:bold;">🐺 [خفة الفهد]: هجوم مضاد سريع (${counter} ضرر)!</span>`;
+        window.COMBAT_UI?.playEffect('execution', 'enemy');
     }
 
     pDmg=Math.floor(pDmg); eDmg=Math.floor(eDmg);

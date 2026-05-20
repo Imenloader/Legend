@@ -9,14 +9,14 @@ window.WEATHER_SYSTEM = {
     cycleIndex: 0,
     
     weathers: {
-        'clear_noon': {
-            id: 'clear_noon',
-            name: "الظهيرة القاحلة الحارقة",
-            subtitle: "شموس حارقة تهلك الأبدان وتزيد استهلاك الطاقة",
-            class: "weather-noon",
-            filter: "sepia(0.2) saturate(1.4) hue-rotate(-10deg) contrast(1.1)",
-            effectText: "⬇️ يقلل من فعالية العلاج والاسترجاع البدني بنسبة 10%",
-            color: "#e28743"
+        'clear_sky': {
+            id: 'clear_sky',
+            name: "سماء صافية مباركة",
+            subtitle: "سماء زرقاء نقية بلا أتربة، تمنح الفارس استقراراً تاماً",
+            class: "weather-clear",
+            filter: "sepia(0) saturate(1.1) hue-rotate(0deg) contrast(1.0)",
+            effectText: "✨ جو صحو وهادئ، لا يوجد أي تأثيرات سلبية أو إيجابية على القدرات.",
+            color: "#87CEEB"
         },
         'sandstorm': {
             id: 'sandstorm',
@@ -24,31 +24,31 @@ window.WEATHER_SYSTEM = {
             subtitle: "رياح عاتية تثير الرمال وتعطل الرؤية والتركيز",
             class: "weather-sandstorm",
             filter: "sepia(0.4) saturate(0.8) hue-rotate(5deg) contrast(0.95)",
-            effectText: "🎯 يقلل دقة الضربات بنسبة 25% ويزيد تفادي الحركات الرشيقة بنسبة 15%",
+            effectText: "🎯 يقلل من دقة الهجمات والهجوم البدني بنسبة 25% ويزيد التفادي بنسبة 15%.",
             color: "#c2b280"
         },
-        'oasis_midnight': {
-            id: 'oasis_midnight',
-            name: "نسيم واحة قاف ليلاً",
-            subtitle: "قمر ليل الواحة المبارك يبعث على الهدوء والسكينة والتركيز العالي",
-            class: "weather-midnight",
-            filter: "hue-rotate(210deg) saturate(0.85) brightness(0.8) contrast(1.05)",
-            effectText: "✨ يسرع من معدل تعافي المانا والتركيز البدني بنسبة 20%",
-            color: "#4682b4"
+        'heatwave': {
+            id: 'heatwave',
+            name: "موجة الحر اللاهبة",
+            subtitle: "حرارة لا تطاق تغلي الدماء في العروق وتزيد الشراسة",
+            class: "weather-heatwave",
+            filter: "sepia(0.5) saturate(1.8) hue-rotate(-15deg) contrast(1.2)",
+            effectText: "🔥 يزيد الهجوم بنسبة 25%، لكنه يستنزف 3% من أقصى طاقة حياة في كل جولة!",
+            color: "#ff4500"
         }
     },
     
-    weatherCycle: ['clear_noon', 'sandstorm', 'oasis_midnight'],
+    weatherCycle: ['clear_sky', 'sandstorm', 'heatwave'],
 
     init(state) {
         if (!state.environment) {
             state.environment = {
-                weather: 'clear_noon',
+                weather: 'clear_sky',
                 turnCounter: 0,
                 cycleIndex: 0
             };
         }
-        this.currentWeather = state.environment.weather || 'clear_noon';
+        this.currentWeather = state.environment.weather || 'clear_sky';
         this.turnCounter = state.environment.turnCounter || 0;
         this.cycleIndex = state.environment.cycleIndex || 0;
         this.applyVisuals();
@@ -77,15 +77,14 @@ window.WEATHER_SYSTEM = {
     },
 
     getModifiers() {
-        const w = this.weathers[this.currentWeather];
-        if (this.currentWeather === 'clear_noon') {
-            return { healMult: 0.9, accuracyBonus: 0, dodgeBonus: 0, mpRegenMult: 1 };
+        if (this.currentWeather === 'clear_sky') {
+            return { healMult: 1, accuracyBonus: 0, dodgeBonus: 0, mpRegenMult: 1, atkMult: 1, hpDrainMult: 0 };
         } else if (this.currentWeather === 'sandstorm') {
-            return { healMult: 1, accuracyBonus: -0.25, dodgeBonus: 0.15, mpRegenMult: 1 };
-        } else if (this.currentWeather === 'oasis_midnight') {
-            return { healMult: 1, accuracyBonus: 0, dodgeBonus: 0, mpRegenMult: 1.2 };
+            return { healMult: 1, accuracyBonus: -0.25, dodgeBonus: 0.15, mpRegenMult: 1, atkMult: 0.75, hpDrainMult: 0 };
+        } else if (this.currentWeather === 'heatwave') {
+            return { healMult: 1, accuracyBonus: 0, dodgeBonus: 0, mpRegenMult: 1, atkMult: 1.25, hpDrainMult: 0.03 };
         }
-        return { healMult: 1, accuracyBonus: 0, dodgeBonus: 0, mpRegenMult: 1 };
+        return { healMult: 1, accuracyBonus: 0, dodgeBonus: 0, mpRegenMult: 1, atkMult: 1, hpDrainMult: 0 };
     },
 
     applyVisuals() {

@@ -2384,8 +2384,17 @@ function calculateTotalStats() {
         bMp += 50;
     }
 
+    // 9.8 Weather Modifiers
+    let wAtkMult = 1;
+    if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.getModifiers === 'function') {
+        const wMods = window.WEATHER_SYSTEM.getModifiers();
+        wAtkMult = wMods.atkMult || 1;
+        state.player.critRate = (state.player.critRate || 0) + (wMods.accuracyBonus || 0);
+        state.player.dodgeRate = (state.player.dodgeRate || 0) + (wMods.dodgeBonus || 0);
+    }
+
     // 10. Final Application
-    state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult * eqAtkMult);
+    state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult * eqAtkMult * wAtkMult);
     state.player.def = Math.floor((baseDef + bDef) * totalStatMult * eqDefMult);
     state.player.maxHp = Math.floor((baseMaxHp + bHp) * totalHpMult * eqHpMult);
     state.player.maxMp = Math.floor((baseMaxMp + bMp) * eqMpMult);
