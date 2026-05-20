@@ -144,6 +144,9 @@ export function selectEnemyMove(enemy) {
 }
 
 export function getTelegraph(enemy, moveType) {
+    if (enemy.moves && enemy.moves[moveType]) {
+        return `<span style="color:var(--danger); font-weight:bold;">[${enemy.moves[moveType].name}]</span>: ${enemy.moves[moveType].text}`;
+    }
     const t = {
         heavy:   `${enemy.name} يجمع ثقله لضربة مدمرة!`,
         fast:    `${enemy.name} يشحن لهجوم خاطف كالبرق!`,
@@ -250,6 +253,11 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
             else { state.player.mp-=20; pDmg=pBase*1.8; msg='سيف النور اخترق الدروع!'; mom=20; } break;
         default:
             pDmg=pBase; eDmg=eBase*.8; msg='تبادلتم ضربات متكافئة.'; mom=5;
+    }
+
+    // Append unique enemy attack name if they dealt damage
+    if (eDmg > 0 && enemy.moves && enemy.moves[enemyMoveType]) {
+        msg += `<br><span style="color:var(--danger); font-size:0.9em;">[${enemy.moves[enemyMoveType].name}] أصابتك!</span>`;
     }
 
     // Heritage Trait Active Effects
