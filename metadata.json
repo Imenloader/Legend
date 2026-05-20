@@ -1,0 +1,8 @@
+{
+  "name": "ملحمة الشرق الخالدة",
+  "description": "لعبة تقمص أدوار شرقية ملحمية تحاكي قصص وبطولات طريق الحرير وأساطير الفتوة والخلود بنظام السلوك والقدر المبارك.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
