@@ -321,7 +321,7 @@ const ARABIAN_ENEMIES = {
     },
     immortal_nimrod: {
         id: 'immortal_nimrod',
-        name: 'النمرود الجبار (ملك بابل الملعون)',
+        name: 'طاغية بابل العتيد',
         region: 'celestial_court',
         sprite: 'assets/mythology_bg_1778872403707.png',
         archetype: 'jinn',
@@ -329,8 +329,8 @@ const ARABIAN_ENEMIES = {
         baseHp: 500,
         baseAtk: 50,
         baseDef: 25,
-        desc: 'الملك التاريخي الذي تحدى السماء فلعنه الله ببعوضة في رأسه. عاد من الموت بقوة الظلال البابلية ليحكم مدينة النحاس والربع الخالي بالحديد والنار.',
-        dialogue: '"أنا من أحيي وأميت! أنا إله بابل والأقدار السبعة!"',
+        desc: 'ملك ظالم من العصور الغابرة، طغى في الأرض ولجأ لطلاسم النحاس المظلمة ليحكم إمبراطورية الجان. تحول بفعل بطشه وغروره لكيان مرعب ومستبد.',
+        dialogue: '"لن يفلت أحد من سطوتي! أنا سلطان بابل الذي لا تُكسر إرادته!"',
         lootTarget: 'celestial_loot'
     },
     desert_ghoul: {
