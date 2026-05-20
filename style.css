@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --primary: #0D2137; /* Royal Egyptian Lapis Blue */
     --primary-glow: rgba(13, 33, 55, 0.6);
     --secondary: #FFD700; /* Sun Gold */
@@ -44,6 +44,7 @@ html, body {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    background-color: #05080C;
     background-image: url('assets/mythology_bg_1778872403707.png');
     background-size: cover;
     background-position: center;
@@ -827,9 +828,9 @@ input[type="text"]:focus {
     transform: translateY(0);
 }
 
-/* ────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CINEMATIC VISUAL NOVEL & PROGRESSION HUD STYLES
-   ──────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Screen Shake Effect */
 @keyframes screenShake {
@@ -1034,7 +1035,7 @@ input[type="text"]:focus {
     box-shadow: 0 0 12px #fff, 0 0 4px var(--secondary);
 }
 .karma-pointer::after {
-    content: '▼';
+    content: 'â–¼';
     position: absolute;
     bottom: -18px;
     left: 50%;
@@ -1658,9 +1659,9 @@ input[type="text"]:focus {
     }
 }
 
-/* ────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    FASCINATING COMBAT VISUAL & MAGICAL PARTICLE EFFECTS
-   ──────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .floating-text {
     position: fixed;
@@ -1740,9 +1741,9 @@ input[type="text"]:focus {
     }
 }
 
-/* ────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    ULTIMATE UNIVERSAL MOBILE RESPONSIVENESS AND CLIPPING PROTECTION
-   ──────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 600px) {
     /* Prevent any external overflow on html, body, and game wrappers */
     html, body, #game-container, #app {
@@ -1834,9 +1835,9 @@ input[type="text"]:focus {
     }
 }
 
-/* ────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    ENHANCED RPG TOOLTIPS & GEAR SYSTEM STYLE DECORATORS
-   ──────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Allow equipment slots and containers to properly position tooltip overlays */
 .inventory-slot {
@@ -2126,7 +2127,7 @@ input[type="text"]:focus {
     box-shadow: 0 0 8px rgba(0,250,154,0.3);
 }
 /* ============================================================
-   COMBAT VISUAL EFFECTS � CSS Animations
+   COMBAT VISUAL EFFECTS — CSS Animations
    ============================================================ */
 :root {
     --effect-fire: #ff4500;
@@ -2183,3 +2184,4 @@ input[type="text"]:focus {
 .fx-sword-intent { animation: swordIntentCharge 0.6s ease-in-out; }
 .combat-log-entry { animation: combatLogSlide 0.3s ease-out forwards; }
 .enemy-hp-danger { animation: poisonPulse 0.8s ease-in-out infinite; background: linear-gradient(90deg,#5e1313,var(--danger)) !important; }
+
