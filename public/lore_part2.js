@@ -5,6 +5,39 @@
 
 // --- أبطال ورفاق الشرق التاريخيين والأساطير ---
 const ARABIAN_HEROES = {
+    antarah: {
+        id: 'antarah',
+        name: 'عنترة بن شداد',
+        title: 'فارس عبس العظيم وشاعر السيف',
+        origin: 'empty_quarter',
+        sprite: 'assets/desert_knight_1778872351281.png',
+        alignment: 'lawful_good',
+        karmaRequirement: 0,
+        affinity: 0,
+        personality: 'proud_warrior',
+        description: 'الفارس الأعظم في تاريخ البادية. لم تقهره سيوف الرجال بل قهرته الأساطير. يعشق الشجاعة المطلقة وينفر من الغدر. سيفه يقطر بشرف الفرسان.',
+        dialogue: {
+            greet: [
+                '"هل جئت لتختبر سيفك أمام فارس عبس؟ أم جئت باحثاً عن حكمة البادية؟"',
+                '"السيف أصدق أنباءً من الكتب.. دعنا نرى ما تخفيه شجاعتك."'
+            ],
+            battle_cry: [
+                '"أنا عنترة، سيفي لا ينام!"',
+                '"لقد أسمعت لو ناديت حياً!"'
+            ],
+            high_affinity: '"أرى فيك شجاعة لم أرها في فرسان القبائل من قبل. أنت أخ وصاحب سيف يعتمد عليه."',
+            unique_ability_use: '"ضربة العبسي التي لا تُرد!"'
+        },
+        passiveBuff: { stat: 'atk', bonus: 0.30, label: '+30% قوة هجوم جسدي بدوي' },
+        uniqueAbility: {
+            name: 'ضربة السيف العبسي القاصمة',
+            mpCost: 40,
+            description: 'يجمع عنترة كل غضبه البدوي في ضربة واحدة تسحق دروع الخصوم بالكامل.',
+            effect: 'massive_physical_damage'
+        },
+        questArc: 'سيف البطولة والشعر',
+        secretMotivation: 'يسعى لتوحيد القبائل المتناحرة في الربع الخالي لصد غزو إمبراطورية الجان الغارقة.'
+    },
     tariq_ibn_ziyad: {
         id: 'tariq_ibn_ziyad',
         name: 'طارق قائد الفرسان الأبي',
@@ -258,6 +291,48 @@ const ARABIAN_HEROES = {
 
 // --- قائمة غيلان وأعداء الصحراء والجن ---
 const ARABIAN_ENEMIES = {
+    iraqi_silawah: {
+        id: 'iraqi_silawah',
+        name: 'السعلوة النهرية (أسطورة العراق)',
+        region: 'empty_quarter',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        archetype: 'beast',
+        minLevel: 5,
+        baseHp: 160,
+        baseAtk: 25,
+        baseDef: 10,
+        desc: 'مخلوقة أسطورية مرعبة من فلكلور العراق والأهوار. تتنكر في شكل امرأة حسناء لتستدرج المسافرين ثم تكشف عن وجهها البشع وأنيابها القاتلة.',
+        dialogue: '"تعال يا مسافر... الماء هنا بارد وعذب... تعااال! (تتحول لوحش وتصرخ)"',
+        lootTarget: 'arabian_loot'
+    },
+    iraqi_tantal: {
+        id: 'iraqi_tantal',
+        name: 'الطنطل الغادر (أسطورة بابل)',
+        region: 'brass_city',
+        sprite: 'assets/desert_ghoul_1778872388305.png',
+        archetype: 'jinn',
+        minLevel: 7,
+        baseHp: 200,
+        baseAtk: 35,
+        baseDef: 15,
+        desc: 'كيان عراقي أسطوري مرعب يغير شكله ليخدع الفرسان ليلاً. يجلس على صدور الضحايا ويخنق أنفاسهم لسرقة طاقاتهم الباطنية وتركيزهم.',
+        dialogue: '"لن تمر من هنا... أنا ظل الليل وعبء الكوابيس الثقيل في بلاد الرافدين!"',
+        lootTarget: 'brass_loot'
+    },
+    immortal_nimrod: {
+        id: 'immortal_nimrod',
+        name: 'النمرود الجبار (ملك بابل الملعون)',
+        region: 'celestial_court',
+        sprite: 'assets/mythology_bg_1778872403707.png',
+        archetype: 'jinn',
+        minLevel: 10,
+        baseHp: 500,
+        baseAtk: 50,
+        baseDef: 25,
+        desc: 'الملك التاريخي الذي تحدى السماء فلعنه الله ببعوضة في رأسه. عاد من الموت بقوة الظلال البابلية ليحكم مدينة النحاس والربع الخالي بالحديد والنار.',
+        dialogue: '"أنا من أحيي وأميت! أنا إله بابل والأقدار السبعة!"',
+        lootTarget: 'celestial_loot'
+    },
     desert_ghoul: {
         id: 'desert_ghoul',
         name: 'غيلان الربع الخالي',

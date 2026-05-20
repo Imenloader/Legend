@@ -334,7 +334,8 @@ const EXTENDED_STORY_NODES = {
     </div>
 </div>`,
         choices: [
-            { text: '✨ ابدأ عهد أسطوري جديد (العودة للملفات)', next: null, onEnter: (state) => { location.reload(); } }
+            { text: '🔥 استمر في الارتقاء والملاحم لفتح أسرار ما وراء الصحراء (الفصل السادس وما بعده)', next: null, returnToHub: true, onEnter: (state) => { state._completedMainStory = true; } },
+            { text: '✨ ابدأ عهد أسطوري جديد (إعادة اللعبة بالكامل)', next: null, onEnter: (state) => { location.reload(); } }
         ]
     }
 };

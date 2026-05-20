@@ -1226,6 +1226,24 @@ function hubLoop() {
     // Exploration
     choices.push({ text: `⚔️ استكشف ${regionName}`, callback: () => exploreRegion(regionId) });
     
+    // Epic Sagas Tent
+    if ((state.player.lvl >= 10) || state._completedMainStory) {
+        choices.push({
+            text: '⛺ ديوان الملاحم والأساطير الكبرى (حبكات وشخصيات تاريخية)',
+            callback: () => {
+                clearNarrative();
+                narrate("داخل خيمة الديباج والنحاس، يجلس شيوخ التاريخ العربي وشعراء العراق والبادية، مستعدين لفتح مخطوطات ملاحم لم تروَ من قبل.", "النظام");
+                setChoices([
+                    { text: "🦅 ملحمة عنترة بن شداد العبسي (سيف البطولة)", callback: () => { if(window.STORY && window.STORY.runNode) window.STORY.runNode('saga_antarah', state, narrate, setChoices, hubLoop); else narrate('جاري تجهيز الملحمة...', 'النظام'); setTimeout(hubLoop, 2000); } },
+                    { text: "⚒️ ورشة صقل السيف الدمشقي المفقودة", callback: () => { if(window.STORY && window.STORY.runNode) window.STORY.runNode('saga_forge_start', state, narrate, setChoices, hubLoop); } },
+                    { text: "🌊 إمبراطورية الجان وسعلوة العراق (الفصل السادس)", callback: () => { if(window.STORY && window.STORY.runNode) window.STORY.runNode('act6_intro', state, narrate, setChoices, hubLoop); } },
+                    { text: "🧘 محنة شيخ الطريقة الأكبر (جبل قاف)", callback: () => { if(window.STORY && window.STORY.runNode) window.STORY.runNode('saga_sufi_start', state, narrate, setChoices, hubLoop); } },
+                    { text: "↩ عودة لواحة القوافل", callback: hubLoop }
+                ]);
+            }
+        });
+    }
+
     // Oasis & Caravan expansion buttons
     choices.push({
         text: getLockText('oasis', '⛺ إدارة وتطوير الواحة الباطنية (إنتاج تلقائي خامل)', 3, 500),
