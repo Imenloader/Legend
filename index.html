@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+�<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0D2137">
-    <title>Ù…Ù„Ø­Ù…Ø© Ø§Ù„Ø´Ø±Ù‚ Ø§Ù„Ø³Ø§Ø­Ø±: Ù…Ø®Ø·ÙˆØ·Ø© Ø§Ù„Ø®Ù„ÙˆØ¯ ÙˆØ§Ù„Ø£Ø³Ø§Ø·ÙŠØ± Ø§Ù„Ø´Ø±Ù‚ÙŠØ©</title>
+    <title>ملحمة الشرق الساحر: مخطوطة الخلود والأساطير الشرقية</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,24 +22,24 @@
                 <img id="hud-avatar-img" src="assets/sword_immortal_1778872325571.png" alt="Avatar">
             </div>
             <div class="hud-text">
-                <span id="hud-player-name-val">Ø§Ù„Ø¬Ø¯Ø¹ Ø§Ù„Ø¨Ø·Ù„</span>
-                <span id="hud-class-val">Ø®Ø§Ù„Ø¯ Ø§Ù„Ø³ÙŠÙ Ø§Ù„Ø£Ø³Ø·ÙˆØ±ÙŠ</span>
+                <span id="hud-player-name-val">الجدع البطل</span>
+                <span id="hud-class-val">خالد السيف الأسطوري</span>
             </div>
         </div>
         <div class="hud-stats">
             <div class="hud-resource" style="border-color: rgba(231,76,60,0.25);">
-                <span class="resource-icon" style="color:#e74c3c;">â¤ï¸</span>
+                <span class="resource-icon" style="color:#e74c3c;">❤️</span>
                 <span id="hud-hp-val">100/100</span>
             </div>
             <div class="hud-resource" style="border-color: rgba(52,152,219,0.25);">
-                <span class="resource-icon" style="color:#3498db;">ðŸŒ€</span>
+                <span class="resource-icon" style="color:#3498db;">🌀</span>
                 <span id="hud-mp-val">50/50</span>
             </div>
             <div class="hud-get-gold hud-resource" style="border-color: rgba(241,196,15,0.25);">
                 <span class="resource-icon">
                     <svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align: middle; fill: #ffd700; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.6)); display: inline-block;">
                         <circle cx="12" cy="12" r="10" stroke="#b89704" stroke-width="1.5" fill="url(#goldGrad)"/>
-                        <text x="12" y="15.5" font-size="11" font-weight="bold" fill="#5c4308" text-anchor="middle">Ø¯</text>
+                        <text x="12" y="15.5" font-size="11" font-weight="bold" fill="#5c4308" text-anchor="middle">د</text>
                         <defs>
                             <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#fff176"/>
@@ -54,12 +54,12 @@
         </div>
     </div>
 
-    <button id="rescue-btn" class="btn-rescue" title="Ø§Ù„Ø±Ø¬ÙˆØ¹ Ø¥Ù„Ù‰ Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ø§Ù„Ø¢Ù…Ù†Ø© (ÙŠØµÙ„Ø­ Ø§Ù„Ù„Ø¹Ø¨Ø© Ø¥Ø°Ø§ Ø¹Ù„Ù‚Øª)">Ø¥Ù†Ù‚Ø§Ø° Ø§Ù„Ø¨Ø·Ù„</button>
+    <button id="rescue-btn" class="btn-rescue" title="الرجوع إلى المنطقة الآمنة (يصلح اللعبة إذا علقت)">إنقاذ البطل</button>
 
     <!-- Cinematic Overlay for Novel Mode -->
     <div id="cinematic-overlay" class="cinematic-overlay">
         <div class="novel-text-box" id="novel-box">
-            <h4 id="novel-speaker">Ø´Ù‡Ø±Ø²Ø§Ø¯</h4>
+            <h4 id="novel-speaker">شهرزاد</h4>
             <div id="novel-content" style="color:var(--text); font-style:italic;">...</div>
         </div>
     </div>
@@ -67,9 +67,9 @@
     <!-- NEW: Cinematic Fullscreen Act Transition Overlay -->
     <div id="act-transition-overlay" class="act-transition-overlay">
         <div class="act-transition-content">
-            <div class="act-transition-chapter" id="act-transition-chapter">ØªÙ… ÙØªØ­ Ø§Ù„Ø¨ØµÙŠØ±Ø© ÙˆÙØµÙ„ Ø¬Ø¯ÙŠØ¯!</div>
-            <h2 class="act-transition-title" id="act-transition-title">Ø§Ù„ÙØµÙ„ Ø§Ù„Ø«Ø§Ù„Ø«: Ø§Ù„Ù…Ø­Ù†Ø© ÙˆØ§Ù„Ø§Ø¨ØªÙ„Ø§Ø¡ Ø§Ù„Ø£ÙƒØ¨Ø±</h2>
-            <p class="act-transition-desc" id="act-transition-desc">ÙÙŠ Ø£Ø¹Ù…Ø§Ù‚ Ø§Ù„ØµØ­Ø±Ø§Ø¡ Ø§Ù„Ø´Ø§Ø³Ø¹Ø©ØŒ Ø£ØµÙˆÙ„Ùƒ Ø§Ù„Ø¹Ø±ÙŠÙ‚Ø© ÙˆØ°Ø§ÙƒØ±Ø© Ø§Ù„Ø£ÙˆØ§Ø¦Ù„ ÙÙŠ Ø§Ù†ØªØ¸Ø§Ø±Ùƒ Ø¨Ø§Ù„Ù…Ø±Ø¢Ø© Ø§Ù„Ø£Ø«Ø±ÙŠØ©...</p>
+            <div class="act-transition-chapter" id="act-transition-chapter">تم فتح البصيرة وفصل جديد!</div>
+            <h2 class="act-transition-title" id="act-transition-title">الفصل الثالث: المحنة والابتلاء الأكبر</h2>
+            <p class="act-transition-desc" id="act-transition-desc">في أعماق الصحراء الشاسعة، أصولك العريقة وذاكرة الأوائل في انتظارك بالمرآة الأثرية...</p>
             <div class="act-transition-progress-wrapper">
                 <div id="act-transition-progress-bar" class="act-transition-progress-bar"></div>
             </div>
@@ -79,34 +79,34 @@
     <!-- NEW: Immortal Chronicle Story Log Modal -->
     <div id="chronicle-modal" class="chronicle-modal">
         <div class="chronicle-modal-container">
-            <button class="chronicle-close-btn" onclick="toggleChronicleModal()">Ã—</button>
-            <h2 style="font-size: 2rem; margin-bottom: 5px;">ðŸ“– Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„Ø®Ø§Ù„Ø¯ Ù„Ù„Ù‚Ø¯Ø±</h2>
-            <p style="text-align: center; color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">Ù‚Ø±Ø§Ø±Ø§ØªÙƒ ÙˆØ§Ø®ØªÙŠØ§Ø±Ø§ØªÙƒ Ø¨ØªØªØ±Ø¯Ø¯ ÙÙŠ Ø£Ø±Ø¬Ø§Ø¡ Ø¹ÙˆØ§Ù„Ù… Ø§Ù„Ø±Ù…Ø§Ù„ ÙˆØ¬Ø¨Ù„ Ø§Ù„Ø·ÙˆØ± Ø§Ù„Ø±ÙˆØ­ÙŠØ©.</p>
+            <button class="chronicle-close-btn" onclick="toggleChronicleModal()">×</button>
+            <h2 style="font-size: 2rem; margin-bottom: 5px;">📖 السجل الخالد للقدر</h2>
+            <p style="text-align: center; color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">قراراتك واختياراتك بتتردد في أرجاء عوالم الرمال وجبل الطور الروحية.</p>
             
             <div class="chronicle-layout">
                 <!-- Destiny Tracker Panel -->
                 <div class="chronicle-panel destiny-tracker-panel" style="flex: 0.8; padding: 20px; background: rgba(5,8,12,0.92); border: 1px solid var(--glass-border); border-radius: 8px;">
-                    <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 20px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">Ù…Ù‚Ø§Ù… ÙˆØªÙˆØ¬Ù‡ Ø§Ù„Ù‚Ø¯Ø±</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 20px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">مقام وتوجه القدر</h3>
                     <div class="karma-slider-container" style="position: relative; height: 12px; background: linear-gradient(90deg, var(--danger) 0%, var(--secondary) 50%, var(--jade) 100%); border-radius: 6px; margin: 30px 0 15px; border: 1px solid #000;">
                         <div id="chronicle-karma-pointer" class="karma-pointer" style="position: absolute; top: -6px; left: 50%; width: 24px; height: 24px; background: #fff; border: 3px solid var(--secondary); border-radius: 50%; box-shadow: 0 0 10px #fff; transform: translateX(-12px); transition: left 0.5s ease-out; cursor: pointer;"></div>
                     </div>
                     <div class="karma-slider-labels" style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: bold; margin-bottom: 20px; direction: ltr;">
-                        <span style="color: var(--danger)">Ù…Ù„Ùƒ Ø§Ù„Ø¸Ù„Ø§Ù„ ÙˆØ§Ù„Ø¹Ø¯Ù… Ø§Ù„Ù…Ø·Ù„Ù‚</span>
-                        <span style="color: var(--secondary)">Ø§Ù„Ø³ÙŠØ§Ù Ø§Ù„Ù‡Ø§Ø¦Ù… Ø§Ù„Ù…Ø¹ØªØ¯Ù„</span>
-                        <span style="color: var(--jade)">Ø§Ù„ÙˆÙ„ÙŠ Ø§Ù„ØµØ§Ù„Ø­ Ø§Ù„Ù†ÙˆØ±Ø§Ù†ÙŠ</span>
+                        <span style="color: var(--danger)">ملك الظلال والعدم المطلق</span>
+                        <span style="color: var(--secondary)">السياف الهائم المعتدل</span>
+                        <span style="color: var(--jade)">الولي الصالح النوراني</span>
                     </div>
                     <div id="ending-projection-box" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; font-size: 0.9rem; line-height: 1.5; color: var(--text);">
                         <!-- Projection loaded dynamically by chronicle.js -->
-                        Ø¬Ø§Ø±Ù Ø­Ø³Ø§Ø¨ Ù…Ø³Ø§Ø± Ø§Ù„Ù‚Ø¯Ø±...
+                        جارٍ حساب مسار القدر...
                     </div>
                 </div>
                 
                 <!-- Timeline Panel -->
                 <div class="chronicle-panel timeline-panel" style="flex: 1.2; padding: 20px; background: rgba(5,8,12,0.92); border: 1px solid var(--glass-border); border-radius: 8px; display: flex; flex-direction: column; height: 350px;">
-                    <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 15px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">Ø³Ø¬Ù„ Ø§Ù„Ù…Ù„Ø­Ù…Ø© Ø§Ù„Ø±ÙˆØ­ÙŠØ©</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 15px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">سجل الملحمة الروحية</h3>
                     <div id="chronicle-timeline" style="flex: 1; overflow-y: auto; padding-left: 5px; display: flex; flex-direction: column; gap: 15px;">
                         <!-- Timeline items loaded dynamically by chronicle.js -->
-                        <div style="color: var(--text-dim); text-align: center; margin-top: 50px;">Ø­ÙƒØ§ÙŠØªÙƒ ÙˆØ§Ø¨ØªÙ„Ø§Ø¡Ø§ØªÙƒ Ù„Ø³Ø© Ø¨Ø§Ø¯ÙŠØ©... ÙƒÙ…Ù„ Ø·Ø±ÙŠÙ‚Ùƒ ÙˆØ¬Ø§Ù‡Ø¯ Ù†ÙØ³Ùƒ!</div>
+                        <div style="color: var(--text-dim); text-align: center; margin-top: 50px;">حكايتك وابتلاءاتك لسة بادية... كمل طريقك وجاهد نفسك!</div>
                     </div>
                 </div>
             </div>
@@ -116,18 +116,18 @@
     <!-- MAIN MENU -->
     <div id="menu-screen" class="screen active">
         <div class="ornament top"></div>
-        <h1>Ù…Ù„Ø­Ù…Ø© Ø§Ù„Ø´Ø±Ù‚<br>Ø§Ù„Ø®Ø§Ù„Ø¯Ø©</h1>
+        <h1>ملحمة الشرق<br>الخالدة</h1>
         <input
             type="text"
             id="char-name"
-            placeholder="Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø¨Ø·Ù„ Ø§Ù„Ù‚Ù„ÙˆØ¨ Ù‡Ù†Ø§..."
-            aria-label="Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø¨Ø·Ù„ Ø§Ù„Ù‚Ù„ÙˆØ¨ Ù‡Ù†Ø§..."
+            placeholder="اكتب اسم بطل القلوب هنا..."
+            aria-label="اكتب اسم بطل القلوب هنا..."
             autocomplete="off"
             style="margin-bottom: 20px;"
         />
         <select
             id="perspective-select"
-            aria-label="Ø§Ø®ØªØ± ØµÙŠØºØ© Ø§Ù„Ø³Ø±Ø¯ Ù„Ù„Ø±Ø­Ù„Ø© Ø§Ù„Ø±ÙˆØ­ÙŠØ©"
+            aria-label="اختر صيغة السرد للرحلة الروحية"
             style="
                 width:100%;
                 padding:16px;
@@ -141,10 +141,10 @@
             "
         >
             <option value="second">
-                ØµÙŠØºØ© Ø§Ù„Ù…Ø®Ø§Ø·ÙŽØ¨ ("Ø£Ù†Øª ØªÙ…Ø´ÙŠ...")
+                صيغة المخاطَب ("أنت تمشي...")
             </option>
             <option value="first">
-                ØµÙŠØºØ© Ø§Ù„Ù…ØªÙƒÙ„Ù… ("Ø£Ù†Ø§ Ø£Ù…Ø´ÙŠ...")
+                صيغة المتكلم ("أنا أمشي...")
             </option>
         </select>
         <button
@@ -152,7 +152,7 @@
             class="btn"
             type="button"
         >
-            Ø¨Ø¯Ø¡ Ø±Ø­Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù…Ø¨Ø§Ø±ÙƒØ©
+            بدء رحلة جديدة مباركة
         </button>
         <button
             id="continue-btn"
@@ -160,20 +160,20 @@
             type="button"
             style="display: none; margin-top: 10px; border-color: var(--jade); color: var(--jade);"
         >
-            Ù…ÙˆØ§ØµÙ„Ø© Ø§Ù„Ø³Ù„ÙˆÙƒ ÙˆØ§Ù„Ø¬Ù‡Ø§Ø¯ Ø§Ù„Ø±ÙˆØ­ÙŠ
+            مواصلة السلوك والجهاد الروحي
         </button>
         <div class="ornament bottom"></div>
     </div>
     
     <!-- CHARACTER CREATION -->
     <div id="creation-screen" class="screen">
-        <h1>Ø§Ø®ØªØ± Ø£ØµÙ„ Ø§Ù„Ù†Ø´Ø£Ø© ÙˆØ§Ù„Ù‚Ø¯Ø±</h1>
+        <h1>اختر أصل النشأة والقدر</h1>
         <div class="input-group">
             <input
                 type="text"
                 id="player-name"
-                placeholder="Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø¨Ø·Ù„ Ø§Ù„Ù‚Ù„ÙˆØ¨"
-                aria-label="Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø¨Ø·Ù„ Ø§Ù„Ù‚Ù„ÙˆØ¨"
+                placeholder="اكتب اسم بطل القلوب"
+                aria-label="اكتب اسم بطل القلوب"
                 maxlength="12"
             />
         </div>
@@ -182,161 +182,161 @@
                 class="class-card selected"
                 role="button"
                 tabindex="0"
-                aria-label="Ø§Ù„Ø³ÙŠØ§Ù Ø§Ù„Ø£Ø³Ø·ÙˆØ±ÙŠ"
+                aria-label="السياف الأسطوري"
                 data-class="Sword Immortal"
                 data-sprite="assets/sword_immortal_1778872325571.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/sword_immortal_1778872325571.png" alt="Sword Immortal">
                 </div>
-                <h3>Ø§Ù„Ø³ÙŠØ§Ù Ø§Ù„Ø£Ø³Ø·ÙˆØ±ÙŠ</h3>
-                <p>Ø¶Ø±Ø¨Ø§Øª Ù‚Ø§Ø¶ÙŠØ© Ø®Ø§Ø±Ù‚Ø© ÙˆØ¶Ø±Ø± Ø¬Ø¨Ø§Ø±</p>
+                <h3>السياف الأسطوري</h3>
+                <p>ضربات قاضية خارقة وضرر جبار</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="Ø§Ù„Ø·Ø¨ÙŠØ¨ Ø§Ù„Ù…Ø¹Ø§Ù„Ø¬"
+                aria-label="الطبيب المعالج"
                 data-class="Medicine Cultivator"
                 data-sprite="assets/medicine_cultivator_1778872338789.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/medicine_cultivator_1778872338789.png" alt="Medicine Cultivator">
                 </div>
-                <h3>Ø§Ù„Ø·Ø¨ÙŠØ¨ Ø§Ù„Ù…Ø¹Ø§Ù„Ø¬</h3>
-                <p>ØµØ­Ø© Ù‡Ø§Ø¦Ù„Ø© ÙˆØªØ¬Ø¯Ø¯ ÙˆØ³Ø±Ø¹Ø© Ø§Ù„ØªØ¦Ø§Ù… Ø§Ù„Ø¬Ø±ÙˆØ­</p>
+                <h3>الطبيب المعالج</h3>
+                <p>صحة هائلة وتجدد وسرعة التئام الجروح</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="ÙØ§Ø±Ø³ Ø§Ù„ØµØ­Ø±Ø§Ø¡"
+                aria-label="فارس الصحراء"
                 data-class="Desert Knight"
                 data-sprite="assets/desert_knight_1778872351281.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Desert Knight">
                 </div>
-                <h3>ÙØ§Ø±Ø³ Ø§Ù„ØµØ­Ø±Ø§Ø¡</h3>
-                <p>Ø¯ÙØ§Ø¹ Ø­Ø¯ÙŠØ¯ÙŠ ÙˆØµÙ…ÙˆØ¯ Ø¨Ø·ÙˆÙ„ÙŠ Ù„Ù„Ø¬Ø³Ø¯</p>
+                <h3>فارس الصحراء</h3>
+                <p>دفاع حديدي وصمود بطولي للجسد</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="Ø§Ù„ÙØ§Ø±Ø³ Ø§Ù„Ù…Ù‡ÙŠØ¨"
+                aria-label="الفارس المهيب"
                 data-class="Sufi Mystic"
                 data-sprite="assets/sufi_mystic_1778872363338.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/sufi_mystic_1778872363338.png" alt="Sufi Mystic">
                 </div>
-                <h3>Ø§Ù„ÙØ§Ø±Ø³ Ø§Ù„Ù…Ù‡ÙŠØ¨</h3>
-                <p>ØªØ±ÙƒÙŠØ² Ø°Ù‡Ù†ÙŠ ÙØ§Ø¦Ù‚ ÙˆØ­ÙŠÙ„ ÙˆØ®Ø·Ø· Ø°ÙƒÙŠØ©</p>
+                <h3>الفارس المهيب</h3>
+                <p>تركيز ذهني فائق وحيل وخطط ذكية</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="Ø®Ø¨ÙŠØ± Ø§Ù„ÙÙˆÙ„Ø§Ø° Ø§Ù„Ø¯Ù…Ø´Ù‚ÙŠ"
+                aria-label="خبير الفولاذ الدمشقي"
                 data-class="Steelmaster"
                 data-sprite="assets/sword_immortal_1778872325571.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/sword_immortal_1778872325571.png" alt="Steelmaster">
                 </div>
-                <h3>Ø®Ø¨ÙŠØ± Ø§Ù„ÙÙˆÙ„Ø§Ø° Ø§Ù„Ø¯Ù…Ø´Ù‚ÙŠ</h3>
-                <p>Ø¶Ø±Ø¨Ø§Øª Ù‚ÙˆÙŠØ© ÙˆØªÙˆØ§Ø²Ù† Ø±Ø§Ø¦Ø¹ Ø¨ÙŠÙ† Ø§Ù„Ù‡Ø¬ÙˆÙ… ÙˆØ§Ù„Ø¯ÙØ§Ø¹</p>
+                <h3>خبير الفولاذ الدمشقي</h3>
+                <p>ضربات قوية وتوازن رائع بين الهجوم والدفاع</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="ÙØ§Ø±Ø³ Ø§Ù„Ø®ÙŠÙ„ Ø§Ù„Ù…ØºÙˆØ§Ø±"
+                aria-label="فارس الخيل المغوار"
                 data-class="Horseman"
                 data-sprite="assets/desert_knight_1778872351281.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Horseman">
                 </div>
-                <h3>ÙØ§Ø±Ø³ Ø§Ù„Ø®ÙŠÙ„ Ø§Ù„Ù…ØºÙˆØ§Ø±</h3>
-                <p>Ø³Ø±Ø¹Ø© Ø®Ø§Ø·ÙØ© ÙˆÙ‚Ø¯Ø±Ø© ÙØ§Ø¦Ù‚Ø© Ø¹Ù„Ù‰ ØªÙØ§Ø¯ÙŠ Ø§Ù„Ø¶Ø±Ø¨Ø§Øª</p>
+                <h3>فارس الخيل المغوار</h3>
+                <p>سرعة خاطفة وقدرة فائقة على تفادي الضربات</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="Ø®Ø¨ÙŠØ± Ø§Ù„ÙÙ„Ùƒ ÙˆØ§Ù„Ø£ÙˆØ±Ø§Ø¯"
+                aria-label="خبير الفلك والأوراد"
                 data-class="Astrologer"
                 data-sprite="assets/sufi_mystic_1778872363338.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/sufi_mystic_1778872363338.png" alt="Astrologer">
                 </div>
-                <h3>Ø®Ø¨ÙŠØ± Ø§Ù„ÙÙ„Ùƒ ÙˆØ§Ù„Ø£ÙˆØ±Ø§Ø¯</h3>
-                <p>Ø·Ø§Ù‚Ø© Ø°Ù‡Ù†ÙŠØ© Ù‡Ø§Ø¦Ù„Ø© ÙˆÙ‚Ù†ÙˆØ§Øª Ø¹Ø²ÙŠÙ…Ø© Ù„Ø§ ØªÙ†ÙØ¯</p>
+                <h3>خبير الفلك والأوراد</h3>
+                <p>طاقة ذهنية هائلة وقنوات عزيمة لا تنفد</p>
             </div>
             <div
                 class="class-card"
                 role="button"
                 tabindex="0"
-                aria-label="Ø±Ù…Ø§Ø­ Ø§Ù„Ø¨Ø§Ø¯ÙŠØ© Ø§Ù„Ø£Ø¨ÙŠ"
+                aria-label="رماح البادية الأبي"
                 data-class="Lancer"
                 data-sprite="assets/desert_knight_1778872351281.png"
             >
                 <div class="card-image-wrapper">
                     <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Lancer">
                 </div>
-                <h3>Ø±Ù…Ø§Ø­ Ø§Ù„Ø¨Ø§Ø¯ÙŠØ© Ø§Ù„Ø£Ø¨ÙŠ</h3>
-                <p>Ø¶Ø±Ø¨Ø§Øª Ø­Ø±Ø¬Ø© Ù…Ø¯Ù…Ø±Ø© ÙˆØ§Ø®ØªØ±Ø§Ù‚ ÙƒØ§Ù…Ù„ Ù„Ù„Ø¯Ø±ÙˆØ¹</p>
+                <h3>رماح البادية الأبي</h3>
+                <p>ضربات حرجة مدمرة واختراق كامل للدروع</p>
             </div>
         </div>
-        <button id="create-btn" class="btn">Ø¥Ø´Ø¹Ø§Ù„ Ø§Ù„Ù‡Ù…Ø© ÙˆØ§Ù„Ø¨Ø¯Ø¡ ÙÙŠ Ø±Ø­Ù„Ø© Ø§Ù„ÙØªÙˆØ©</button>
+        <button id="create-btn" class="btn">إشعال الهمة والبدء في رحلة الفتوة</button>
     </div>
 
     <!-- Hub City Screen -->
     <div id="hub-screen" class="screen">
-        <h1 style="font-size: 3rem;">ÙˆØ§Ø­Ø© Ø§Ù„Ù‚ÙˆØ§ÙÙ„ Ø§Ù„ÙƒØ¨Ø±Ù‰ (Ù…Ù„ØªÙ‚Ù‰ Ø§Ù„Ø·Ø±Ù‚)</h1>
-        <p>Ø·Ø±ÙŠÙ‚ Ø§Ù„Ø­Ø±ÙŠØ± Ù…Ù„ÙŠØ¡ Ø¨Ø§Ù„ØªØ¬Ø§Ø±ØŒ ÙˆØ§Ù„ÙØ±Ø³Ø§Ù† Ø§Ù„Ø£Ø­Ø±Ø§Ø±ØŒ ÙˆØ§Ù„Ø¬Ø¯Ø¹Ø§Ù† Ø§Ù„Ø£Ø¨Ø·Ø§Ù„.</p>
+        <h1 style="font-size: 3rem;">واحة القوافل الكبرى (ملتقى الطرق)</h1>
+        <p>طريق الحرير مليء بالتجار، والفرسان الأحرار، والجدعان الأبطال.</p>
 
         <div class="stats-group" style="text-align: center; max-width: 400px; margin: 0 auto 30px;">
-            <div class="stat-label">Ø¬ÙˆÙ‡Ø± Ø§Ù„Ø­ÙŠØ§Ø© ÙˆØµÙ„Ø§Ø¨Ø© Ø§Ù„Ø¬Ø³Ø¯: <span id="hub-hp">100</span> / <span id="hub-max-hp">100</span></div>
+            <div class="stat-label">جوهر الحياة وصلابة الجسد: <span id="hub-hp">100</span> / <span id="hub-max-hp">100</span></div>
             <div class="hp-bar-container">
                 <div id="hub-hp-bar" class="hp-bar"></div>
             </div>
             <div style="margin-top: 10px; color: var(--secondary); font-size: 1.2rem; font-family: 'El Messiri', cursive;">
-                <span id="hub-rank-name">ØªØ·Ù‡ÙŠØ± Ø§Ù„Ø¬Ø³Ø¯ ÙˆØªÙ‚ÙˆÙŠØ© Ø§Ù„Ø¨Ù†ÙŠØ§Ù†</span>
+                <span id="hub-rank-name">تطهير الجسد وتقوية البنيان</span>
             </div>
-            <div style="color: var(--text-dim); font-size: 0.9rem;">Ø§Ù„Ø±ØªØ¨Ø© <span id="hub-lvl">1</span> <span id="hub-class">Ø§Ù„ÙØªÙˆØ©</span></div>
+            <div style="color: var(--text-dim); font-size: 0.9rem;">الرتبة <span id="hub-lvl">1</span> <span id="hub-class">الفتوة</span></div>
         </div>
 
         <!-- NEW: Dynamic Story Progress HUD Panel -->
         <div class="hud-story-progress" onclick="toggleChronicleModal()" style="cursor: pointer; background: rgba(5,8,12,0.90); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 15px; margin-bottom: 25px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; text-align: center; backdrop-filter: blur(10px); transition: transform 0.2s, border-color 0.2s;">
             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">
-                <span id="hud-act-name" style="font-family:'El Messiri',serif; font-weight:bold;">Ø§Ù„ÙØµÙ„ Ø§Ù„Ø£ÙˆÙ„: Ø±Ù…Ø§Ù„ Ø§Ù„ØµØ­Ø±Ø§Ø¡ Ø§Ù„Ù‡Ø§Ø¦Ù…Ø©</span>
-                <span id="hud-act-pct">Ø§ÙƒØªÙ…Ù„Øª Ø¨Ù†Ø³Ø¨Ø© 0%</span>
+                <span id="hud-act-name" style="font-family:'El Messiri',serif; font-weight:bold;">الفصل الأول: رمال الصحراء الهائمة</span>
+                <span id="hud-act-pct">اكتملت بنسبة 0%</span>
             </div>
             <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.4);">
                 <div id="hud-act-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--jade)); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);"></div>
             </div>
-            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 5px;">ðŸ“– Ø§Ø¶ØºØ· Ù„ÙØªØ­ Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„Ø®Ø§Ù„Ø¯ ÙˆØªÙØ§ØµÙŠÙ„ Ù…Ù‚Ø§Ù…Ùƒ</div>
+            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 5px;">📖 اضغط لفتح السجل الخالد وتفاصيل مقامك</div>
         </div>
 
         <div class="quest-log" style="background: var(--glass); border: 1px solid var(--primary); padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
-            <div style="color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">Ø§Ù„Ø¹Ù‡Ø¯ ÙˆØ§Ù„ÙˆØ¬Ù‡Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ© Ù„Ø¨Ø·Ù„ Ø§Ù„Ù‚Ù„ÙˆØ¨</div>
-            <div id="current-quest" style="color: var(--text); font-size: 1.1rem; margin-top: 5px;">Ø§Ø±ØªÙ‚Ù Ù„Ù„Ø±ØªØ¨Ø© 3 Ù„ØªÙØ¹ÙŠÙ„ Ù…Ø³Ø§Ø¹Ø¯Ø© Ø§Ù„Ø±ÙÙŠÙ‚.</div>
+            <div style="color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">العهد والوجهة الحالية لبطل القلوب</div>
+            <div id="current-quest" style="color: var(--text); font-size: 1.1rem; margin-top: 5px;">ارتقِ للرتبة 3 لتفعيل مساعدة الرفيق.</div>
         </div>
 
         <div class="class-selector" style="grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-            <button id="explore-btn" class="btn" style="width: 100%;">Ø§Ù„Ø³ÙØ± ÙˆØ§Ù„Ù†Ø²Ø§Ù„ ÙÙŠ Ø§Ù„Ø¨Ø±ÙŠØ©<br><span style="font-size: 0.7rem; color: #fff;">Ù‚ØªØ§Ù„ØŒ ØºÙ†Ø§Ø¦Ù… ÙˆÙƒÙ†ÙˆØ²</span></button>
-            <button id="inventory-btn" class="btn btn-secondary" style="width: 100%;">Ø­Ù‚ÙŠØ¨Ø© Ø§Ù„ØªØ£Ù…Ù„ ÙˆØ§Ù„Ø¹ØªØ§Ø¯<br><span style="font-size: 0.7rem; color: #fff;">ØªØ¬Ù‡ÙŠØ² Ø§Ù„Ø£Ø³Ù„Ø­Ø© ÙˆØ§Ù„Ø¯Ø±ÙˆØ¹</span></button>
-            <button id="rest-btn" class="btn btn-secondary" style="width: 100%;">Ø¯ÙŠÙˆØ§Ù† Ø§Ù„ØªØ¯Ø±ÙŠØ¨ ÙˆØ´Ø­Ø° Ø§Ù„Ù‡Ù…Ø© ÙˆØ§Ù„ØªØ±ÙƒÙŠØ²<br><span style="font-size: 0.7rem; color: #fff;">Ø§Ø±ØªÙ‚Ø§Ø¡ Ø§Ù„Ø¹Ø²ÙŠÙ…Ø© ÙˆØ¬Ø³Ø¯Ùƒ</span></button>
+            <button id="explore-btn" class="btn" style="width: 100%;">السفر والنزال في البرية<br><span style="font-size: 0.7rem; color: #fff;">قتال، غنائم وكنوز</span></button>
+            <button id="inventory-btn" class="btn btn-secondary" style="width: 100%;">حقيبة التأمل والعتاد<br><span style="font-size: 0.7rem; color: #fff;">تجهيز الأسلحة والدروع</span></button>
+            <button id="rest-btn" class="btn btn-secondary" style="width: 100%;">ديوان التدريب وشحذ الهمة والتركيز<br><span style="font-size: 0.7rem; color: #fff;">ارتقاء العزيمة وجسدك</span></button>
         </div>
     </div>
 
     <!-- Oasis Management Screen -->
     <div id="oasis-screen" class="screen">
-        <h2>â›º Ø¥Ø¯Ø§Ø±Ø© ÙˆØªØ·ÙˆÙŠØ± Ø§Ù„ÙˆØ§Ø­Ø© Ø§Ù„Ø¨Ø§Ø·Ù†ÙŠØ©</h2>
+        <h2>⛺ إدارة وتطوير الواحة الباطنية</h2>
         <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right;">
             <div id="oasis-stats" style="margin-bottom: 15px; font-size: 0.95rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px;">
                 <!-- Filled dynamically -->
@@ -344,32 +344,32 @@
             
             <div class="class-selector" style="grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                 <div class="entity-panel" style="padding: 10px; border: 1px solid var(--secondary);">
-                    <h4>ðŸš° Ø¨Ø¦Ø± Ø§Ù„Ù…Ø§Ø¡ Ø§Ù„Ù†ÙˆØ±Ø§Ù†ÙŠ</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-dim);">ÙŠÙ†ØªØ¬ Ù…ÙŠØ§Ù‡Ø§Ù‹ Ø¨Ø§Ø·Ù†ÙŠØ© Ø¹Ø°Ø¨Ø© Ù„Ø¯Ø¹Ù… Ø§Ù„Ù‚ÙˆØ§ÙÙ„ ÙˆØ§Ù„ØªØ±Ø­Ø§Ù„.</p>
-                    <div id="well-level-desc" style="font-size: 0.85rem; font-weight: bold;">Ø§Ù„Ù…Ø³ØªÙˆÙ‰: 0</div>
-                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('well')">ØªØ±Ù‚ÙŠØ© Ø§Ù„Ø¨Ø¦Ø±</button>
+                    <h4>🚰 بئر الماء النوراني</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج مياهاً باطنية عذبة لدعم القوافل والترحال.</p>
+                    <div id="well-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('well')">ترقية البئر</button>
                 </div>
                 <div class="entity-panel" style="padding: 10px; border: 1px solid var(--success);">
-                    <h4>ðŸŒ¿ Ø¨Ø³ØªØ§Ù† Ø§Ù„ÙŠØ§Ø³Ù…ÙŠÙ† ÙˆØ§Ù„Ø±ÙŠØ§Ø­ÙŠÙ†</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-dim);">ÙŠÙ†ØªØ¬ Ø£Ø¹Ø´Ø§Ø¨Ø§Ù‹ Ø¨Ø§Ø·Ù†ÙŠØ© Ø¹Ø°Ø¨Ø© Ù„ØµÙ†Ø§Ø¹Ø© Ø§Ù„ØªØ±ÙŠØ§Ù‚ ÙˆØ§Ù„Ø®ÙŠÙ…ÙŠØ§Ø¡.</p>
-                    <div id="garden-level-desc" style="font-size: 0.85rem; font-weight: bold;">Ø§Ù„Ù…Ø³ØªÙˆÙ‰: 0</div>
-                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('garden')">ØªØ±Ù‚ÙŠØ© Ø§Ù„Ø¨Ø³ØªØ§Ù†</button>
+                    <h4>🌿 بستان الياسمين والرياحين</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج أعشاباً باطنية عذبة لصناعة الترياق والخيمياء.</p>
+                    <div id="garden-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('garden')">ترقية البستان</button>
                 </div>
                 <div class="entity-panel" style="padding: 10px; border: 1px solid var(--jade);">
-                    <h4>ðŸ”¨ ÙØ±Ù† Ø­Ø¯ÙŠØ¯ Ø§Ù„Ø´Ù‡Ø¨ ÙˆØ§Ù„ØµÙ„Ø¨</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-dim);">ÙŠÙ†ØªØ¬ Ø­Ø¯ÙŠØ¯Ø§Ù‹ Ø¨Ø§Ø·Ù†ÙŠØ§Ù‹ Ù„ØµÙ‚Ù„ Ø§Ù„Ø¹ØªØ§Ø¯ ÙˆØ§Ù„Ø£Ø³Ù„Ø­Ø© ÙˆØ§Ù„ØªØ±Ù‚ÙŠØ§Øª.</p>
-                    <div id="forge-level-desc" style="font-size: 0.85rem; font-weight: bold;">Ø§Ù„Ù…Ø³ØªÙˆÙ‰: 0</div>
-                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('forge')">ØªØ±Ù‚ÙŠØ© Ø§Ù„ÙØ±Ù†</button>
+                    <h4>🔨 فرن حديد الشهب والصلب</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج حديداً باطنياً لصقل العتاد والأسلحة والترقيات.</p>
+                    <div id="forge-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('forge')">ترقية الفرن</button>
                 </div>
             </div>
             
-            <button class="btn btn-secondary" onclick="hubLoop()">â†© Ø¹ÙˆØ¯Ø© Ù„Ù„ÙˆØ§Ø­Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</button>
+            <button class="btn btn-secondary" onclick="hubLoop()">↩ عودة للواحة الرئيسية</button>
         </div>
     </div>
 
     <!-- Caravan Exploration Map Screen -->
     <div id="caravan-screen" class="screen">
-        <h2>ðŸª Ø®Ø±ÙŠØ·Ø© Ù‚ÙˆØ§ÙÙ„ Ø§Ù„ØªØ±Ø­Ø§Ù„ ÙˆØ§Ø³ØªÙƒØ´Ø§Ù Ø§Ù„Ø¨Ø±ÙŠØ©</h2>
+        <h2>🐪 خريطة قوافل الترحال واستكشاف البرية</h2>
         <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right;">
             <div id="caravan-hud" style="margin-bottom: 10px; font-size: 0.9rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px; display: flex; justify-content: space-between;">
                 <!-- Filled dynamically -->
@@ -384,20 +384,20 @@
                 <!-- Controls and Details -->
                 <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
                     <div class="entity-panel" style="padding: 12px; background: rgba(5,8,12,0.92); text-align: right;">
-                        <h4 style="color: var(--secondary);">ðŸŽ® Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… ÙˆØ§Ù„ØªÙˆØ¬ÙŠÙ‡</h4>
-                        <p style="font-size: 0.75rem; color: var(--text-dim);">Ø§Ø³ØªØ®Ø¯Ù… Ù„ÙˆØ­Ø© Ø§Ù„Ø§ØªØ¬Ø§Ù‡Ø§Øª Ù„ØªØ­Ø±ÙŠÙƒ Ø§Ù„Ù‚Ø§ÙÙ„Ø© Ø¹Ø¨Ø± Ø§Ù„ØµØ­Ø±Ø§Ø¡. Ø§Ù„Ø­Ø±ÙƒØ© ØªØ³ØªÙ‡Ù„Ùƒ 1 ØªÙ…Ø± Ùˆ 1 Ù…Ø§Ø¡.</p>
+                        <h4 style="color: var(--secondary);">🎮 لوحة التحكم والتوجيه</h4>
+                        <p style="font-size: 0.75rem; color: var(--text-dim);">استخدم لوحة الاتجاهات لتحريك القافلة عبر الصحراء. الحركة تستهلك 1 تمر و 1 ماء.</p>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 140px; margin: 15px auto;">
                             <div></div>
-                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, -1)">â¬†ï¸</button>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, -1)">⬆️</button>
                             <div></div>
                             
-                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(-1, 0)">â¬…ï¸</button>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(-1, 0)">⬅️</button>
                             <div></div>
-                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(1, 0)">âž¡ï¸</button>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(1, 0)">➡️</button>
                             
                             <div></div>
-                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, 1)">â¬‡ï¸</button>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, 1)">⬇️</button>
                             <div></div>
                         </div>
                     </div>
@@ -409,45 +409,45 @@
             </div>
             
             <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button class="btn btn-secondary" onclick="hubLoop()">â†© Ø§Ù„ØªØ®ÙŠÙŠÙ… ÙˆØ§Ù„Ø¹ÙˆØ¯Ø©</button>
-                <button class="btn" onclick="resupplyCaravan()">ðŸŽ’ ØªÙ…ÙˆÙŠÙ† Ø§Ù„Ù‚Ø§ÙÙ„Ø© Ù…Ù† Ø§Ù„Ø­Ù‚ÙŠØ¨Ø©</button>
+                <button class="btn btn-secondary" onclick="hubLoop()">↩ التخييم والعودة</button>
+                <button class="btn" onclick="resupplyCaravan()">🎒 تموين القافلة من الحقيبة</button>
             </div>
         </div>
     </div>
 
     <!-- Nomad Logbook Screen -->
     <div id="logbook-screen" class="screen">
-        <h2>ðŸ“œ Ø¯ÙŠÙˆØ§Ù† Ø­ÙƒØ§ÙŠØ§Øª Ø§Ù„Ø¨Ø¯Ùˆ ÙˆØ§Ù„ÙŠÙˆÙ…ÙŠØ§Øª Ø§Ù„Ù…ØµÙˆØ±Ø©</h2>
+        <h2>📜 ديوان حكايات البدو واليوميات المصورة</h2>
         <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right; max-height: 600px; overflow-y: auto;">
             <div id="logbook-content" style="white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; color: #ffd700; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; border: 1px solid var(--secondary); text-align: left; line-height: 1.2;">
                 <!-- Illustrated ASCII pages rendered dynamically -->
             </div>
             
             <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button class="btn" onclick="prevLogbookPage()">â¬…ï¸ Ø§Ù„ØµÙØ­Ø© Ø§Ù„Ø³Ø§Ø¨Ù‚Ø©</button>
-                <button class="btn" onclick="nextLogbookPage()">Ø§Ù„ØµÙØ­Ø© Ø§Ù„ØªØ§Ù„ÙŠØ© âž¡ï¸</button>
-                <button class="btn btn-secondary" onclick="hubLoop()" style="margin-right: auto;">â†© Ø¹ÙˆØ¯Ø©</button>
+                <button class="btn" onclick="prevLogbookPage()">⬅️ الصفحة السابقة</button>
+                <button class="btn" onclick="nextLogbookPage()">الصفحة التالية ➡️</button>
+                <button class="btn btn-secondary" onclick="hubLoop()" style="margin-right: auto;">↩ عودة</button>
             </div>
         </div>
     </div>
 
     <!-- Inventory / Equipment Screen -->
     <div id="inventory-screen" class="screen">
-        <h2>ØªØ¬Ù‡ÙŠØ² Ø§Ù„Ø¹ØªØ§Ø¯ ÙˆØ·Ø§Ù‚Ø© Ù‚Ù†ÙˆØ§Øª Ø§Ù„Ø¬Ø³Ø¯</h2>
+        <h2>تجهيز العتاد وطاقة قنوات الجسد</h2>
         <div class="combat-layout" style="width: 100%; margin-top: 20px;">
 
             <!-- Equipment Slots -->
             <div class="entity-panel" style="flex: 0.6; display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto;">
-                <h3 style="color: var(--secondary); margin-bottom: 2px; text-align: right;">Ø§Ù„Ø¹ØªØ§Ø¯ Ø§Ù„Ù…Ø¬Ù‡Ø²</h3>
+                <h3 style="color: var(--secondary); margin-bottom: 2px; text-align: right;">العتاد المجهز</h3>
                 
                 <!-- NEW: Unified Total Gear Power and Multipliers Card -->
                 <div class="inventory-slot gear-tooltip-trigger" style="background: rgba(212, 175, 55, 0.05); border: 1.5px dashed rgba(212, 175, 55, 0.3); border-radius: 6px; padding: 10px; margin-bottom: 6px; text-align: right; cursor: help; width: 100%; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-direction: row-reverse;">
-                        <span style="font-weight: bold; color: var(--secondary); font-size: 0.82rem; text-shadow: 0 0 4px rgba(212,175,55,0.2);">ðŸ“Š Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø¥Ø¶Ø§ÙØ§Øª Ø§Ù„Ø¹ØªØ§Ø¯ ÙˆØ§Ù„Ø¨Ø±ÙƒØ§Øª</span>
-                        <span style="font-size:0.68rem; color:var(--text-dim); background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.2); padding:1px 5px; border-radius:3px;">ðŸ” Ù…Ø±Ø± Ù…Ø¤Ø´Ø± Ø§Ù„Ù…Ø§ÙˆØ³</span>
+                        <span style="font-weight: bold; color: var(--secondary); font-size: 0.82rem; text-shadow: 0 0 4px rgba(212,175,55,0.2);">📊 إجمالي إضافات العتاد والبركات</span>
+                        <span style="font-size:0.68rem; color:var(--text-dim); background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.2); padding:1px 5px; border-radius:3px;">🔍 مرر مؤشر الماوس</span>
                     </div>
                     <div id="gear-totals-summary-inline" style="font-size: 0.76rem; text-align: right; color: var(--success); margin-top: 4px; font-weight: bold; font-family: 'Cairo', sans-serif;">
-                        Ø¬Ø§Ø±ÙŠ Ø¬Ù…Ø¹ Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ù…Ø¹Ø¯Ø§Øª...
+                        جاري جمع إحصائيات المعدات...
                     </div>
                     <!-- Tooltip containing detailed flat stats and set multipliers -->
                     <div id="gear-summary-tooltip" class="gear-summary-tooltip-content">
@@ -456,52 +456,52 @@
                 </div>
 
                 <div id="equip-weapon" class="inventory-slot" onclick="unequipItemSlot('weapon')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
-                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Ø³ÙŠÙÙƒ Ø£Ùˆ Ø³Ù„Ø§Ø­Ùƒ Ø§Ù„Ù…Ø¬Ù‡Ø²</div>
-                    <div id="eq-weapon-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">سيفك أو سلاحك المجهز</div>
+                    <div id="eq-weapon-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
                     <div id="eq-weapon-stats" style="font-size: 0.75rem; color: var(--success);"></div>
-                    <div id="eq-weapon-tooltip" class="gear-slot-tooltip-content">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹ØªØ§Ø¯ Ù…Ø¬Ù‡Ø² ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø²Ø¡ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
+                    <div id="eq-weapon-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
                 </div>
                 
                 <div id="equip-head" class="inventory-slot" onclick="unequipItemSlot('head')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
-                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Ø¹Ù…Ø§Ù…Ø© Ø±Ø£Ø³Ùƒ Ø§Ù„Ù…Ø¨Ø§Ø±ÙƒØ©</div>
-                    <div id="eq-head-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">عمامة رأسك المباركة</div>
+                    <div id="eq-head-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
                     <div id="eq-head-stats" style="font-size: 0.75rem; color: var(--success);"></div>
-                    <div id="eq-head-tooltip" class="gear-slot-tooltip-content">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹ØªØ§Ø¯ Ù…Ø¬Ù‡Ø² ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø²Ø¡ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
+                    <div id="eq-head-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
                 </div>
 
                 <div id="equip-body" class="inventory-slot" onclick="unequipItemSlot('body')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
-                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Ø¯Ø±Ø¹ ÙˆØ¬Ù„Ø¨Ø§Ø¨ Ø­Ù…Ø§ÙŠØªÙƒ</div>
-                    <div id="eq-body-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">درع وجلباب حمايتك</div>
+                    <div id="eq-body-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
                     <div id="eq-body-stats" style="font-size: 0.75rem; color: var(--success);"></div>
-                    <div id="eq-body-tooltip" class="gear-slot-tooltip-content">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹ØªØ§Ø¯ Ù…Ø¬Ù‡Ø² ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø²Ø¡ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
+                    <div id="eq-body-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
                 </div>
 
                 <div id="equip-legs" class="inventory-slot" onclick="unequipItemSlot('legs')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
-                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Ø³Ø±ÙˆØ§Ù„ ÙˆÙ‚Ù†ÙˆØ§Øª Ø§Ù„Ø³Ø§Ù‚ÙŠÙ†</div>
-                    <div id="eq-legs-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">سروال وقنوات الساقين</div>
+                    <div id="eq-legs-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
                     <div id="eq-legs-stats" style="font-size: 0.75rem; color: var(--success);"></div>
-                    <div id="eq-legs-tooltip" class="gear-slot-tooltip-content">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹ØªØ§Ø¯ Ù…Ø¬Ù‡Ø² ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø²Ø¡ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
+                    <div id="eq-legs-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
                 </div>
 
                 <div id="equip-boots" class="inventory-slot" onclick="unequipItemSlot('boots')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
-                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Ø®Ù ÙˆØ®Ø·ÙˆØ§Øª Ø§Ù„Ø­Ø±ÙƒØ©</div>
-                    <div id="eq-boots-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">خف وخطوات الحركة</div>
+                    <div id="eq-boots-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
                     <div id="eq-boots-stats" style="font-size: 0.75rem; color: var(--success);"></div>
-                    <div id="eq-boots-tooltip" class="gear-slot-tooltip-content">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹ØªØ§Ø¯ Ù…Ø¬Ù‡Ø² ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø²Ø¡ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
+                    <div id="eq-boots-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
                 </div>
 
                 <div id="equip-relic" class="inventory-slot" onclick="unequipItemSlot('relic')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
-                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">ØªÙ…ÙŠÙ…Ø© Ø§Ù„Ø±ÙˆØ­ Ø£Ùˆ Ø§Ù„Ù‚Ù„Ø§Ø¯Ø©</div>
-                    <div id="eq-relic-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯</div>
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">تميمة الروح أو القلادة</div>
+                    <div id="eq-relic-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
                     <div id="eq-relic-stats" style="font-size: 0.75rem; color: var(--success);"></div>
-                    <div id="eq-relic-tooltip" class="gear-slot-tooltip-content">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹ØªØ§Ø¯ Ù…Ø¬Ù‡Ø² ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø²Ø¡ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
+                    <div id="eq-relic-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
                 </div>
 
                 <!-- Active Set Bonuses -->
                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15); text-align: right;">
-                    <h4 style="color: var(--secondary); font-size: 0.8rem; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.5px;">Ø¨Ø±ÙƒØ§Øª Ø§Ù„Ø£Ø·Ù‚Ù… Ø§Ù„Ù†Ø´Ø·Ø©</h4>
+                    <h4 style="color: var(--secondary); font-size: 0.8rem; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.5px;">بركات الأطقم النشطة</h4>
                     <div id="active-set-bonuses" style="font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; max-height: 100px; overflow-y: auto;">
-                        Ù…ÙÙŠØ´ Ø­Ø§Ù„ÙŠØ§Ù‹. Ø¬Ù‡Ø² Ù‚Ø·Ø¹ Ù…ØªÙ†Ø§Ø³Ù‚Ø© Ù…Ù† Ù†ÙØ³ Ø§Ù„Ø·Ù‚Ù… Ø¹Ø´Ø§Ù† ØªØ§Ø®Ø¯ Ø§Ù„Ø¨Ø±ÙƒØ© ÙƒØ§Ù…Ù„Ø©.
+                        مفيش حالياً. جهز قطع متناسقة من نفس الطقم عشان تاخد البركة كاملة.
                     </div>
                 </div>
             </div>
@@ -511,11 +511,11 @@
             <!-- Bag / Items -->
             <div class="entity-panel" style="flex: 1;">
                 <div class="satchel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-direction: row-reverse;">
-                    <h3 style="color: var(--secondary); margin: 0;">Ø­Ù‚ÙŠØ¨Ø© Ø§Ù„Ø³ÙØ±</h3>
+                    <h3 style="color: var(--secondary); margin: 0;">حقيبة السفر</h3>
                     <div id="satchel-tabs" style="display: flex; gap: 5px;">
-                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('consumables')">Ù…Ø´Ø±ÙˆØ¨Ø§Øª ÙˆØ­Ø¨ÙˆØ¨ Ø§Ù„Ø¨Ø±ÙƒØ©</button>
-                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('equipment')">Ø§Ù„Ø£Ø³Ù„Ø­Ø© ÙˆØ§Ù„Ø¹ØªØ§Ø¯ Ø§Ù„Ø¥Ø¶Ø§ÙÙŠ</button>
-                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('materials')">Ø®Ø§Ù…Ø§Øª ÙˆÙ…Ø¤Ù† Ø§Ù„ØµÙ†Ø§Ø¹Ø©</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('consumables')">مشروبات وحبوب البركة</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('equipment')">الأسلحة والعتاد الإضافي</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('materials')">خامات ومؤن الصناعة</button>
                     </div>
                 </div>
                 
@@ -524,7 +524,7 @@
                 </div>
             </div>
         </div>
-        <button id="back-hub-btn" class="btn" style="margin-top: 30px;">Ø§Ù„Ø±Ø¬ÙˆØ¹ Ù„ÙˆØ§Ø­Ø© Ø§Ù„Ù‚ÙˆØ§ÙÙ„ Ø§Ù„ÙƒØ¨Ø±Ù‰</button>
+        <button id="back-hub-btn" class="btn" style="margin-top: 30px;">الرجوع لواحة القوافل الكبرى</button>
     </div>
 
     <!-- Story Engine Screen -->
@@ -532,34 +532,34 @@
         <!-- Top Bar Stats -->
         <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; font-family: 'Cairo', 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; flex-direction: row-reverse;">
             <div style="flex: 1; text-align: right; margin-left: 20px;">
-                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">Ø¨Ø·Ù„ Ø§Ù„Ù‚Ù„ÙˆØ¨ ÙˆØ§Ù„ÙØªÙˆØ©</span> | Ø¬ÙˆÙ‡Ø± Ø§Ù„Ø¬Ø³Ø¯: <span id="story-hp">100</span> | Ø§Ù„ØªØ±ÙƒÙŠØ² ÙˆØ§Ù„Ù‡Ù…Ø©: <span id="story-mp">50</span> | Ø§Ù„Ø¯Ù†Ø§Ù†ÙŠØ± Ø§Ù„Ø°Ù‡Ø¨ÙŠØ©: <span id="story-gold" style="color:#f5c842">50</span> 
-                <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[ÙƒØªÙ… Ø§Ù„ØµÙˆØª]':'[Ø§Ù„ØµÙˆØª Ø´ØºØ§Ù„]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[Ø§Ù„ØµÙˆØª Ø´ØºØ§Ù„]</button>
-                <button onclick="exportCombatLog()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[Ø­ÙØ¸ ØªØ§Ø±ÙŠØ® Ø§Ù„Ù‚ØªØ§Ù„]</button>
-                <button onclick="if(typeof showPropertiesScreen==='function')showPropertiesScreen()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[ØµÙØ§Øª Ø§Ù„Ø¨Ø·Ù„]</button>
-                <button onclick="toggleChronicleModal()" style="background:none;border:1px solid var(--secondary);color:var(--secondary);font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;text-shadow:0 0 4px var(--secondary-glow);">[Ø³Ø¬Ù„ Ø§Ù„Ù‚Ø¯Ø±]</button>
+                <span id="story-player-name" style="color: var(--secondary); font-weight: bold;">بطل القلوب والفتوة</span> | جوهر الجسد: <span id="story-hp">100</span> | التركيز والهمة: <span id="story-mp">50</span> | الدنانير الذهبية: <span id="story-gold" style="color:#f5c842">50</span> 
+                <button id="mute-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'[كتم الصوت]':'[الصوت شغال]'}" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:10px;">[الصوت شغال]</button>
+                <button onclick="exportCombatLog()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[حفظ تاريخ القتال]</button>
+                <button onclick="if(typeof showPropertiesScreen==='function')showPropertiesScreen()" style="background:none;border:1px solid #444;color:#666;font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;">[صفات البطل]</button>
+                <button onclick="toggleChronicleModal()" style="background:none;border:1px solid var(--secondary);color:var(--secondary);font-size:0.68rem;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:5px;text-shadow:0 0 4px var(--secondary-glow);">[سجل القدر]</button>
                 <div class="hp-bar-container" style="height: 6px; margin-top: 4px;"><div id="story-hp-bar" class="hp-bar"></div></div>
             </div>
             <div style="flex: 1; text-align: left; display: none;" id="story-enemy-stats-container">
-                <span id="story-enemy-name" style="color: var(--danger); font-weight: bold;">Ø§Ù„Ø®ØµÙ… Ø§Ù„ØºØ§Ø¯Ø±</span> | Ø¬ÙˆÙ‡Ø± Ø§Ù„Ø¬Ø³Ø¯: <span id="story-enemy-hp">50</span>
+                <span id="story-enemy-name" style="color: var(--danger); font-weight: bold;">الخصم الغادر</span> | جوهر الجسد: <span id="story-enemy-hp">50</span>
                 <div class="hp-bar-container" style="height: 6px; margin-top: 4px;"><div id="story-enemy-hp-bar" class="hp-bar" style="background: linear-gradient(90deg, #5e1313, #8a1c1c);"></div></div>
             </div>
         </div>
 
         <!-- NEW: Dynamic Story Progress HUD Card on Narrative Screen -->
         <div class="hud-story-progress-narrative" onclick="toggleChronicleModal()" style="cursor: pointer; background: rgba(5,8,12,0.90); border: 1px solid var(--glass-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%; margin-bottom: 15px; backdrop-filter: blur(10px); transition: border-color 0.2s; flex-direction: row-reverse;">
-            <span id="story-hud-act-name" style="font-family:'El Messiri',serif; font-size:0.75rem; color: var(--secondary); font-weight:bold; white-space:nowrap;">Ø§Ù„ÙØµÙ„ Ø§Ù„Ø£ÙˆÙ„: Ø±Ù…Ø§Ù„ Ø§Ù„ØµØ­Ø±Ø§Ø¡ Ø§Ù„Ù‡Ø§Ø¦Ù…Ø©</span>
+            <span id="story-hud-act-name" style="font-family:'El Messiri',serif; font-size:0.75rem; color: var(--secondary); font-weight:bold; white-space:nowrap;">الفصل الأول: رمال الصحراء الهائمة</span>
             <div style="flex: 1; height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.4);">
                 <div id="story-hud-act-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--jade)); transition: width 0.6s ease-out;"></div>
             </div>
-            <span id="story-hud-act-pct" style="font-size:0.75rem; color: var(--text-dim); white-space:nowrap;">Ø§ÙƒØªÙ…Ù„Øª Ø¨Ù†Ø³Ø¨Ø© 0%</span>
+            <span id="story-hud-act-pct" style="font-size:0.75rem; color: var(--text-dim); white-space:nowrap;">اكتملت بنسبة 0%</span>
         </div>
 
         <!-- NEW: Momentum Bar and Stance Indicator (Hidden outside combat) -->
         <div id="combat-momentum-container" style="display: none; width: 100%; margin-bottom: 15px; padding: 10px; background: rgba(5,8,12,0.92); border: 1px solid #333; border-radius: 4px; text-align: center;">
             <div style="display: flex; justify-content: space-between; font-family: 'El Messiri', serif; font-size: 0.8rem; margin-bottom: 5px; color: #888; flex-direction: row-reverse;">
-                <span style="color: var(--danger)">Ø£Ø³Ø¨Ù‚ÙŠØ© ÙˆÙ‚ÙˆØ© Ù‡Ø¬ÙˆÙ… Ø§Ù„Ø£Ø´Ø±Ø§Ø±</span>
-                <span id="stance-indicator" style="color: var(--secondary); font-weight: bold;">ÙˆØ¶Ø¹ÙŠØ© Ø§Ù„Ù‚ØªØ§Ù„: Ù…ÙÙŠØ´</span>
-                <span style="color: var(--jade)">Ø£Ø³Ø¨Ù‚ÙŠØ© ÙˆÙ‚ÙˆØ© Ø¨Ø·Ù„ Ø§Ù„Ù‚Ù„ÙˆØ¨</span>
+                <span style="color: var(--danger)">أسبقية وقوة هجوم الأشرار</span>
+                <span id="stance-indicator" style="color: var(--secondary); font-weight: bold;">وضعية القتال: مفيش</span>
+                <span style="color: var(--jade)">أسبقية وقوة بطل القلوب</span>
             </div>
             <div style="width: 100%; height: 8px; background: #222; border-radius: 4px; position: relative; overflow: hidden; border: 1px solid #000;">
                 <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #555; z-index: 10;"></div>
@@ -581,24 +581,24 @@
 
     <!-- Victory/Defeat Screen -->
     <div id="result-screen" class="screen">
-        <h1 id="result-title">Ø§Ù„Ø§Ø±ØªÙ‚Ø§Ø¡ Ø§Ù„Ø£Ø³Ù…Ù‰ ÙˆØ§Ù„Ù†ØµØ±</h1>
-        <p id="result-text">Ø·Ø±ÙŠÙ‚ Ø§Ù„Ø³Ù„ÙˆÙƒ ÙˆØ§Ù„Ø¬Ù‡Ø§Ø¯ Ù„Ø³Ø© Ù…Ø³ØªÙ…Ø±.</p>
+        <h1 id="result-title">الارتقاء الأسمى والنصر</h1>
+        <p id="result-text">طريق السلوك والجهاد لسة مستمر.</p>
         <div id="reward-info" style="margin-bottom: 30px; text-align: center;">
-            <span id="xp-gain" style="color: var(--secondary); font-weight: 600;">+25 Ù†Ù‚Ø§Ø· Ø®Ø¨Ø±Ø© Ù„Ù„Ø±ØªØ¨Ø© ÙˆØ§Ù„Ø¬Ø¯Ø¹Ù†Ø©</span>
+            <span id="xp-gain" style="color: var(--secondary); font-weight: 600;">+25 نقاط خبرة للرتبة والجدعنة</span>
             <div id="loot-drop" style="margin-top: 15px; color: var(--primary);"></div>
         </div>
         <div class="actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;">
-            <button id="explore-btn" class="btn">Ù…ÙˆØ§ØµÙ„Ø© Ø§Ù„Ø³ÙØ± ÙˆØ§Ù„Ø¬Ù‡Ø§Ø¯ ÙˆØ§Ù„ØªØ±Ø­Ø§Ù„</button>
-            <button id="inventory-btn" class="btn btn-secondary">Ø­Ù‚ÙŠØ¨Ø© Ø§Ù„ØªØ£Ù…Ù„ ÙˆØ§Ù„Ø¹ØªØ§Ø¯</button>
-            <button id="rest-btn" class="btn btn-secondary">Ù‚Ø³Ø· Ù…Ù† Ø§Ù„Ø±Ø§Ø­Ø© (Ø±Ø¬ÙˆØ¹ ÙƒØ§Ù…Ù„ Ø§Ù„ØµØ­Ø© ÙˆØ§Ù„ØªØ±ÙƒÙŠØ²)</button>
+            <button id="explore-btn" class="btn">مواصلة السفر والجهاد والترحال</button>
+            <button id="inventory-btn" class="btn btn-secondary">حقيبة التأمل والعتاد</button>
+            <button id="rest-btn" class="btn btn-secondary">قسط من الراحة (رجوع كامل الصحة والتركيز)</button>
         </div>
     </div>
 
     <!-- WORLD MAP SCREEN -->
     <div id="map-screen" class="screen" style="max-width:1000px;padding:20px 30px;">
         <div class="map-header">
-            <h2 class="map-title">&#x2726; Ù…Ø®Ø·ÙˆØ·Ø© Ø§Ù„Ø®Ù„ÙˆØ¯ Ø§Ù„Ù…Ù„Ø­Ù…ÙŠØ© â€” Ø®Ø±ÙŠØ·Ø© Ø§Ù„Ù…Ù…Ø§Ù„Ùƒ Ø§Ù„Ø³Øª Ø§Ù„ÙƒØ¨Ø±Ù‰ &#x2726;</h2>
-            <p class="map-subtitle">ØªÙ†Ù‚Ù„ Ø¨ÙŠÙ† Ø£Ø±Ø¬Ø§Ø¡ Ø¹ÙˆØ§Ù„Ù… Ø§Ù„Ø³Ù„ÙˆÙƒ Ø§Ù„Ø³Øª Ø§Ù„ÙƒØ¨Ø±Ù‰. Ø§Ù„Ø£Ù…Ø§ÙƒÙ† Ø§Ù„Ù…Ù‚ÙÙˆÙ„Ø© Ù…Ø³ØªÙ†ÙŠØ© Ø§Ø±ØªÙ‚Ø§Ø¡ Ù…Ù‚Ø§Ù…Ùƒ.</p>
+            <h2 class="map-title">&#x2726; مخطوطة الخلود الملحمية — خريطة الممالك الست الكبرى &#x2726;</h2>
+            <p class="map-subtitle">تنقل بين أرجاء عوالم السلوك الست الكبرى. الأماكن المقفولة مستنية ارتقاء مقامك.</p>
         </div>
         <div class="map-canvas-wrapper">
             <svg id="world-map-svg" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
@@ -635,50 +635,50 @@
                     <path d="M0,28 L4,8 L0,0 L-4,8 Z" fill="#8a6a2a"/>
                     <path d="M-28,0 L-8,4 L0,0 L-8,-4 Z" fill="#8a6a2a"/>
                     <path d="M28,0 L8,4 L0,0 L8,-4 Z" fill="#8a6a2a"/>
-                    <text x="0" y="-34" text-anchor="middle" fill="#d4af37" font-size="9" font-family="El Messiri">Ø´</text>
+                    <text x="0" y="-34" text-anchor="middle" fill="#d4af37" font-size="9" font-family="El Messiri">ش</text>
                 </g>
                 <g id="map-regions-group"></g>
             </svg>
         </div>
         <div id="map-tooltip" class="map-tooltip" style="display:none; text-align: right;">
             <div class="map-tooltip-header" style="flex-direction: row-reverse;">
-                <span id="map-tooltip-name">Ø§Ù„Ù…Ù†Ø·Ù‚Ø©</span>
+                <span id="map-tooltip-name">المنطقة</span>
                 <span id="map-tooltip-status" class="map-status-badge"></span>
             </div>
             <p id="map-tooltip-subtitle" class="map-tooltip-subtitle"></p>
             <p id="map-tooltip-desc" class="map-tooltip-desc"></p>
             <div id="map-tooltip-enemies" class="map-tooltip-enemies"></div>
-            <button id="map-travel-btn" class="btn map-travel-btn">Ø§Ø±ØªØ­Ù„ ÙˆØ§Ø³ØªÙƒØ´Ù</button>
+            <button id="map-travel-btn" class="btn map-travel-btn">ارتحل واستكشف</button>
         </div>
         <div class="map-legend">
-            <span class="legend-item"><span class="legend-dot" style="background:#d4af37"></span>Ù…Ù†Ø·Ù‚Ø© Ù…ÙØªÙˆØ­Ø© Ù„Ù„Ø±Ø­ÙŠÙ„</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#333"></span>Ù…Ù†Ø·Ù‚Ø© Ù…ØºÙ„Ù‚Ø© (ØªØ­ØªØ§Ø¬ Ø§Ø±ØªÙ‚Ø§Ø¡)</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#00e5a0"></span>Ù…ÙƒØ§Ù†Ùƒ Ø§Ù„Ø­Ø§Ù„ÙŠ ÙÙŠ Ø§Ù„Ø¹Ø§Ù„Ù…</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#d4af37"></span>منطقة مفتوحة للرحيل</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#333"></span>منطقة مغلقة (تحتاج ارتقاء)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#00e5a0"></span>مكانك الحالي في العالم</span>
         </div>
-        <button id="map-back-btn" class="btn btn-secondary" style="margin-top:18px;">Ø§Ù„Ø±Ø¬ÙˆØ¹ Ù„ÙˆØ§Ø­Ø© Ø§Ù„Ù‚ÙˆØ§ÙÙ„ Ø§Ù„ÙƒØ¨Ø±Ù‰</button>
+        <button id="map-back-btn" class="btn btn-secondary" style="margin-top:18px;">الرجوع لواحة القوافل الكبرى</button>
     </div>
 
     <!-- Persistent Mobile MMO Bottom Navigation Bar -->
     <div class="mobile-bottom-nav">
         <div class="nav-tab active" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(0, hubLoop); } else { if(typeof hubLoop === 'function') hubLoop(); }">
-            <span class="nav-icon">ðŸ•Œ</span>
-            <span class="nav-label">Ø§Ù„ÙˆØ§Ø­Ø©</span>
+            <span class="nav-icon">🕌</span>
+            <span class="nav-label">الواحة</span>
         </div>
         <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(1, showWorldMap); } else { if(typeof showWorldMap === 'function') showWorldMap(); }">
-            <span class="nav-icon">ðŸ§­</span>
-            <span class="nav-label">Ø§Ù„Ø®Ø±ÙŠØ·Ø©</span>
+            <span class="nav-icon">🧭</span>
+            <span class="nav-label">الخريطة</span>
         </div>
         <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(2, showInventory); } else { if(typeof showInventory === 'function') showInventory(); }">
-            <span class="nav-icon">ðŸŽ’</span>
-            <span class="nav-label">Ø§Ù„Ø­Ù‚ÙŠØ¨Ø©</span>
+            <span class="nav-icon">🎒</span>
+            <span class="nav-label">الحقيبة</span>
         </div>
         <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(3, showCultivationScreen); } else { if(typeof showCultivationScreen === 'function') showCultivationScreen(); }">
-            <span class="nav-icon">ðŸ§˜</span>
-            <span class="nav-label">Ø§Ù„Ø¯ÙŠÙˆØ§Ù†</span>
+            <span class="nav-icon">🧘</span>
+            <span class="nav-label">الديوان</span>
         </div>
         <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(4, toggleChronicleModal); } else { if(typeof toggleChronicleModal === 'function') toggleChronicleModal(); }">
-            <span class="nav-icon">ðŸ“–</span>
-            <span class="nav-label">Ø§Ù„Ù‚Ø¯Ø±</span>
+            <span class="nav-icon">📖</span>
+            <span class="nav-label">القدر</span>
         </div>
     </div>
 </div>
