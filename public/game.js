@@ -90,6 +90,7 @@ async function loadGameCloud() {
                         "Please run 'supabase_setup.sql' in your Supabase SQL Editor. Game will save locally using localStorage.",
                         errMsg
                     );
+                    supabaseClient = null; // Disable cloud sync for this session
                 } else {
                     console.warn('Cloud load sync error:', errMsg);
                 }
@@ -149,6 +150,7 @@ async function saveGame() {
                         "code in 'supabase_setup.sql' in your Supabase SQL Editor.", 
                         errMsg
                     );
+                    supabaseClient = null; // Disable cloud sync for this session
                     return;
                 }
                 // Check if it's a field mismatch error (if they created table without last_login or last_updated)
@@ -512,6 +514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function resumeGame() {
     console.log("Resuming legend...");
     if (window.AUDIO) { window.AUDIO.init(); window.AUDIO.playRegion('crossroads'); }
+    if (window.COMBAT_VISUALS) window.COMBAT_VISUALS.init();
     
     // Restore correct screen
     if (state.screen && state.screen !== 'menu') {
@@ -554,12 +557,7 @@ function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
             document.removeEventListener('click', containerElement._skipTypingHandler);
             containerElement._skipTypingHandler = null;
         }
-        containerElement.innerHTML = containerElement._targetTextHtml || textHtml;
-        if (containerElement._typewriteCallback) {
-            const cb = containerElement._typewriteCallback;
-            containerElement._typewriteCallback = null;
-            cb();
-        }
+        containerElement._typewriteCallback = null;
     }
 
     // Prevent typewriter from corrupting complex HTML structures (e.g. nested layout cards)
@@ -792,7 +790,63 @@ function triggerFlash(type = 'damage') {
     activeScreen.appendChild(flash);
     setTimeout(() => flash.remove(), 800);
 }
-function triggerVisualHitEffect(moveId, isPlayerHit) {
+function getElementCenter(elementId, fallbackX, fallbackY) {
+    const el = document.getElementById(elementId);
+    if (el) {
+        const rect = el.getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
+    }
+    return { x: fallbackX, y: fallbackY };
+}
+
+function triggerVisualHitEffect(moveId, isPlayerHit, dmg = null, isCrit = false) {
+    // 1. Canvas Particle System Integration
+    if (window.COMBAT_VISUALS) {
+        if (isPlayerHit) {
+            const pCenter = getElementCenter('story-portrait', window.innerWidth * 0.25, window.innerHeight * 0.6);
+            window.COMBAT_VISUALS.spawnSlash(pCenter.x - 60, pCenter.y - 60, pCenter.x + 60, pCenter.y + 60, '#ff4d4d');
+            window.COMBAT_VISUALS.spawnExplosion(pCenter.x, pCenter.y, '#ff4d4d', 20);
+            window.COMBAT_VISUALS.spawnRipple(pCenter.x, pCenter.y, 'rgba(231,76,60,0.5)');
+            if (dmg) {
+                window.COMBAT_VISUALS.spawnFloat(`-${dmg}`, pCenter.x, pCenter.y - 45, '#ff4d4d', 28, 'normal');
+            }
+        } else {
+            const eCenter = getElementCenter('story-enemy-portrait', window.innerWidth * 0.75, window.innerHeight * 0.4);
+            const skill = window.SKILLS ? window.SKILLS.techniques[moveId] : null;
+            let color = '#39ff14'; // Default Green (Wind/Fast)
+            let type = 'normal';
+            if (isCrit) type = 'crit';
+
+            if (skill) {
+                if (skill.type === 'fast') color = '#00ffcc';
+                else if (skill.type === 'magic') color = '#bd00ff';
+                else if (skill.type === 'heavy') color = '#ffcc00';
+            }
+
+            if (skill && skill.type === 'magic') {
+                window.COMBAT_VISUALS.spawnSlash(eCenter.x - 70, eCenter.y + 70, eCenter.x + 70, eCenter.y - 70, color);
+                window.COMBAT_VISUALS.spawnRipple(eCenter.x, eCenter.y, 'rgba(189,0,255,0.4)');
+                window.COMBAT_VISUALS.spawnExplosion(eCenter.x, eCenter.y, color, 25);
+            } else if (skill && skill.type === 'heavy') {
+                window.COMBAT_VISUALS.spawnSlash(eCenter.x - 80, eCenter.y - 40, eCenter.x + 80, eCenter.y + 40, color);
+                window.COMBAT_VISUALS.spawnExplosion(eCenter.x, eCenter.y, color, 30);
+                window.COMBAT_VISUALS.spawnRipple(eCenter.x, eCenter.y, 'rgba(255,204,0,0.5)');
+                if (window.COMBAT_VISUALS.triggerScreenShake) window.COMBAT_VISUALS.triggerScreenShake();
+            } else {
+                window.COMBAT_VISUALS.spawnSlash(eCenter.x - 60, eCenter.y - 60, eCenter.x + 60, eCenter.y + 60, color);
+                window.COMBAT_VISUALS.spawnExplosion(eCenter.x, eCenter.y, color, 15);
+            }
+
+            if (dmg) {
+                window.COMBAT_VISUALS.spawnFloat(isCrit ? `🔥 ${dmg}!` : `${dmg}`, eCenter.x, eCenter.y - 55, color, isCrit ? 36 : 28, type);
+            }
+        }
+    }
+
+    // 2. CSS Fallback (Keep elements for style backward compatibility)
     const activeScreen = document.querySelector('.screen.active') || document.body;
     if (!activeScreen) return;
     
@@ -804,7 +858,6 @@ function triggerVisualHitEffect(moveId, isPlayerHit) {
         slash.style.top = `${top}%`;
         slash.style.transform = `rotate(${rot}deg) scaleX(0)`;
         
-        // Custom animation styling dynamically adjusted based on skill types
         const skill = window.SKILLS ? window.SKILLS.techniques[moveId] : null;
         if (skill) {
             if (skill.type === 'fast') {
@@ -839,7 +892,7 @@ function triggerVisualHitEffect(moveId, isPlayerHit) {
                 activeScreen.appendChild(fire);
                 setTimeout(() => fire.remove(), 600);
             }
-            if (skill.stunChance > 0) {
+            if (skill.stunChance > 0 && typeof triggerStaggerVisual === 'function') {
                 triggerStaggerVisual();
             }
         }
@@ -1027,6 +1080,11 @@ function updateTopBar() {
     } else {
         UI_ELEMENTS.enemyContainer.style.display = 'none';
     }
+    
+    if (window.AUDIO && typeof window.AUDIO.updateTension === 'function') {
+        window.AUDIO.updateTension(state.player.hp, state.player.maxHp);
+    }
+
     updateAuras();
 }
 
@@ -1204,6 +1262,7 @@ function initGame() {
 
     showScreen('story-screen');
     if (window.AUDIO) { window.AUDIO.init(); window.AUDIO.playRegion('crossroads'); }
+    if (window.COMBAT_VISUALS) window.COMBAT_VISUALS.init();
     clearNarrative();
     calculateTotalStats();
     saveGame();
@@ -1385,6 +1444,10 @@ function hubLoop() {
     choices.push({
         text: getLockText('logbook', '📜 ديوان حكايات البدو واليوميات اليومية', 4, 800),
         callback: () => window.checkFeatureLock('logbook', 'ديوان حكايات البدو واليوميات اليومية', 4, 800, () => { if (window.showNomadLogbookScreen) window.showNomadLogbookScreen(); })
+    });
+    choices.push({
+        text: getLockText('pets_pavilion', '🐾 جناح ترويض الوحوش والدواب المروضة', 4, 600),
+        callback: () => window.checkFeatureLock('pets_pavilion', 'جناح ترويض الوحوش والدواب المروضة', 4, 600, () => { if (window.showPetsPavilionScreen) window.showPetsPavilionScreen(); })
     });
 
     if (regionId === 'crossroads') {
@@ -1920,6 +1983,34 @@ function resolveCombatTurn(moveId) {
     
     narrate(result.resultText, 'النظام', null, false, true);
     updateTopBar(); updateMomentumUI();
+
+    // Active Pet & Mount Companion Combat Assistance (18% chance per turn!)
+    if (enemy.hp > 0 && state.player.hp > 0) {
+        if (state.player.activePet && Math.random() < 0.18) {
+            const pet = state.player.pets.find(p => p.id === state.player.activePet);
+            if (pet) {
+                const level = pet.level || 1;
+                const petDmg = Math.floor(state.player.atk * 0.45 * (1 + (level - 1) * 0.15));
+                enemy.hp = Math.max(0, enemy.hp - petDmg);
+                result.resultText += `<br><span style="color:var(--jade); font-weight:bold;">🐾 رفيقك الأليف [${pet.name}] يسندك:</span> انقض مفاجئاً وفعل ضربته الفرعية <span class="loot-epic">[${pet.skill}]</span> مسبباً <b>${petDmg} ضرر إضافي</b> للعدو!`;
+                window.COMBAT_UI?.showDamage(petDmg, 'enemy');
+                window.COMBAT_UI?.playEffect('magic_burst', 'enemy');
+                if (window.AUDIO) window.AUDIO.playEffect('synergy_fanfare');
+            }
+        }
+        if (enemy.hp > 0 && state.player.activeMount && Math.random() < 0.18) {
+            const mount = state.player.pets.find(p => p.id === state.player.activeMount);
+            if (mount) {
+                const level = mount.level || 1;
+                const shieldAmt = Math.floor(state.player.def * 1.5 * (1 + (level - 1) * 0.15));
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + shieldAmt);
+                result.resultText += `<br><span style="color:var(--secondary); font-weight:bold;">🐪 دابتك الأبية [${mount.name}] تدعمك:</span> صهلت بقوة ونشطت <span class="loot-epic">[${mount.skill}]</span> مستعيدةً <b>${shieldAmt} نقاط حياة</b> لجسدك!`;
+                window.COMBAT_UI?.showDamage(shieldAmt, 'player');
+                window.COMBAT_UI?.playEffect('heal', 'player');
+                if (window.AUDIO) window.AUDIO.playEffect('synergy_fanfare');
+            }
+        }
+    }
     
     // Play procedural combat audio
     if (window.AUDIO) {
@@ -1938,7 +2029,7 @@ function resolveCombatTurn(moveId) {
         else if (skillDef?.type === 'heavy') particleType = 'execution';
         
         window.COMBAT_UI?.playEffect(particleType, 'enemy');
-        triggerVisualHitEffect(moveId, false);
+        triggerVisualHitEffect(moveId, false, result.playerDmg, result.special === 'crit');
         
         // CSS Avatar Animations
         const pPortrait = document.getElementById('story-portrait');
@@ -1977,7 +2068,7 @@ function resolveCombatTurn(moveId) {
         window.COMBAT_UI?.showDamage(result.enemyDmg, 'player');
         window.COMBAT_UI?.playEffect(enemy.nextMove === 'magic' ? 'magic_burst' : 'slash', 'player');
         triggerScreenShake(); triggerFlash('damage'); 
-        triggerVisualHitEffect(moveId, true);
+        triggerVisualHitEffect(moveId, true, result.enemyDmg, false);
         
         const ePortrait = document.getElementById('story-enemy-portrait');
         if (ePortrait) {

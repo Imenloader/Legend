@@ -11,6 +11,7 @@ window.AUDIO = {
     currentRegion: null,
     muted: false,
     volume: 0.18, // Low ambient by default
+    tensionNode: null,
 
     // Region audio profiles — each is a stack of oscillators + noise
     profiles: {
@@ -207,6 +208,13 @@ window.AUDIO = {
     // ── STOP ALL ──
     stopAll(fadeTime = 0.5) {
         const now = this.ctx ? this.ctx.currentTime : 0;
+        if (this.tensionNode) {
+            try {
+                this.tensionNode.osc1.stop(now + fadeTime);
+                this.tensionNode.osc2.stop(now + fadeTime);
+            } catch(e) {}
+            this.tensionNode = null;
+        }
         this.activeNodes.forEach(node => {
             try {
                 if (node.gain) {
@@ -219,6 +227,74 @@ window.AUDIO = {
         });
         setTimeout(() => { this.activeNodes = []; }, (fadeTime + 0.2) * 1000);
         this.currentRegion = null;
+    },
+
+    updateTension(playerHp, playerMaxHp) {
+        if (!this.ctx || this.muted) return;
+        
+        const hpPercent = playerHp / playerMaxHp;
+        const now = this.ctx.currentTime;
+        
+        if (hpPercent < 0.3 && hpPercent > 0) {
+            // Trigger tension drone if not already playing
+            if (!this.tensionNode) {
+                console.log("Playing dynamic minor tension chord...");
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gainNode = this.ctx.createGain();
+                
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(65.41, now); // Low C2
+                osc1.detune.setValueAtTime(-10, now);
+                
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(77.78, now); // Low Eb2 (minor third!)
+                osc2.detune.setValueAtTime(10, now);
+                
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.06 * this.volume, now + 2); // Fade in over 2s
+                
+                // Add a lowpass filter to make it dark and rumbling
+                const lowpass = this.ctx.createBiquadFilter();
+                lowpass.type = 'lowpass';
+                lowpass.frequency.setValueAtTime(180, now);
+                
+                osc1.connect(gainNode);
+                osc2.connect(gainNode);
+                gainNode.connect(lowpass);
+                lowpass.connect(this.master);
+                
+                osc1.start(now);
+                osc2.start(now);
+                
+                this.tensionNode = { osc1, osc2, gainNode, lowpass };
+            } else {
+                // Dynamically raise the rumble filter and gain as HP drops lower!
+                const intensity = (0.3 - hpPercent) / 0.3; // 0 to 1
+                const targetGain = (0.06 + intensity * 0.08) * this.volume;
+                const targetFreq = 180 + intensity * 150; // up to 330Hz rumble
+                
+                this.tensionNode.gainNode.gain.setTargetAtTime(targetGain, now, 0.5);
+                this.tensionNode.lowpass.frequency.setTargetAtTime(targetFreq, now, 0.5);
+            }
+        } else {
+            // Fade out and stop tension drone if HP is high or dead
+            if (this.tensionNode) {
+                console.log("Fading out tension chord...");
+                const node = this.tensionNode;
+                this.tensionNode = null;
+                
+                node.gainNode.gain.setValueAtTime(node.gainNode.gain.value, now);
+                node.gainNode.gain.linearRampToValueAtTime(0, now + 1.5);
+                
+                setTimeout(() => {
+                    try {
+                        node.osc1.stop();
+                        node.osc2.stop();
+                    } catch(e) {}
+                }, 1600);
+            }
+        }
     },
 
     // ── TOGGLE MUTE ──
@@ -309,6 +385,20 @@ window.AUDIO = {
                     g.gain.exponentialRampToValueAtTime(0.001, now + i*0.08 + 0.5);
                     osc.connect(g); g.connect(this.ctx.destination);
                     osc.start(now + i*0.08); osc.stop(now + i*0.08 + 0.55);
+                });
+            },
+            synergy_fanfare: () => {
+                const arpeggio = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                arpeggio.forEach((f, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + i * 0.08);
+                    g.gain.setValueAtTime(0, now + i * 0.08);
+                    g.gain.linearRampToValueAtTime(0.18, now + i * 0.08 + 0.03);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.4);
+                    osc.connect(g); g.connect(this.ctx.destination);
+                    osc.start(now + i * 0.08); osc.stop(now + i * 0.08 + 0.45);
                 });
             },
             story_beat: () => {

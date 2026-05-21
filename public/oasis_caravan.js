@@ -45,12 +45,13 @@ window.OASIS_CARAVAN = {
         const grid = [];
         const size = 7;
         
-        // Types: sand (empty), well (water), oasis (treasures), shrine (stat boost), bandit (combat encounter)
+        // Types: sand (empty), well (water), oasis (treasures), shrine (stat boost), bandit (combat encounter), ruins (legendary ancient dungeon)
         const typesPool = [
             'well', 'well', 'well', 'well',
             'oasis', 'oasis', 'oasis', 'oasis',
             'shrine', 'shrine', 'shrine',
-            'bandit', 'bandit', 'bandit', 'bandit', 'bandit', 'bandit'
+            'bandit', 'bandit', 'bandit', 'bandit',
+            'ruins', 'ruins'
         ];
 
         // Shuffle helper
@@ -282,6 +283,12 @@ window.showCaravanMapScreen = function() {
                     tile.style.background = 'rgba(212,175,55,0.3)';
                     tile.style.border = '1.5px solid var(--secondary)';
                     tile.style.boxShadow = '0 0 10px #d4af37';
+                } else if (cell.discovered && s.caravan.stormX === x && s.caravan.stormY === y) {
+                    // Moving sandstorm cloud
+                    tile.textContent = '🌪️';
+                    tile.style.background = 'rgba(231, 76, 60, 0.25)';
+                    tile.style.border = '1.5px dashed #e74c3c';
+                    tile.style.boxShadow = '0 0 8px #e74c3c';
                 } else if (!cell.discovered) {
                     // Fog of war
                     tile.textContent = '🌫️';
@@ -364,6 +371,22 @@ window.moveCaravan = function(dx, dy) {
     caravan.resWater -= waterCost;
     caravan.resDates -= datesCost;
 
+    // Procedural moving Sandstorm Cloud simulator
+    if (s.caravan.stormX === undefined) {
+        s.caravan.stormX = 0;
+        s.caravan.stormY = 0;
+    }
+    const sdx = Math.floor(Math.random() * 3) - 1;
+    const sdy = Math.floor(Math.random() * 3) - 1;
+    s.caravan.stormX = Math.max(0, Math.min(6, s.caravan.stormX + sdx));
+    s.caravan.stormY = Math.max(0, Math.min(6, s.caravan.stormY + sdy));
+
+    if (s.caravan.stormX === nx && s.caravan.stormY === ny) {
+        s.player.hp = Math.max(1, s.player.hp - 10);
+        window.logCaravanEvent("<span style='color:#e74c3c; font-weight:bold;'>💨 [إعصار البادية] ابتلعت عاصفة السموم المتحركة قافلتك! عانى البدو من الاختناق الشديد: خسرت 10 نقاط صحة!</span>");
+        if (window.triggerFlash) window.triggerFlash('damage');
+    }
+
     // Tick the global weather system synchronously with every step!
     if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.advanceTurns === 'function') {
         window.WEATHER_SYSTEM.advanceTurns(s, 1);
@@ -404,6 +427,32 @@ window.moveCaravan = function(dx, dy) {
             s.player.hp = Math.min(s.player.maxHp, s.player.hp + 20);
             window.logCaravanEvent("<span style='color:#ffd700; font-weight:bold;'>🕌 ضريح الفارس القديم: باركت روح الفارس جسدك وزادت صحتك القصوى بشكل دائم (+20 صحة)!</span>");
             if (window.calculateTotalStats) window.calculateTotalStats();
+        } else if (activeCell.type === 'ruins') {
+            activeCell.cleared = true;
+            window.logCaravanEvent("<span style='color:#bd00ff; font-weight:bold;'>🏛️ خرب الأطلال البائدة العتيقة: عثرت على معبد أثري عتيق يحرسه وحش مقبرة الصحراء!</span>");
+            
+            const protector = {
+                name: "حارس الأضرحة البائدة المهيب",
+                baseHp: 240,
+                baseAtk: 26,
+                baseDef: 14,
+                sprite: "",
+                dialogue: "⚔️ الموت لمن ينبش قبور السلف ويوقظ لعنة الرمال الخالدة!"
+            };
+
+            const scaledEnemy = {
+                ...protector,
+                hp: Math.floor(protector.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(s.player.lvl, s.player.lvl) : 2.0)),
+                maxHp: Math.floor(protector.baseHp * (window.BALANCE ? window.BALANCE.enemyHpScale(s.player.lvl, s.player.lvl) : 2.0)),
+                atk: Math.floor(protector.baseAtk * (window.BALANCE ? window.BALANCE.enemyAtkScale(s.player.lvl, s.player.lvl) : 1.6)),
+                def: Math.floor(protector.baseDef * (1.3 + s.player.lvl * 0.3))
+            };
+
+            setTimeout(() => {
+                if (window.showScreen) window.showScreen('story-screen');
+                if (window.startCombat) window.startCombat(scaledEnemy);
+            }, 1200);
+            return;
         } else if (activeCell.type === 'bandit') {
             // Trigger combat ambush
             activeCell.cleared = true;

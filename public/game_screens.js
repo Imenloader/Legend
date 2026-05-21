@@ -2869,3 +2869,171 @@ function showAuctionHouse() {
 
     setChoices(choices);
 }
+
+function showPetsPavilionScreen() {
+    showScreen('story-screen');
+    state.screen = 'pets-pavilion-screen';
+    clearNarrative();
+
+    const p = state.player;
+    if (!p.pets) p.pets = [];
+    if (!window.PETS) {
+        narrate("ديوان الترويض غير متوفر حالياً.", "النظام");
+        setTimeout(hubLoop, 1500);
+        return;
+    }
+    window.PETS.init(state);
+    
+    narrate('<b style="font-size:1.35em;letter-spacing:2px;color:var(--secondary);">🐾 ديوان ترويض وحوش الجان والدواب المروضة</b>', 'النظام', null, false, true);
+    narrate(`أهلاً بك في جناح الدواب ومروضات وحوش الفيافي. هنا يمكنك ركوب الجمال والخيل وتدريب رفاقك من صقور وفهود لزيادة عزيمتك وصلابتك البدنية في المعارك!`, 'النظام', null, false, true);
+
+    let activeMountHtml = `<span style="color:var(--text-dim);">لا يوجد دابة مجهزة</span>`;
+    if (p.activeMount) {
+        const mount = p.pets.find(b => b.id === p.activeMount);
+        if (mount) {
+            const level = mount.level || 1;
+            const scale = 1 + (level - 1) * 0.12;
+            const bonusTxt = Object.entries(mount.bonus).map(([k, v]) => {
+                const val = k === 'atk' || k === 'def' || k === 'crit' ? `+${Math.floor(v * scale * 100)}%` : `+${Math.floor(v * scale)}`;
+                return `${k.toUpperCase()}: ${val}`;
+            }).join(' | ');
+
+            activeMountHtml = `
+                <div style="background:rgba(212,175,55,0.06); border:1.5px solid var(--secondary); border-radius:8px; padding:10px; text-align:right; box-shadow:0 0 10px rgba(212,175,55,0.15);">
+                    <b style="color:var(--secondary); font-size:1.15rem;">🐪 الدابة النشطة: ${mount.name}</b> <span style="font-size:0.8rem; background:var(--secondary); color:#000; padding:1px 6px; border-radius:3px; font-weight:bold;">رتبة ${level}</span><br>
+                    <small style="color:var(--text-dim);">${mount.desc}</small><br>
+                    <span style="color:var(--success); font-weight:bold; font-size:0.85rem;">📊 بركة الركوب المسخرة: ${bonusTxt}</span>
+                </div>
+            `;
+        }
+    }
+
+    let activePetHtml = `<span style="color:var(--text-dim);">لا يوجد مرافق أليف مجهز</span>`;
+    if (p.activePet) {
+        const pet = p.pets.find(b => b.id === p.activePet);
+        if (pet) {
+            const level = pet.level || 1;
+            const scale = 1 + (level - 1) * 0.12;
+            const bonusTxt = Object.entries(pet.bonus).map(([k, v]) => {
+                const val = k === 'atk' || k === 'def' || k === 'crit' ? `+${Math.floor(v * scale * 100)}%` : `+${Math.floor(v * scale)}`;
+                return `${k.toUpperCase()}: ${val}`;
+            }).join(' | ');
+
+            activePetHtml = `
+                <div style="background:rgba(0,229,160,0.06); border:1.5px solid var(--jade); border-radius:8px; padding:10px; text-align:right; box-shadow:0 0 10px rgba(0,229,160,0.12); margin-top:8px;">
+                    <b style="color:var(--jade); font-size:1.15rem;">🦅 المرافق الأليف: ${pet.name}</b> <span style="font-size:0.8rem; background:var(--jade); color:#000; padding:1px 6px; border-radius:3px; font-weight:bold;">رتبة ${level}</span><br>
+                    <small style="color:var(--text-dim);">${pet.desc}</small><br>
+                    <span style="color:var(--success); font-weight:bold; font-size:0.85rem;">📊 بركة المرافقة النشطة: ${bonusTxt}</span>
+                </div>
+            `;
+        }
+    }
+
+    narrate(`
+        <div style="display:flex; flex-direction:column; gap:8px; margin:15px 0;">
+            ${activeMountHtml}
+            ${activePetHtml}
+        </div>
+    `, 'النظام', null, false, true);
+
+    narrate('<b style="color:var(--secondary); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; display:block;">📜 قائمة وحوش البادية والدواب المتاحة للتطوير والترويض:</b>', 'النظام', null, false, true);
+
+    const choices = [];
+
+    Object.values(window.PETS.beasts).forEach(beast => {
+        const owned = p.pets.find(b => b.id === beast.id);
+        const typeArabic = beast.type === 'mount' ? '🐪 دابة للركوب' : '🦅 حيوان مرافق';
+        
+        let detailsHtml = "";
+        if (owned) {
+            const level = owned.level || 1;
+            const scale = 1 + (level - 1) * 0.12;
+            const nextLvlCost = 10 + level * 5;
+            const bonusTxt = Object.entries(beast.bonus).map(([k, v]) => {
+                const val = k === 'atk' || k === 'def' || k === 'crit' ? `+${Math.floor(v * scale * 100)}%` : `+${Math.floor(v * scale)}`;
+                return `${k.toUpperCase()}: ${val}`;
+            }).join(' | ');
+
+            detailsHtml = `
+                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:12px; text-align:right;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span><b style="color:#fff;">${beast.name}</b> (مروض رتبة ${level})</span>
+                        <span style="color:var(--secondary); font-size:0.8rem;">${typeArabic}</span>
+                    </div>
+                    <small style="color:var(--text-dim);">${beast.desc}</small><br>
+                    <span style="color:var(--success); font-size:0.8rem;">الإضافات الحالية: ${bonusTxt}</span>
+                </div>
+            `;
+
+            const activeId = beast.type === 'mount' ? p.activeMount : p.activePet;
+            const isEquipped = activeId === beast.id;
+            choices.push({
+                text: `${isEquipped ? '❌ إلغاء تجهيز' : '🏇 تجهيز وامتطاء'} ${beast.name} (رتبة ${level})`,
+                callback: () => {
+                    const res = window.PETS.toggleEquip(state, beast.id);
+                    narrate(res.message, 'النظام', null, false, true);
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showPetsPavilionScreen, 1800);
+                }
+            });
+
+            choices.push({
+                text: `✨ ترقية [${beast.name}] إلى رتبة ${level + 1} | يتطلب: ${nextLvlCost} أعشاب`,
+                callback: () => {
+                    const res = window.PETS.levelUp(state, beast.id);
+                    narrate(res.message, 'النظام', null, false, true);
+                    if (res.success) {
+                        calculateTotalStats();
+                        updateTopBar();
+                        saveGame();
+                        if (window.AUDIO) window.AUDIO.playEffect('level_up');
+                    }
+                    setTimeout(showPetsPavilionScreen, 2000);
+                }
+            });
+
+        } else {
+            const tameCost = beast.rarity === 'أسطوري' ? 1200 : beast.rarity === 'نادر' ? 600 : 300;
+            
+            detailsHtml = `
+                <div style="background:rgba(255,255,255,0.01); border:1px dashed rgba(255,255,255,0.1); padding:10px; border-radius:6px; margin-bottom:12px; opacity:0.6; text-align:right;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span><b style="color:#aaa;">${beast.name}</b> (غير مروض)</span>
+                        <span style="color:var(--text-dim); font-size:0.8rem;">${typeArabic}</span>
+                    </div>
+                    <small style="color:var(--text-dim);">${beast.desc}</small><br>
+                    <span style="color:var(--secondary); font-size:0.8rem;">بركة الترويض المتوقعة: ${Object.entries(beast.bonus).map(([k,v]) => `${k.toUpperCase()}: +${k==='atk'||k==='def'||k==='crit'?v*100+'%':v}`).join(' | ')}</span>
+                </div>
+            `;
+
+            choices.push({
+                text: `🐾 ترويض وتبني [${beast.name}] | التكلفة: ${tameCost} دينار ذهبي`,
+                callback: () => {
+                    const currentGold = p.gold || 0;
+                    if (currentGold < tameCost) {
+                        narrate(`<span style="color:var(--danger)"><b>الترويض تعذر!</b> ليس لديك ${tameCost} دينار ذهبي لشراء مستلزمات ترويض [${beast.name}].</span>`, "النظام");
+                        setTimeout(showPetsPavilionScreen, 2000);
+                        return;
+                    }
+                    p.gold -= tameCost;
+                    const res = window.PETS.tame(state, beast.id);
+                    narrate(res.message, 'النظام', null, false, true);
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    if (window.AUDIO) window.AUDIO.playEffect('loot_mythic');
+                    setTimeout(showPetsPavilionScreen, 2000);
+                }
+            });
+        }
+
+        narrate(detailsHtml, 'النظام', null, false, true);
+    });
+
+    choices.push({ text: '↩ عودة إلى واحة القوافل الكبرى', callback: hubLoop });
+    setChoices(choices);
+}
+
+window.showPetsPavilionScreen = showPetsPavilionScreen;

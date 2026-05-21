@@ -1,6 +1,19 @@
 �<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <script>
+        // Programmatic cache-clear for developers to bypass stale PWA caching on localhost
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            if ('caches' in window) {
+                caches.keys().then(keys => {
+                    keys.forEach(key => {
+                        caches.delete(key);
+                        console.log('🧹 [Dev Mode] Cleared stale cache key:', key);
+                    });
+                });
+            }
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -857,18 +870,28 @@
 <script src="/ascension.js"></script>
 <script src="/crafting.js"></script>
 <script src="/cultivation.js"></script>
+<script src="/combat_visuals.js"></script>
 <script src="/ai_dialogue.js"></script>
 <script src="/game_screens.js"></script>
 <script src="/oasis_caravan.js"></script>
 <script src="/game.js"></script>
 
-<!-- PWA Service Worker Registration -->
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('PWA Service Worker registered successfully.'))
-                .catch(err => console.log('Service Worker registration failed:', err));
+            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                // Automatically unregister active service workers during local development to prevent net::ERR_FAILED caching blockades
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                        console.log('🧹 [Dev Mode] Unregistered caching Service Worker to prevent network blockade.');
+                    }
+                });
+            } else {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker registered successfully.'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            }
         });
     }
 </script>
