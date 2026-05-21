@@ -55,6 +55,7 @@
     </div>
 
     <button id="rescue-btn" class="btn-rescue" title="الرجوع إلى المنطقة الآمنة (يصلح اللعبة إذا علقت)">إنقاذ البطل</button>
+    <button id="guide-btn" class="btn-guide" onclick="toggleGuideModal()" title="دليل القتال الصحراوي والفنون القتالية">📚 دليل الفنون</button>
 
     <!-- Cinematic Overlay for Novel Mode -->
     <div id="cinematic-overlay" class="cinematic-overlay">
@@ -108,6 +109,99 @@
                         <!-- Timeline items loaded dynamically by chronicle.js -->
                         <div style="color: var(--text-dim); text-align: center; margin-top: 50px;">حكايتك وابتلاءاتك لسة بادية... كمل طريقك وجاهد نفسك!</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Interactive Desert Combat & Strategy Guide Modal -->
+    <div id="guide-modal" class="guide-modal">
+        <div class="guide-modal-container">
+            <button class="guide-close-btn" onclick="toggleGuideModal()">×</button>
+            <h2 style="font-size: 2rem; margin-bottom: 5px; text-align: center; font-family: 'El Messiri', serif;">📖 دليل الفنون والخطط الحربية</h2>
+            <p style="text-align: center; color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">أسرار وتكتيكات القتال الصحراوي، الأوضاع الروحية، ومزاج طقس البادية الخالد.</p>
+            
+            <!-- Tab Navigation -->
+            <div class="guide-tabs" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-direction: row-reverse;">
+                <button class="guide-tab-btn active" id="tab-btn-stances" onclick="switchGuideTab('stances')">🥋 الأوضاع الثلاثة</button>
+                <button class="guide-tab-btn" id="tab-btn-weather" onclick="switchGuideTab('weather')">🌤️ طقس البادية</button>
+                <button class="guide-tab-btn" id="tab-btn-combos" onclick="switchGuideTab('combos')">⚔️ التكتيكات الحربية</button>
+            </div>
+            
+            <!-- Stances Tab -->
+            <div id="guide-sec-stances" class="guide-content-section active">
+                <div class="guide-card">
+                    <h3 style="color: #00e5a0; margin-bottom: 8px;">🌊 وضعية المية السلسة (Water Stance)</h3>
+                    <p>أول الأوضاع الروحية وأكثرها مرونة وتدفقاً. صممت للدراسة والتفادي وتوفير الطاقة الروحية.</p>
+                    <ul style="padding-right: 20px; list-style-type: square; color: var(--text-dim); margin-top: 5px;">
+                        <li><b style="color: var(--text);">تأثير الوضع:</b> تمنحك <b style="color: #00e5a0;">+20% تفادي كامل (Dodge Rate)</b> ضد كل الضربات.</li>
+                        <li><b style="color: var(--text);">التجدد التدفقي:</b> تستعيد تلقائياً <b style="color: #00e5a0;">+10% من العزيمة القصوى</b> في بداية كل جولة.</li>
+                        <li><b style="color: var(--text);">عقوبة الجسد:</b> تسبب ضرباتك الجسدية ضرراً أقل بنسبة <b style="color: var(--danger);">-15%</b> بسبب التركيز على الحماية.</li>
+                    </ul>
+                </div>
+                <div class="guide-card">
+                    <h3 style="color: var(--secondary); margin-bottom: 8px;">🏔️ وضعية الجبل الشامخ (Mountain Stance)</h3>
+                    <p>تجسيد الصلابة والصخر الراسخ. صممت لصد أقوى الضربات وتثبيت الأقدام بالأرض.</p>
+                    <ul style="padding-right: 20px; list-style-type: square; color: var(--text-dim); margin-top: 5px;">
+                        <li><b style="color: var(--text);">تأثير الوضع:</b> تمنحك <b style="color: var(--secondary);">+35% دفاع صخر كامل (Defense Boost)</b>.</li>
+                        <li><b style="color: var(--text);">الثبات الراسخ:</b> تمنحك <b style="color: var(--secondary);">حصانة كاملة ومطلقة ضد كسر الدفاع (Guard-Break Immunity)</b>.</li>
+                        <li><b style="color: var(--text);">عقوبة الجسد:</b> يقل تفاديك للضربات بنسبة <b style="color: var(--danger);">-20%</b> بسبب ثقل دروع الجبل.</li>
+                    </ul>
+                </div>
+                <div class="guide-card">
+                    <h3 style="color: #e74c3c; margin-bottom: 8px;">🌪️ وضعية الرياح العاتية (Wind Stance)</h3>
+                    <p>أخطر الأوضاع وأكثرها هجوماً وفتكاً. حركة إعصارية سريعة تعتمد على ضرب الثغرات الضعيفة.</p>
+                    <ul style="padding-right: 20px; list-style-type: square; color: var(--text-dim); margin-top: 5px;">
+                        <li><b style="color: var(--text);">تأثير الوضع:</b> تمنحك <b style="color: #e74c3c;">+15% هجوم جسدي (Attack Boost)</b> و <b style="color: #e74c3c;">+15% فرصة ضربة حرجة (Critical Chance)</b>.</li>
+                        <li><b style="color: var(--text);">الهجوم الباطني:</b> تزداد قوة جميع مهاراتك القتالية والروحية بنسبة <b style="color: #e74c3c;">+15%</b>.</li>
+                        <li><b style="color: var(--text);">عقوبة الجسد:</b> يقل دفاعك وامتصاصك للضرر بنسبة <b style="color: var(--danger);">-20%</b> بسبب التخلي عن الدروع لصالح السرعة.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Weather Tab -->
+            <div id="guide-sec-weather" class="guide-content-section">
+                <p style="margin-bottom: 15px; color: var(--text-dim);">تقلبات الطقس تؤثر عليك وعلى الأعداء بالتساوي (Bilateral Symmetry)، مما يخلق فرصاً حربية فريدة:</p>
+                <div class="guide-card">
+                    <h4 style="color: #fff176; margin-bottom: 5px;">☀️ سماء صافية مباركة (Clear Sky)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">الطقس الطبيعي للصحراء. قتال متوازن دون أي تأثيرات خارجية أو تعديلات على الإحصائيات.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #d4af37; margin-bottom: 5px;">💨 عاصفة السموم الصفراء (Sandstorm)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #d4af37;">السمات:</b> ينخفض هجوم الجميع بنسبة <b>25%</b> بسبب صعوبة الرؤية، وهناك فرصة <b>25%</b> لأن تنزلق الضربات وتتحول إلى ضربات جزئية تسبب <b>35%</b> فقط من الضرر الأساسي.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #ff4500; margin-bottom: 5px;">🔥 حر الهجير اللاهب (Heatwave)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #ff4500;">السمات:</b> يزيد قوة وهجوم الجميع بنسبة <b>25%</b> بسبب غليان الدماء، لكن كل طرف يفقد <b>3% من صحته القصوى</b> في نهاية كل دور بسبب حر الجحيم والعطش الشديد.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #9b59b6; margin-bottom: 5px;">🌫️ ضباب الأثير الروحي (Spiritual Mist)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #9b59b6;">السمات:</b> يقلل تفادي الوحوش بنسبة <b>10%</b> (مما يمنحك هجوماً إضافياً)، ويزيد طاقة شفاء Companion بمعدل <b>30%</b>.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #ff4d4d; margin-bottom: 5px;">🌑 الخسوف المظلم الأثري (Eclipse)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #ff4d4d;">السمات:</b> قتال مظلم وعنيف. ضربات الطرفين تخترق وتتجاوز <b>20% من دفاع ودروع الخصم</b> بالكامل!</p>
+                </div>
+            </div>
+            
+            <!-- Combos Tab -->
+            <div id="guide-sec-combos" class="guide-content-section">
+                <p style="margin-bottom: 15px; color: var(--text-dim);">جرب هذه التوليبات والخطط القتالية للفوز بأصعب المعارك في اللعبة:</p>
+                <div class="guide-card">
+                    <h4 style="color: #00e5a0; margin-bottom: 5px;">🌪️ التكتيك الأول: "إعصار البادية المدمر" (Gale Burst)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> ابدأ المعركة في <b>وضعية المية</b> لتفادي ضربات الوحش والحصول على تجدد العزيمة السريع. بمجرد أن تتجاوز عزيمتك (MP) الـ 50 نقطة، بدّل فوراً إلى <b>وضعية الرياح</b> واستخدم مهارة <i>سيف النور (Qi Blade)</i> أو الفنون الخاصة لتسديد ضربات حرجة مضاعفة بقوة الإعصار فتكاً!</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: var(--secondary); margin-bottom: 5px;">🏔️ التكتيك الثاني: "صدى الصخرة الراسخة" (Stone Wall Counter)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> ضد الوحوش القوية من نوع (Brute) أو الزعماء مثل "Jade Golem". عندما ترى العدو يستعد لهجوم ثقيل أو سحري مدمر، بدّل فوراً إلى <b>وضعية الجبل</b>. ستحصل على +35% دفاع وتمنع تماماً كسر درعك أو شللك. في الجولة التالية، بدّل فوراً إلى <b>وضعية الرياح</b> ونفذ ضربتك القوية لسحق دفاعه المنهك!</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #00ffcc; margin-bottom: 5px;">🌊 التكتيك الثالث: "نسيم الشفاء الانسيابي" (Flowing Recovery)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> عندما تنخفض صحتك وتصبح في خطر، لا تهاجم. بدّل إلى <b>وضعية المية</b> للحصول على +20% تفادي كامل وتجدد العزيمة. قم بتفعيل مهارة الشفاء للرفيق أو مهاراتك الخاصة تحت هذا الوضع السلس، مما يتيح لك البقاء حياً بينما تشحن طاقتك بالكامل.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #bf5fff; margin-bottom: 5px;">🌌 التكتيك الرابع: "تآزر الفلك الحارق" (Sovereign Synergy)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> اشحن مقياس التآزر مع companion إلى 75+ تحت وضعية المية. عندما يكون جاهزاً، بدّل إلى <b>وضعية الرياح العاتية</b> للحصول على زيادة +15% لقوة المهارات، ثم أطلق فوراً ضربة التآزر القاضية (مثل هراوة وكونغ الفولاذية أو درع طارق الرمالي) لتحقيق ضرر باطني يفجر وحوش البادية بالكامل!</p>
                 </div>
             </div>
         </div>

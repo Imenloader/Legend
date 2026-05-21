@@ -264,3 +264,33 @@ function calculateStoryProgress(state) {
     
     return { actName, pct };
 }
+
+window.toggleGuideModal = function() {
+    const modal = document.getElementById('guide-modal');
+    if (!modal) return;
+    
+    const active = modal.classList.toggle('active');
+    
+    if (active && window.AUDIO) {
+        window.AUDIO.playEffect('menu_click');
+    }
+};
+
+window.switchGuideTab = function(tabName) {
+    const tabs = ['stances', 'weather', 'combos'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const sec = document.getElementById(`guide-sec-${t}`);
+        if (btn) btn.classList.remove('active');
+        if (sec) sec.classList.remove('active');
+    });
+    
+    const targetBtn = document.getElementById(`tab-btn-${tabName}`);
+    const targetSec = document.getElementById(`guide-sec-${tabName}`);
+    if (targetBtn) targetBtn.classList.add('active');
+    if (targetSec) targetSec.classList.add('active');
+    
+    if (window.AUDIO) {
+        window.AUDIO.playEffect('menu_click');
+    }
+};
