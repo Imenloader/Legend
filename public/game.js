@@ -1772,9 +1772,9 @@ function combatLoop() {
             });
         }
         
-        choices.push({ text: "🌊 وضعية المية السلسة", callback: () => { state.playerForm = 'water'; combatLoop(); }});
-        choices.push({ text: "🏔️ وضعية الجبل الشامخ", callback: () => { state.playerForm = 'mountain'; combatLoop(); }});
-        choices.push({ text: "🌪️ وضعية الرياح العاتية", callback: () => { state.playerForm = 'wind'; combatLoop(); }});
+        choices.push({ text: "🌊 وضعية المية السلسة", callback: () => { state.playerForm = 'water'; calculateTotalStats(); updateTopBar(); updateMomentumUI(); combatLoop(); }});
+        choices.push({ text: "🏔️ وضعية الجبل الشامخ", callback: () => { state.playerForm = 'mountain'; calculateTotalStats(); updateTopBar(); updateMomentumUI(); combatLoop(); }});
+        choices.push({ text: "🌪️ وضعية الرياح العاتية", callback: () => { state.playerForm = 'wind'; calculateTotalStats(); updateTopBar(); updateMomentumUI(); combatLoop(); }});
         
         if (enemy.archetype === 'beast') choices.push({ text: "🐾 محاولة ترويض المخلوق", callback: () => resolveCombatTurn('tame') });
 
@@ -2474,9 +2474,28 @@ function calculateTotalStats() {
         state.player.dodgeRate = Math.max(0, (state.player.dodgeRate || 0) + (wMods.dodgeBonus || 0));
     }
 
+    // 9.9 Player Active Form (Stance) Multipliers
+    let formAtkMult = 1.0;
+    let formDefMult = 1.0;
+    let formDodgeBonus = 0.0;
+
+    if (state.playerForm === 'water') {
+        formAtkMult = 0.85;       // -15% physical damage penalty
+        formDodgeBonus += 0.20;   // +20% Dodge rate
+    } else if (state.playerForm === 'mountain') {
+        formDefMult = 1.35;       // +35% Defense boost
+        formDodgeBonus -= 0.20;   // -20% Dodge rate penalty
+    } else if (state.playerForm === 'wind') {
+        formAtkMult = 1.15;       // +15% Physical Attack boost
+        formDefMult = 0.80;       // -20% Defense penalty
+        state.player.critRate = Math.max(0, (state.player.critRate || 0.05) + 0.15); // +15% Crit Rate boost
+    }
+
+    state.player.dodgeRate = Math.max(0.01, state.player.dodgeRate + formDodgeBonus);
+
     // 10. Final Application
-    state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult * eqAtkMult * wAtkMult);
-    state.player.def = Math.floor((baseDef + bDef) * totalStatMult * eqDefMult);
+    state.player.atk = Math.floor((baseAtk + bAtk) * totalStatMult * eqAtkMult * wAtkMult * formAtkMult);
+    state.player.def = Math.floor((baseDef + bDef) * totalStatMult * eqDefMult * formDefMult);
     state.player.maxHp = Math.floor((baseMaxHp + bHp) * totalHpMult * eqHpMult);
     state.player.maxMp = Math.floor((baseMaxMp + bMp) * eqMpMult);
     

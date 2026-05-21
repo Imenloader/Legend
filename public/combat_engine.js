@@ -53,6 +53,12 @@ export function processTurnEffects(state, enemy) {
         state.player.mp = Math.min(state.player.maxMp, state.player.mp + m);
         if (m > 0) msg += `<br><span style="color:var(--jade)">تجدد +${m} تركيز</span>`;
     }
+    // Water Stance: Flowing Focus Regeneration (Recover 10% Focus MP)
+    if (state.playerForm === 'water') {
+        const flowRegen = Math.max(8, Math.floor(state.player.maxMp * 0.10));
+        state.player.mp = Math.min(state.player.maxMp, state.player.mp + flowRegen);
+        msg += `<br><span style="color:#00e5a0;font-weight:bold;">🌊 [وضعية المية] تجدد انسيابي +${flowRegen} تركيز</span>`;
+    }
     if ((state.playerPoisonTurns || 0) > 0) {
         const d = Math.max(2, Math.floor(state.player.maxHp * 0.06));
         state.player.hp = Math.max(1, state.player.hp - d);
@@ -267,9 +273,23 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
         else if (enemyMoveType==='magic'&&!enemy.isStormForm) { enemy.isStormForm=true; enemy.name='إعصار الكثبان الثائر'; enemy.atk=Math.floor(enemy.atk*1.5); enemy.def=Math.floor(enemy.def*.7); msg+=`<br><span style="color:#e67e22;font-weight:bold;">🌀 [تجسد الإعصار]: +50% هجوم -30% دفاع!</span>`; }
     }
     if (enemy?.id==='ifrit' && enemyMoveType==='heavy') { eDmg+=Math.floor(eBase*.3); msg+=`<br><span style="color:#ff5500;font-weight:bold;">🔥 نار الجحيم تخترق الدرع!</span>`; }
-    if (enemy?.id==='jade_golem' && enemyMoveType==='magic') { state.playerGuardBroken=true; msg+=`<br><span style="color:#00a86b;font-weight:bold;">🌀 ختم التثبيت الأرضي!</span>`; }
+    if (enemy?.id==='jade_golem' && enemyMoveType==='magic') {
+        if (state.playerForm === 'mountain') {
+            msg+=`<br><span style="color:#00ffcc;font-weight:bold;">🏔️ [ثبات الجبل] قاومت ختم التثبيت الأرضي بالثبات المطلق!</span>`;
+        } else {
+            state.playerGuardBroken=true;
+            msg+=`<br><span style="color:#00a86b;font-weight:bold;">🌀 ختم التثبيت الأرضي كسر دفاعك!</span>`;
+        }
+    }
     if (enemy?.archetype==='mind_destroyer' && enemyMoveType==='magic') { const drain=Math.min(15,state.player.mp); state.player.mp=Math.max(0,state.player.mp-drain); msg+=`<br><span style="color:#bf5fff;">🔮 سحب عزيمة: -${drain} تركيز!</span>`; }
-    if (enemy?.archetype==='brute' && enemyMoveType==='heavy' && Math.random()<.25) { state.playerGuardBroken=true; msg+=`<br><span style="color:#ff8c00;font-weight:bold;">💥 الضربة الغاشمة كسرت درعك!</span>`; }
+    if (enemy?.archetype==='brute' && enemyMoveType==='heavy' && Math.random()<.25) {
+        if (state.playerForm === 'mountain') {
+            msg+=`<br><span style="color:#00ffcc;font-weight:bold;">🏔️ [درع الجبل] درعك الصلب قاوم كسر الدفاع بنجاح!</span>`;
+        } else {
+            state.playerGuardBroken=true;
+            msg+=`<br><span style="color:#ff8c00;font-weight:bold;">💥 الضربة الغاشمة كسرت درعك!</span>`;
+        }
+    }
 
     if (state.enemyStaggered) {
         pDmg=pBase*3; msg=`<b>ضربة قاضية!</b> سحقت العدو الدايخ! `; spec='execution';
