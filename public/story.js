@@ -1174,12 +1174,12 @@ window.BALANCE = {
         return Math.floor(150 + Math.pow(lvl, 1.8) * 40);
     },
 
-    // Hardcore Enemy scaling (balanced via Square Root so level 100 is tough but not infinite)
+    // Hardcore progressive enemy scaling to match player cultivation and weapon refinement stats
     enemyHpScale: (playerLvl, stageMin) => {
-        return 1.5 + (Math.sqrt(playerLvl) * 0.4) + (Math.sqrt(stageMin) * 0.2); 
+        return 1.2 + (playerLvl * 0.95) + (stageMin * 0.65); 
     },
     enemyAtkScale: (playerLvl, stageMin) => {
-        return 1.2 + (Math.sqrt(playerLvl) * 0.3) + (Math.sqrt(stageMin) * 0.15);
+        return 1.0 + (playerLvl * 0.50) + (stageMin * 0.35);
     },
 
     // XP rewards — Boosted to match the new XP curve

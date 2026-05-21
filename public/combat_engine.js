@@ -190,11 +190,11 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
         const activeWeather = window.WEATHER_SYSTEM.currentWeather;
         
         if (activeWeather === 'sandstorm') {
-            playerAtk = Math.max(1, Math.floor(playerAtk * wMods.atkMult));
+            // Player attack already includes the 0.75x sandstorm penalty from calculateTotalStats()
             enemyAtk = Math.max(1, Math.floor(enemyAtk * wMods.atkMult));
             msg += `<span style="color:#d4af37;font-weight:bold;">[عاصفة السموم: -25% هجوم للطرفين] </span>`;
         } else if (activeWeather === 'heatwave') {
-            playerAtk = Math.floor(playerAtk * wMods.atkMult);
+            // Player attack already includes the 1.25x heatwave boost from calculateTotalStats()
             enemyAtk = Math.floor(enemyAtk * wMods.atkMult); // Boost monster/enemy attack by 25% too!
             msg += `<span style="color:#ff4500;font-weight:bold;">[حر الهجير: +25% هجوم للطرفين] </span>`;
         } else if (activeWeather === 'spiritual_mist') {
@@ -221,7 +221,9 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
         if (wMods.atkMult > 1 && window.WEATHER_SYSTEM?.currentWeather === 'spiritual_mist') {
             sAtk = Math.floor(sAtk * wMods.atkMult);
         }
-        pDmg = Math.floor(sAtk*(skill.power||1));
+        let ignorePct = (window.WEATHER_SYSTEM?.currentWeather === 'eclipse') ? 0.20 : 0.0;
+        let enemyDef = (enemy.def || 5) * (1 - ignorePct);
+        pDmg = Math.max(1, Math.floor((sAtk * (skill.power || 1)) - enemyDef));
         if (skill.heal) { 
             let h=Math.floor(state.player.maxHp*skill.heal); 
             if (wMods.healMult > 1) {
