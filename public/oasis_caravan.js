@@ -27,7 +27,11 @@ window.OASIS_CARAVAN = {
 
         // Time Clock & Weather Cycle
         state.dayTime = state.dayTime !== undefined ? state.dayTime : 8; // Start at 8 AM
-        state.weather = state.weather || 'clear'; // clear, sandstorm, heatwave
+        if (window.WEATHER_SYSTEM) {
+            state.weather = window.WEATHER_SYSTEM.currentWeather || 'clear_sky';
+        } else {
+            state.weather = state.weather || 'clear_sky';
+        }
         state.logbookPage = state.logbookPage || 0;
 
         // Initialize grid map if empty
@@ -114,17 +118,9 @@ window.OASIS_CARAVAN = {
         // B. Day / Night Clock Progress
         state.dayTime = (state.dayTime + 1) % 24;
 
-        // C. Weather dynamics (5% chance of weather shifts)
-        if (Math.random() < 0.05) {
-            const roll = Math.random();
-            if (roll < 0.6) state.weather = 'clear';
-            else if (roll < 0.85) {
-                state.weather = 'sandstorm';
-                if (window.showToast) window.showToast("💨 تحذير: هبت عاصفة رملية عاتية تحجب الرؤية في الصحراء!");
-            } else {
-                state.weather = 'heatwave';
-                if (window.showToast) window.showToast("☀️ تحذير: بدأت موجة حر لاهبة تصهر الرمال والحديد!");
-            }
+        // C. Weather dynamics (Synchronize with unified window.WEATHER_SYSTEM)
+        if (window.WEATHER_SYSTEM) {
+            state.weather = window.WEATHER_SYSTEM.currentWeather;
         }
 
         // D. Random Oasis Bandit Raid (1.5% chance per tick if player has buildings and is in Act 2+)
@@ -321,8 +317,42 @@ window.moveCaravan = function(dx, dy) {
         return;
     }
 
+    // Fetch unified weather and calculate custom travel modifiers
+    const activeWeather = window.WEATHER_SYSTEM ? window.WEATHER_SYSTEM.currentWeather : 'clear_sky';
+    let waterCost = 1;
+    let datesCost = 1;
+
+    // Apply Sandstorm Gust / Blown Back Hazard (15% chance to delay movement and consume 1 date)
+    if (activeWeather === 'sandstorm' && Math.random() < 0.15) {
+        caravan.resDates = Math.max(0, caravan.resDates - 1);
+        window.logCaravanEvent("<span style='color:#d4af37; font-weight:bold;'>💨 [عاصفة السموم] هبت رياح رملية عاتية أعمت القافلة وعطلت مسيرها خطوة! خسرت 1 تمر دون تقدم.</span>");
+        if (window.showToast) window.showToast("💨 عاصفة السموم عطلت مسيرك!");
+        window.saveGame();
+        window.showCaravanMapScreen();
+        return;
+    }
+
+    if (activeWeather === 'heatwave') {
+        waterCost = 2;
+        window.logCaravanEvent("<span style='color:#ff4500;'>🔥 [حرارة قاسية] يضاعف الهجير عطش الجِمال: استهلكت القافلة 2 لتر ماء!</span>");
+    } else if (activeWeather === 'eclipse') {
+        waterCost = 2;
+        // 10% chance to find bonus/rare drops during Eclipse
+        if (Math.random() < 0.10) {
+            const bonusGold = Math.floor(Math.random() * 60) + 40;
+            s.player.gold = (s.player.gold || 0) + bonusGold;
+            window.logCaravanEvent(`<span style='color:#ff4d4d; font-weight:bold;'>🌙 [الخسوف المظلم] تخللت الهالة الحمراء الكثبان وعثرت القافلة على كنز مدفون: +${bonusGold} دينار ذهبي!</span>`);
+            if (window.triggerFlash) window.triggerFlash('gold');
+        }
+    } else if (activeWeather === 'spiritual_mist' && Math.random() < 0.20) {
+        // 20% chance to heal player
+        s.player.hp = Math.min(s.player.maxHp, s.player.hp + 8);
+        window.logCaravanEvent("<span style='color:#9b59b6; font-weight:bold;'>🔮 [أثير البادية] رذاذ الأثير الروحي يعيد طهارة عروق الفرسان: استعدت +8 نقاط صحة!</span>");
+        if (window.triggerFlash) window.triggerFlash('heal');
+    }
+
     // Resource check
-    if (caravan.resWater < 1 || caravan.resDates < 1) {
+    if (caravan.resWater < waterCost || caravan.resDates < datesCost) {
         window.logCaravanEvent("<span style='color:var(--danger); font-weight:bold;'>🚨 نفذت المياه والتمور تماماً! يرفض البدو والجِمال التقدم ملمتراً واحداً. أعد تموين القافلة من الحقيبة!</span>");
         if (window.showToast) window.showToast("🚨 لا توجد إمدادات كافية للرحيل!");
         return;
@@ -331,8 +361,14 @@ window.moveCaravan = function(dx, dy) {
     // Move caravan
     caravan.x = nx;
     caravan.y = ny;
-    caravan.resWater--;
-    caravan.resDates--;
+    caravan.resWater -= waterCost;
+    caravan.resDates -= datesCost;
+
+    // Tick the global weather system synchronously with every step!
+    if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.advanceTurns === 'function') {
+        window.WEATHER_SYSTEM.advanceTurns(s, 1);
+        s.weather = window.WEATHER_SYSTEM.currentWeather; // Sync local state
+    }
 
     // Discover new fog cell and adjacent tiles
     const size = 7;
@@ -442,9 +478,11 @@ window.getDayTimeLabel = function(hour) {
 };
 
 window.getWeatherLabel = function(weather) {
-    if (weather === 'sandstorm') return "💨 عاصفة رملية عاتية (+تفادي، -دقة)";
-    if (weather === 'heatwave') return "🔥 موجة حر لاهبة";
-    return "✨ جو صافٍ وصحو";
+    if (weather === 'sandstorm') return "💨 عاصفة السموم الهوجاء (+تفادي، -دقة)";
+    if (weather === 'heatwave') return "🔥 موجة الحر اللاهبة (-صحة، +ضرر)";
+    if (weather === 'spiritual_mist') return "🔮 ضباب الأثير النوراني (+شفاء، +تركيز)";
+    if (weather === 'eclipse') return "🌙 خسوف العقاب المظلم (+حرج، +اختراق)";
+    return "✨ سماء صافية مباركة (مستقرة)";
 };
 
 

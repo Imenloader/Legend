@@ -1616,6 +1616,15 @@ function exploreRegion(regionId) {
     };
 
     narrate(`ترتحل وتسافر بنورك وعنادك إلى ${region.name}...`, "النظام");
+    
+    // Progress global weather system by 1 step upon region exploration
+    if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.advanceTurns === 'function') {
+        window.WEATHER_SYSTEM.advanceTurns(state, 1);
+        if (state.caravan) {
+            state.caravan.weather = window.WEATHER_SYSTEM.currentWeather; // Sync local state
+        }
+    }
+
     setTimeout(() => {
         showScreen('story-screen');
         startCombat(scaledEnemy);
@@ -1691,6 +1700,12 @@ function combatLoop() {
             let actualCost = m.cost;
             if (state.player.supremeMantraActive && actualCost > 0) {
                 actualCost = Math.max(1, Math.floor(actualCost * 0.8));
+            }
+            if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.getModifiers === 'function') {
+                const wMods = window.WEATHER_SYSTEM.getModifiers();
+                if (wMods.skillCostMult > 1 && actualCost > 0) {
+                    actualCost = Math.floor(actualCost * wMods.skillCostMult);
+                }
             }
 
             // Check if this skill is currently on cooldown
@@ -2455,8 +2470,8 @@ function calculateTotalStats() {
     if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.getModifiers === 'function') {
         const wMods = window.WEATHER_SYSTEM.getModifiers();
         wAtkMult = wMods.atkMult || 1;
-        state.player.critRate = (state.player.critRate || 0) + (wMods.accuracyBonus || 0);
-        state.player.dodgeRate = (state.player.dodgeRate || 0) + (wMods.dodgeBonus || 0);
+        state.player.critRate = Math.max(0, (state.player.critRate || 0) + (wMods.accuracyBonus || 0));
+        state.player.dodgeRate = Math.max(0, (state.player.dodgeRate || 0) + (wMods.dodgeBonus || 0));
     }
 
     // 10. Final Application

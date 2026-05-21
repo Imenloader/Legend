@@ -87,8 +87,30 @@ export function processTurnEffects(state, enemy) {
         if (wMods.hpDrainMult > 0) {
             const d = Math.max(1, Math.floor(state.player.maxHp * wMods.hpDrainMult));
             state.player.hp = Math.max(1, state.player.hp - d);
-            msg += `<br><span style="color:#ff4500;font-weight:bold;">🔥 [طقس قاسي] استنزاف -${d} صحة!</span>`;
+            
+            // Also drain enemy/monster health in heatwave!
+            const ed = Math.max(1, Math.floor(enemy.maxHp * wMods.hpDrainMult));
+            enemy.hp = Math.max(0, enemy.hp - ed);
+            
+            msg += `<br><span style="color:#ff4500;font-weight:bold;">🔥 [حر الهجير] استنزفت ضربات الشمس الحارقة -${d} صحة منك و -${ed} صحة من ${enemy.name}!</span>`;
+            window.COMBAT_UI?.playEffect('fire', 'player');
+            window.COMBAT_UI?.playEffect('fire', 'enemy');
         }
+        if (wMods.mpRegenMult > 1) {
+            const regen = Math.floor(state.player.maxMp * 0.15);
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + regen);
+            msg += `<br><span style="color:#9b59b6;font-weight:bold;">🔮 [ضباب الأثير] تشرب هالتك التشي الباطني: +${regen} تركيز!</span>`;
+            window.COMBAT_UI?.playEffect('heal', 'player');
+        }
+        
+        // Show subtle ambient particles during active weather states in combat
+        const activeWeather = window.WEATHER_SYSTEM.currentWeather;
+        if (activeWeather === 'sandstorm' && Math.random() < 0.3) {
+            window.COMBAT_UI?.playEffect('poison', 'enemy');
+        } else if (activeWeather === 'eclipse' && Math.random() < 0.3) {
+            window.COMBAT_UI?.playEffect('fear', 'enemy');
+        }
+        
         window.WEATHER_SYSTEM.advanceTurns(state, 1);
     }
     return msg;
@@ -161,10 +183,30 @@ export function getTelegraph(enemy, moveType) {
 export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, enemy, state) {
     let pDmg=0, eDmg=0, msg='', mom=0, spec=null;
 
-    if (state?.weather==='sandstorm') { playerAtk=Math.max(1,Math.floor(playerAtk*.8)); enemyAtk=Math.max(1,Math.floor(enemyAtk*.8)); msg+=`<span style="color:#e0a96d;font-weight:bold;">[عاصفة: -20%] </span>`; }
-    if (state?.weather==='heatwave') { playerAtk=Math.floor(playerAtk*1.15); msg+=`<span style="color:#ff5500;font-weight:bold;">[حرارة: +15%] </span>`; }
+    // Advanced Unified Weather modifiers
+    let wMods = { healMult: 1, accuracyBonus: 0, dodgeBonus: 0, mpRegenMult: 1, atkMult: 1, hpDrainMult: 0, critDamageMult: 0, skillCostMult: 1 };
+    if (window.WEATHER_SYSTEM && typeof window.WEATHER_SYSTEM.getModifiers === 'function') {
+        wMods = window.WEATHER_SYSTEM.getModifiers();
+        const activeWeather = window.WEATHER_SYSTEM.currentWeather;
+        
+        if (activeWeather === 'sandstorm') {
+            playerAtk = Math.max(1, Math.floor(playerAtk * wMods.atkMult));
+            enemyAtk = Math.max(1, Math.floor(enemyAtk * wMods.atkMult));
+            msg += `<span style="color:#d4af37;font-weight:bold;">[عاصفة السموم: -25% هجوم للطرفين] </span>`;
+        } else if (activeWeather === 'heatwave') {
+            playerAtk = Math.floor(playerAtk * wMods.atkMult);
+            enemyAtk = Math.floor(enemyAtk * wMods.atkMult); // Boost monster/enemy attack by 25% too!
+            msg += `<span style="color:#ff4500;font-weight:bold;">[حر الهجير: +25% هجوم للطرفين] </span>`;
+        } else if (activeWeather === 'spiritual_mist') {
+            // Apply 10% enemy dodge rate penalty (meaning player deals 10% extra base damage)
+            playerAtk = Math.floor(playerAtk * 1.10);
+            msg += `<span style="color:#9b59b6;font-weight:bold;">[ضباب الأثير: +25% للمهارات وعجز 10% تفادي العدو] </span>`;
+        } else if (activeWeather === 'eclipse') {
+            msg += `<span style="color:#ff4d4d;font-weight:bold;">[الخسوف المظلم: ضربات الطرفين تخترق 20% من الدفاع] </span>`;
+        }
+    }
     const isNight = state?.dayTime!==undefined && (state.dayTime<5||state.dayTime>=21);
-    if (isNight) msg+=`<span style="color:#8000ff;font-weight:bold;">[ليل: +20% باطني] </span>`;
+    if (isNight) msg+=`<span style="color:#8000ff;font-weight:bold;">[ليل: +20% هجوم باطني] </span>`;
 
     if (playerMoveId==='tame') {
         const ok = Math.random()<((enemy.hp/enemy.maxHp<0.3)?0.8:0.2);
@@ -175,9 +217,20 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
     const skill = window.SKILLS?.techniques?.[playerMoveId];
     if (skill) {
         msg += `أطلقت <b>${skill.name}</b>! `;
-        const sAtk = isNight ? Math.floor(playerAtk*1.2) : playerAtk;
+        let sAtk = isNight ? Math.floor(playerAtk*1.2) : playerAtk;
+        if (wMods.atkMult > 1 && window.WEATHER_SYSTEM?.currentWeather === 'spiritual_mist') {
+            sAtk = Math.floor(sAtk * wMods.atkMult);
+        }
         pDmg = Math.floor(sAtk*(skill.power||1));
-        if (skill.heal) { const h=Math.floor(state.player.maxHp*skill.heal); state.player.hp=Math.min(state.player.maxHp,state.player.hp+h); msg+=`+${h} صحة. `; }
+        if (skill.heal) { 
+            let h=Math.floor(state.player.maxHp*skill.heal); 
+            if (wMods.healMult > 1) {
+                h = Math.floor(h * wMods.healMult);
+                msg+=`<span style="color:#00ffcc;">[بركة الضباب: شفاء +30%] </span>`;
+            }
+            state.player.hp=Math.min(state.player.maxHp,state.player.hp+h); 
+            msg+=`+${h} صحة. `; 
+        }
         if (skill.stunChance&&Math.random()<skill.stunChance) { state.enemyStunned=true; msg+='العدو مشلول! '; }
         if (skill.dot) { state.dotEffects.push({...skill.dot,type:'burn'}); msg+='حريق! '; }
         if (skill.effect) { state.activeBuffs.push({...skill.effect}); msg+='طاقتك زادت! '; }
@@ -186,8 +239,10 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
         return { playerDmg:pDmg, enemyDmg:Math.floor(enemyAtk*0.5), resultText:msg, special:'skill', momentumShift:20 };
     }
 
-    const pBase = Math.max(1, playerAtk-(enemy.def||0));
-    const eBase = Math.max(1, enemyAtk-(state.player.def||0));
+    let ignorePct = (window.WEATHER_SYSTEM?.currentWeather === 'eclipse') ? 0.20 : 0.0;
+    const pBase = Math.max(1, Math.floor(playerAtk - ((enemy.def || 5) * (1 - ignorePct))));
+    // Eclipse lets enemies ignore 20% of player's defense too!
+    const eBase = Math.max(1, Math.floor(enemyAtk - ((state.player.def || 0) * (1 - ignorePct))));
 
     // Enemy archetype specials
     if (enemy?.id==='crossroads_venomous_spider' && enemyMoveType==='magic') {
@@ -286,11 +341,27 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
 
     pDmg=Math.floor(pDmg); eDmg=Math.floor(eDmg);
 
+    // Apply Sandstorm Evasion/Accuracy misses
+    if (pDmg > 0 && wMods.accuracyBonus < 0 && Math.random() < Math.abs(wMods.accuracyBonus)) {
+        pDmg = Math.floor(pDmg * 0.35);
+        msg += `<br><span style="color:#d4af37;font-weight:bold;">💨 [أتربة السموم] حجب الغبار هجومك وتسبب بضربة طفيفة (35% ضرر)!</span>`;
+        window.COMBAT_UI?.playEffect('poison', 'enemy');
+    }
+    if (eDmg > 0 && wMods.accuracyBonus < 0 && Math.random() < Math.abs(wMods.accuracyBonus)) {
+        eDmg = Math.floor(eDmg * 0.35);
+        msg += `<br><span style="color:#d4af37;font-weight:bold;">💨 [تفادي العاصفة] أعمت الأتربة عيون العدو وقللت ضرر ضربته!</span>`;
+        window.COMBAT_UI?.playEffect('poison', 'player');
+    }
+
     // Critical hit
     if (pDmg>0 && Math.random()<(state.player.critRate||0.05)) {
         let cm=1.5;
         if (state.player.skills?.includes('sword_intent')) cm+=.2;
         if ((state.player.familyPagodaLevel||0)>=3) cm+=.15;
+        if (wMods.critDamageMult > 0) {
+            cm += wMods.critDamageMult;
+            msg += ` <span style="color:#ff4d4d;font-weight:bold;">[رعب الخسوف: +30% ضرر حرج]</span>`;
+        }
         pDmg=Math.floor(pDmg*cm);
         msg+=` <span style="color:#ffcc00;font-weight:bold;text-shadow:0 0 8px #ffcc00;">✨ ضربة قاصمة!</span>`;
         spec='crit';
