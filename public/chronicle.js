@@ -277,7 +277,7 @@ window.toggleGuideModal = function() {
 };
 
 window.switchGuideTab = function(tabName) {
-    const tabs = ['stances', 'weather', 'combos'];
+    const tabs = ['stances', 'cultivation', 'sects', 'exploration', 'crafting', 'companions'];
     tabs.forEach(t => {
         const btn = document.getElementById(`tab-btn-${t}`);
         const sec = document.getElementById(`guide-sec-${t}`);
@@ -292,5 +292,109 @@ window.switchGuideTab = function(tabName) {
     
     if (window.AUDIO) {
         window.AUDIO.playEffect('menu_click');
+    }
+};
+
+window.toggleSettingsModal = function() {
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return;
+    
+    const active = modal.classList.toggle('active');
+    
+    if (active && window.AUDIO) {
+        window.AUDIO.playEffect('menu_click');
+    }
+};
+
+window.updateSettingsBGM = function() {
+    const active = document.getElementById('settings-bgm').checked;
+    if (window.AUDIO) {
+        if (active) {
+            window.AUDIO.muted = false;
+            if (window.AUDIO.ctx && window.AUDIO.master) {
+                window.AUDIO.master.gain.setValueAtTime(window.AUDIO.volume, window.AUDIO.ctx.currentTime);
+            }
+            if (!window.AUDIO.currentRegion) {
+                window.AUDIO.playRegion('crossroads');
+            }
+        } else {
+            if (window.AUDIO.ctx && window.AUDIO.master) {
+                window.AUDIO.master.gain.setValueAtTime(0, window.AUDIO.ctx.currentTime);
+            }
+        }
+    }
+};
+
+window.updateSettingsSFX = function() {
+    const active = document.getElementById('settings-sfx').checked;
+    window._sfxMuted = !active;
+};
+
+window.updateTextSpeed = function() {
+    const val = document.getElementById('settings-text-speed').value;
+    if (val === 'instant') {
+        window._textSpeedMultiplier = 0;
+    } else if (val === 'fast') {
+        window._textSpeedMultiplier = 0.25;
+    } else {
+        window._textSpeedMultiplier = 1.0;
+    }
+};
+
+window.updateFontSize = function() {
+    const val = document.getElementById('settings-font-size').value;
+    const body = document.body;
+    if (val === 'large') {
+        body.style.fontSize = '1.15rem';
+    } else if (val === 'xlarge') {
+        body.style.fontSize = '1.3rem';
+    } else {
+        body.style.fontSize = ''; // Default
+    }
+};
+
+window.exportSaveData = function() {
+    if (!window.state) {
+        alert("لا توجد بيانات بطل للتصدير حالياً!");
+        return;
+    }
+    try {
+        const json = JSON.stringify(window.state);
+        const code = btoa(unescape(encodeURIComponent(json)));
+        navigator.clipboard.writeText(code).then(() => {
+            alert("📋 تم نسخ شفرة حفظ بطل القلوب إلى الحافظة بنجاح! احتفظ بها في مكان آمن.");
+        }).catch(() => {
+            alert(`فشل النسخ التلقائي. انسخ الكود التالي يدوياً:\n\n${code}`);
+        });
+    } catch(e) {
+        alert("فشل تصدير البيانات: " + e.message);
+    }
+};
+
+window.importSaveData = function() {
+    const code = prompt("📥 الصق شفرة حفظ البطل التي قمت بتصديرها سابقاً:");
+    if (!code) return;
+    try {
+        const json = decodeURIComponent(escape(atob(code.trim())));
+        const parsed = JSON.parse(json);
+        if (parsed && parsed.player) {
+            window.state = parsed;
+            if (typeof window.saveGame === 'function') window.saveGame();
+            alert("🌟 تم استيراد روح بطل القلوب بنجاح! سيتم إعادة تحميل اللعبة لتطبيق التغييرات.");
+            window.location.reload();
+        } else {
+            alert("شفرة الحفظ غير صالحة أو تالفة!");
+        }
+    } catch(e) {
+        alert("فشل استيراد الحفظ: الكود غير صالح!");
+    }
+};
+
+window.confirmResetGame = function() {
+    const doubleCheck = confirm("⚠️ تحذير خطير جداً:\nهل أنت متأكد تماماً أنك تريد مسح بيانات البطل والبدء من جديد بالكامل؟ لا يمكن التراجع عن هذا القرار!");
+    if (doubleCheck) {
+        localStorage.clear();
+        alert("💀 تم فناء التقدم البدني بالكامل. ستبدأ من نقطة الصفر كبطل جديد.");
+        window.location.reload();
     }
 };

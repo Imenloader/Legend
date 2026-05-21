@@ -571,6 +571,12 @@ function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
         return;
     }
 
+    if (window._textSpeedMultiplier === 0) {
+        containerElement.innerHTML = textHtml;
+        if (callback) callback();
+        return;
+    }
+
     // Store target text and callback on the element
     containerElement._targetTextHtml = textHtml;
     containerElement._typewriteCallback = callback;
@@ -619,6 +625,7 @@ function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
     containerElement._skipTypingHandler = skipTyping;
     document.addEventListener('click', skipTyping);
 
+    const adjustedSpeed = Math.max(1, Math.floor(speed * (window._textSpeedMultiplier ?? 1.0)));
     containerElement._typewriteInterval = setInterval(() => {
         if (tokenIndex >= tokens.length) {
             clearInterval(containerElement._typewriteInterval);
@@ -647,7 +654,7 @@ function typewriteText(containerElement, textHtml, speed = 8, callback = null) {
             }
             tokenIndex++;
         }
-    }, speed);
+    }, adjustedSpeed);
 }
 
 function narrate(text, speaker = null, speakerSprite = null, isEnemy = false, isSystem = false, bgImage = null) {

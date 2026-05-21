@@ -258,7 +258,7 @@ window.AUDIO = {
             }
         }
 
-        if (!this.ctx || this.muted) return;
+        if (!this.ctx || window._sfxMuted) return;
         this.resume();
         const now = this.ctx.currentTime;
 

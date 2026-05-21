@@ -55,6 +55,7 @@
     </div>
 
     <button id="rescue-btn" class="btn-rescue" title="الرجوع إلى المنطقة الآمنة (يصلح اللعبة إذا علقت)">إنقاذ البطل</button>
+    <button id="settings-btn" class="btn-settings" onclick="toggleSettingsModal()" title="إعدادات الصوت والتحكم">⚙️ الإعدادات</button>
     <button id="guide-btn" class="btn-guide" onclick="toggleGuideModal()" title="دليل القتال الصحراوي والفنون القتالية">📚 دليل الفنون</button>
 
     <!-- Cinematic Overlay for Novel Mode -->
@@ -202,6 +203,56 @@
                 <div class="guide-card">
                     <h4 style="color: #bf5fff; margin-bottom: 5px;">🌌 التكتيك الرابع: "تآزر الفلك الحارق" (Sovereign Synergy)</h4>
                     <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> اشحن مقياس التآزر مع companion إلى 75+ تحت وضعية المية. عندما يكون جاهزاً، بدّل إلى <b>وضعية الرياح العاتية</b> للحصول على زيادة +15% لقوة المهارات، ثم أطلق فوراً ضربة التآزر القاضية (مثل هراوة وكونغ الفولاذية أو درع طارق الرمالي) لتحقيق ضرر باطني يفجر وحوش البادية بالكامل!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Interactive Settings Modal -->
+    <div id="settings-modal" class="guide-modal">
+        <div class="guide-modal-container" style="max-width: 500px;">
+            <button class="guide-close-btn" onclick="toggleSettingsModal()">×</button>
+            <h2 style="font-size: 2rem; margin-bottom: 5px; text-align: center; font-family: 'El Messiri', serif;">⚙️ إعدادات اللعبة</h2>
+            <p style="text-align: center; color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">تخصيص تجربة المغامرة الروحية بما يناسب ذوقك.</p>
+            
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--secondary); margin-bottom: 12px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">🎵 المؤثرات والموسيقى</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">الموسيقى الخلفية (BGM)</label>
+                    <input type="checkbox" id="settings-bgm" checked onchange="updateSettingsBGM()" style="width: 20px; height: 20px; cursor: pointer;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">المؤثرات الصوتية (SFX)</label>
+                    <input type="checkbox" id="settings-sfx" checked onchange="updateSettingsSFX()" style="width: 20px; height: 20px; cursor: pointer;">
+                </div>
+            </div>
+            
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--secondary); margin-bottom: 12px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">⚡ سرعة السرد والخط</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">سرعة كتابة النصوص</label>
+                    <select id="settings-text-speed" onchange="updateTextSpeed()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-family: 'Cairo', sans-serif;">
+                        <option value="normal">عادية (Normal)</option>
+                        <option value="fast" selected>سريعة (Fast)</option>
+                        <option value="instant">فورية (Instant)</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">حجم الخط العربي</label>
+                    <select id="settings-font-size" onchange="updateFontSize()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-family: 'Cairo', sans-serif;">
+                        <option value="normal" selected>عادي (Normal)</option>
+                        <option value="large">كبير (Large)</option>
+                        <option value="xlarge">ضخم جداً (X-Large)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--danger); margin-bottom: 12px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">💾 إدارة البيانات والتقدم</h3>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                    <button onclick="exportSaveData()" class="guide-tab-btn" style="border-color: var(--jade); color: var(--jade); background: rgba(46,204,113,0.05); font-size: 0.8rem; padding: 6px 12px;">📤 تصدير الحفظ</button>
+                    <button onclick="importSaveData()" class="guide-tab-btn" style="border-color: var(--secondary); color: var(--secondary); background: rgba(241,196,15,0.05); font-size: 0.8rem; padding: 6px 12px;">📥 استيراد الحفظ</button>
+                    <button onclick="confirmResetGame()" class="guide-tab-btn" style="border-color: var(--danger); color: var(--danger); background: rgba(231,76,96,0.05); font-size: 0.8rem; padding: 6px 12px;">💀 مسح البيانات</button>
                 </div>
             </div>
         </div>
