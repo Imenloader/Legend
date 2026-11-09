@@ -96,7 +96,7 @@ This provides a clearer boundary around combat rules while preserving compatibil
 |---|---|---|
 | World data | `lore.js`, `lore_part2.js`, `lore_myths.js` | Regions, characters, enemies, items, and lore |
 | Story | `story.js`, `story_acts_3_5.js`, `story_epics.js`, `chronicle.js` | Narrative nodes, chapter progression, and story history |
-| Combat | `combat_engine.js`, `combat.js`, `combat_ui.js`, `combat_visuals.js) | Combat rules, compatibility bridge, presentation, and effects |
+| Combat | `combat_engine.js`, `combat.js`, `combat_ui.js`, `combat_visuals.js` | Combat rules, compatibility bridge, presentation, and effects |
 | Character growth | `skills.js`, `cultivation.js`, `ascension.js`, `rebirth.js` | Skills, cultivation, breakthroughs, and legacy progression |
 | Economy and items | `shop.js`, `auction.js`, `crafting.js` | Trading, bidding, recipes, and item creation |
 | Relationships | `companions.js`, `pets.js`, `life.js` | Companion affinity, pets, mounts, and life systems |
