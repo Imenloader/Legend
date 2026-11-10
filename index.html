@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <script>
+        // Ensure fresh assets and Service Worker updates
+        if ('caches' in window) {
+            caches.keys().then(keys => {
+                keys.forEach(key => {
+                    if (key !== 'legend-rpg-v4') {
+                        caches.delete(key);
+                    }
+                });
+            });
+        }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(reg => reg.update());
+            });
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0D2137">
+    <title>ملحمة الشرق الخالدة</title>
+    <meta name="description" content="لعبة تقمص أدوار شرقية ملحمية تحاكي قصص وبطولات طريق الحرير وأساطير الفتوة والخلود بنظام السلوك والقدر المبارك." />
+    <meta property="og:title" content="ملحمة الشرق الخالدة" />
+    <meta property="og:description" content="لعبة تقمص أدوار شرقية ملحمية تحاكي قصص وبطولات طريق الحرير وأساطير الفتوة والخلود بنظام السلوك والقدر المبارك." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/style.css?v=20261110d">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;600;700&family=El+Messiri:wght@400;500;600;700&family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="game-container">
+    <!-- Mobile Top HUD (Visible only on phone/tablet via CSS) -->
+    <div class="mobile-top-hud">
+        <div class="hud-player-info">
+            <div class="hud-avatar" onclick="if(typeof showPropertiesScreen==='function')showPropertiesScreen()" style="cursor:pointer;" title="صفات البطل">
+                <img id="hud-avatar-img" src="assets/sword_immortal_1778872325571.png" alt="Avatar">
+            </div>
+            <div class="hud-text">
+                <span id="hud-player-name-val">الجدع البطل</span>
+                <span id="hud-class-val">خالد السيف الأسطوري</span>
+            </div>
+        </div>
+        <div class="hud-stats">
+            <div class="hud-resource tabular-nums" style="border-color: rgba(231,76,60,0.3);">
+                <span class="resource-icon" style="color:#e74c3c;">❤️</span>
+                <span id="hud-hp-val">100/100</span>
+            </div>
+            <div class="hud-resource tabular-nums" style="border-color: rgba(52,152,219,0.3);">
+                <span class="resource-icon" style="color:#3498db;">🌀</span>
+                <span id="hud-mp-val">50/50</span>
+            </div>
+            <div class="hud-get-gold hud-resource tabular-nums" style="border-color: rgba(241,196,15,0.3);">
+                <span class="resource-icon">🪙</span>
+                <span id="hud-gold-val">50</span>
+            </div>
+            <button type="button" onclick="toggleChronicleModal()" class="hud-icon-btn" title="السجل الخالد للقدر" aria-label="السجل الخالد للقدر">📖</button>
+            <button type="button" onclick="toggleSettingsModal()" class="hud-icon-btn" title="الإعدادات والحفظ السحابي" aria-label="الإعدادات والحفظ السحابي">⚙️</button>
+        </div>
+    </div>
+
+    <button id="rescue-btn" class="btn-rescue" title="الرجوع إلى المنطقة الآمنة (يصلح اللعبة إذا علقت)">🛟 إنقاذ البطل</button>
+    <button id="settings-btn" class="btn-settings" onclick="toggleSettingsModal()" title="إعدادات الصوت والحفظ السحابي">⚙️ الإعدادات</button>
+    <button id="guide-btn" class="btn-guide" onclick="toggleGuideModal()" title="دليل القتال الصحراوي والفنون القتالية">📚 دليل الفنون</button>
+
+    <!-- Cinematic Overlay for Novel Mode -->
+    <div id="cinematic-overlay" class="cinematic-overlay">
+        <div class="novel-text-box" id="novel-box">
+            <h4 id="novel-speaker">شهرزاد</h4>
+            <div id="novel-content" style="color:var(--text); font-style:italic;">...</div>
+        </div>
+    </div>
+
+    <!-- NEW: Cinematic Fullscreen Act Transition Overlay -->
+    <div id="act-transition-overlay" class="act-transition-overlay">
+        <div class="act-transition-content">
+            <div class="act-transition-chapter" id="act-transition-chapter">تم فتح البصيرة وفصل جديد!</div>
+            <h2 class="act-transition-title" id="act-transition-title">الفصل الثالث: المحنة والابتلاء الأكبر</h2>
+            <p class="act-transition-desc" id="act-transition-desc">في أعماق الصحراء الشاسعة، أصولك العريقة وذاكرة الأوائل في انتظارك بالمرآة الأثرية...</p>
+            <div class="act-transition-progress-wrapper">
+                <div id="act-transition-progress-bar" class="act-transition-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Immortal Chronicle Story Log Modal -->
+    <div id="chronicle-modal" class="chronicle-modal">
+        <div class="chronicle-modal-container">
+            <button class="chronicle-close-btn" onclick="toggleChronicleModal()">×</button>
+            <h2 style="font-size: 2rem; margin-bottom: 5px;">📖 السجل الخالد للقدر</h2>
+            <p style="text-align: center; color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">قراراتك واختياراتك بتتردد في أرجاء عوالم الرمال وجبل الطور الروحية.</p>
+            
+            <div class="chronicle-layout">
+                <!-- Destiny Tracker Panel -->
+                <div class="chronicle-panel destiny-tracker-panel" style="flex: 0.8; padding: 20px; background: rgba(5,8,12,0.92); border: 1px solid var(--glass-border); border-radius: 8px;">
+                    <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 20px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">مقام وتوجه القدر</h3>
+                    <div class="karma-slider-container" style="position: relative; height: 12px; background: linear-gradient(90deg, var(--danger) 0%, var(--secondary) 50%, var(--jade) 100%); border-radius: 6px; margin: 30px 0 15px; border: 1px solid #000;">
+                        <div id="chronicle-karma-pointer" class="karma-pointer" style="position: absolute; top: -6px; left: 50%; width: 24px; height: 24px; background: #fff; border: 3px solid var(--secondary); border-radius: 50%; box-shadow: 0 0 10px #fff; transform: translateX(-12px); transition: left 0.5s ease-out; cursor: pointer;"></div>
+                    </div>
+                    <div class="karma-slider-labels" style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: bold; margin-bottom: 20px; direction: ltr;">
+                        <span style="color: var(--danger)">ملك الظلال والعدم المطلق</span>
+                        <span style="color: var(--secondary)">السياف الهائم المعتدل</span>
+                        <span style="color: var(--jade)">الولي الصالح النوراني</span>
+                    </div>
+                    <div id="ending-projection-box" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; font-size: 0.9rem; line-height: 1.5; color: var(--text);">
+                        <!-- Projection loaded dynamically by chronicle.js -->
+                        جارٍ حساب مسار القدر...
+                    </div>
+                </div>
+                
+                <!-- Timeline Panel -->
+                <div class="chronicle-panel timeline-panel" style="flex: 1.2; padding: 20px; background: rgba(5,8,12,0.92); border: 1px solid var(--glass-border); border-radius: 8px; display: flex; flex-direction: column; height: 350px;">
+                    <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 15px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">سجل الملحمة الروحية</h3>
+                    <div id="chronicle-timeline" style="flex: 1; overflow-y: auto; padding-left: 5px; display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Timeline items loaded dynamically by chronicle.js -->
+                        <div style="color: var(--text-dim); text-align: center; margin-top: 50px;">حكايتك وابتلاءاتك لسة بادية... كمل طريقك وجاهد نفسك!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Interactive Desert Combat & Strategy Guide Modal -->
+    <div id="guide-modal" class="guide-modal">
+        <div class="guide-modal-container">
+            <button class="guide-close-btn" onclick="toggleGuideModal()">×</button>
+            <h2 style="font-size: 2rem; margin-bottom: 5px; text-align: center; font-family: 'El Messiri', serif;">📖 دليل الفنون والخطط الحربية</h2>
+            <p style="text-align: center; color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">أسرار وتكتيكات القتال الصحراوي، الأوضاع الروحية، ومزاج طقس البادية الخالد.</p>
+            
+            <!-- Tab Navigation -->
+            <div class="guide-tabs" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-direction: row-reverse;">
+                <button class="guide-tab-btn active" id="tab-btn-stances" onclick="switchGuideTab('stances')">🥋 الأوضاع الثلاثة</button>
+                <button class="guide-tab-btn" id="tab-btn-weather" onclick="switchGuideTab('weather')">🌤️ طقس البادية</button>
+                <button class="guide-tab-btn" id="tab-btn-combos" onclick="switchGuideTab('combos')">⚔️ التكتيكات الحربية</button>
+            </div>
+            
+            <!-- Stances Tab -->
+            <div id="guide-sec-stances" class="guide-content-section active">
+                <div class="guide-card">
+                    <h3 style="color: #00e5a0; margin-bottom: 8px;">🌊 وضعية المية السلسة (Water Stance)</h3>
+                    <p>أول الأوضاع الروحية وأكثرها مرونة وتدفقاً. صممت للدراسة والتفادي وتوفير الطاقة الروحية.</p>
+                    <ul style="padding-right: 20px; list-style-type: square; color: var(--text-dim); margin-top: 5px;">
+                        <li><b style="color: var(--text);">تأثير الوضع:</b> تمنحك <b style="color: #00e5a0;">+20% تفادي كامل (Dodge Rate)</b> ضد كل الضربات.</li>
+                        <li><b style="color: var(--text);">التجدد التدفقي:</b> تستعيد تلقائياً <b style="color: #00e5a0;">+10% من العزيمة القصوى</b> في بداية كل جولة.</li>
+                        <li><b style="color: var(--text);">عقوبة الجسد:</b> تسبب ضرباتك الجسدية ضرراً أقل بنسبة <b style="color: var(--danger);">-15%</b> بسبب التركيز على الحماية.</li>
+                    </ul>
+                </div>
+                <div class="guide-card">
+                    <h3 style="color: var(--secondary); margin-bottom: 8px;">🏔️ وضعية الجبل الشامخ (Mountain Stance)</h3>
+                    <p>تجسيد الصلابة والصخر الراسخ. صممت لصد أقوى الضربات وتثبيت الأقدام بالأرض.</p>
+                    <ul style="padding-right: 20px; list-style-type: square; color: var(--text-dim); margin-top: 5px;">
+                        <li><b style="color: var(--text);">تأثير الوضع:</b> تمنحك <b style="color: var(--secondary);">+35% دفاع صخر كامل (Defense Boost)</b>.</li>
+                        <li><b style="color: var(--text);">الثبات الراسخ:</b> تمنحك <b style="color: var(--secondary);">حصانة كاملة ومطلقة ضد كسر الدفاع (Guard-Break Immunity)</b>.</li>
+                        <li><b style="color: var(--text);">عقوبة الجسد:</b> يقل تفاديك للضربات بنسبة <b style="color: var(--danger);">-20%</b> بسبب ثقل دروع الجبل.</li>
+                    </ul>
+                </div>
+                <div class="guide-card">
+                    <h3 style="color: #e74c3c; margin-bottom: 8px;">🌪️ وضعية الرياح العاتية (Wind Stance)</h3>
+                    <p>أخطر الأوضاع وأكثرها هجوماً وفتكاً. حركة إعصارية سريعة تعتمد على ضرب الثغرات الضعيفة.</p>
+                    <ul style="padding-right: 20px; list-style-type: square; color: var(--text-dim); margin-top: 5px;">
+                        <li><b style="color: var(--text);">تأثير الوضع:</b> تمنحك <b style="color: #e74c3c;">+15% هجوم جسدي (Attack Boost)</b> و <b style="color: #e74c3c;">+15% فرصة ضربة حرجة (Critical Chance)</b>.</li>
+                        <li><b style="color: var(--text);">الهجوم الباطني:</b> تزداد قوة جميع مهاراتك القتالية والروحية بنسبة <b style="color: #e74c3c;">+15%</b>.</li>
+                        <li><b style="color: var(--text);">عقوبة الجسد:</b> يقل دفاعك وامتصاصك للضرر بنسبة <b style="color: var(--danger);">-20%</b> بسبب التخلي عن الدروع لصالح السرعة.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Weather Tab -->
+            <div id="guide-sec-weather" class="guide-content-section">
+                <p style="margin-bottom: 15px; color: var(--text-dim);">تقلبات الطقس تؤثر عليك وعلى الأعداء بالتساوي (Bilateral Symmetry)، مما يخلق فرصاً حربية فريدة:</p>
+                <div class="guide-card">
+                    <h4 style="color: #fff176; margin-bottom: 5px;">☀️ سماء صافية مباركة (Clear Sky)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">الطقس الطبيعي للصحراء. قتال متوازن دون أي تأثيرات خارجية أو تعديلات على الإحصائيات.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #d4af37; margin-bottom: 5px;">💨 عاصفة السموم الصفراء (Sandstorm)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #d4af37;">السمات:</b> ينخفض هجوم الجميع بنسبة <b>25%</b> بسبب صعوبة الرؤية، وهناك فرصة <b>25%</b> لأن تنزلق الضربات وتتحول إلى ضربات جزئية تسبب <b>35%</b> فقط من الضرر الأساسي.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #ff4500; margin-bottom: 5px;">🔥 حر الهجير اللاهب (Heatwave)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #ff4500;">السمات:</b> يزيد قوة وهجوم الجميع بنسبة <b>25%</b> بسبب غليان الدماء، لكن كل طرف يفقد <b>3% من صحته القصوى</b> في نهاية كل دور بسبب حر الجحيم والعطش الشديد.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #9b59b6; margin-bottom: 5px;">🌫️ ضباب الأثير الروحي (Spiritual Mist)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #9b59b6;">السمات:</b> يقلل تفادي الوحوش بنسبة <b>10%</b> (مما يمنحك هجوماً إضافياً)، ويزيد طاقة شفاء Companion بمعدل <b>30%</b>.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #ff4d4d; margin-bottom: 5px;">🌑 الخسوف المظلم الأثري (Eclipse)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: #ff4d4d;">السمات:</b> قتال مظلم وعنيف. ضربات الطرفين تخترق وتتجاوز <b>20% من دفاع ودروع الخصم</b> بالكامل!</p>
+                </div>
+            </div>
+            
+            <!-- Combos Tab -->
+            <div id="guide-sec-combos" class="guide-content-section">
+                <p style="margin-bottom: 15px; color: var(--text-dim);">جرب هذه التوليبات والخطط القتالية للفوز بأصعب المعارك في اللعبة:</p>
+                <div class="guide-card">
+                    <h4 style="color: #00e5a0; margin-bottom: 5px;">🌪️ التكتيك الأول: "إعصار البادية المدمر" (Gale Burst)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> ابدأ المعركة في <b>وضعية المية</b> لتفادي ضربات الوحش والحصول على تجدد العزيمة السريع. بمجرد أن تتجاوز عزيمتك (MP) الـ 50 نقطة، بدّل فوراً إلى <b>وضعية الرياح</b> واستخدم مهارة <i>سيف النور (Qi Blade)</i> أو الفنون الخاصة لتسديد ضربات حرجة مضاعفة بقوة الإعصار فتكاً!</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: var(--secondary); margin-bottom: 5px;">🏔️ التكتيك الثاني: "صدى الصخرة الراسخة" (Stone Wall Counter)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> ضد الوحوش القوية من نوع (Brute) أو الزعماء مثل "Jade Golem". عندما ترى العدو يستعد لهجوم ثقيل أو سحري مدمر، بدّل فوراً إلى <b>وضعية الجبل</b>. ستحصل على +35% دفاع وتمنع تماماً كسر درعك أو شللك. في الجولة التالية، بدّل فوراً إلى <b>وضعية الرياح</b> ونفذ ضربتك القوية لسحق دفاعه المنهك!</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #00ffcc; margin-bottom: 5px;">🌊 التكتيك الثالث: "نسيم الشفاء الانسيابي" (Flowing Recovery)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> عندما تنخفض صحتك وتصبح في خطر، لا تهاجم. بدّل إلى <b>وضعية المية</b> للحصول على +20% تفادي كامل وتجدد العزيمة. قم بتفعيل مهارة الشفاء للرفيق أو مهاراتك الخاصة تحت هذا الوضع السلس، مما يتيح لك البقاء حياً بينما تشحن طاقتك بالكامل.</p>
+                </div>
+                <div class="guide-card">
+                    <h4 style="color: #bf5fff; margin-bottom: 5px;">🌌 التكتيك الرابع: "تآزر الفلك الحارق" (Sovereign Synergy)</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);"><b style="color: var(--text);">طريقة التنفيذ:</b> اشحن مقياس التآزر مع companion إلى 75+ تحت وضعية المية. عندما يكون جاهزاً، بدّل إلى <b>وضعية الرياح العاتية</b> للحصول على زيادة +15% لقوة المهارات، ثم أطلق فوراً ضربة التآزر القاضية (مثل هراوة وكونغ الفولاذية أو درع طارق الرمالي) لتحقيق ضرر باطني يفجر وحوش البادية بالكامل!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Interactive Settings Modal -->
+    <div id="settings-modal" class="guide-modal">
+        <div class="guide-modal-container" style="max-width: 500px;">
+            <button class="guide-close-btn" onclick="toggleSettingsModal()">×</button>
+            <h2 style="font-size: 2rem; margin-bottom: 5px; text-align: center; font-family: 'El Messiri', serif;">⚙️ إعدادات اللعبة</h2>
+            <p style="text-align: center; color: var(--text-dim); margin-bottom: 25px; font-size: 0.9rem;">تخصيص تجربة المغامرة الروحية بما يناسب ذوقك.</p>
+            
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--secondary); margin-bottom: 12px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">🎵 المؤثرات والموسيقى</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">الموسيقى الخلفية (BGM)</label>
+                    <input type="checkbox" id="settings-bgm" checked onchange="updateSettingsBGM()" style="width: 20px; height: 20px; cursor: pointer;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">المؤثرات الصوتية (SFX)</label>
+                    <input type="checkbox" id="settings-sfx" checked onchange="updateSettingsSFX()" style="width: 20px; height: 20px; cursor: pointer;">
+                </div>
+            </div>
+            
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--secondary); margin-bottom: 12px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">⚡ سرعة السرد والخط</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">سرعة كتابة النصوص</label>
+                    <select id="settings-text-speed" onchange="updateTextSpeed()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-family: 'Cairo', sans-serif;">
+                        <option value="normal">عادية (Normal)</option>
+                        <option value="fast" selected>سريعة (Fast)</option>
+                        <option value="instant">فورية (Instant)</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-direction: row-reverse;">
+                    <label style="color: var(--text);">حجم الخط العربي</label>
+                    <select id="settings-font-size" onchange="updateFontSize()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-family: 'Cairo', sans-serif;">
+                        <option value="normal" selected>عادي (Normal)</option>
+                        <option value="large">كبير (Large)</option>
+                        <option value="xlarge">ضخم جداً (X-Large)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--jade); margin-bottom: 10px; font-size: 1.05rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">☁️ المزامنة السحابية (Firebase Cloud)</h3>
+                <div id="firebase-status-text" style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5;">💾 الحفظ المحلي نشط — سجل الدخول بـ Google للمزامنة السحابية عبر Firebase</div>
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <button id="firebase-signin-btn" type="button" onclick="if(window.FIREBASE_SYNC)window.FIREBASE_SYNC.signIn()" class="guide-tab-btn" style="border-color: var(--jade); color: var(--jade); background: rgba(3,192,60,0.08); font-size: 0.8rem; padding: 6px 12px;">☁️ ربط وحفظ سحابي (Google Firebase)</button>
+                    <button id="firebase-signout-btn" type="button" onclick="if(window.FIREBASE_SYNC)window.FIREBASE_SYNC.signOutUser()" class="guide-tab-btn" style="display: none; border-color: var(--danger); color: var(--danger); background: rgba(231,76,96,0.08); font-size: 0.8rem; padding: 6px 12px;">🚪 تسجيل الخروج السحابي</button>
+                </div>
+            </div>
+
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--secondary); margin-bottom: 10px; font-size: 1.05rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">🧭 أدوات سريعة ومساعدة</h3>
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" onclick="toggleSettingsModal(); toggleGuideModal();" class="guide-tab-btn" style="border-color: var(--secondary); color: var(--secondary); font-size: 0.8rem; padding: 6px 12px;">📚 دليل الفنون القتالية</button>
+                    <button type="button" onclick="toggleSettingsModal(); if(typeof showPropertiesScreen==='function')showPropertiesScreen();" class="guide-tab-btn" style="border-color: #38bdf8; color: #38bdf8; font-size: 0.8rem; padding: 6px 12px;">👤 صفات البطل</button>
+                    <button type="button" onclick="toggleSettingsModal(); if(window.state){window.state.currentEnemy=null; showScreen('story-screen'); hubLoop();}" class="guide-tab-btn" style="border-color: var(--jade); color: var(--jade); font-size: 0.8rem; padding: 6px 12px;">🛟 إنقاذ وعودة للواحة</button>
+                </div>
+            </div>
+
+            <div class="guide-card" style="text-align: right;">
+                <h3 style="color: var(--danger); margin-bottom: 12px; font-size: 1.05rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">💾 إدارة البيانات والتقدم (حفظ مشفر مختوم)</h3>
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+                    <button onclick="exportSaveData()" class="guide-tab-btn" style="border-color: var(--jade); color: var(--jade); background: rgba(46,204,113,0.05); font-size: 0.8rem; padding: 6px 12px;">📤 تصدير الحفظ</button>
+                    <button onclick="importSaveData()" class="guide-tab-btn" style="border-color: var(--secondary); color: var(--secondary); background: rgba(241,196,15,0.05); font-size: 0.8rem; padding: 6px 12px;">📥 استيراد الحفظ</button>
+                    <button onclick="confirmResetGame()" class="guide-tab-btn" style="border-color: var(--danger); color: var(--danger); background: rgba(231,76,96,0.05); font-size: 0.8rem; padding: 6px 12px;">💀 مسح البيانات</button>
+                </div>
+                <textarea id="save-code-textarea" rows="3" style="display:none; width:100%; margin-top:10px; background:rgba(0,0,0,0.7); color:var(--secondary); border:1px solid var(--glass-border); border-radius:6px; padding:8px; font-family:monospace; font-size:0.75rem; direction:ltr; text-align:left;" placeholder="LEGEND_V2.<sig>.<payload>..."></textarea>
+                <div id="save-manager-feedback" style="display:none; margin-top:8px; font-size:0.82rem; font-weight:bold; text-align:right;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN MENU -->
+    <div id="menu-screen" class="screen active">
+        <div class="ornament top"></div>
+        <h1>ملحمة الشرق<br>الخالدة</h1>
+        <input
+            type="text"
+            id="char-name"
+            placeholder="اكتب اسم بطل القلوب هنا..."
+            aria-label="اكتب اسم بطل القلوب هنا..."
+            autocomplete="off"
+            style="margin-bottom: 20px;"
+        />
+        <select
+            id="perspective-select"
+            aria-label="اختر صيغة السرد للرحلة الروحية"
+            style="
+                width:100%;
+                padding:16px;
+                background:rgba(0,0,0,0.5);
+                border:1px solid var(--glass-border);
+                border-radius:4px;
+                color:var(--text);
+                font-size:1.1rem;
+                margin-bottom:30px;
+                font-family:'Cairo', 'Inter', sans-serif;
+            "
+        >
+            <option value="second">
+                صيغة المخاطَب ("أنت تمشي...")
+            </option>
+            <option value="first">
+                صيغة المتكلم ("أنا أمشي...")
+            </option>
+        </select>
+        <button
+            id="start-btn"
+            class="btn"
+            type="button"
+            data-start="true"
+        >
+            بدء رحلة جديدة مباركة
+        </button>
+        <button
+            id="continue-btn"
+            class="btn btn-secondary"
+            type="button"
+            style="display: none; margin-top: 10px; border-color: var(--jade); color: var(--jade);"
+        >
+            مواصلة السلوك والجهاد الروحي
+        </button>
+        <div class="ornament bottom"></div>
+    </div>
+    
+    <!-- CHARACTER CREATION -->
+    <div id="creation-screen" class="screen">
+        <h1>اختر أصل النشأة والقدر</h1>
+        <div class="input-group">
+            <input
+                type="text"
+                id="player-name"
+                placeholder="اكتب اسم بطل القلوب"
+                aria-label="اكتب اسم بطل القلوب"
+                maxlength="12"
+            />
+        </div>
+        <div class="class-selector">
+            <div
+                class="class-card selected"
+                role="button"
+                tabindex="0"
+                aria-label="السياف الأسطوري"
+                data-class="Sword Immortal"
+                data-sprite="assets/sword_immortal_1778872325571.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/sword_immortal_1778872325571.png" alt="Sword Immortal">
+                </div>
+                <h3>السياف الأسطوري</h3>
+                <p>ضربات قاضية خارقة وضرر جبار</p>
+            </div>
+            <div
+                class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="الطبيب المعالج"
+                data-class="Medicine Cultivator"
+                data-sprite="assets/medicine_cultivator_1778872338789.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/medicine_cultivator_1778872338789.png" alt="Medicine Cultivator">
+                </div>
+                <h3>الطبيب المعالج</h3>
+                <p>صحة هائلة وتجدد وسرعة التئام الجروح</p>
+            </div>
+            <div
+                class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="فارس الصحراء"
+                data-class="Desert Knight"
+                data-sprite="assets/desert_knight_1778872351281.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Desert Knight">
+                </div>
+                <h3>فارس الصحراء</h3>
+                <p>دفاع حديدي وصمود بطولي للجسد</p>
+            </div>
+            <div
+                class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="الفارس المهيب"
+                data-class="Sufi Mystic"
+                data-sprite="assets/sufi_mystic_1778872363338.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/sufi_mystic_1778872363338.png" alt="Sufi Mystic">
+                </div>
+                <h3>الفارس المهيب</h3>
+                <p>تركيز ذهني فائق وحيل وخطط ذكية</p>
+            </div>
+            <div
+                class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="خبير الفولاذ الدمشقي"
+                data-class="Steelmaster"
+                data-sprite="assets/sword_immortal_1778872325571.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/sword_immortal_1778872325571.png" alt="Steelmaster">
+                </div>
+                <h3>خبير الفولاذ الدمشقي</h3>
+                <p>ضربات قوية وتوازن رائع بين الهجوم والدفاع</p>
+            </div>
+            <div
+                class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="فارس الخيل المغوار"
+                data-class="Horseman"
+                data-sprite="assets/desert_knight_1778872351281.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Horseman">
+                </div>
+                <h3>فارس الخيل المغوار</h3>
+                <p>سرعة خاطفة وقدرة فائقة على تفادي الضربات</p>
+            </div>
+            <div
+                class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="خبير الفلك والأوراد"
+                data-class="Astrologer"
+                data-sprite="assets/sufi_mystic_1778872363338.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/sufi_mystic_1778872363338.png" alt="Astrologer">
+                </div>
+                <h3>خبير الفلك والأوراد</h3>
+                <p>طاقة ذهنية هائلة وقنوات عزيمة لا تنفد</p>
+            </div>
+            <div
+                class="class-card"
+                role="button"
+                tabindex="0"
+                aria-label="رماح البادية الأبي"
+                data-class="Lancer"
+                data-sprite="assets/desert_knight_1778872351281.png"
+            >
+                <div class="card-image-wrapper">
+                    <img class="card-bg" src="assets/desert_knight_1778872351281.png" alt="Lancer">
+                </div>
+                <h3>رماح البادية الأبي</h3>
+                <p>ضربات حرجة مدمرة واختراق كامل للدروع</p>
+            </div>
+        </div>
+        <button id="create-btn" class="btn" data-start="true">إشعال الهمة والبدء في رحلة الفتوة</button>
+    </div>
+
+    <!-- Hub City Screen -->
+    <div id="hub-screen" class="screen">
+        <h1 style="font-size: 3rem;">واحة القوافل الكبرى (ملتقى الطرق)</h1>
+        <p>طريق الحرير مليء بالتجار، والفرسان الأحرار، والجدعان الأبطال.</p>
+
+        <div class="stats-group" style="text-align: center; max-width: 400px; margin: 0 auto 30px;">
+            <div class="stat-label">جوهر الحياة وصلابة الجسد: <span id="hub-hp">100</span> / <span id="hub-max-hp">100</span></div>
+            <div class="hp-bar-container">
+                <div id="hub-hp-bar" class="hp-bar"></div>
+            </div>
+            <div style="margin-top: 10px; color: var(--secondary); font-size: 1.2rem; font-family: 'El Messiri', cursive;">
+                <span id="hub-rank-name">تطهير الجسد وتقوية البنيان</span>
+            </div>
+            <div style="color: var(--text-dim); font-size: 0.9rem;">الرتبة <span id="hub-lvl">1</span> <span id="hub-class">الفتوة</span></div>
+        </div>
+
+        <!-- NEW: Dynamic Story Progress HUD Panel -->
+        <div class="hud-story-progress" onclick="toggleChronicleModal()" style="cursor: pointer; background: rgba(5,8,12,0.90); border: 1px solid var(--glass-border); border-radius: 6px; padding: 10px 15px; margin-bottom: 25px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; text-align: center; backdrop-filter: blur(10px); transition: transform 0.2s, border-color 0.2s;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">
+                <span id="hud-act-name" style="font-family:'El Messiri',serif; font-weight:bold;">الفصل الأول: رمال الصحراء الهائمة</span>
+                <span id="hud-act-pct">اكتملت بنسبة 0%</span>
+            </div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.4);">
+                <div id="hud-act-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--jade)); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 5px;">📖 اضغط لفتح السجل الخالد وتفاصيل مقامك</div>
+        </div>
+
+        <div class="quest-log" style="background: var(--glass); border: 1px solid var(--primary); padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
+            <div style="color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;">العهد والوجهة الحالية لبطل القلوب</div>
+            <div id="current-quest" style="color: var(--text); font-size: 1.1rem; margin-top: 5px;">ارتقِ للرتبة 3 لتفعيل مساعدة الرفيق.</div>
+        </div>
+
+        <div class="class-selector" style="grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+            <button id="explore-btn" class="btn" style="width: 100%;">السفر والنزال في البرية<br><span style="font-size: 0.7rem; color: #fff;">قتال، غنائم وكنوز</span></button>
+            <button id="inventory-btn" class="btn btn-secondary" style="width: 100%;">حقيبة التأمل والعتاد<br><span style="font-size: 0.7rem; color: #fff;">تجهيز الأسلحة والدروع</span></button>
+            <button id="rest-btn" class="btn btn-secondary" style="width: 100%;">ديوان التدريب وشحذ الهمة والتركيز<br><span style="font-size: 0.7rem; color: #fff;">ارتقاء العزيمة وجسدك</span></button>
+        </div>
+    </div>
+
+    <!-- Oasis Management Screen -->
+    <div id="oasis-screen" class="screen">
+        <h2>⛺ إدارة وتطوير الواحة الباطنية</h2>
+        <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right;">
+            <div id="oasis-stats" style="margin-bottom: 15px; font-size: 0.95rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px;">
+                <!-- Filled dynamically -->
+            </div>
+            
+            <div class="class-selector" style="grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div class="entity-panel" style="padding: 10px; border: 1px solid var(--secondary);">
+                    <h4>🚰 بئر الماء النوراني</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج مياهاً باطنية عذبة لدعم القوافل والترحال.</p>
+                    <div id="well-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('well')">ترقية البئر</button>
+                </div>
+                <div class="entity-panel" style="padding: 10px; border: 1px solid var(--success);">
+                    <h4>🌿 بستان الياسمين والرياحين</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج أعشاباً باطنية عذبة لصناعة الترياق والخيمياء.</p>
+                    <div id="garden-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('garden')">ترقية البستان</button>
+                </div>
+                <div class="entity-panel" style="padding: 10px; border: 1px solid var(--jade);">
+                    <h4>🔨 فرن حديد الشهب والصلب</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">ينتج حديداً باطنياً لصقل العتاد والأسلحة والترقيات.</p>
+                    <div id="forge-level-desc" style="font-size: 0.85rem; font-weight: bold;">المستوى: 0</div>
+                    <button class="btn" style="width: 100%; margin-top: 10px; padding: 6px;" onclick="upgradeOasisBuilding('forge')">ترقية الفرن</button>
+                </div>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="hubLoop()">↩ عودة للواحة الرئيسية</button>
+        </div>
+    </div>
+
+    <!-- Caravan Exploration Map Screen -->
+    <div id="caravan-screen" class="screen">
+        <h2>🐪 خريطة قوافل الترحال واستكشاف البرية</h2>
+        <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right;">
+            <div id="caravan-hud" style="margin-bottom: 10px; font-size: 0.9rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px; display: flex; justify-content: space-between;">
+                <!-- Filled dynamically -->
+            </div>
+            
+            <div style="display: flex; gap: 20px; flex-direction: row-reverse;">
+                <!-- Visual Map Grid -->
+                <div id="caravan-grid-container" style="flex: 1.5; display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--secondary); aspect-ratio: 1; justify-content: center; align-content: center;">
+                    <!-- Visual tiles rendered by JS -->
+                </div>
+                
+                <!-- Controls and Details -->
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                    <div class="entity-panel" style="padding: 12px; background: rgba(5,8,12,0.92); text-align: right;">
+                        <h4 style="color: var(--secondary);">🎮 لوحة التحكم والتوجيه</h4>
+                        <p style="font-size: 0.75rem; color: var(--text-dim);">استخدم لوحة الاتجاهات لتحريك القافلة عبر الصحراء. الحركة تستهلك 1 تمر و 1 ماء.</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 140px; margin: 15px auto;">
+                            <div></div>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, -1)">⬆️</button>
+                            <div></div>
+                            
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(-1, 0)">⬅️</button>
+                            <div></div>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(1, 0)">➡️</button>
+                            
+                            <div></div>
+                            <button class="btn" style="padding: 10px 5px;" onclick="moveCaravan(0, 1)">⬇️</button>
+                            <div></div>
+                        </div>
+                    </div>
+                    
+                    <div id="caravan-event-log" class="entity-panel" style="padding: 10px; height: 160px; overflow-y: auto; font-size: 0.8rem; background: rgba(5,8,12,0.92); border: 1px solid rgba(255,255,255,0.1); text-align: right;">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="hubLoop()">↩ التخييم والعودة</button>
+                <button class="btn" onclick="resupplyCaravan()">🎒 تموين القافلة من الحقيبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nomad Logbook Screen -->
+    <div id="logbook-screen" class="screen">
+        <h2>📜 ديوان حكايات البدو واليوميات المصورة</h2>
+        <div class="entity-panel glass" style="margin-top: 15px; padding: 15px; text-align: right; max-height: 600px; overflow-y: auto;">
+            <div id="logbook-content" style="white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; color: #ffd700; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; border: 1px solid var(--secondary); text-align: left; line-height: 1.2;">
+                <!-- Illustrated ASCII pages rendered dynamically -->
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn" onclick="prevLogbookPage()">⬅️ الصفحة السابقة</button>
+                <button class="btn" onclick="nextLogbookPage()">الصفحة التالية ➡️</button>
+                <button class="btn btn-secondary" onclick="hubLoop()" style="margin-right: auto;">↩ عودة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory / Equipment Screen -->
+    <div id="inventory-screen" class="screen">
+        <h2>تجهيز العتاد وطاقة قنوات الجسد</h2>
+        <div class="combat-layout" style="width: 100%; margin-top: 20px;">
+
+            <!-- Equipment Slots -->
+            <div class="entity-panel" style="flex: 0.6; display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto;">
+                <h3 style="color: var(--secondary); margin-bottom: 2px; text-align: right;">العتاد المجهز</h3>
+                
+                <!-- NEW: Unified Total Gear Power and Multipliers Card -->
+                <div class="inventory-slot gear-tooltip-trigger" style="background: rgba(212, 175, 55, 0.05); border: 1.5px dashed rgba(212, 175, 55, 0.3); border-radius: 6px; padding: 10px; margin-bottom: 6px; text-align: right; cursor: help; width: 100%; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-direction: row-reverse;">
+                        <span style="font-weight: bold; color: var(--secondary); font-size: 0.82rem; text-shadow: 0 0 4px rgba(212,175,55,0.2);">📊 إجمالي إضافات العتاد والبركات</span>
+                        <span style="font-size:0.68rem; color:var(--text-dim); background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.2); padding:1px 5px; border-radius:3px;">🔍 مرر مؤشر الماوس</span>
+                    </div>
+                    <div id="gear-totals-summary-inline" style="font-size: 0.76rem; text-align: right; color: var(--success); margin-top: 4px; font-weight: bold; font-family: 'Cairo', sans-serif;">
+                        جاري جمع إحصائيات المعدات...
+                    </div>
+                    <!-- Tooltip containing detailed flat stats and set multipliers -->
+                    <div id="gear-summary-tooltip" class="gear-summary-tooltip-content">
+                        <!-- Placed dynamically via javascript updates -->
+                    </div>
+                </div>
+
+                <div id="equip-weapon" class="inventory-slot" onclick="unequipItemSlot('weapon')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">سيفك أو سلاحك المجهز</div>
+                    <div id="eq-weapon-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
+                    <div id="eq-weapon-stats" style="font-size: 0.75rem; color: var(--success);"></div>
+                    <div id="eq-weapon-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
+                </div>
+                
+                <div id="equip-head" class="inventory-slot" onclick="unequipItemSlot('head')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">عمامة رأسك المباركة</div>
+                    <div id="eq-head-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
+                    <div id="eq-head-stats" style="font-size: 0.75rem; color: var(--success);"></div>
+                    <div id="eq-head-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
+                </div>
+
+                <div id="equip-body" class="inventory-slot" onclick="unequipItemSlot('body')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">درع وجلباب حمايتك</div>
+                    <div id="eq-body-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
+                    <div id="eq-body-stats" style="font-size: 0.75rem; color: var(--success);"></div>
+                    <div id="eq-body-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
+                </div>
+
+                <div id="equip-legs" class="inventory-slot" onclick="unequipItemSlot('legs')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">سروال وقنوات الساقين</div>
+                    <div id="eq-legs-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
+                    <div id="eq-legs-stats" style="font-size: 0.75rem; color: var(--success);"></div>
+                    <div id="eq-legs-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
+                </div>
+
+                <div id="equip-boots" class="inventory-slot" onclick="unequipItemSlot('boots')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">خف وخطوات الحركة</div>
+                    <div id="eq-boots-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
+                    <div id="eq-boots-stats" style="font-size: 0.75rem; color: var(--success);"></div>
+                    <div id="eq-boots-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
+                </div>
+
+                <div id="equip-relic" class="inventory-slot" onclick="unequipItemSlot('relic')" style="width: 100%; height: auto; padding: 8px; display: block; text-align: right; cursor: pointer;">
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">تميمة الروح أو القلادة</div>
+                    <div id="eq-relic-name" style="color: var(--text); font-weight: bold; font-size: 0.85rem;">لا يوجد</div>
+                    <div id="eq-relic-stats" style="font-size: 0.75rem; color: var(--success);"></div>
+                    <div id="eq-relic-tooltip" class="gear-slot-tooltip-content">لا يوجد عتاد مجهز في هذا الجزء حالياً.</div>
+                </div>
+
+                <!-- Active Set Bonuses -->
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15); text-align: right;">
+                    <h4 style="color: var(--secondary); font-size: 0.8rem; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.5px;">بركات الأطقم النشطة</h4>
+                    <div id="active-set-bonuses" style="font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; max-height: 100px; overflow-y: auto;">
+                        مفيش حالياً. جهز قطع متناسقة من نفس الطقم عشان تاخد البركة كاملة.
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Bag / Items -->
+            <div class="entity-panel" style="flex: 1;">
+                <div class="satchel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-direction: row-reverse;">
+                    <h3 style="color: var(--secondary); margin: 0;">حقيبة السفر</h3>
+                    <div id="satchel-tabs" style="display: flex; gap: 5px;">
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('consumables')">مشروبات وحبوب البركة</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('equipment')">الأسلحة والعتاد الإضافي</button>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.7rem;" onclick="switchSatchelTab('materials')">خامات ومؤن الصناعة</button>
+                    </div>
+                </div>
+                
+                <div id="item-grid" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 250px; overflow-y: auto; width: 100%; justify-content: flex-start;">
+                    <!-- Items rendered here by JS -->
+                </div>
+            </div>
+        </div>
+        <button id="back-hub-btn" class="btn" style="margin-top: 30px;">الرجوع لواحة القوافل الكبرى</button>
+    </div>
+
+    <!-- Story Engine Screen -->
+    <div id="story-screen" class="screen" style="max-width: 940px; padding: 18px 28px; justify-content: flex-start;">
+        <!-- Top Bar Stats (Desktop Header) -->
+        <div class="desktop-story-topbar">
+            <div class="desktop-topbar-stats">
+                <span id="story-player-name" class="topbar-hero-name">بطل القلوب والفتوة</span>
+                <span class="topbar-stat-pill hp-pill tabular-nums">❤️ <span id="story-hp">100</span></span>
+                <span class="topbar-stat-pill mp-pill tabular-nums">🌀 <span id="story-mp">50</span></span>
+                <span class="topbar-stat-pill gold-pill tabular-nums">🪙 <span id="story-gold">50</span></span>
+                <div class="hp-bar-container" style="display:none;"><div id="story-hp-bar" class="hp-bar"></div></div>
+            </div>
+            <div class="desktop-topbar-actions">
+                <button id="mute-btn" type="button" class="topbar-chip-btn" onclick="if(window.AUDIO){var m=window.AUDIO.toggleMute();this.textContent=m?'🔇 صامت':'🔊 الصوت'}">🔊 الصوت</button>
+                <button type="button" class="topbar-chip-btn" onclick="if(typeof showPropertiesScreen==='function')showPropertiesScreen()">👤 صفات البطل</button>
+                <button type="button" class="topbar-chip-btn" onclick="exportCombatLog()">📜 حفظ السجل</button>
+                <button type="button" class="topbar-chip-btn gold-chip" onclick="toggleChronicleModal()">📖 سجل القدر</button>
+            </div>
+            <div style="display: none;" id="story-enemy-stats-container">
+                <span id="story-enemy-name">الخصم الغادر</span>
+                <span id="story-enemy-hp">50</span>
+                <div class="hp-bar-container"><div id="story-enemy-hp-bar" class="hp-bar"></div></div>
+            </div>
+        </div>
+
+        <!-- Quick Command Dock for 1-click access to major systems -->
+        <div id="quick-command-dock" class="quick-command-dock" role="navigation" aria-label="شريط الأوامر السريعة">
+            <button type="button" class="quick-dock-btn" onclick="if(!state.currentEnemy)hubLoop();else showToast('أنهِ المعركة أولاً!')">🕌 الواحة</button>
+            <button type="button" class="quick-dock-btn" onclick="if(!state.currentEnemy&&typeof showWorldMap==='function')showWorldMap();else if(state.currentEnemy)showToast('أنهِ المعركة أولاً!')">🗺️ الخريطة</button>
+            <button type="button" class="quick-dock-btn quick-dock-highlight" onclick="if(!state.currentEnemy&&typeof showTowerOfEternityScreen==='function')showTowerOfEternityScreen();else if(state.currentEnemy)showToast('أنهِ المعركة أولاً!')">🗼 برج السراب</button>
+            <button type="button" class="quick-dock-btn" onclick="if(!state.currentEnemy&&typeof showAchievementsScreen==='function')showAchievementsScreen();else if(state.currentEnemy)showToast('أنهِ المعركة أولاً!')">🏆 الألقاب</button>
+            <button type="button" class="quick-dock-btn" onclick="if(!state.currentEnemy&&typeof showDailyBountiesScreen==='function')showDailyBountiesScreen();else if(state.currentEnemy)showToast('أنهِ المعركة أولاً!')">📜 التكليفات</button>
+            <button type="button" class="quick-dock-btn" onclick="if(!state.currentEnemy&&typeof showInventory==='function')showInventory();else if(state.currentEnemy)showToast('أنهِ المعركة أولاً!')">🎒 الحقيبة</button>
+            <button type="button" class="quick-dock-btn" onclick="if(!state.currentEnemy&&typeof showCultivationScreen==='function')showCultivationScreen();else if(state.currentEnemy)showToast('أنهِ المعركة أولاً!')">🧘 الارتقاء</button>
+            <button type="button" class="quick-dock-btn" onclick="if(typeof toggleChronicleModal==='function')toggleChronicleModal()">📖 القدر</button>
+        </div>
+
+        <!-- Dynamic Story Progress HUD Card on Narrative Screen -->
+        <div id="story-hud-progress-card" class="hud-story-progress-narrative" onclick="toggleChronicleModal()" style="cursor: pointer; background: rgba(5,8,12,0.90); border: 1px solid var(--glass-border); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-bottom: 10px; backdrop-filter: blur(10px); transition: border-color 0.2s; flex-direction: row-reverse;">
+            <span id="story-hud-act-name" style="font-family:'El Messiri',serif; font-size:0.75rem; color: var(--secondary); font-weight:bold;">الفصل الأول: رمال الصحراء الهائمة</span>
+            <div style="flex: 1; min-width: 60px; height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.4);">
+                <div id="story-hud-act-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--jade)); transition: width 0.6s ease-out;"></div>
+            </div>
+            <span id="story-hud-act-pct" style="font-size:0.72rem; color: var(--text-dim);">اكتملت بنسبة 0%</span>
+        </div>
+
+        <!-- Live Battle Arena Banner (Shown dynamically during combat) -->
+        <div id="combat-arena-banner" class="combat-arena-banner" style="display: none;"></div>
+
+        <!-- NEW: Momentum Bar and Stance Indicator (Hidden outside combat) -->
+        <div id="combat-momentum-container" style="display: none; width: 100%; margin-bottom: 12px; padding: 8px 12px; background: rgba(5,8,12,0.92); border: 1px solid #333; border-radius: 4px; text-align: center;">
+            <div style="display: flex; justify-content: space-between; font-family: 'El Messiri', serif; font-size: 0.8rem; margin-bottom: 5px; color: #888; flex-direction: row-reverse;">
+                <span style="color: var(--danger)">أسبقية وقوة هجوم الأشرار</span>
+                <span id="stance-indicator" style="color: var(--secondary); font-weight: bold;">وضعية القتال: مفيش</span>
+                <span style="color: var(--jade)">أسبقية وقوة بطل القلوب</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: #222; border-radius: 4px; position: relative; overflow: hidden; border: 1px solid #000;">
+                <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #555; z-index: 10;"></div>
+                <!-- The actual momentum fill bar. 50% width means +100 momentum to right side, -100 to left side. -->
+                <div id="momentum-bar-fill" style="position: absolute; left: 50%; top: 0; height: 100%; width: 0%; background: linear-gradient(90deg, #d4af37, #00a86b); transition: all 0.3s ease;"></div>
+            </div>
+        </div>
+
+        <!-- Narrative Window -->
+        <div id="narrative-window" class="log-container" style="width: 100%; overflow-y: auto; margin-bottom: 12px; padding: 18px 20px; font-size: 1.05rem; line-height: 1.65; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; text-align: right;">
+            <!-- Text and dynamic portraits go here -->
+        </div>
+
+        <!-- Choice Engine -->
+        <div id="choice-engine" class="actions" style="grid-template-columns: 1fr; gap: 10px; width: 100%;">
+            <!-- Dynamic choices injected here -->
+        </div>
+    </div>
+
+    <!-- Victory/Defeat Screen -->
+    <div id="result-screen" class="screen">
+        <h1 id="result-title">الارتقاء الأسمى والنصر</h1>
+        <p id="result-text">طريق السلوك والجهاد لسة مستمر.</p>
+        <div id="reward-info" style="margin-bottom: 30px; text-align: center;">
+            <span id="xp-gain" style="color: var(--secondary); font-weight: 600;">+25 نقاط خبرة للرتبة والجدعنة</span>
+            <div id="loot-drop" style="margin-top: 15px; color: var(--primary);"></div>
+        </div>
+        <div class="actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <button id="explore-btn" class="btn">مواصلة السفر والجهاد والترحال</button>
+            <button id="inventory-btn" class="btn btn-secondary">حقيبة التأمل والعتاد</button>
+            <button id="rest-btn" class="btn btn-secondary">قسط من الراحة (رجوع كامل الصحة والتركيز)</button>
+        </div>
+    </div>
+
+    <!-- WORLD MAP SCREEN -->
+    <div id="map-screen" class="screen" style="max-width:1000px;padding:20px 30px;">
+        <div class="map-header">
+            <h2 class="map-title">&#x2726; مخطوطة الخلود الملحمية — خريطة الممالك الست الكبرى &#x2726;</h2>
+            <p class="map-subtitle">تنقل بين أرجاء عوالم السلوك الست الكبرى. الأماكن المقفولة مستنية ارتقاء مقامك.</p>
+        </div>
+        <div class="map-canvas-wrapper">
+            <svg id="world-map-svg" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="mapBg" cx="50%" cy="50%" r="70%">
+                        <stop offset="0%" stop-color="#1a1208"/>
+                        <stop offset="100%" stop-color="#0a0805"/>
+                    </radialGradient>
+                    <filter id="glow-node" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="5" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <marker id="road-arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                        <path d="M0,0 L6,3 L0,6 Z" fill="#8a6a2a" opacity="0.6"/>
+                    </marker>
+                </defs>
+                <rect width="800" height="520" fill="url(#mapBg)" rx="12"/>
+                <g opacity="0.06" stroke="#d4af37" stroke-width="0.5">
+                    <line x1="0" y1="130" x2="800" y2="130"/><line x1="0" y1="260" x2="800" y2="260"/>
+                    <line x1="0" y1="390" x2="800" y2="390"/><line x1="200" y1="0" x2="200" y2="520"/>
+                    <line x1="400" y1="0" x2="400" y2="520"/><line x1="600" y1="0" x2="600" y2="520"/>
+                </g>
+                <g stroke="#8a6a2a" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.35" fill="none" marker-end="url(#road-arrow)">
+                    <path d="M 400,280 Q 510,230 590,175"/>
+                    <path d="M 400,280 Q 290,325 185,360"/>
+                    <path d="M 400,280 Q 490,330 625,370"/>
+                    <path d="M 590,175 Q 565,115 415,72"/>
+                    <path d="M 185,360 Q 155,285 135,195"/>
+                    <path d="M 625,370 Q 590,220 425,78"/>
+                </g>
+                <g transform="translate(62,62)" opacity="0.25">
+                    <circle cx="0" cy="0" r="28" fill="none" stroke="#d4af37" stroke-width="1"/>
+                    <path d="M0,-28 L4,-8 L0,0 L-4,-8 Z" fill="#d4af37"/>
+                    <path d="M0,28 L4,8 L0,0 L-4,8 Z" fill="#8a6a2a"/>
+                    <path d="M-28,0 L-8,4 L0,0 L-8,-4 Z" fill="#8a6a2a"/>
+                    <path d="M28,0 L8,4 L0,0 L8,-4 Z" fill="#8a6a2a"/>
+                    <text x="0" y="-34" text-anchor="middle" fill="#d4af37" font-size="9" font-family="El Messiri">ش</text>
+                </g>
+                <g id="map-regions-group"></g>
+            </svg>
+        </div>
+        <div id="map-tooltip" class="map-tooltip" style="display:none; text-align: right;">
+            <div class="map-tooltip-header" style="flex-direction: row-reverse;">
+                <span id="map-tooltip-name">المنطقة</span>
+                <span id="map-tooltip-status" class="map-status-badge"></span>
+            </div>
+            <p id="map-tooltip-subtitle" class="map-tooltip-subtitle"></p>
+            <p id="map-tooltip-desc" class="map-tooltip-desc"></p>
+            <div id="map-tooltip-enemies" class="map-tooltip-enemies"></div>
+            <button id="map-travel-btn" class="btn map-travel-btn">ارتحل واستكشف</button>
+        </div>
+        <div class="map-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#d4af37"></span>منطقة مفتوحة للرحيل</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#333"></span>منطقة مغلقة (تحتاج ارتقاء)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#00e5a0"></span>مكانك الحالي في العالم</span>
+        </div>
+        <button id="map-back-btn" class="btn btn-secondary" style="margin-top:18px;">الرجوع لواحة القوافل الكبرى</button>
+    </div>
+
+    <!-- Persistent Mobile MMO Bottom Navigation Bar -->
+    <div class="mobile-bottom-nav">
+        <div class="nav-tab active" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(0, hubLoop); } else { if(typeof hubLoop === 'function') hubLoop(); }">
+            <span class="nav-icon">🕌</span>
+            <span class="nav-label">الواحة</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(1, showWorldMap); } else { if(typeof showWorldMap === 'function') showWorldMap(); }">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-label">الخريطة</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(2, showTowerOfEternityScreen); } else { if(typeof showTowerOfEternityScreen === 'function') showTowerOfEternityScreen(); }">
+            <span class="nav-icon">🗼</span>
+            <span class="nav-label">البرج</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(3, showInventory); } else { if(typeof showInventory === 'function') showInventory(); }">
+            <span class="nav-icon">🎒</span>
+            <span class="nav-label">الحقيبة</span>
+        </div>
+        <div class="nav-tab" onclick="if(typeof onMobileTabClick === 'function') { onMobileTabClick(4, showCultivationScreen); } else { if(typeof showCultivationScreen === 'function') showCultivationScreen(); }">
+            <span class="nav-icon">🧘</span>
+            <span class="nav-label">الديوان</span>
+        </div>
+    </div>
+</div>
+
+<!-- GAME FILES -->
+<script src="/audio.js"></script>
+<script src="/lore.js"></script>
+<script src="/lore_part2.js"></script>
+<script src="/lore_myths.js"></script>
+<script src="/companions.js"></script>
+<script src="/story.js?v=20261110d"></script>
+<script src="/shop.js"></script>
+<script src="/quests.js"></script>
+<script src="/skills.js"></script>
+<script src="/story_acts_3_5.js?v=20261110d"></script>
+<script src="/story_epics.js?v=20261110d"></script>
+<script src="/chronicle.js"></script>
+<script src="/weather.js"></script>
+<script src="/pets.js"></script>
+<script src="/auction.js"></script>
+<script src="/rebirth.js"></script>
+<script src="/life.js"></script>
+<script src="/sects.js"></script>
+<script src="/dwelling.js"></script>
+<script src="/soul_wandering.js"></script>
+<script type="module" src="/combat.js?v=20261110d"></script>
+<script src="/combat_ui.js"></script>
+<script src="/ascension.js"></script>
+<script src="/crafting.js"></script>
+<script src="/cultivation.js"></script>
+<script src="/combat_visuals.js"></script>
+<script src="/ai_dialogue.js"></script>
+<script src="/game_screens.js"></script>
+<script src="/oasis_caravan.js"></script>
+<script src="/tower_and_achievements.js?v=20261110d"></script>
+<script type="module" src="/firebase_sync.js"></script>
+<script src="/game.js?v=20261110d"></script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                // Automatically unregister active service workers during local development to prevent net::ERR_FAILED caching blockades
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                        console.log('🧹 [Dev Mode] Unregistered caching Service Worker to prevent network blockade.');
+                    }
+                });
+            } else {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker registered successfully.'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
+
+

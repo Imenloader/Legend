@@ -1,0 +1,93 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidGameSave(data) {
+      return data.keys().hasAll([
+          'playerId',
+          'ownerUid',
+          'playerName',
+          'lvl',
+          'gold',
+          'statePayload',
+          'signature',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'playerId',
+          'ownerUid',
+          'playerName',
+          'lvl',
+          'gold',
+          'statePayload',
+          'signature',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        isValidId(data.playerId) &&
+        isValidId(data.ownerUid) &&
+        data.ownerUid == request.auth.uid &&
+        data.playerId == request.auth.uid &&
+        data.playerName is string && data.playerName.size() >= 1 && data.playerName.size() <= 40 &&
+        data.lvl is int && data.lvl >= 1 && data.lvl <= 999 &&
+        data.gold is int && data.gold >= 0 && data.gold <= 999999999 &&
+        data.statePayload is string && data.statePayload.size() >= 2 && data.statePayload.size() <= 900000 &&
+        data.signature is string && data.signature.size() >= 8 && data.signature.size() <= 64 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    match /game_saves/{playerId} {
+      allow get: if isSignedIn() && isValidId(playerId) && playerId == request.auth.uid && existing().ownerUid == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerUid == request.auth.uid;
+
+      allow create: if isSignedIn() &&
+        isValidId(playerId) &&
+        playerId == request.auth.uid &&
+        isValidGameSave(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn() &&
+        isValidId(playerId) &&
+        playerId == request.auth.uid &&
+        isValidGameSave(incoming()) &&
+        existing().ownerUid == request.auth.uid &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().playerId == existing().playerId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'playerName',
+          'lvl',
+          'gold',
+          'statePayload',
+          'signature',
+          'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn() && isValidId(playerId) && playerId == request.auth.uid && existing().ownerUid == request.auth.uid;
+    }
+  }
+}

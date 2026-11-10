@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "GameSave": {
+      "title": "GameSave",
+      "description": "Persistent cloud save document for a player in Legend of the Immortal East, storing metadata and signed serialized game state.",
+      "type": "object",
+      "properties": {
+        "playerId": {
+          "type": "string",
+          "description": "Unique identifier matching the document ID and owner UID.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerUid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the save owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "playerName": {
+          "type": "string",
+          "description": "Sanitized Arabic/display name of the hero.",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "lvl": {
+          "type": "integer",
+          "description": "Current hero level (1 to 999)."
+        },
+        "gold": {
+          "type": "integer",
+          "description": "Current hero gold dinars (0 to 999999999)."
+        },
+        "statePayload": {
+          "type": "string",
+          "description": "Complete serialized RPG state JSON string.",
+          "minLength": 2,
+          "maxLength": 900000
+        },
+        "signature": {
+          "type": "string",
+          "description": "Tamper-detection FNV-1a dual signature of statePayload.",
+          "minLength": 8,
+          "maxLength": 64
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the cloud save was first created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the cloud save was last updated."
+        }
+      },
+      "required": [
+        "playerId",
+        "ownerUid",
+        "playerName",
+        "lvl",
+        "gold",
+        "statePayload",
+        "signature",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/game_saves/{playerId}": {
+      "schema": {
+        "$ref": "#/entities/GameSave"
+      },
+      "description": "Stores each authenticated player's RPG save state indexed by their Firebase Auth UID."
+    }
+  }
+}

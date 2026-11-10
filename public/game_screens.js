@@ -1,0 +1,3092 @@
+// ============================================================
+// CULTIVATION SCREEN - The Inner Sea (بحر التركيز والهمة الباطني)
+// ============================================================
+function showCultivationScreen() {
+    showScreen('story-screen');
+    state.screen = 'cultivation-screen';
+    if (typeof highlightMobileTab === 'function') {
+        highlightMobileTab(4);
+    }
+    clearNarrative();
+    if (!state.player.cultivation) {
+        state.player.cultivation = { stage: 'الفارس المبتدئ', stageLevel: 1, breakthroughReady: false };
+    }
+    const cult = state.player.cultivation;
+    const stageColors = { 
+        'Qi Condensation': '#8888aa', 
+        'Foundation Establishment': '#00a86b', 
+        'Core Formation': '#d4af37', 
+        'Nascent Soul': '#e040fb',
+        'الفارس المبتدئ': '#8888aa',
+        'الفارس المغوار': '#00a86b',
+        'الفارس الصنديد': '#d4af37',
+        'سيد الفرسان والديوان': '#e040fb'
+    };
+    const col = stageColors[cult.stage] || '#aaa';
+    
+    const stageNamesArabic = {
+        'Qi Condensation': 'الفارس المبتدئ (التحضير البدني)',
+        'Foundation Establishment': 'الفارس المغوار (تأسيس البنيان والهمة)',
+        'Core Formation': 'الفارس الصنديد (العزيمة الراسخة)',
+        'Nascent Soul': 'سيد الفرسان والديوان (السيادة الكاملة)',
+        'الفارس المبتدئ': 'الفارس المبتدئ (التحضير البدني)',
+        'الفارس المغوار': 'الفارس المغوار (تأسيس البنيان والهمة)',
+        'الفارس الصنديد': 'الفارس الصنديد (العزيمة الراسخة)',
+        'سيد الفرسان والديوان': 'سيد الفرسان والديوان (السيادة الكاملة)'
+    };
+    const currentStageArabic = stageNamesArabic[cult.stage] || cult.stage;
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;">بحر التركيز والهمة الباطني</b>', 'النظام', null, false, true);
+    narrate(`تركيزك الحالي في أقاليم <span style="color:${col};font-weight:bold;">${currentStageArabic}</span>، الرتبة <b>${cult.stageLevel}</b>/9.`, 'النظام', null, false, true);
+    
+    // Show active method
+    const activeMethodId = cult.activeMethod || 'jade_body';
+    const activeMethod = window.CULTIVATION_METHODS ? window.CULTIVATION_METHODS[activeMethodId] : null;
+    if (activeMethod) {
+        const methodNameArabic = activeMethod.name === 'Jade Lotus Meditation' ? 'تأمل لوتس اليشم الطاهر' : activeMethod.name === 'Sufi Heart Breath' ? 'أنفاس الهدوء والقلب البصير' : activeMethod.name === 'Sword Heart Manual' ? 'مخطوطة قلب السيف البصير' : activeMethod.name;
+        narrate(`الفن البدني النشط: <span class="loot-epic">${methodNameArabic}</span><br><small>جوهر الفن: تأمل وتوجيه العزيمة في قنوات الجسد لزيادة سعة التركيز والهمة.</small>`, 'النظام', null, false, true);
+    }
+
+    // Render Dual Progress Bars & Technique Mastery Panels
+    const currentXp = state.player.xp || 0;
+    const maxXp = state.player.maxXp || 100;
+    const percent = Math.min(100, Math.floor((currentXp / maxXp) * 100));
+
+    const majorPercent = Math.min(100, Math.floor(((cult.stageLevel - 1) / 9) * 100));
+
+    // Render Physical Stature progress bar
+    if (!cult.bodyRealm) cult.bodyRealm = 'الجسد العادي';
+    if (!cult.bodyLevel) cult.bodyLevel = 1;
+    if (!cult.bodyXp) cult.bodyXp = 0;
+    
+    const bodyIdx = window.CULTIVATION && window.CULTIVATION.bodyRealms ? window.CULTIVATION.bodyRealms.findIndex(r => r.name === cult.bodyRealm) : 0;
+    const reqBodyXp = Math.floor(80 * Math.pow(1.35, (bodyIdx * 10) + cult.bodyLevel));
+    const bodyPercent = Math.min(100, Math.floor((cult.bodyXp / reqBodyXp) * 100));
+ 
+    const bodyRealmNamesArabic = {
+        'Mortal Flesh': 'الجسد العادي',
+        'Bronze Skin': 'الساعد القوي',
+        'Iron Bones': 'الكتف الصلب',
+        'Golden Marrow': 'الظهر المتين',
+        'الجسد العادي': 'الجسد العادي',
+        'الساعد القوي': 'الساعد القوي',
+        'الكتف الصلب': 'الكتف الصلب',
+        'الظهر المتين': 'الظهر المتين',
+        'الوقفة الراسخة': 'الوقفة الراسخة',
+        'الجسد الفولاذي': 'الجسد الفولاذي',
+        'البنية الصامدة للهجير': 'البنية الصامدة للهجير'
+    };
+    const currentBodyRealmArabic = bodyRealmNamesArabic[cult.bodyRealm] || cult.bodyRealm;
+
+    let techProgressHtml = "";
+    if (activeMethod && cult.methodsState && cult.methodsState[activeMethodId]) {
+        const m = cult.methodsState[activeMethodId];
+        const reqMastery = Math.floor(100 * Math.pow(1.6, m.level));
+        const masteryPercent = Math.min(100, Math.floor((m.mastery / reqMastery) * 100));
+        const methodNameArabic = activeMethod.name === 'Jade Lotus Meditation' ? 'تأمل لوتس اليشم الطاهر' : activeMethod.name === 'Sufi Heart Breath' ? 'أنفاس الهدوء والقلب البصير' : activeMethod.name === 'Sword Heart Manual' ? 'مخطوطة قلب السيف البصير' : activeMethod.name;
+        techProgressHtml = `
+            <div style="margin-top: 12px; text-align: left; background: rgba(255,215,0,0.02); padding: 10px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.2);">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 5px;">
+                    <span style="color:var(--secondary);">📖 <b>${methodNameArabic}</b> (الرتبة ${m.level}/10):</span>
+                    <span style="color:var(--secondary); font-weight:bold;">${m.mastery} / ${reqMastery} (${masteryPercent}%)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${masteryPercent}%; height: 100%; background: linear-gradient(90deg, var(--secondary), #fff); border-radius: 3px; box-shadow: 0 0 6px var(--secondary);"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    let progressBarsHtml = `
+        <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(0,229,160,0.2); border-radius: 12px; font-family:'Inter',sans-serif;">
+            <div style="margin-bottom: 12px; text-align: left;">
+                <div style="display:flex; justify-content:space-between; font-size: 0.82rem; margin-bottom: 4px;">
+                    <span style="color:#a8e6cf;">🔮 <b>مستوى ارتقاء العزيمة الفرعي</b>:</span>
+                    <span style="color:var(--jade); font-weight:bold;">${currentXp} / ${maxXp} خبرة (${percent}%)</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, var(--jade), #00ffbc); border-radius: 4px; box-shadow: 0 0 8px var(--jade);"></div>
+                </div>
+            </div>
+            
+            <div style="text-align: left; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">
+                    <span style="color:#ffd3b6;">☯️ <b>حاجز الارتقاء الأعظم للرتب</b>:</span>
+                    <span style="color:#e0a96d; font-weight:bold;">المستوى ${cult.stageLevel}/9 (${majorPercent}%)</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="width: ${majorPercent}%; height: 100%; background: linear-gradient(90deg, #e0a96d, #d4af37); border-radius: 4px; box-shadow: 0 0 8px #d4af37;"></div>
+                </div>
+            </div>
+ 
+            <div style="text-align: left;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">
+                    <span style="color:#b2bec3;">💪 <b>الجسد المادي المطور (${currentBodyRealmArabic})</b>:</span>
+                    <span style="color:#dfe6e9; font-weight:bold;">رتبة ${cult.bodyLevel}/10 (${bodyPercent}%)</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="width: ${bodyPercent}%; height: 100%; background: linear-gradient(90deg, #7f8c8d, #b2bec3); border-radius: 4px; box-shadow: 0 0 8px #b2bec3;"></div>
+                </div>
+            </div>
+            ${techProgressHtml}
+        </div>
+    `;
+
+    narrate(progressBarsHtml, 'النظام', null, false, true);
+
+    narrate(`الصحة العامة: <b>${state.player.maxHp}</b> | التركيز والهمة: <b>${state.player.maxMp}</b> | القوة الهجومية: <b>${state.player.atk}</b> | الصلابة الدفاعية: <b>${state.player.def}</b>`, 'النظام', null, false, true);
+
+    const choices = [
+        {
+            text: '🧘 قسط من الراحة وشحذ الهمة (زيادة التركيز وتدريب العضلات)',
+            callback: () => {
+                const result = window.CULTIVATION ? window.CULTIVATION.meditate(state) : { success: true, message: 'You meditate, drawing in ambient Qi.' };
+                
+                // Translate result messages
+                let msgArabic = result.message;
+                if (result.message.includes("meditate")) {
+                    msgArabic = "جلست في ديوان قلعتك، وشحذت تركيزك وهمتك لتتدفق القوة في بنيانك البدني كالشلال العذب. زادت همتك وتركيزك للقتال!";
+                } else if (result.message.includes("BREAKTHROUGH")) {
+                    msgArabic = "🎉 <b>ارتقاء بدني مبهج!</b> زادت عزيمتك وارتفعت رتبتك الفرعية لآفاق جديدة!";
+                }
+                
+                narrate(msgArabic, 'النظام', null, false, true);
+                
+                // Visual FX
+                const screen = document.querySelector('.screen.active');
+                if (screen) {
+                    screen.classList.add('meditation-glow');
+                    const particles = document.createElement('div');
+                    particles.className = 'qi-gathering';
+                    screen.appendChild(particles);
+                    setTimeout(() => { particles.remove(); screen.classList.remove('meditation-glow'); }, 2000);
+                }
+                if (typeof triggerFlash === 'function') triggerFlash('heal');
+
+                // Play procedural sound effects
+                if (window.AUDIO) {
+                    if (result.message.includes("BREAKTHROUGH")) {
+                        window.AUDIO.playEffect('level_up');
+                    } else {
+                        window.AUDIO.playEffect('story_beat');
+                    }
+                }
+
+                calculateTotalStats(); updateTopBar(); saveGame();
+                setTimeout(showCultivationScreen, 2200);
+            }
+        },
+        {
+            text: '💪 تدريب وتقوية البنيان والجسد العادي',
+            callback: () => {
+                const res = window.CULTIVATION ? window.CULTIVATION.temperBody(state) : { success: false, message: 'Cultivation module unavailable.' };
+                
+                let msgArabic = res.message;
+                if (res.message.includes("purged impurities")) {
+                    msgArabic = "تحملت مشاق التدريب والضربات المتتالية بينما قمت بشحذ وتقوية صلابة بنيانك المادي!";
+                } else if (res.message.includes("lack resources") || res.message.includes("mats")) {
+                    msgArabic = "معندكش خامات ومؤن كفاية لتدريب وتقوية جسدك بقلعتك حالياً.";
+                }
+                
+                narrate(msgArabic, 'النظام', null, false, true);
+                
+                if (res.success) {
+                    const screen = document.querySelector('.screen.active');
+                    if (screen) {
+                        screen.classList.add('meditation-glow');
+                        setTimeout(() => screen.classList.remove('meditation-glow'), 1000);
+                    }
+                    if (typeof triggerFlash === 'function') triggerFlash('damage');
+                    if (window.AUDIO) window.AUDIO.playEffect('combat_hit');
+                }
+                
+                updateTopBar(); saveGame();
+                setTimeout(showCultivationScreen, 2200);
+            }
+        },
+        {
+            text: '🏠 دخول القلعة والديوان الحربي (ال Dwelling)',
+            callback: showDwellingScreen
+        },
+        {
+            text: '🌀 إرسال الفرسان واستطلاع البرية (Soul Wandering)',
+            callback: showSoulWanderingScreen
+        },
+        {
+            text: '📜 تغيير مخطط التدريب والمبارزة المتبع',
+            callback: () => {
+                clearNarrative();
+                narrate("<b>اختر مخطط تدريبك ومسار عزيمتك</b>", "النظام", null, false, true);
+                const methodChoices = Object.values(window.CULTIVATION.methods).map(m => {
+                    const methodNameArabic = m.name;
+                    return {
+                        text: `${m.unlocked ? (m.id === activeMethodId ? '✅ ' : '✨ ') : '🔒 '}${methodNameArabic}`,
+                        callback: () => {
+                            if (!m.unlocked) {
+                                narrate("المخطوطة دي مقفولة دلوقتي وعصية على إدراكك. ابحث عن صفحاتها وتدبر سطورها في أنحاء العالم.", "النظام");
+                                setTimeout(showCultivationScreen, 1800);
+                                return;
+                            }
+                            cult.activeMethod = m.id;
+                            calculateTotalStats();
+                            narrate(`لقد تحولت بنجاح لدراسة وممارسة <b>${methodNameArabic}</b>. يعاد شحذ عضلاتك وتركيزك لينسجم مع هذا المخطط.`, "النظام");
+                            updateTopBar(); saveGame();
+                            setTimeout(showCultivationScreen, 1800);
+                        }
+                    };
+                });
+                setChoices([...methodChoices, { text: "↩ رجوع", callback: showCultivationScreen }]);
+            }
+        }
+    ];
+
+    if (window.ASCENSION && window.ASCENSION.checkEligible(state)) {
+        choices.push({
+            text: '⚡ الاقتراب من بوابة الارتقاء السماوي العظيم (محنة الملوك)',
+            callback: showAscensionScreen
+        });
+    }
+
+    if (cult.breakthroughReady) {
+        choices.push({
+            text: '⚡ خوض محنة البرق السماوي للارتقاء الأعظم!',
+            callback: () => {
+                const res = window.CULTIVATION ? window.CULTIVATION.attemptBreakthrough(state) : { success: false, message: 'Cultivation module unavailable.' };
+                if (!res.success) {
+                    let msgArabic = res.message;
+                    if (res.message.includes("not ready")) {
+                        msgArabic = "بنيانك البدني لم يكتمل تماماً لتحدي البرق السماوي العاتى بعد.";
+                    }
+                    narrate(msgArabic, 'النظام', null, false, true);
+                    setTimeout(showCultivationScreen, 2000);
+                } else {
+                    narrate('تظلم السماوات فجأة، وترعد بقوة البرق العارم! وحش المحنة السماوية الكاسر يهبط أمامك ساداً الأفق!', 'النظام', null, false, true);
+                    const tribBeast = {
+                        name: 'وحش محنة البرق السماوي',
+                        hp: 250 + state.player.lvl * 20,
+                        maxHp: 250 + state.player.lvl * 20,
+                        atk: 30 + state.player.lvl * 5,
+                        dialogue: 'تنشق السماء بقوة البرق العارم. هذه هي محنتك السماوية المكتوبة لتمحيص تركيزك وهمتك وصهر معدنك!',
+                        nextMove: null
+                    };
+                    state._pendingBreakthroughStage = res.nextStage;
+                    setTimeout(() => startCombat(tribBeast), 1500);
+                }
+            }
+        });
+    }
+
+    choices.push({ text: '↩ عودة إلى واحة التقاطع', callback: hubLoop });
+    setChoices(choices);
+}
+
+// ============================================================
+// ALCHEMY SCREEN - The Furnace of Heaven (فرن الخيمياء والأسرار السماوية)
+// ============================================================
+
+function startStabilityMiniGame(callback) {
+    clearNarrative();
+    narrate("<b>مرحلة تركيز وتثبيت الطاقة الباطنية</b><br>اضغط لتثبيت الطاقة عند ذروة استقرارها الطاهر لتنجح عملية التحضير ويقوى الإكسير!", "النظام", null, false, true);
+    
+    const container = document.createElement('div');
+    container.style.cssText = 'width:100%; height:30px; background:#222; border:1px solid #444; border-radius:15px; position:relative; overflow:hidden; margin:20px 0;';
+    
+    const target = document.createElement('div');
+    target.style.cssText = 'position:absolute; left:45%; width:10%; height:100%; background:var(--jade); opacity:0.5;';
+    
+    const bar = document.createElement('div');
+    bar.style.cssText = 'position:absolute; left:0; width:4px; height:100%; background:#fff; box-shadow:0 0 10px #fff;';
+    
+    container.appendChild(target);
+    container.appendChild(bar);
+    document.getElementById('narrative-window').appendChild(container);
+
+    let pos = 0;
+    let dir = 1;
+    let animId;
+
+    const loop = () => {
+        pos += 2 * dir;
+        if (pos >= 100 || pos <= 0) dir *= -1;
+        bar.style.left = pos + '%';
+        animId = requestAnimationFrame(loop);
+    };
+    loop();
+
+    setChoices([{
+        text: "⚡ ركز الطاقة التركيزية وثبت المرجل!",
+        callback: () => {
+            cancelAnimationFrame(animId);
+            const dist = Math.abs(pos - 50);
+            const stability = Math.max(0, 100 - (dist * 2));
+            callback(stability);
+        }
+    }]);
+}
+
+function showAlchemyScreen() {
+    clearNarrative();
+    const mats = state.player.inventory.materials || {};
+    
+    const materialsArabic = {
+        'spirit_herb': 'عشبة العزيمة',
+        'iron_ore': 'خام الحديد الدمشقي',
+        'monster_core': 'قلب وحش البراري',
+        'dragon_vein_shard': 'شظية عرق التنين',
+        'celestial_silk': 'حرير سماوي خالد',
+        'wood': 'خشب جبلي'
+    };
+
+    const matList = Object.entries(mats).filter(([,v]) => v > 0).map(([k,v]) => `${materialsArabic[k] || k.replace(/_/g,' ')}: <b>x${v}</b>`).join(', ') || '<i>مفيش خامات متوفرة</i>';
+
+    if (!state.player.alchemyCauldronLevel) state.player.alchemyCauldronLevel = 1;
+    const cauldronLvl = state.player.alchemyCauldronLevel;
+    const cauldronNames = ["لا يوجد", "فرن الطين الناري البسيط", "مرجل البرونز الثلاثي القديم", "مرجل التنانين التسعة الأسطوري", "فرن الفراغ السماوي الخالد"];
+    const cauldronBonuses = [0, 0, 12, 25, 40];
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;">فرن الخيمياء والأسرار السماوية</b>', 'النظام', null, false, true);
+    narrate(`المرجل المتاح: <b style="color:var(--secondary)">${cauldronNames[cauldronLvl]} (رتبة ${cauldronLvl})</b><br><small style="color:var(--text-dim)">بركة التقطير التلقائي: +${cauldronBonuses[cauldronLvl]}% ثبات واستقرار في الصناعة</small>`, 'النظام', null, false, true);
+    narrate(`الخامات المتوفرة في الحقيبة: ${matList}`, 'النظام', null, false, true);
+
+    const choices = [];
+    if (window.CRAFTING) {
+        Object.entries(window.CRAFTING.alchemyRecipes).forEach(([id, r]) => {
+            const ingList = Object.entries(r.ingredients).map(([k,v]) => `${v}x ${materialsArabic[k] || k.replace(/_/g,' ')}`).join(', ');
+            const canCraft = Object.entries(r.ingredients).every(([k,v]) => (mats[k] || 0) >= v);
+            
+            const recipeNamesArabic = {
+                'essence_pill': 'حبة تنشيط جوهر الدم والنفس (+50 صحة)',
+                'qi_elixir': 'عقار العزيمة وتكثيف التركيز والهمة (+25 عزيمة)',
+                'dragon_soup': 'حساء السلف وقوة التنين الجبارة (+10 هجوم دائم)'
+            };
+            const currentRecipeArabic = recipeNamesArabic[id] || r.name;
+
+            choices.push({
+                text: `${canCraft ? '⚗️ ' : '[مغلق] '}تحضير وصناعة الإكسير: ${currentRecipeArabic} | يتطلب: ${ingList}`,
+                callback: () => {
+                    if (!canCraft) {
+                        narrate(`<span style="color:var(--danger)"><b>التحضير تعذر!</b> ليس لديك الخامات الكافية لتحضير إكسير ${currentRecipeArabic}.</span>`, "النظام");
+                        setTimeout(showAlchemyScreen, 2000);
+                        return;
+                    }
+                    startStabilityMiniGame((stability) => {
+                        const bonus = cauldronBonuses[state.player.alchemyCauldronLevel || 1];
+                        const finalStability = Math.min(100, stability + bonus);
+                        const res = window.CRAFTING.brewAlchemy(state, id, finalStability);
+                        
+                        let msgArabic = res.message;
+                        if (res.message.includes("successfully brewed")) {
+                            msgArabic = `🎉 <b>نجاح التحضير!</b> استقرت الطاقة في مرجلك ونجحت في تحضير إكسير <b>${currentRecipeArabic}</b> بنقاء وجودة عالية!`;
+                        } else if (res.message.includes("exploded")) {
+                            msgArabic = `💥 <b>انفجار وتناثر للمرجل!</b> تذبذبت طاقة العزيمة بعنف وانفجر الفرن وخسرت الخامات المغلية في عصف من الدخان الأسود!`;
+                        }
+
+                        narrate(msgArabic, 'النظام', null, false, true);
+                        updateTopBar(); saveGame();
+                        setTimeout(showAlchemyScreen, 2200);
+                    });
+                }
+            });
+        });
+    }
+
+    // Upgrade Cauldron Option
+    if (cauldronLvl < 4) {
+        const nextLvl = cauldronLvl + 1;
+        const upgradeCosts = {
+            2: { gold: 300, iron_ore: 10, wood: 10 },
+            3: { gold: 800, iron_ore: 25, wood: 20 },
+            4: { gold: 2000, iron_ore: 50, wood: 40 }
+        };
+        const cost = upgradeCosts[nextLvl];
+        const hasGold = (state.player.gold || 0) >= cost.gold;
+        const hasIron = (mats.iron_ore || 0) >= cost.iron_ore;
+        const hasWood = (mats.wood || 0) >= cost.wood;
+        const canUpgrade = hasGold && hasIron && hasWood;
+        
+        choices.push({
+            text: `💎 ترقية المرجل لرتبة ${nextLvl} (${cauldronNames[nextLvl]}) | التكلفة: ${cost.gold} أحجار، ${cost.iron_ore} حديد، ${cost.wood} خشب`,
+            callback: () => {
+                if (!canUpgrade) {
+                    narrate(`<span style="color:var(--danger)"><b>الترقية فشلت!</b> معندكش أحجار أو خامات كفاية لتطوير مرجل خيميائك.</span>`, "النظام");
+                    setTimeout(showAlchemyScreen, 2000);
+                    return;
+                }
+                state.player.gold -= cost.gold;
+                state.player.inventory.materials.iron_ore -= cost.iron_ore;
+                state.player.inventory.materials.wood -= cost.wood;
+                state.player.alchemyCauldronLevel = nextLvl;
+                
+                narrate(`<span class="loot-epic">🔥 <b>تم ترقية المرجل بنجاح!</b> توسع فرن خيميائك وأصبح <b>${cauldronNames[nextLvl]}</b> الجبار ذو القنوات النارية!</span>`, "النظام");
+                updateTopBar(); saveGame();
+                setTimeout(showAlchemyScreen, 2200);
+            }
+        });
+    }
+
+    choices.push({ text: '↩ عودة إلى واحة التقاطع', callback: hubLoop });
+    setChoices(choices);
+}
+
+// ============================================================
+// BLACKSMITH SCREEN - The Spirit Forge (ورشة سحر الحديد والأسلحة)
+// ============================================================
+function showForgeScreen() {
+    clearNarrative();
+    const mats = state.player.inventory.materials || {};
+    
+    const materialsArabic = {
+        'spirit_herb': 'عشبة العزيمة',
+        'iron_ore': 'خام الحديد الدمشقي',
+        'monster_core': 'قلب وحش البراري',
+        'dragon_vein_shard': 'شظية عرق التنين',
+        'celestial_silk': 'حرير سماوي خالد',
+        'wood': 'خشب جبلي'
+    };
+
+    const matList = Object.entries(mats).filter(([,v]) => v > 0).map(([k,v]) => `${materialsArabic[k] || k.replace(/_/g,' ')}: <b>x${v}</b>`).join(', ') || '<i>مفيش خامات متوفرة</i>';
+
+    if (!state.player.forgeHammerLevel) state.player.forgeHammerLevel = 1;
+    const hammerLvl = state.player.forgeHammerLevel;
+    const hammerNames = ["لا يوجد", "مطرقة الحديد البسيط للحدادين", "مطرقة الفولاذ البارد المحصن", "مطرقة قلب الحمم البركانية الساخنة", "مطرقة رعد الشمال العتيقة"];
+    const hammerBonuses = [0, 0, 5, 12, 20];
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;">ورشة سحر الحديد والأسلحة</b>', 'النظام', null, false, true);
+    narrate(`المطرقة المتاحة: <b style="color:var(--secondary)">${hammerNames[hammerLvl]} (رتبة ${hammerLvl})</b><br><small style="color:var(--text-dim)">بركة صهر ونقش الحديد: +${hammerBonuses[hammerLvl]}% جودة إضافية في العتاد المصنوع</small>`, 'النظام', null, false, true);
+    narrate(`الخامات المتوفرة في الحقيبة: ${matList}`, 'النظام', null, false, true);
+
+    const choices = [];
+    if (window.CRAFTING) {
+        Object.entries(window.CRAFTING.forgeRecipes).forEach(([id, r]) => {
+            const ingList = Object.entries(r.ingredients).map(([k,v]) => `${v}x ${materialsArabic[k] || k.replace(/_/g,' ')}`).join(', ');
+            const canCraft = Object.entries(r.ingredients).every(([k,v]) => (mats[k] || 0) >= v);
+
+            const recipeNamesArabic = {
+                'refined_sword': 'سيف الفولاذ المصفى ذو الحدين (weapon)',
+                'sufi_robe': 'عباءة الصوف المتينة لدرء الأضرار (body)',
+                'sand_boots': 'أحذية المسافر لتجاوز رمال الصحراء (boots)',
+                'dragon_vein_pendant': 'قلادة عروق التنين القديمة لتعزيز الهالة (relic)'
+            };
+            const currentRecipeArabic = recipeNamesArabic[id] || r.name;
+            const slotArabic = r.slot === 'head' ? 'خوذة للرأس' : r.slot === 'body' ? 'درع للجسد' : r.slot === 'legs' ? 'رداء للأرجل' : r.slot === 'boots' ? 'حذاء للمسير' : r.slot === 'weapon' ? 'سيف هجومي' : 'أثر عتيق';
+
+            choices.push({
+                text: `${canCraft ? '🔨 ' : '[مغلق] '}صهر وصنع: ${currentRecipeArabic} (${slotArabic}) | يتطلب: ${ingList}`,
+                callback: () => {
+                    if (!canCraft) {
+                        narrate(`<span style="color:var(--danger)"><b>الحدادة تعذرت!</b> معندكش الخامات الكافية لصنع ${currentRecipeArabic}.</span>`, "النظام");
+                        setTimeout(showForgeScreen, 2000);
+                        return;
+                    }
+                    const res = window.CRAFTING.craftItem(state, id);
+                    
+                    let msgArabic = res.message;
+                    if (res.message.includes("Successfully crafted")) {
+                        msgArabic = `🔨 <b>تم صهر العتاد بنجاح!</b> صهلت النار في ورشتك واستخرجت <b>${currentRecipeArabic}</b> بجودة ممتازة وسحرت حروفه ونقوشه البدنية!`;
+                    }
+
+                    narrate(msgArabic, 'النظام', null, false, true);
+                    updateTopBar(); saveGame();
+                    setTimeout(showForgeScreen, 2500);
+                }
+            });
+        });
+    }
+
+    // Upgrade Hammer Option
+    if (hammerLvl < 4) {
+        const nextLvl = hammerLvl + 1;
+        const upgradeCosts = {
+            2: { gold: 400, iron_ore: 15, wood: 10 },
+            3: { gold: 1000, iron_ore: 30, wood: 25 },
+            4: { gold: 2500, iron_ore: 60, wood: 45 }
+        };
+        const cost = upgradeCosts[nextLvl];
+        const hasGold = (state.player.gold || 0) >= cost.gold;
+        const hasIron = (mats.iron_ore || 0) >= cost.iron_ore;
+        const hasWood = (mats.wood || 0) >= cost.wood;
+        const canUpgrade = hasGold && hasIron && hasWood;
+
+        choices.push({
+            text: `💎 ترقية مطرقة الحداد لرتبة ${nextLvl} (${hammerNames[nextLvl]}) | التكلفة: ${cost.gold} أحجار، ${cost.iron_ore} حديد، ${cost.wood} خشب`,
+            callback: () => {
+                if (!canUpgrade) {
+                    narrate(`<span style="color:var(--danger)"><b>الترقية فشلت!</b> معندكش أحجار أو خامات كفاية لتطوير مطرقة ورشتك.</span>`, "النظام");
+                    setTimeout(showForgeScreen, 2000);
+                    return;
+                }
+                state.player.gold -= cost.gold;
+                state.player.inventory.materials.iron_ore -= cost.iron_ore;
+                state.player.inventory.materials.wood -= cost.wood;
+                state.player.forgeHammerLevel = nextLvl;
+
+                narrate(`<span class="loot-epic">⚡ <b>تم ترقية المطرقة بنجاح!</b> ضرب البرق مطرقتك وسكنت فيها هالة من القوة والرعد البدني؛ تكونت مطرقة <b>${hammerNames[nextLvl]}</b>!</span>`, "النظام");
+                updateTopBar(); saveGame();
+                setTimeout(showForgeScreen, 2200);
+            }
+        });
+    }
+
+    choices.push({ text: "💎 ورشة صقل وتجويد العتاد وتطوير جودته (+1 إلى +12)", callback: showRefinementScreen });
+    choices.push({ text: '↩ عودة إلى واحة التقاطع', callback: hubLoop });
+    setChoices(choices);
+}
+
+function showRefinementScreen() {
+    clearNarrative();
+    
+    if (!state.player.equipment || Object.keys(state.player.equipment).length === 0) {
+        narrate("<b>💎 ورشة صقل وتجويد العتاد الأسطوري</b><br><span style='color:var(--danger)'>مفيش أي عتاد مجهز لصقله وتجويده حالياً. جهز عتاداً من حقيبتك أولاً!</span>", "النظام", null, false, true);
+        setChoices([{ text: "↩ عودة للحدادة", callback: showForgeScreen }]);
+        return;
+    }
+
+    const oreCount = Math.floor((state.oasis?.resources?.ore || 0) + (state.player.inventory.materials?.iron_ore || 0));
+    const currentGold = state.player.gold || 0;
+
+    narrate(`<b>💎 ورشة صقل وتجويد العتاد الأسطوري (رتب وجودة Conquer RPG)</b><br>
+الخامات المتاحة بالحقيبة والواحة: <b style="color:var(--secondary)">x${oreCount} خامات باطنية</b> | الذهب المتوفر: <b style="color:var(--secondary)">${currentGold} دينار ذهبي</b><br>
+<small style="color:var(--text-dim)">صقل العتاد وتجويده يزيد إحصائياتك وقدراتك البدنية بشكل هائل ودائم.</small>`, "النظام", null, false, true);
+
+    const slotNamesArabic = {
+        'weapon': '⚔️ السيف الهجومي (Weapon)',
+        'head': '🪖 خوذة الرأس (Head)',
+        'body': '🥋 درع الجسد (Body)',
+        'legs': '👖 رداء الساقين (Legs)',
+        'boots': '🥾 حذاء المسير (Boots)',
+        'relic': '🕌 الأثر العتيق (Relic)'
+    };
+
+    const qualityNamesArabic = {
+        'normal': '<span style="color:#ffffff;">عادي (Normal)</span>',
+        'refined': '<span style="color:#00bcff; font-weight:bold;">محسن (Refined)</span>',
+        'unique': '<span style="color:#cc00ff; font-weight:bold;">فريد (Unique)</span>',
+        'elite': '<span style="color:#ffae00; font-weight:bold;">نخبة (Elite)</span>',
+        'super': '<span style="color:#ff003c; font-weight:bold; text-shadow:0 0 5px rgba(255,0,0,0.5);">خارق (Super) 🔥</span>'
+    };
+
+    let html = `<div style="text-align:left; max-height:350px; overflow-y:auto; padding-right:5px; margin-bottom:15px;">`;
+    let itemsEquipped = 0;
+
+    Object.entries(state.player.equipment).forEach(([slot, item]) => {
+        if (!item) return;
+        itemsEquipped++;
+        
+        item.quality = item.quality || 'normal';
+        item.refine = item.refine || 0;
+        item.lvl = item.lvl || 15;
+
+        html += `
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:12px; margin-bottom:12px;">
+                <b style="color:var(--secondary); font-size:1.05rem;">${slotNamesArabic[slot] || slot}</b><br>
+                اسم العتاد: <b style="color:#fff;">${item.name}</b><br>
+                الجودة الحالية: <b>${qualityNamesArabic[item.quality] || item.quality}</b><br>
+                المستوى الحالي: <b style="color:var(--jade)">مستوى ${item.lvl}</b><br>
+                درجة الصقل: <b style="color:#00ff55; font-size:1.1rem; text-shadow:0 0 4px rgba(0,255,0,0.3)">+${item.refine}</b>
+            </div>
+        `;
+    });
+
+    if (itemsEquipped === 0) {
+        narrate("<b>💎 ورشة صقل وتجويد العتاد الأسطوري</b><br><span style='color:var(--danger)'>مفيش أي عتاد مجهز لصقله وتجويده حالياً. جهز عتاداً من حقيبتك أولاً!</span>", "النظام", null, false, true);
+        setChoices([{ text: "↩ عودة للحدادة", callback: showForgeScreen }]);
+        return;
+    }
+
+    html += `</div>`;
+    narrate(html, "النظام", null, false, true);
+
+    const choices = [];
+
+    // Build interactive choices for each equipped item
+    Object.entries(state.player.equipment).forEach(([slot, item]) => {
+        if (!item) return;
+
+        // 1. Refine option (+1 to +12)
+        if (item.refine < 12) {
+            const nextRef = item.refine + 1;
+            const goldCost = nextRef * 250;
+            const oreCost = nextRef * 5;
+            const canAfford = currentGold >= goldCost && oreCount >= oreCost;
+
+            choices.push({
+                text: `✨ صقل [${item.name}] إلى +${nextRef} | يتطلب: ${goldCost} ذهب، ${oreCost} خامات`,
+                callback: () => {
+                    if (!canAfford) {
+                        narrate(`<span style="color:var(--danger)"><b>فشل الصقل!</b> مواردك غير كافية لترقية [${item.name}].</span>`, "النظام");
+                        setTimeout(showRefinementScreen, 2000);
+                        return;
+                    }
+                    // Deduct
+                    state.player.gold -= goldCost;
+                    if (state.oasis?.resources?.ore >= oreCost) {
+                        state.oasis.resources.ore -= oreCost;
+                    } else {
+                        const remainder = oreCost - (state.oasis?.resources?.ore || 0);
+                        if (state.oasis?.resources?.ore) state.oasis.resources.ore = 0;
+                        if (state.player.inventory.materials.iron_ore) state.player.inventory.materials.iron_ore -= remainder;
+                    }
+
+                    item.refine = nextRef;
+                    state.player.questProgress = state.player.questProgress || {};
+                    state.player.questProgress.refines = (state.player.questProgress.refines || 0) + 1;
+
+                    if (window.QUESTS) window.QUESTS.updateQuests(state);
+
+                    narrate(`<span style="color:#00ff55; font-weight:bold;">⚡ تم صقل [${item.name}] بنجاح إلى +${nextRef}! لمعت طاقته البدنية واشتد معدنه!</span>`, "النظام");
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showRefinementScreen, 2200);
+                }
+            });
+        }
+
+        // 2. Quality Upgrade option
+        if (item.quality !== 'super') {
+            const qualities = ['normal', 'refined', 'unique', 'elite', 'super'];
+            const currentIdx = qualities.indexOf(item.quality);
+            const nextQuality = qualities[currentIdx + 1];
+            
+            const qualityGoldCosts = { refined: 300, unique: 800, elite: 2000, super: 5000 };
+            const qualityOreCosts = { refined: 8, unique: 18, elite: 40, super: 90 };
+
+            const goldCost = qualityGoldCosts[nextQuality];
+            const oreCost = qualityOreCosts[nextQuality];
+            const canAfford = currentGold >= goldCost && oreCount >= oreCost;
+
+            const qLabelArabic = { refined: 'محسن', unique: 'فريد', elite: 'نخبة', super: 'خارق' };
+
+            choices.push({
+                text: `💎 ترقية جودة [${item.name}] إلى [${qLabelArabic[nextQuality]}] | يتطلب: ${goldCost} ذهب، ${oreCost} خامات`,
+                callback: () => {
+                    if (!canAfford) {
+                        narrate(`<span style="color:var(--danger)"><b>فشل التجويد!</b> مواردك لا تكفي لرفع جودة [${item.name}].</span>`, "النظام");
+                        setTimeout(showRefinementScreen, 2000);
+                        return;
+                    }
+                    // Deduct
+                    state.player.gold -= goldCost;
+                    if (state.oasis?.resources?.ore >= oreCost) {
+                        state.oasis.resources.ore -= oreCost;
+                    } else {
+                        const remainder = oreCost - (state.oasis?.resources?.ore || 0);
+                        if (state.oasis?.resources?.ore) state.oasis.resources.ore = 0;
+                        if (state.player.inventory.materials.iron_ore) state.player.inventory.materials.iron_ore -= remainder;
+                    }
+
+                    item.quality = nextQuality;
+                    state.player.questProgress = state.player.questProgress || {};
+                    state.player.questProgress.refines = (state.player.questProgress.refines || 0) + 1;
+
+                    if (window.QUESTS) window.QUESTS.updateQuests(state);
+
+                    narrate(`<span style="color:#cc00ff; font-weight:bold;">✨ تم الارتقاء بجودة [${item.name}] بنجاح إلى [${qLabelArabic[nextQuality]}]!</span>`, "النظام");
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showRefinementScreen, 2200);
+                }
+            });
+        }
+
+        // 3. Level Upgrade option
+        if (item.lvl < 120) {
+            const nextLvl = item.lvl === 15 ? 40 : item.lvl === 40 ? 70 : item.lvl === 70 ? 100 : 120;
+            const goldCost = nextLvl * 15;
+            const oreCost = Math.floor(nextLvl * 0.4);
+            const canAfford = currentGold >= goldCost && oreCount >= oreCost;
+
+            choices.push({
+                text: `🥏 ترقية مستوى [${item.name}] إلى لفل ${nextLvl} | يتطلب: ${goldCost} ذهب، ${oreCost} خامات`,
+                callback: () => {
+                    if (!canAfford) {
+                        narrate(`<span style="color:var(--danger)"><b>فشل ترقية المستوى!</b> مواردك غير كافية لرفع مستوى عتادك.</span>`, "النظام");
+                        setTimeout(showRefinementScreen, 2000);
+                        return;
+                    }
+                    // Deduct
+                    state.player.gold -= goldCost;
+                    if (state.oasis?.resources?.ore >= oreCost) {
+                        state.oasis.resources.ore -= oreCost;
+                    } else {
+                        const remainder = oreCost - (state.oasis?.resources?.ore || 0);
+                        if (state.oasis?.resources?.ore) state.oasis.resources.ore = 0;
+                        if (state.player.inventory.materials.iron_ore) state.player.inventory.materials.iron_ore -= remainder;
+                    }
+
+                    item.lvl = nextLvl;
+                    state.player.questProgress = state.player.questProgress || {};
+                    state.player.questProgress.refines = (state.player.questProgress.refines || 0) + 1;
+
+                    if (window.QUESTS) window.QUESTS.updateQuests(state);
+
+                    narrate(`<span style="color:var(--jade); font-weight:bold;">🥏 تم ترقية مستوى [${item.name}] بنجاح إلى لفل ${nextLvl}! تضاعفت قوته الأساسية!</span>`, "النظام");
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showRefinementScreen, 2200);
+                }
+            });
+        }
+    });
+
+    choices.push({ text: "↩ عودة للحدادة العامة", callback: showForgeScreen });
+    setChoices(choices);
+}
+
+// ============================================================
+// WORLD MAP SCREEN - SVG Navigation (خريطة العالم الأسطوري)
+// ============================================================
+function showWorldMap() {
+    showScreen('map-screen');
+    const container = document.getElementById('game-container');
+    const group = document.getElementById('map-regions-group');
+    if (!group) return;
+    group.innerHTML = '';
+
+    const backBtn = document.getElementById('map-back-btn');
+    if (backBtn) backBtn.textContent = '↩ عودة للواحة';
+    if (backBtn) backBtn.onclick = hubLoop;
+
+    const lore = window.LORE;
+    if (!lore || !lore.REGIONS) {
+        narrate("لفائف الخرائط السحرية ما زالت تنفتح... تمهل قليلاً.", "النظام");
+        return;
+    }
+
+    const regionNamesArabic = {
+        'crossroads': 'واحة القوافل الكبرى',
+        'jade_peak': 'قلعة جبل الطور',
+        'empty_quarter': 'الربع الخالي المهيب',
+        'house_of_wisdom': 'دار الحكمة العامرة',
+        'sea_of_dunes': 'بحر الرمال المتحركة',
+        'sunken_ruins': 'أطلال إرم ذات العماد',
+        'crimson_wastes': 'القفار القرمزية الحارقة',
+        'celestial_observatory': 'المرصد الفلكي الأعلى',
+        'floating_pagoda': 'قصر السحاب المعلق',
+        'underworld_depths': 'أعماق العالم السفلي'
+    };
+
+    const allRegions = Object.values(lore.REGIONS);
+    // Draw connecting silk-road paths between sequential regions
+    for (let i = 0; i < allRegions.length - 1; i++) {
+        const r1 = allRegions[i];
+        const r2 = allRegions[i + 1];
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', r1.x || 400);
+        line.setAttribute('y1', r1.y || 280);
+        line.setAttribute('x2', r2.x || 400);
+        line.setAttribute('y2', r2.y || 280);
+        line.setAttribute('stroke', (r1.unlocked && r2.unlocked) ? 'rgba(212, 175, 55, 0.55)' : 'rgba(255, 255, 255, 0.14)');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('stroke-dasharray', (r1.unlocked && r2.unlocked) ? 'none' : '5,5');
+        group.appendChild(line);
+    }
+
+    allRegions.forEach(region => {
+        const x = region.x || 400;
+        const y = region.y || 280;
+        const isCurrent = state.player.currentRegion === region.id || (region.id === 'crossroads' && !state.player.currentRegion);
+        // Auto-unlock region if player level meets minLevel
+        if ((state.player.lvl || 1) >= (region.minLevel || 1)) {
+            region.unlocked = true;
+            if (state.unlockedRegions && !state.unlockedRegions.includes(region.id)) {
+                state.unlockedRegions.push(region.id);
+            }
+        }
+        const isUnlocked = region.unlocked === true || (state.unlockedRegions && state.unlockedRegions.includes(region.id));
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', isCurrent ? '16' : '13');
+
+        let fillColor = '#3a3f4b';
+        if (isCurrent) fillColor = '#00e5a0';
+        else if (isUnlocked) fillColor = '#d4af37';
+
+        circle.style.fill = fillColor;
+        circle.style.stroke = '#ffffff';
+        circle.style.strokeWidth = isCurrent ? '3px' : '1.5px';
+        circle.style.strokeOpacity = isCurrent ? '1' : '0.7';
+        circle.style.cursor = 'pointer';
+        circle.classList.add('map-node');
+
+        if (isCurrent) {
+            circle.style.filter = 'drop-shadow(0 0 12px #00e5a0)';
+        }
+
+        // Render SVG Arabic label below each node
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x);
+        label.setAttribute('y', y + 26);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('fill', isCurrent ? '#00e5a0' : (isUnlocked ? '#f5d76e' : '#8892b0'));
+        label.setAttribute('font-size', '11');
+        label.setAttribute('font-family', 'Cairo, sans-serif');
+        label.setAttribute('font-weight', 'bold');
+        label.style.pointerEvents = 'none';
+        label.textContent = `${regionNamesArabic[region.id] || region.name} (م${region.minLevel || 1})`;
+
+        const showRegionTooltip = (e) => {
+            const tooltip = document.getElementById('map-tooltip');
+            if (!tooltip) return;
+
+            document.getElementById('map-tooltip-name').textContent = regionNamesArabic[region.id] || region.name || 'ملكوت مجهول';
+            document.getElementById('map-tooltip-subtitle').textContent = `${region.subtitle || 'برية مقفرة'} — المستوى الموصى به: ${region.minLevel || 1}`;
+            document.getElementById('map-tooltip-desc').textContent = region.description || 'مكان غامض يلفه سحر قديم.';
+
+            const status = document.getElementById('map-tooltip-status');
+            status.textContent = isUnlocked ? '✅ مفتوحة للاستكشاف والترحال' : `🔒 تتطلب المستوى ${region.minLevel || 1} (أو 250 ذهب استكشاف مبكر)`;
+            status.className = 'map-status-badge ' + (isUnlocked ? 'status-unlocked' : 'status-locked');
+
+            const travelBtn = document.getElementById('map-travel-btn');
+            if (isUnlocked) {
+                travelBtn.textContent = '⚔️ ارتحل واستكشف الآن';
+                travelBtn.style.display = 'block';
+                travelBtn.onclick = (ev) => {
+                    ev.stopPropagation();
+                    tooltip.style.display = 'none';
+                    showScreen('story-screen');
+                    exploreRegion(region.id);
+                };
+            } else {
+                travelBtn.textContent = '🔓 فتح المسار مبكراً (250 ذهب)';
+                travelBtn.style.display = 'block';
+                travelBtn.onclick = (ev) => {
+                    ev.stopPropagation();
+                    if ((state.player.gold || 0) < 250) {
+                        if (typeof showToast === 'function') showToast('تحتاج إلى 250 دينار ذهبي لتمويل قافلة الاستطلاع!');
+                        return;
+                    }
+                    state.player.gold -= 250;
+                    region.unlocked = true;
+                    if (!state.unlockedRegions) state.unlockedRegions = ['crossroads'];
+                    if (!state.unlockedRegions.includes(region.id)) state.unlockedRegions.push(region.id);
+                    saveGame();
+                    showWorldMap();
+                    if (typeof showToast === 'function') showToast(`تم فتح مسار ${regionNamesArabic[region.id] || region.name}!`);
+                };
+            }
+
+            tooltip.style.display = 'block';
+            const mapScreen = document.getElementById('map-screen') || container;
+            const rect = mapScreen.getBoundingClientRect();
+            const clientX = e.clientX || (rect.left + x);
+            const clientY = e.clientY || (rect.top + y);
+            let tx = clientX - rect.left + 20;
+            let ty = clientY - rect.top + 20;
+
+            const tooltipWidth = 280;
+            const tooltipHeight = 190;
+            if (tx + tooltipWidth > rect.width) tx = (clientX - rect.left) - tooltipWidth - 20;
+            if (ty + tooltipHeight > rect.height) ty = (clientY - rect.top) - tooltipHeight - 20;
+
+            tooltip.style.position = 'absolute';
+            tooltip.style.left = Math.max(10, Math.min(tx, rect.width - tooltipWidth - 10)) + 'px';
+            tooltip.style.top = Math.max(10, Math.min(ty, rect.height - tooltipHeight - 10)) + 'px';
+            tooltip.style.zIndex = '1000';
+
+            circle.setAttribute('r', '18');
+        };
+
+        circle.onmouseenter = showRegionTooltip;
+        circle.onclick = (e) => {
+            e.stopPropagation();
+            showRegionTooltip(e);
+        };
+        circle.onmouseleave = () => {
+            circle.setAttribute('r', isCurrent ? '16' : '13');
+        };
+
+        group.appendChild(circle);
+        group.appendChild(label);
+    });
+
+    document.getElementById('map-screen').onclick = (e) => {
+        if (e.target.id === 'map-screen' || e.target.tagName === 'svg') {
+            document.getElementById('map-tooltip').style.display = 'none';
+        }
+    };
+}
+
+// ============================================================
+// SYSTEM SCREENS: Quests, Shop, Skills (العهود، الدكاكين، المهارات)
+// ============================================================
+
+window.buyLibrarySkill = function(skillId) {
+    const skill = window.SKILLS.techniques[skillId];
+    if (!skill) return;
+
+    // 1. Level Requirement Check
+    if ((state.player.lvl || 1) < skill.reqLvl) {
+        if (typeof showToast === 'function') showToast(`يتطلب مستوى ${skill.reqLvl} لتعلم هذا الفن قتالياً!`);
+        return;
+    }
+
+    // 2. Cultivation Stage Requirement Check
+    if (skill.reqCultivationStage && window.CULTIVATION && state.player.cultivation) {
+        const currentStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === state.player.cultivation.stage);
+        const reqStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === skill.reqCultivationStage);
+        if (currentStageIdx === -1 || currentStageIdx < reqStageIdx) {
+            if (typeof showToast === 'function') showToast(`يتطلب بلوغ المرتبة والعمق العالي: ${skill.reqCultivationStage}!`);
+            return;
+        }
+    }
+
+    // 3. Required Item Check (must possess item in inventory)
+    if (skill.reqItem) {
+        const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+        const hasItem = state.player.inventory && state.player.inventory.some(item => item.id === skill.reqItem);
+        if (!hasItem) {
+            if (typeof showToast === 'function') showToast(`يتطلب حيازة غرض: ${itemNames[skill.reqItem] || skill.reqItem} لفك رموز هذا الفن القتالي!`);
+            return;
+        }
+    }
+
+    if (state.player.gold < skill.cost) {
+        if (typeof showToast === 'function') showToast("لا تملك دنانير ذهبية كافية لتعلم هذا الفن القتالي! 🪙");
+        return;
+    }
+    state.player.gold -= skill.cost;
+    if (!state.player.skills) state.player.skills = [];
+    state.player.skills.push(skillId);
+    
+    if (window.AUDIO) window.AUDIO.playEffect('menu_click');
+    if (typeof showToast === 'function') showToast(`تهانينا! لقد أتقنت الفن القتالي: ${skill.name} 🎉`);
+    
+    if (typeof calculateTotalStats === 'function') calculateTotalStats();
+    if (typeof updateTopBar === 'function') updateTopBar();
+    showSkillsScreen();
+};
+
+function showSkillsScreen() {
+    clearNarrative();
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary)">📜 ديوان ومكتبة الفنون والمهارات القتالية</b>', 'النظام', null, false, true);
+    
+    // Helper function to translate stats to human Arabic labels
+    function translateStat(stat) {
+        const table = {
+            'atk': 'الهجوم البدني',
+            'def': 'دفاع الجسد والفروسية',
+            'maxHp': 'الصحة القصوى والتحمل',
+            'hpRegen': 'التجديد التلقائي للصحة',
+            'mpRegen': 'شحذ وتجديد العزيمة والتركيز',
+            'critDmg': 'ضرر الضربات الحاسمة القاضية',
+            'speed': 'سرعة الحركة والمبادرة',
+            'goldMult': 'الغنائم الذهبية الحصرية',
+            'crit': 'فرصة الضربة القاضية',
+            'allStats': 'كامل قيم البارامترات الأساسية مجمعة'
+        };
+        return table[stat] || stat;
+    }
+
+    // --- Part 1: Current Learned Skills ---
+    narrate('<h3 style="color:var(--jade);border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:5px;margin-bottom:10px;margin-top:15px;">⚔️ الفنون والمهارات التي تتقنها حالياً</h3>', 'النظام', null, false, true);
+    
+    if (!state.player.skills || state.player.skills.length === 0) {
+        narrate("ديوان مهاراتك فارغ حالياً. خض ارتقاءات روغ ومحناً لتتعلم وتتقن الفنون القتالية الفاخرة.", "النظام");
+    } else {
+        const skillNamesArabic = {
+            'strike': 'الضربة المصفاة الأساسية',
+            'heal': 'دفق الطهارة والاستشفاء',
+            'shield': 'درع التركيز والهمة العاكس للضربات',
+            'slash': 'شق السيف الناري الحارق'
+        };
+        const skillDescsArabic = {
+            'strike': 'ضربة سيف سريعة وموجهة نحو ثغرات العدو المادية.',
+            'heal': 'استرجاع فوري لحيويتك ونقاط حياتك بتوجيه طاقة العزيمة الشافية.',
+            'shield': 'استدعاء حائط ودرع بدني يمتص هجمات العدو ويقلل تأثيرها.',
+            'slash': 'قطع هجومي جبار مستمد من صهر السيف بلهب وشرارات النور.'
+        };
+
+        let skillsHtml = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-top:10px; direction: rtl;">
+        `;
+
+        state.player.skills.forEach(sId => {
+            let s = window.SKILLS.techniques[sId];
+            if (!s) {
+                // Core basic fallback skills definition
+                if (skillNamesArabic[sId]) {
+                    s = {
+                        id: sId,
+                        name: skillNamesArabic[sId],
+                        desc: skillDescsArabic[sId],
+                        mpCost: sId === 'strike' ? 0 : sId === 'heal' ? 15 : sId === 'shield' ? 10 : 20,
+                        reqLvl: 1,
+                        power: sId === 'strike' ? 1.0 : sId === 'slash' ? 1.8 : 0,
+                        heal: sId === 'heal' ? 0.35 : 0,
+                        passive: false,
+                        effect: sId === 'shield' ? { defBuff: 1.5, duration: 2 } : null
+                    };
+                }
+            }
+
+            if (s) {
+                const typeColor = s.passive ? '#00e5a0' : '#d4af37';
+                const typeLabel = s.passive ? 'كامنة (Passive)' : 'نشطة (Active)';
+                const icon = s.passive ? '✨' : s.heal ? '💚' : s.mpCost === 0 ? '🩸' : '🌀';
+                
+                let costBadge = '';
+                if (s.passive) {
+                    costBadge = `<span style="font-size:0.75rem; color:#00e5a0; background:rgba(0, 229, 160, 0.1); border:1px solid rgba(0, 229, 160, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">✨ كامنة</span>`;
+                } else if (s.hpCost > 0) {
+                    costBadge = `<span style="font-size:0.75rem; color:#ff4d4d; background:rgba(255, 77, 77, 0.1); border:1px solid rgba(255, 77, 77, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">🩸 ${Math.round(s.hpCost * 100)}% الجسد</span>`;
+                } else {
+                    costBadge = `<span style="font-size:0.75rem; color:#3498db; background:rgba(52, 152, 219, 0.1); border:1px solid rgba(52, 152, 219, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">⚡ ${s.mpCost || 0} تركيز</span>`;
+                }
+                
+                let reqBadgesHtml = `<span style="font-size:0.75rem; color:#e67e22; background:rgba(230, 126, 34, 0.1); border:1px solid rgba(230, 126, 34, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">⚖️ مستوى ${s.reqLvl || 1}</span>`;
+                if (s.reqCultivationStage) {
+                    reqBadgesHtml += `<span style="font-size:0.75rem; color:#9b59b6; background:rgba(155, 89, 182, 0.1); border:1px solid rgba(155, 89, 182, 0.2); padding:2px 6px; border-radius:4px; display:inline-block; margin-left:5px;">🧘 ${s.reqCultivationStage}</span>`;
+                }
+                if (s.reqItem) {
+                    const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+                    reqBadgesHtml += `<span style="font-size:0.75rem; color:#00ffbb; background:rgba(0, 255, 187, 0.1); border:1px solid rgba(0, 255, 187, 0.2); padding:2px 6px; border-radius:4px; display:inline-block;">📦 ${itemNames[s.reqItem] || s.reqItem}</span>`;
+                }
+                
+                let tooltipContent = '';
+                if (s.passive) {
+                    tooltipContent = `<b>نظام الفنون الكامنة:</b><br>هذه المهارة تزيد من إحصائيات بطلنا بشكل تلقائي مستمر دون الحاجة لاستهلاك التركيز في المعارك.<br><b>تأثير الدعم:</b> +${Math.round((s.bonus || 0) * 100)}% لـ ${translateStat(s.stat)}.`;
+                } else {
+                    let mechanics = [];
+                    if (s.power) mechanics.push(`• قوة الفن البدني الكلية: ${Math.round(s.power * 100)}% من ضرر الهجوم`);
+                    if (s.heal) mechanics.push(`• شفاء الجراح المباشر: ${Math.round(s.heal * 100)}% من أقصى صحتك`);
+                    if (s.dot) mechanics.push(`• ضرر نزيف/لهب مستمر: ${s.dot.dmg} نقطة لـ ${s.dot.duration} أدوار`);
+                    if (s.debuff) mechanics.push(`• خفض طاقة الخصم: ${s.debuff.atk ? `هجوم بنسبة ${Math.round(s.debuff.atk * -100)}%` : s.debuff.def ? `دفاع بنسبة ${Math.round(s.debuff.def * -100)}%` : ''} لـ ${s.debuff.duration} أدوار`);
+                    if (s.effect && s.effect.dodge) mechanics.push(`• تكتيك تفادي الهجمات: تفادي بنسبة ${Math.round(s.effect.dodge * 100)}% لـ ${s.effect.duration} أدوار`);
+                    if (s.effect && s.effect.defBuff) mechanics.push(`• تحصين درع الدفاع البدني: +${Math.round((s.effect.defBuff - 1) * 100)}% دفاع لـ ${s.effect.duration} أدوار`);
+                    if (s.stunChance) mechanics.push(`• فرصة إخلال وشل هالة العدو: ${Math.round(s.stunChance * 100)}%`);
+                    if (s.cooldown) mechanics.push(`• فترة الفتور والاسترداد (Cooldown): ${s.cooldown} دور/أدوار`);
+                    
+                    tooltipContent = `<b>ميكانيكا المعركة والتوجيه:</b><br>${mechanics.length > 0 ? mechanics.join('<br>') : 'تأثير قتالي خاص يتم توجيهه أثناء المواجهة.'}`;
+                }
+
+                skillsHtml += `
+                <div class="skill-card-enhanced" style="position:relative; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.08); border-right:4px solid ${typeColor}; padding:12px; border-radius:6px; transition:all 0.25s ease;" onmouseover="this.style.borderColor='${typeColor}'; this.style.transform='translateY(-1px)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.transform='none';">
+                    <!-- Tooltip trigger container -->
+                    <div class="skill-tooltip-trigger" style="position:absolute; top:8px; left:8px; cursor:help; color:var(--secondary); font-size:1.05rem;" title="عرض ميكانيكا الفن البدني">
+                        ℹ️
+                        <div class="skill-tooltip-content" style="direction:rtl; text-align:right;">
+                            <h4 style="margin:0 0 5px 0; color:${typeColor}; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:3px; font-size:0.85rem; font-family:'Cairo',sans-serif;">🔮 تفاصيل الفن البدني الباطنية</h4>
+                            <p style="margin:5px 0; font-size:0.75rem; color:#eee; line-height:1.4;">${tooltipContent}</p>
+                            <div style="font-size:0.7rem; color:var(--text-dim); margin-top:5px; border-top:1px solid rgba(255,220,100,0.1); padding-top:4px;">مستوى التوجيه المطلوب: ${s.reqLvl || 1}</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; text-align:right; flex-direction:row-reverse; justify-content:flex-end;">
+                        <span style="font-size:1.1rem;">${icon}</span>
+                        <b style="color:${typeColor}; font-size:0.92rem; font-family:'Cairo',sans-serif;">${s.name}</b>
+                    </div>
+                    
+                    <p style="font-size:0.8rem; color:var(--text-dim); margin:0 0 10px 0; line-height:1.4; padding-left:15px; text-align:right;">${s.desc}</p>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-direction:row-reverse; margin-top:8px;">
+                        <span style="font-size:0.7rem; color:var(--text-dim); font-style:italic;">النوع: ${typeLabel}</span>
+                        <div style="display:flex; gap:4px; flex-wrap: wrap; justify-content: flex-end;">
+                            ${costBadge}
+                            ${reqBadgesHtml}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+        });
+        
+        skillsHtml += `</div>`;
+        narrate(skillsHtml, 'النظام', null, false, true);
+    }
+
+    // --- Part 2: Premium Academy Library ---
+    let libHtml = `
+    <div style="margin-top:25px;border-top:2px solid rgba(212,175,55,0.15);padding-top:15px;">
+        <h3 style="color:var(--secondary);border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:5px;margin-bottom:15px;font-family:'El Messiri',serif;">📜 مكتبة الفنون والمهارات (أكاديمية اليقين والفروسية)</h3>
+        <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:15px;text-align:right;">في محراب الأكاديمية العريقة، يمكن لفرسان الأقدار تعلم أسرار الفنون والتقنيات العربية النورانية والقتالية المتقدمة مقابل الذهب والتجلي الباطني.</p>
+        <div style="display:grid;grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));gap:12px; direction:rtl;">
+    `;
+
+    const librarySkills = Object.values(window.SKILLS.techniques).filter(s => s.libraryOnly);
+    
+    librarySkills.forEach(s => {
+        const isLearned = state.player.skills && state.player.skills.includes(s.id);
+        const hasLvl = (state.player.lvl || 1) >= s.reqLvl;
+        
+        let hasCult = true;
+        if (s.reqCultivationStage && window.CULTIVATION && state.player.cultivation) {
+            const currentStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === state.player.cultivation.stage);
+            const reqStageIdx = window.CULTIVATION.stages.findIndex(st => st.name === s.reqCultivationStage);
+            if (currentStageIdx === -1 || currentStageIdx < reqStageIdx) {
+                hasCult = false;
+            }
+        }
+        
+        let hasItem = true;
+        if (s.reqItem) {
+            hasItem = state.player.inventory && state.player.inventory.some(item => item.id === s.reqItem);
+        }
+        
+        const meetOtherReqs = hasCult && hasItem;
+        const hasGold = (state.player.gold || 0) >= s.cost;
+        
+        let extraBadgeHtml = '';
+        if (s.reqCultivationStage) {
+            const color = hasCult ? '#9b59b6' : '#ff4d4d';
+            extraBadgeHtml += `<span style="font-size:0.7rem; color:${color}; background:rgba(155, 89, 182, 0.05); border:1px solid rgba(155, 89, 182, 0.15); padding:1px 5px; border-radius:3px; margin-right:4px;">🧘 ${s.reqCultivationStage}</span>`;
+        }
+        if (s.reqItem) {
+            const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+            const color = hasItem ? '#00ffbb' : '#ff4d4d';
+            extraBadgeHtml += `<span style="font-size:0.7rem; color:${color}; background:rgba(0, 255, 187, 0.05); border:1px solid rgba(0, 255, 187, 0.15); padding:1px 5px; border-radius:3px; margin-right:4px;">📦 ${itemNames[s.reqItem] || s.reqItem}</span>`;
+        }
+        
+        let actionBtn = '';
+        if (isLearned) {
+            actionBtn = `<span style="color:var(--jade);font-weight:bold;font-size:0.85rem;display:inline-block;margin-top:8px;">✨ تم الإتقان والتعلم</span>`;
+        } else if (!hasLvl) {
+            actionBtn = `<button disabled style="background:rgba(255,255,255,0.05);color:#7f8c8d;border:1px solid rgba(255,255,255,0.1);padding:6px 12px;border-radius:4px;font-size:0.8rem;cursor:not-allowed;font-family:'Cairo';font-weight:bold;margin-top:8px;">🔒 مغلق (يتطلب مستوى ${s.reqLvl})</button>`;
+        } else if (!meetOtherReqs) {
+            let reason = '🔒 مغلق (الشرط ناقص)';
+            if (!hasCult) reason = `🧘 مرتبة ${s.reqCultivationStage}`;
+            else if (!hasItem) {
+                const itemNames = { 'iron_ore': 'خام الحديد الدمشقي', 'spirit_herb': 'عشبة البركة الباطنية', 'foundation_pill': 'حبة شحن الأساس' };
+                reason = `📦 ${itemNames[s.reqItem] || s.reqItem}`;
+            }
+            actionBtn = `<button disabled style="background:rgba(255,255,255,0.03);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2);padding:6px 12px;border-radius:4px;font-size:0.75rem;cursor:not-allowed;font-family:'Cairo';font-style:italic;margin-top:8px;">🔒 يتطلب ${reason}</button>`;
+        } else {
+            const btnStyle = hasGold 
+                ? "background:rgba(212,175,55,0.15);color:var(--secondary);border:1px solid var(--secondary);cursor:pointer;font-family:'Cairo';font-weight:bold;padding:6px 12px;border-radius:4px;font-size:0.8rem;transition:all 0.2s;"
+                : "background:rgba(255,0,0,0.05);color:#e74c3c;border:1px solid rgba(255,0,0,0.2);cursor:not-allowed;font-family:'Cairo';font-weight:bold;padding:6px 12px;border-radius:4px;font-size:0.8rem;margin-top:8px;";
+            const btnOnClick = hasGold ? `window.buyLibrarySkill('${s.id}')` : '';
+            actionBtn = `<button onclick="${btnOnClick}" style="${btnStyle}">تعلم الفن القتالي 🪙 ${s.cost} دينار</button>`;
+        }
+
+        const typeColor = s.passive ? '#00e5a0' : 'var(--secondary)';
+        const typeLabel = s.passive ? 'كامنة (Passive)' : 'نشطة (Active)';
+        const icon = s.passive ? '✨' : s.heal ? '💚' : s.id === 'samum_strike' ? '🔥' : '🌀';
+
+        // Construct tooltip content for academy skill
+        let tooltipContent = '';
+        if (s.passive) {
+            tooltipContent = `<b>الفنون الأكاديمية الكامنة:</b><br>تمنح البطل مكافأة باطنية تلقائية جبارة لا تستهلك تركيزاً.<br><b>تأثير الدعم:</b> +${Math.round((s.bonus || 0) * 100)}% لـ ${translateStat(s.stat)}.`;
+        } else {
+            let mechanics = [];
+            if (s.power) mechanics.push(`• القوة التدميرية: ${Math.round(s.power * 100)}% من الهجوم الجسدي`);
+            if (s.heal) mechanics.push(`• الشفاء الكلي: يسترجع ${Math.round(s.heal * 100)}% من نقاط صحتكم`);
+            if (s.dot) mechanics.push(`• عاصفة ريح السموم: ضرر ناري مستمر بمقدار ${s.dot.dmg} لدورين متتاليين`);
+            if (s.stunChance) mechanics.push(`• شل حركة الأعداء: فرصة نجاح شل الحركة ${Math.round(s.stunChance * 100)}%`);
+            if (s.effect && s.effect.invulnerable) mechanics.push(`• حصانة غيبية مطلقة: حماية كاملة من الضرر لدورين!`);
+            tooltipContent = `<b>طاقة الأكاديمية والسر المكنون:</b><br>${mechanics.length > 0 ? mechanics.join('<br>') : 'فن قتال حصري من مكاتب واحة التقاطع الراقية.'}`;
+        }
+
+        let costBadge = s.passive 
+            ? `<span style="font-size:0.72rem; color:#00e5a0; background:rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.2); padding:1px 5px; border-radius:3px;">كامنة</span>`
+            : `<span style="font-size:0.72rem; color:#3498db; background:rgba(52,152,219,0.1); border:1px solid rgba(52,152,219,0.2); padding:1px 5px; border-radius:3px;">⚡ ${s.mpCost || 0} MP</span>`;
+
+        libHtml += `
+            <div class="skill-card-enhanced" style="background:rgba(0,0,0,0.3); border:1px solid rgba(212,175,55,0.12); padding:12px; border-radius:6px; border-right:4px solid var(--secondary); position:relative; overflow:visible;">
+                <!-- Tooltip trigger -->
+                <div class="skill-tooltip-trigger" style="position:absolute; top:8px; left:8px; cursor:help; color:var(--secondary); font-size:1.05rem;" title="عرض تفاصيل الفن الحصري">
+                    ℹ️
+                    <div class="skill-tooltip-content" style="direction:rtl; text-align:right; border-color:var(--secondary);">
+                        <h4 style="margin:0 0 5px 0; color:var(--secondary); border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:3px; font-size:0.85rem; font-family:'Cairo',sans-serif;">📜 أسرار وقنوات الفرسان الحصرية</h4>
+                        <p style="margin:5px 0; font-size:0.75rem; color:#eee; line-height:1.4;">${tooltipContent}</p>
+                        <div style="font-size:0.7rem; color:var(--text-dim); margin-top:5px; border-top:1px solid rgba(212,175,55,0.1); padding-top:4px;">المستوى الأكاديمي المطلوب: ${s.reqLvl || 1}</div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-direction:row-reverse; margin-bottom:5px; padding-left:15px; text-align:right;">
+                    <b style="color:var(--secondary); font-size:0.95rem; font-family:'Cairo',sans-serif;">${s.name}</b>
+                    <div style="display:flex; gap:4px; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
+                        ${costBadge}
+                        <span style="font-size:0.75rem; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:3px; color:var(--text-dim); margin-left: 2px;">مطلب لفل ${s.reqLvl}</span>
+                        ${extraBadgeHtml}
+                    </div>
+                </div>
+                <p style="font-size:0.82rem; color:var(--text-dim); margin:5px 0 10px 0; line-height:1.4; padding-left:15px; text-align:right;">${s.desc}</p>
+                <div style="text-align:left; display:flex; justify-content:space-between; align-items:center; flex-direction:row-reverse; margin-top:10px;">
+                    <span style="font-size:0.75rem; color:var(--text-dim);">النوع: ${typeLabel}</span>
+                    ${actionBtn}
+                </div>
+            </div>
+        `;
+    });
+
+    libHtml += `</div></div>`;
+    narrate(libHtml, 'النظام', null, false, true);
+
+    setChoices([{ text: '↩ عودة إلى واحة التقاطع', callback: hubLoop }]);
+}
+
+function showQuestLog() {
+    clearNarrative();
+    narrate("<b>📜 لوحة المهام والطلبات بملتقى القوافل</b><br>ملتقى دروب الطلبات ومهمات الأقدار البدنية والعثور على الأبطال", "النظام", null, false, true);
+    
+    // Ensure lists exist
+    if (!state.activeQuests) state.activeQuests = [];
+    if (!state.completedQuests) state.completedQuests = [];
+
+    // --- Active Quests ---
+    let html = `<div style="text-align:left; margin-bottom:20px;">
+        <h3 style="color:var(--secondary); font-family:'Cinzel'; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">⚔️ العهود والمهام الجارية حالياً</h3>`;
+    
+    const activeList = state.activeQuests.map(qId => window.QUESTS.database[qId]).filter(Boolean);
+    
+    const questTitlesArabic = {
+        'main_01': 'مسار همة الصحراء المجهول',
+        'main_02': 'طرد وحش عاصفة الرمال الكاسر',
+        'main_03': 'فك أختام السلف الهابط بالأطلال'
+    };
+    const questDescsArabic = {
+        'main_01': 'تحدث مع أبطال وجدعان واحة التقاطع لتأمين القوافل والبدء في استكشاف براري درب الحرير الأثري.',
+        'main_02': 'دمر وحش عاصفة الرمال الذي سد درب قوافل الواحة وروع التجار وعابري الأقدار.',
+        'main_03': 'ابحث عن مفاتيح وأختام ضريح السلف لتوقظ فرسانك وقافلتك وتتصل مع الإرث الأبدي المفقود.'
+    };
+    const questObjectivesArabic = {
+        'main_01': 'استكشف واحة التقاطع بنجاح وواجه أول خصومك.',
+        'main_02': 'اهزم وحش عاصفة الرمال في مواجهة قتالية ضارية.',
+        'main_03': 'افتح دهاليز الضريح الأثري واقض على حراس النقوش.'
+    };
+
+    if (activeList.length === 0) {
+        html += `<p style="color:var(--text-dim); font-style:italic; padding-left:10px;">صحيفة عهودك النشطة فارغة حالياً. مفيش التزامات جارية.</p>`;
+    } else {
+        activeList.forEach(q => {
+            html += `
+                <div style="background:rgba(212, 175, 55, 0.05); padding:10px; border-left:4px solid var(--secondary); margin-bottom:10px; border-radius: 0 4px 4px 0;">
+                    <b style="color:var(--secondary)">${questTitlesArabic[q.id] || q.title}</b> <span style="font-size:0.75rem; text-transform:uppercase; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:3px; margin-left:5px;">${q.type === 'main' ? 'أساسي' : 'فرعي'}</span><br>
+                    <span style="font-size:0.9rem; color:var(--text-dim);">${questDescsArabic[q.id] || q.desc}</span><br>
+                    <span style="font-size:0.85rem; color:var(--jade); margin-top:5px; display:inline-block;"><b>المطلوب:</b> ${questObjectivesArabic[q.id] || q.objective}</span>
+                </div>
+            `;
+        });
+    }
+    
+    // --- Available Quests ---
+    html += `<h3 style="color:var(--jade); font-family:'Cinzel'; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px; margin-top:25px;">📜 العهود والمهام المتاحة باللوحة</h3>`;
+    
+    const availableList = Object.values(window.QUESTS.database).filter(q => 
+        !state.activeQuests.includes(q.id) && !state.completedQuests.includes(q.id)
+    );
+    
+    if (availableList.length === 0) {
+        html += `<p style="color:var(--text-dim); font-style:italic; padding-left:10px;">لوحة المهام فارغة تماماً دلوقتي. ارجع بعد ما ترتقي خلوتك الجاية.</p>`;
+    } else {
+        availableList.forEach(q => {
+            html += `
+                <div style="background:rgba(255,255,255,0.02); padding:10px; border-left:4px solid var(--text-dim); margin-bottom:10px; border-radius: 0 4px 4px 0;">
+                    <b>${questTitlesArabic[q.id] || q.title}</b> <span style="font-size:0.75rem; text-transform:uppercase; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:3px; margin-left:5px; color:var(--text-dim);">${q.type === 'main' ? 'أساسي' : 'فرعي'}</span><br>
+                    <span style="font-size:0.9rem; color:var(--text-dim);">${questDescsArabic[q.id] || q.desc}</span><br>
+                    <span style="font-size:0.8rem; color:var(--secondary-glow); display:inline-block; margin-top:5px;"><b>المكافآت الموعودة:</b> ${q.reward.gold ? `${q.reward.gold} دينار ذهبي ` : ''}${q.reward.xp ? `| ${q.reward.xp} خبرة بدنية ` : ''}</span>
+                </div>
+            `;
+        });
+    }
+    
+    html += `</div>`;
+    narrate(html, "النظام", null, false, true);
+
+    const choices = [];
+    
+    // Add choice buttons for each available quest to let the player accept it
+    availableList.forEach(q => {
+        choices.push({
+            text: `📜 قبول عهد: ${questTitlesArabic[q.id] || q.title}`,
+            callback: () => {
+                const accepted = window.QUESTS.acceptQuest(state, q.id);
+                if (accepted) {
+                    narrate(`لقد ارتبطت بعهد ومهمة بقلبك وعزيمتك: <b>${questTitlesArabic[q.id] || q.title}</b>. ليكن التوفيق حليفك في درب التدريب والتركيز.`, "النظام");
+                    setTimeout(showQuestLog, 1500);
+                } else {
+                    showQuestLog();
+                }
+            }
+        });
+    });
+
+    choices.push({ text: "↩ عودة", callback: hubLoop });
+    setChoices(choices);
+}
+
+
+function showMarket() {
+    clearNarrative();
+    narrate("<b>سوق واحة التقاطع العظيم</b> - اشترِ الجرعات الشافية والمؤن الفاخرة لرحلتك، أو بع الغنائم الزائدة.", "النظام", null, false, true);
+    
+    const stock = window.SHOP.stocks.crossroads_market;
+    
+    const stockNamesArabic = {
+        'small_potion': 'جرعة الشفاء العشبية الصغرى (+30 صحة)',
+        'qi_elixir': 'عقار العزيمة وتكثيف التركيز والهمة (+20 عزيمة)',
+        'ancient_blueprint': 'مخطوطة الصهر والحدادة لسيف مصفى أسطوري'
+    };
+
+    const choices = stock.map(item => ({
+        text: `شراء: ${stockNamesArabic[item.id] || item.name} (${item.price} دينار ذهبي)`,
+        callback: () => {
+            const res = window.SHOP.buy(state, 'crossroads_market', item.id);
+            
+            let msgArabic = res.message;
+            if (res.message.includes("Successfully purchased")) {
+                msgArabic = `🎉 <b>تم الشراء بنجاح!</b> وضعت <b>${stockNamesArabic[item.id] || item.name}</b> في صرة حقيبتك، ودفعت الثمن من أحجارك البدنية.`;
+            } else if (res.message.includes("gold") || res.message.includes("stones")) {
+                msgArabic = `معندكش دنانير ذهبية كافية في صرتك لدفع تمن السلعة دي.`;
+            }
+
+            narrate(msgArabic, "النظام");
+            if (res.success) {
+                updateTopBar();
+                saveGame();
+            }
+            setTimeout(showMarket, 1200);
+        }
+    }));
+
+    choices.push({ text: "💰 بيع الممتلكات من الحقيبة", callback: () => {
+        state.isSelling = true;
+        showInventory();
+    }});
+    choices.push({ text: "↩ عودة", callback: () => { state.isSelling = false; hubLoop(); }});
+    setChoices(choices);
+}
+
+function showSkillTree() {
+    showSkillsScreen();
+}
+
+function showRebirthScreen() {
+    clearNarrative();
+    narrate("<b>📜 ديوان كتابة وصية العهد وتوريث السلالة</b>", "النظام", null, false, true);
+    narrate("هنا تصاغ العهود، ويكتب الفرسان الأجداد وصاياهم ليمر الميراث والدمشقي الحاد وسر الصحراء المباركة إلى الجيل التالي من الأبناء ليكملوا المسار الأسطوري.", "النظام", null, false, true);
+    
+    if (state.player.lvl < 10) {
+        narrate("<span style='color:var(--danger)'><b>الحد الأدنى لعهد التوريث:</b> يجب أن تصل بحد قتالك وجدعنتك للمستوى 10 على الأقل لتتمكن من صياغة الميراث العائلي ونقل العهد لأبنائك الناضجين.</span>", "النظام", null, false, true);
+        setChoices([{ text: "↩ عودة لواحة التقاطع", callback: hubLoop }]);
+        return;
+    }
+
+    const family = state.player.family || [];
+    const children = family.filter(f => f.relation === 'Child' && f.alive);
+    const matureChildren = children.filter(c => c.age >= 18);
+    const youngChildren = children.filter(c => c.age < 18);
+
+    let html = `<div style="background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid var(--secondary); margin-bottom:15px; text-align:left;">`;
+    
+    if (matureChildren.length > 0) {
+        html += `<h4 style="color:var(--secondary); margin-top:0;">👑 أبناء سلالتك الناضجون الجاهزون لوراثة العهد (سن 18+):</h4>`;
+        matureChildren.forEach(c => {
+            const trainingDesc = c.education !== 'None' ? `درجة تدريب: ${c.lvl} (${c.education === 'combat' ? 'نصال القتال' : c.education === 'defense' ? 'دروع الصلابة' : 'خيمياء الشفاء'})` : 'لم يتلق تدريب خاص';
+            html += `<div style="padding:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:6px; margin-bottom:10px;">
+                <b>الابن: ${c.name}</b> (سن ${c.age} سنة)<br>
+                🧬 <b>الميزة الموروثة:</b> <span style="color:var(--jade)">${c.trait.name}</span> (${c.trait.desc})<br>
+                🎓 <b>التربية البدنية:</b> ${trainingDesc}
+            </div>`;
+        });
+    } else {
+        html += `<p style="color:var(--danger); font-weight:bold;">⚠️ ليس لديك أبناء بلغوا سن الرشد والجدعنة (18 سنة) بعد في السلالة الحالية ليرثوا عهدك.</p>`;
+    }
+
+    if (youngChildren.length > 0) {
+        html += `<h4 style="color:var(--secondary); margin-top:15px;">👶 الأطفال واليافعون تحت التنشئة (أصغر من 18 سنة):</h4>`;
+        youngChildren.forEach(c => {
+            const trainingDesc = c.education !== 'None' ? `مستوى ${c.lvl} (${c.education === 'combat' ? 'نصال القتال' : c.education === 'defense' ? 'دروع الصلابة' : 'خيمياء الشفاء'})` : 'بلا تدريب محدد';
+            html += `<div style="padding:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:6px; margin-bottom:8px; font-size:0.85rem;">
+                <b>الابن الأصغر: ${c.name}</b> (سن ${c.age} سنة)<br>
+                🧬 الصفة المكنونة: <span style="color:var(--secondary)">${c.trait.name}</span><br>
+                🎓 مستوى التنشئة: ${trainingDesc} ${c.age >= 13 ? `<span style="color:var(--jade)">[جاهز للتدريب بـ 500 ذهب]</span>` : '<span style="color:var(--text-dim)">[صغير جداً على معسكر الجند]</span>'}
+            </div>`;
+        });
+    }
+
+    if (children.length === 0) {
+        html += `<p style="color:var(--text-dim);">لا توجد أي ذرية أو أطفال في سلالتك حالياً. اذهب أولاً <b>للبحث عن شريكة حياة بالزواج الشرعي</b> من ديوان العائلة بالواحة، وتأمل في الخلوة لمرور السنين لينجب الزوجان الأبطال!</p>`;
+    }
+
+    html += `</div>`;
+    narrate(html, "النظام", null, false, true);
+
+    const choices = [];
+
+    // succession choices
+    matureChildren.forEach(c => {
+        choices.push({
+            text: `📜 تنصيب ووراثة العهد لـ ${c.name}`,
+            callback: () => {
+                const res = window.REBIRTH.performInheritance(state, c.id);
+                if (res.success || res.message === "succeeded") {
+                    narrate(`<div style="text-align:center; padding:20px; background:rgba(212,175,55,0.05); border:2px solid var(--secondary); border-radius:12px;">
+                        <span style="font-size:2rem;">👑</span><br>
+                        <h3 style="color:var(--secondary); margin:10px 0;">أقسمت يمين العهد الجديد!</h3>
+                        لقد سلمت عهدك ونفسك المجهدة والمسار وجد النصال العريق لولدك البطل <b>${c.name}</b>.<br>
+                        تقاعد الجد الأكبر ليراقب السلالة من محراب معبد الأسلاف الأثري مانحاً إياك البركة الأبدية!<br><br>
+                        <b style="color:var(--jade)">مرحباً بك كقائد سلالة جديد، ابدأ مسيرتك البدنية من الرتبة 1 بصفات أجداد جبارة!</b>
+                    </div>`, "النظام", null, false, true);
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(hubLoop, 4500);
+                } else {
+                    narrate(`خطأ أثناء التوريث: ${res.message}`, "النظام");
+                }
+            }
+        });
+    });
+
+    // training choices for teenagers (13 to 17)
+    youngChildren.filter(c => c.age >= 13).forEach(c => {
+        choices.push({
+            text: `🎓 إرسال ${c.name} لمعسكر التدريب (500 دينار)`,
+            callback: () => {
+                clearNarrative();
+                narrate(`<b>تنشئة الابن اليافع ${c.name}</b>`, "النظام", null, false, true);
+                narrate(`اختر التخصص والمسار الذي ترغب في صهر وصب تركيز همته البدنية فيه ليتحضر لوراثة العهد مستقبلاً:`, "النظام", null, false, true);
+                
+                const pathChoices = [
+                    {
+                        text: "⚔️ تدريب النصال والقوة البدنية (+3 هجوم موروث)",
+                        callback: () => {
+                            const res = window.REBIRTH.trainChild(state, c.id, 'combat');
+                            narrate(res.message, "النظام");
+                            saveGame();
+                            setTimeout(showRebirthScreen, 2200);
+                        }
+                    },
+                    {
+                        text: "🛡️ تدريب الدروع والصلابة (+2 دفاع موروث)",
+                        callback: () => {
+                            const res = window.REBIRTH.trainChild(state, c.id, 'defense');
+                            narrate(res.message, "النظام");
+                            saveGame();
+                            setTimeout(showRebirthScreen, 2200);
+                        }
+                    },
+                    {
+                        text: "⚗️ دراسة الخيمياء والأوراد (+1 إكسير طاقة موروث)",
+                        callback: () => {
+                            const res = window.REBIRTH.trainChild(state, c.id, 'alchemy');
+                            narrate(res.message, "النظام");
+                            saveGame();
+                            setTimeout(showRebirthScreen, 2200);
+                        }
+                    },
+                    { text: "↩ رجوع لوصية العهد", callback: showRebirthScreen }
+                ];
+                setChoices(pathChoices);
+            }
+        });
+    });
+
+    if (matureChildren.length === 0) {
+        choices.push({
+            text: "🔮 التبرك السريع بإرث عشوائي فوري (وصية العهد التقليدية)",
+            callback: () => {
+                clearNarrative();
+                narrate("<b>وصية العهد العائلية التقليدية</b>", "النظام", null, false, true);
+                narrate("إذا كنت ترغب بالانتقال الفوري دون سليل مباشر، يمكنك التبرك بصفات الأجداد العشوائية لتبدأ مسيرتك مجدداً كقائد بديل:", "النظام", null, false, true);
+                
+                const traitNamesArabic = {
+                    'strength_legacy': 'إرث السيف والصلابة الفولاذية (+15 هجوم دائم)',
+                    'vitality_legacy': 'إرث زهرة اللوتس وحيوية الخلود (+80 صحة دائم)',
+                    'spirit_legacy': 'إرث الحكماء وسعة التركيز والهمة والأسرار (+40 مانا دائم)'
+                };
+
+                const legacyChoices = Object.values(window.REBIRTH.traits).map(t => ({
+                    text: `اختر بركة: ${traitNamesArabic[t.id] || t.name}`,
+                    callback: () => {
+                        const success = window.REBIRTH.perform(state, t.id);
+                        if (success) {
+                            narrate("تطفو تركيزك وهمتك الطاهرة في فراغ الملوك والأبطال العظام... لتستيقظ بجسد وبنيان جديد فائق القوة!", "النظام");
+                            calculateTotalStats();
+                            updateTopBar();
+                            saveGame();
+                            setTimeout(hubLoop, 2500);
+                        }
+                    }
+                }));
+                setChoices([...legacyChoices, { text: "↩ رجوع لوصية العهد", callback: showRebirthScreen }]);
+            }
+        });
+    }
+
+    setChoices([...choices, { text: "↩ عودة لواحة التقاطع", callback: hubLoop }]);
+}
+
+function showPropertiesScreen() {
+    clearNarrative();
+    const p = state.player;
+    if (calculateTotalStats) calculateTotalStats();
+    
+    let alignmentTitle = "سالك عابر (متوازن)";
+    let alignmentColor = "var(--text-dim)";
+    if (p.karma >= 100) { alignmentTitle = "ولّي طاهر (سماوي)"; alignmentColor = "var(--secondary)"; }
+    else if (p.karma >= 50) { alignmentTitle = "فارس صالح (خَيِّر)"; alignmentColor = "var(--success)"; }
+    else if (p.karma <= -100) { alignmentTitle = "طاغية مظلم (شيطاني)"; alignmentColor = "var(--danger)"; }
+    else if (p.karma <= -50) { alignmentTitle = "سائر في مسار الظل الوعر"; alignmentColor = "#a06cf8"; }
+
+    const classNamesArabic = {
+        'Sword Immortal': 'السياف الأسطوري',
+        'Medicine Cultivator': 'الطبيب المعالج',
+        'Sufi Mystic': 'الفارس المهيب',
+        'Desert Knight': 'فارس الصحراء',
+        'Steelmaster': 'خبير الفولاذ الدمشقي',
+        'Horseman': 'فارس الخيل المغوار',
+        'Astrologer': 'خبير الفلك والأوراد',
+        'Lancer': 'رماح البادية الأبي'
+    };
+
+    const xpPct = Math.min(100, Math.floor(((p.xp || 0) / (p.maxXp || 100)) * 100));
+    const hpPct = Math.min(100, Math.floor(((p.hp || 0) / (p.maxHp || 100)) * 100));
+    const mpPct = Math.min(100, Math.floor(((p.mp || 0) / (p.maxMp || 100)) * 100));
+
+    // Calculate total gear stats and set bonuses dynamically
+    let gearAtk = 0, gearDef = 0, gearHp = 0, gearMp = 0;
+    const qualityMults = { normal: 1.0, refined: 1.35, unique: 1.75, elite: 2.30, super: 3.20 };
+    Object.values(p.equipment ?? {}).forEach(item => {
+        if (!item) return;
+        const s = item.stats ?? {};
+        const q = item.quality || 'normal';
+        const qMult = qualityMults[q] || 1.0;
+        const itemLvl = item.lvl || 15;
+        const lvlMult = 1.0 + (itemLvl - 15) * 0.015;
+
+        let itemAtk = Math.floor((s.atk ?? 0) * qMult * lvlMult);
+        let itemDef = Math.floor((s.def ?? 0) * qMult * lvlMult);
+        let itemHp = Math.floor((s.hp ?? 0) * qMult * lvlMult);
+        let itemMp = Math.floor((s.mp ?? 0) * qMult * lvlMult);
+
+        const ref = item.refine || 0;
+        if (ref > 0) {
+            if (item.slot === 'weapon') itemAtk += (ref * 35);
+            else if (item.slot === 'body' || item.slot === 'legs') itemDef += (ref * 20);
+            else itemHp += (ref * 60);
+        }
+        gearAtk += itemAtk;
+        gearDef += itemDef;
+        gearHp += itemHp;
+        gearMp += itemMp;
+    });
+
+    const setCounts = { xianxia: 0, vedic: 0, silk_road: 0, mythology: 0 };
+    Object.values(p.equipment ?? {}).forEach(item => {
+        if (item && item.set && setCounts[item.set] !== undefined) {
+            setCounts[item.set]++;
+        }
+    });
+
+    const setTitles = {
+        xianxia: 'طيف الملوك الخالدين (Xianxia)',
+        vedic: 'الأوراد الفيدية الأزلية (Vedic)',
+        silk_road: 'واحة حرير درب الحرير (Silk Road)',
+        mythology: 'السيادة الأسطورية السلطانية (Mythology)'
+    };
+
+    let setBonusesHtml = '';
+    Object.keys(setCounts).forEach(set => {
+        const cnt = setCounts[set];
+        if (cnt >= 2) {
+            const bonusDesc = cnt >= 3 
+                ? (set === 'xianxia' ? 'بركة طيف الخلود (+40% هجوم، +30% دفاع، وشفاء ذاتي مستمر)' 
+                   : set === 'vedic' ? 'العزيمة الكافرة المطلقة (+35% هجوم، +35% صحة، وحقنة تجدد مستمرة)'
+                   : set === 'silk_road' ? 'نعمة التاجر الأكبر (+40% صحة، +40% مانا، وحفظ العزيمة)'
+                   : 'السيادة المطلقة المشرقة (+50% هجوم، +40% دفاع، وامتصاص حياة الأعداء بمقدار 15%)')
+                : (set === 'xianxia' ? 'المستوى 1 (+15% هجوم، +10% دفاع)' 
+                   : set === 'vedic' ? 'المستوى 1 (+15% هجوم، +15% صحة)'
+                   : set === 'silk_road' ? 'المستوى 1 (+15% صحة، +15% مانا)'
+                   : 'المستوى 1 (+20% هجوم، +15% دفاع)');
+            setBonusesHtml += `
+                <div style="border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; margin-bottom:5px; text-align:right;">
+                    <span style="color:#f1c40f; font-weight:bold; font-size:0.75rem;">🌟 طقم ${setTitles[set]} (${cnt}/3):</span><br>
+                    <small style="color:var(--success); font-size:0.7rem; line-height:1.3;">حالة: ${bonusDesc}</small>
+                </div>
+            `;
+        }
+    });
+    if (!setBonusesHtml) {
+        setBonusesHtml = '<span style="color:var(--text-dim); font-size:0.75rem; line-height:1.3; text-align:right; display:block;">لم يتم تفعيل أي مكافأة طقم عتاد حالياً. جهز قطعتين أو أكثر لتفعيل الدعم الباطني.</span>';
+    }
+
+    const gearTooltipHtml = `
+        <div class="gear-tooltip-anchor" style="position:relative; display:inline-block; cursor:help;">
+            <span style="font-size:0.7rem; background:rgba(0,168,107,0.15); border:1px solid rgba(0,168,107,0.30); color:var(--jade); padding:3px 8px; border-radius:12px; font-weight:bold; display:flex; align-items:center; gap:4px; flex-direction:row-reverse; transition:all 0.2s;">
+                📊 مكافآت الأطقم والدعم
+            </span>
+            <div class="gear-tooltip-box" style="position:absolute; left:0; top:28px; width:280px; background:#0e131f; border:2px solid var(--jade); padding:12px; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,0.85); z-index:999; text-align:right; transition:all 0.2s;">
+                <h4 style="margin:0 0 6px 0; color:var(--jade); font-size:0.85rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; font-family:\'El Messiri\', serif; font-weight:bold;">📊 خصائص العتاد المجهّز المضافة</h4>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:8px; font-size:0.75rem; text-align:right;">
+                    <div style="color:var(--text-dim);">الهجوم: <b style="color:#fff;">+${gearAtk}</b></div>
+                    <div style="color:var(--text-dim);">الدفاع: <b style="color:#fff;">+${gearDef}</b></div>
+                    <div style="color:var(--text-dim);">الصحة: <b style="color:#fff;">+${gearHp}</b></div>
+                    <div style="color:var(--text-dim);">التركيز: <b style="color:#fff;">+${gearMp}</b></div>
+                </div>
+                <h4 style="margin:8px 0 6px 0; color:#f1c40f; font-size:0.8rem; font-family:\'El Messiri\', serif; font-weight:bold;">✨ أطقم الدعم الباطني المفعّلة</h4>
+                <div style="line-height:1.4;">
+                    ${setBonusesHtml}
+                </div>
+            </div>
+        </div>
+    `;
+
+    let gearHtml = '';
+    const slots = ['weapon', 'head', 'body', 'legs', 'boots', 'relic'];
+    const slotNames = {
+        weapon: '🗡️ السلاح',
+        head: '🕌 خوذة/عمامة',
+        body: '🛡️ الدرع/الجلباب',
+        legs: '👖 السروال/الرداء',
+        boots: '🥾 الخف/الحذاء',
+        relic: '✨ قلادة/تميمة'
+    };
+
+    slots.forEach(s => {
+        const item = p.equipment[s];
+        if (item) {
+            const qClass = `loot-${item.quality.toLowerCase()}`;
+            let statDetails = [];
+            if (item.stats) {
+                if (item.stats.atk) statDetails.push(`+${item.stats.atk} هجوم`);
+                if (item.stats.def) statDetails.push(`+${item.stats.def} دفاع`);
+                if (item.stats.hp) statDetails.push(`+${item.stats.hp} صحة`);
+                if (item.stats.mp) statDetails.push(`+${item.stats.mp} مانا`);
+            }
+            gearHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding:8px 10px; border-radius:6px; margin-bottom:6px; flex-direction:row-reverse;">
+                    <span style="font-size:0.75rem; color:var(--text-dim); min-width:85px; text-align:left;">${slotNames[s]}</span>
+                    <div style="text-align:right;">
+                        <span class="${qClass}" style="font-weight:bold; font-size:0.85rem;">${item.name}</span>
+                        ${statDetails.length ? `<br><small style="color:var(--success); font-size:0.7rem;">${statDetails.join(', ')}</small>` : ''}
+                    </div>
+                </div>
+            `;
+        } else {
+            gearHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); padding:8px 10px; border-radius:6px; margin-bottom:6px; flex-direction:row-reverse; opacity:0.4;">
+                    <span style="font-size:0.75rem; color:var(--text-dim); min-width:85px; text-align:left;">${slotNames[s]}</span>
+                    <span style="font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:right;">خالٍ</span>
+                </div>
+            `;
+        }
+    });
+
+    let html = `
+        <div class="profile-card" style="width:100%; text-align:right; font-family:'Cairo', 'Inter', sans-serif; background: rgba(10,15,25,0.75); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(8px);">
+            
+            <!-- Character Header Block -->
+            <div style="display:flex; align-items:center; gap:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px; margin-bottom:20px; flex-direction:row-reverse;">
+                <div style="width:60px; height:60px; border-radius:50%; overflow:hidden; border:2px solid var(--secondary); background:rgba(0,0,0,0.4); flex-shrink:0;">
+                    <img src="${p.sprite || 'assets/sword_immortal_1778872325571.png'}" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div style="flex-grow:1; text-align:right;">
+                    <h2 style="margin:0; color:var(--secondary); font-family:'El Messiri', serif; font-size:1.6rem; display:flex; align-items:center; gap:8px; justify-content:flex-start; flex-direction:row-reverse;">
+                        <span>${p.name}</span>
+                        <span style="font-size:0.75rem; background:linear-gradient(135deg, var(--secondary), #f5a623); color:#000; padding:2px 8px; border-radius:12px; font-weight:bold;">رتبة الفتوة</span>
+                    </h2>
+                    <div style="font-size:0.85rem; color:var(--text-dim); margin-top:4px;">
+                        <span>المستوى ${p.lvl}</span> | <span style="color:${alignmentColor}; font-weight:bold;">${alignmentTitle}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Progress Bar -->
+            <div style="margin-bottom:25px; background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-bottom:5px; flex-direction:row-reverse;">
+                    <span><b>مسار الخبرة والارتقاء</b></span>
+                    <span>${p.xp} / ${p.maxXp} XP (${xpPct}%)</span>
+                </div>
+                <div style="width:100%; height:8px; background:rgba(0,0,0,0.4); border-radius:4px; overflow:hidden; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="width:${xpPct}%; height:100%; background:linear-gradient(90deg, #f5a623, var(--secondary)); box-shadow: 0 0 8px var(--secondary);"></div>
+                </div>
+            </div>
+
+            <!-- Main Grid Panel -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+                
+                <!-- Base Stats Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid var(--secondary); border-left:none;">
+                    <h3 style="margin-top:0; color:var(--secondary); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">⚔️ الجوهر والقدرات البدنية</h3>
+                    
+                    <div style="margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:3px; flex-direction:row-reverse;">
+                            <span>صلابة وحياة الجسد</span>
+                            <span><b>${p.hp} / ${p.maxHp}</b></span>
+                        </div>
+                        <div style="width:100%; height:6px; background:rgba(0,0,0,0.3); border-radius:3px; overflow:hidden;">
+                            <div style="width:${hpPct}%; height:100%; background:#e74c3c;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:15px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:3px; flex-direction:row-reverse;">
+                            <span>طاقة التركيز والهمة</span>
+                            <span><b>${p.mp} / ${p.maxMp}</b></span>
+                        </div>
+                        <div style="width:100%; height:6px; background:rgba(0,0,0,0.3); border-radius:3px; overflow:hidden;">
+                            <div style="width:${mpPct}%; height:100%; background:#3498db;"></div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الهجوم الأساسي حاد:</span>
+                        <b style="color:#fff;">${p.atk}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الدفاع الكلي محصن:</span>
+                        <b style="color:#fff;">${p.def}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">نسبة الضربات الحرجة:</span>
+                        <b style="color:#f1c40f;">${(p.critRate * 100).toFixed(0)}%</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">نسبة تفادي الضربات:</span>
+                        <b style="color:#2ecc71;">${(p.dodgeRate * 100).toFixed(0)}%</b>
+                    </div>
+                </div>
+
+                <!-- Equipped Gear Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid var(--jade); border-left:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; margin-bottom:10px; flex-direction:row-reverse;">
+                        <span style="color:var(--jade); font-size:1.1rem; font-family:'El Messiri', serif; font-weight:bold;">🛡️ العتاد والتمائم المجهزة</span>
+                        ${gearTooltipHtml}
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:4px; margin-top:10px;">
+                        ${gearHtml}
+                    </div>
+                </div>
+
+                <!-- Background & Heritage Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid #e67e22; border-left:none;">
+                    <h3 style="margin-top:0; color:#e67e22; font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">🧬 الأصول والموهبة البدنية</h3>
+                    
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">النشأة والنسب:</span>
+                        <b>${(() => {
+                            const bgTranslation = {
+                                'Merchant Scion': 'سليل تجار القوافل',
+                                'Rogue Cultivator': 'سالك براري حر',
+                                'Sect Disciple': 'فارس طائفة مستقل',
+                                'Farmer Scion': 'ابن الفلاح الطيب',
+                                'Beggar Scion': 'ابن الشوارع الفقير',
+                                'ابن التاجر الغني': 'ابن التاجر الغني',
+                                'ابن الشوارع الفقير': 'ابن الشوارع الفقير',
+                                'ابن الباشا والأمير': 'ابن الباشا والأمير',
+                                'ابن الفلاح الطيب': 'ابن الفلاح الطيب'
+                            };
+                            return bgTranslation[p.background?.name] || p.background?.name || 'مجهول النسب';
+                        })()}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الموهبة القتالية الكامنة:</span>
+                        <b>${(() => {
+                            const sysTranslation = {
+                                'Sword Immortal System': 'نظام سياف القمم الأسطوري',
+                                'Ancestral Sword Intent': 'بصيرة نصل السلف الخالد',
+                                'Pure Yang Qi': 'شمس طاقة اليانغ النقية',
+                                'Many Children': 'بركة العزوة والذرية',
+                                'Killing Path': 'طريق الجزار والفارس',
+                                'بركة العزوة والذرية': 'بركة العزوة والذرية',
+                                'سر الفارس الجزار': 'سر الفارس الجزار',
+                                'طلسم السيف الدمشقي الأسطوري': 'طلسم السيف الدمشقي الأسطوري'
+                            };
+                            return sysTranslation[p.system?.name] || p.system?.name || 'لا يوجد';
+                        })()}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">العقيدة والطباع:</span>
+                        <b>${classNamesArabic[p.class] || p.class || 'بطل حر'}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">عدد الأبناء والذرية:</span>
+                        <b>${p.children || 0} أبناء</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">وحوش وأعداء صرعوا:</span>
+                        <b>${p.kills || 0} وحش</b>
+                    </div>
+                </div>
+
+                <!-- Faction & Legacy Column -->
+                <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:10px; border-right:4px solid var(--sapphire); border-left:none;">
+                    <h3 style="margin-top:0; color:var(--sapphire); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; text-align:right;">⏳ سجل السلف وقوة العهد</h3>
+                    
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">مرات انتقال الإرث:</span>
+                        <b>${state.legacy ? state.legacy.rebirthCount : 0} مرات انتقال</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">البركات الموروثة:</span>
+                        <b>${state.legacy && state.legacy.traits.length ? `${state.legacy.traits.length} بركات` : 'لا توجد موروثات'}</b>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:4px; flex-direction:row-reverse;">
+                        <span style="color:var(--text-dim);">الطائفة الحليفة:</span>
+                        <b>${(p.faction === 'Jade Summit Sect' || p.faction === 'طائفة قمة اليشم العظمى') ? 'طائفة قمة اليشم العظمى' : (p.faction === 'Sufi Order of the Empty Quarter' || p.faction === 'طريقة رابطة أبطال الربع الخالي' || p.faction === 'فرسان الربع الخالي الأحرار') ? 'فرسان الربع الخالي الأحرار' : 'بلا طائفة (حر)'}</b>
+                    </div>
+
+                    ${p.faction ? `
+                        <div style="display:flex; justify-content:space-between; margin:8px 0; flex-direction:row-reverse; font-size:0.75rem; background:rgba(46,204,113,0.1); padding:6px; border-radius:4px;">
+                            <span style="color:#2ecc71;">المنفعة البدنية للطائفة:</span>
+                            <b style="color:#2ecc71;">${p.faction === 'Jade Summit Sect' ? '+10% هجوم لكل مرتبة' : '+10% مانا بدنية لكل مرتبة'}</b>
+                        </div>
+                    ` : ''}
+                </div>
+
+            </div>
+        </div>
+    `;
+    narrate(html, "النظام", null, false, true);
+    setChoices([{ text: "↩ عودة للواحة", callback: hubLoop }]);
+}
+
+function showManagementScreen() {
+    clearNarrative();
+    narrate("<b>ديوان العائلة والطائفة البدنية</b>", "النظام", null, false, true);
+    
+    let html = `<div class="management-container">`;
+    
+    // --- Family Card ---
+    let pagodaLvl = state.player.familyPagodaLevel || 0;
+    const pagodaNames = ["مفيش معبد أثري", "مزار الذكرى الخاشعة", "بهو شيوخ الأقدار الأبطال", "الضريح الإمبراطوري المهيب لملوك الشرق"];
+    
+    html += `
+        <div class="management-card">
+            <div class="management-header">
+                <h3 style="color:var(--secondary)">👨‍👩‍👧‍👦 السلالة والروابط العائلية</h3>
+                ${state.player.spouse ? `<span class="management-badge badge-alive">متزوج من الشريكة الطاهرة ${state.player.spouse.name}</span>` : '<span class="management-badge" style="background:rgba(255,255,255,0.1)">أعزب (لا شريكة له)</span>'}
+            </div>
+            <div style="background:rgba(255,215,0,0.04); border: 1px solid rgba(212,175,55,0.2); padding: 8px; border-radius: 4px; margin-bottom: 12px; font-size: 0.82rem;">
+                🏛️ <b>معبد الأسلاف الأثري:</b> الرتبة ${pagodaLvl}/3 (${pagodaNames[pagodaLvl]})
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    `;
+    
+    // Render Spouse card first if married
+    if (state.player.spouse) {
+        html += `
+            <div class="management-stat-row" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:4px; border-left: 3px solid var(--secondary); min-height: 100px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <div class="management-stat-label">شريكة الحياة</div>
+                        <div class="management-stat-value">${state.player.spouse.name}</div>
+                        <div style="font-size:0.72rem; color:var(--text-dim); margin-top:2px;">
+                            ترعى شؤون المنزل والواحة<br>
+                            الذرية: ${state.player.spouse.children || 0} أبناء
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="management-badge badge-alive">بصحة جيدة</div>
+                        <div style="font-size:0.7rem; color:var(--secondary); margin-top:4px;">الألفة: ${state.player.spouse.affinity || 70}%</div>
+                    </div>
+                </div>
+                <button onclick="window.AIDialogue.talkToNPC('spouse')" style="display:block; width:100%; margin-top:6px; background:rgba(0,168,107,0.2); border:1px solid var(--jade); color:#fff; border-radius:4px; padding:3px 6px; font-size:0.68rem; cursor:pointer; font-weight:bold; transition:all 0.2s;" onmouseover="this.style.background='var(--jade)'" onmouseout="this.style.background='rgba(0,168,107,0.2)'">🗣️ تحدث بتفاعل ذكي</button>
+            </div>
+        `;
+    }
+    
+    if (state.player.family && state.player.family.length) {
+        state.player.family.forEach(f => {
+            const statusClass = f.alive ? 'badge-alive' : 'badge-deceased';
+            const statusText = f.alive ? 'بصحة جيدة' : 'ارتحل (سقط)';
+            let crisisLabel = "";
+            
+            const crisisTranslations = {
+                'Kidnapped': 'تم اختطافه من لصوص جبل اليشم!',
+                'Spiritual Poisoning': 'تسمم هالة قنوات العزيمة مهدد لحياته!',
+                'Demonic Incursion': 'هجوم كوابيس وأرواح مظلمة سلب بصيرته!'
+            };
+
+            if (f.crisis) {
+                crisisLabel = `<div style="color:var(--danger); font-size:0.75rem; margin-top:4px; font-weight:bold;">⚠️ محنة وخطورة: ${crisisTranslations[f.crisis] || f.crisis}</div>`;
+            }
+            
+            const relationArabic = f.relation === 'Spouse' ? 'شريكة الحياة' : f.relation === 'Child' ? 'ابن السلالة' : f.relation === 'retired_father' ? 'الوالد المتقاعد (سند العائلة وبصيرتها)' : f.relation;
+            
+            let extraDetails = "";
+            if (f.relation === 'Child') {
+                const trainingText = f.education !== 'None' ? ` (${f.education === 'combat' ? 'نصال' : f.education === 'defense' ? 'دروع' : 'خيمياء'})` : '';
+                extraDetails = `<div style="font-size:0.72rem; color:var(--text-dim); margin-top:2px;">
+                    سن ${f.age} سنة${trainingText}<br>
+                    الصفة: <span style="color:var(--jade)">${f.trait ? f.trait.name : 'لا يوجد'}</span>
+                </div>`;
+            } else if (f.relation === 'retired_father') {
+                extraDetails = `<div style="font-size:0.72rem; color:var(--jade); margin-top:2px;">
+                    الرتبة الأسطورية السابقة: ${f.lvl}
+                </div>`;
+            }
+
+            html += `
+                <div class="management-stat-row" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:4px; border-left: 3px solid ${f.crisis ? 'var(--danger)' : 'var(--secondary)'}; min-height: 100px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                        <div>
+                            <div class="management-stat-label">${relationArabic}</div>
+                            <div class="management-stat-value">${f.name}</div>
+                            ${extraDetails}
+                            ${crisisLabel}
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="management-badge ${statusClass}">${statusText}</div>
+                            <div style="font-size:0.7rem; color:var(--secondary); margin-top:4px;">الألفة: ${f.affinity}%</div>
+                        </div>
+                    </div>
+                    ${f.alive ? `<button onclick="window.AIDialogue.talkToNPC('${f.id}')" style="display:block; width:100%; margin-top:6px; background:rgba(0,168,107,0.2); border:1px solid var(--jade); color:#fff; border-radius:4px; padding:3px 6px; font-size:0.68rem; cursor:pointer; font-weight:bold; transition:all 0.2s;" onmouseover="this.style.background='var(--jade)'" onmouseout="this.style.background='rgba(0,168,107,0.2)'">🗣️ تحدث بتفاعل ذكي</button>` : ''}
+                </div>
+            `;
+        });
+    } else if (!state.player.spouse) {
+        html += `<p style="grid-column: span 2; color:var(--text-dim); font-style:italic;">لا يوجد روابط دم وعائلة مسجلة في حياتك الحالية.</p>`;
+    }
+    
+    html += `
+            </div>
+            ${state.player.children ? `<div style="margin-top:10px; text-align:center; color:var(--jade); font-family:'Cinzel';">إجمالي أفراد الذرية الممتدة: ${state.player.children}</div>` : ''}
+        </div>
+    `;
+    
+    // --- Sect Card ---
+    html += `
+        <div class="management-card" style="border-left:4px solid var(--jade);">
+            <div class="management-header">
+                <h3 style="color:var(--jade)">🏛️ منشآت ومباني الطائفة العظمى</h3>
+                ${state.sect ? `<span class="management-badge badge-alive">مستوى الطائفة: ${state.sect.level}</span>` : ''}
+            </div>
+    `;
+    
+    if (state.sect) {
+        const specTranslations = {
+            'Sword': 'عقيدة نصل السيف القاطع',
+            'Alchemy': 'عقيدة خيمياء الإكسير الطاهر',
+            'Array': 'عقيدة النقوش والتشكيلات الدفاعية'
+        };
+        const currentSpecArabic = specTranslations[state.sect.specialization] || 'لم تختر عقيدة بعد';
+
+        html += `
+            <div class="management-stat-row">
+                <span class="management-stat-label">اسم الطائفة البدنية</span>
+                <span class="management-stat-value">${state.sect.name}</span>
+            </div>
+            <div class="management-stat-row">
+                <span class="management-stat-label">العقيدة المتبعة</span>
+                <span class="management-stat-value" style="color:var(--jade)">${currentSpecArabic}</span>
+            </div>
+            <div class="management-stat-row">
+                <span class="management-stat-label">خزينة الطائفة</span>
+                <span class="management-stat-value" style="color:var(--secondary)">${state.sect.treasury} دينار ذهبي</span>
+            </div>
+            <div class="management-stat-row">
+                <span class="management-stat-label">الشهرة والذكر بين الخلايق</span>
+                <span class="management-stat-value">${Math.floor(state.sect.fame)}</span>
+            </div>
+            
+            <div style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        `;
+        
+        Object.values(state.sect.buildings || {}).forEach(b => {
+            const bNamesArabic = {
+                'Main Hall': 'ديوان القاعة الكبرى والعرش',
+                'Meditation Chamber': 'قاعة تأمل وخلوات الأتباع',
+                'Treasury': 'خزنة الطائفة والكنوز العتيقة',
+                'Training Ground': 'ساحة المبارزات وتدريب النصال'
+            };
+            html += `
+                <div style="background:rgba(0,168,107,0.1); padding:8px; border-radius:4px; border:1px solid rgba(0,168,107,0.2);">
+                    <div style="font-size:0.7rem; color:var(--jade); text-transform:uppercase;">${bNamesArabic[b.name] || b.name}</div>
+                    <div style="font-size:0.85rem;">المستوى ${b.lvl} <small style="color:var(--text-dim)">(ترقية مضافة)</small></div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+
+        // Render Active Disciples list inside Sect Card
+        if (state.sect.disciples && state.sect.disciples.length) {
+            html += `
+                <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+                    <div style="font-size:0.9rem; color:var(--secondary); font-family:'Cinzel'; margin-bottom:10px; display:flex; justify-content:space-between;">
+                        <span>👤 الفرسان والأتباع النشطين</span>
+                        <span>(${state.sect.disciples.length}/${state.sect.maxDisciples})</span>
+                    </div>
+            `;
+            state.sect.disciples.forEach(d => {
+                const statusClass = (d.alive !== false) ? 'badge-alive' : 'badge-deceased';
+                const statusText = (d.alive !== false) ? 'نشط في مهامه' : 'سقط (ارتحل)';
+                
+                const dutyTranslations = {
+                    'array': '🌌 صف التشكيل الدفاعي لدعم العزيمة',
+                    'harvest': '🌾 جمع وحصاد الموارد بالأقاليم',
+                    'patrol': '🛡️ دوريات حراسة وحماية حدود الطائفة'
+                };
+                let dutyText = d.assignment ? (dutyTranslations[d.assignment] || d.assignment.toUpperCase()) : "في خلوة تأمل هادئة";
+                if (d.assignment === 'expedition') {
+                    dutyText = `في بعثة استكشافية بالبرية المهجورة (${d.expeditionTicks} ثانية متبقية)`;
+                }
+                html += `
+                    <div style="background:rgba(255,255,255,0.02); margin-bottom:8px; padding:8px 12px; border-radius:4px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(255,255,255,0.05);">
+                        <div>
+                            <span style="font-weight:bold; color:var(--secondary);">${d.name}</span>
+                            <span style="font-size:0.75rem; color:var(--text-dim); margin-left:8px;">مستوى ${d.lvl} | هجوم ${d.atk}</span>
+                            <div style="font-size:0.75rem; color:var(--jade); margin-top:2px;">العهد المعين: <b>${dutyText}</b></div>
+                        </div>
+                        <span class="management-badge ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        }
+    } else {
+        html += `<p style="color:var(--text-dim); font-style:italic; text-align:center;">لم تؤسس طائفة سماوية أو عائلية لتخليد اسمك وجمع الأتباع بعد.</p>`;
+    }
+    
+    html += `</div>`; // End Sect Card
+    
+    // --- Diplomacy Card ---
+    if (state.sect) {
+        html += `
+            <div class="management-card">
+                <div class="management-header">
+                    <h3 style="color:var(--danger)">🚩 العلاقات الدبلوماسية والخصوم بالشرق</h3>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        `;
+        
+        if (window.SECTS && window.SECTS.rivalSects) {
+            window.SECTS.rivalSects.forEach(r => {
+                let badgeClass = 'badge-ally';
+                let relationArabic = 'حليف استراتيجي طاهر';
+                if (r.relation === 'Hostile') { badgeClass = 'badge-hostile'; relationArabic = 'علاقات عدائية مستعرة'; }
+                if (r.relation === 'War') { badgeClass = 'badge-war'; relationArabic = 'حرب وسيوف معلنة!'; }
+                if (r.relation === 'Neutral') { badgeClass = 'management-badge'; relationArabic = 'هدوء حيادي حذر'; }
+                
+                const rivalNamesArabic = {
+                    'shadow_fang': 'طائفة مخلب الظل الشيطانية',
+                    'golden_lotus': 'طائفة لوتس البرق العريقة',
+                    'vanguard_sect': 'فرسان طليعة نصل الرمل الكاسر'
+                };
+
+                html += `
+                    <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:4px; flex:1; min-width:140px;">
+                        <div style="font-size:0.85rem; margin-bottom:5px;">${rivalNamesArabic[r.id] || r.name}</div>
+                        <span class="management-badge ${badgeClass}">${relationArabic}</span>
+                    </div>
+                `;
+            });
+        }
+        
+        html += `
+                </div>
+            </div>
+        `;
+    }
+    
+    html += `</div>`; // End Container
+    narrate(html, "النظام", null, false, true);
+    
+    const choices = [
+        { text: "🤝 قضاء وقت عائلي لتقوية الألفة والود", callback: () => {
+            if (state.player.family && state.player.family.length > 0) {
+                narrate("قضيت وقتاً طاهراً ودافئاً مع عائلتك، تجاذبتم أطراف الحديث عن دروب التركيز وهمة مما عمق الألفة والروابط البدنية بينكم.", "النظام");
+                state.player.family.forEach(f => f.affinity = Math.min(100, f.affinity + 5));
+            } else {
+                narrate("جلست في خلوة صامتة مع فرسانك وقافلتك تتأمل صفحة أقاليم الصحراء، لكن حياتك الحالية تخلو من شريكة أو أبناء سلالة يشاركونك الخشوع.", "النظام");
+            }
+            showManagementScreen();
+        }},
+        { text: "🏛️ خيارات معبد الأسلاف وتعديلاته", callback: showPagodaUpgradeScreen }
+    ];
+
+    // Crises resolving options
+    if (state.player.family) {
+        state.player.family.forEach(f => {
+            if (f.crisis) {
+                choices.push({
+                    text: `⚠️ فك محنة وإنقاذ ${f.name}`,
+                    callback: () => showResolveCrisisScreen(f.id)
+                });
+            }
+        });
+    }
+
+    if (!state.sect) {
+        choices.push({ text: "🏛️ تأسيس طائفة أسطورية جديدة (يكلف 10,000 دينار ذهبي)", callback: () => {
+            if (state.player.gold >= 10000) {
+                state.player.gold -= 10000;
+                window.SECTS.init(state);
+                narrate("مبارك! لقد شحذت أحجارك البدنية ووضعت حجر الأساس لدیوان طائفتك الكبرى لتخليد اسمك في سلالات التاريخ البدني للشرق العظيم.", "النظام");
+                updateTopBar();
+                saveGame();
+            } else {
+                narrate("معندكش دنانير ذهبية كافية لتأسيس صرح طائفة عظيم. (تتطلب 10,000 دينار ذهبي في صرتك)", "النظام");
+            }
+            showManagementScreen();
+        }});
+    } else {
+        choices.push({ text: "👥 تعيين وإدارة مهام الفرسان والأتباع", callback: showManageDiscipleScreen });
+        choices.push({ text: "📜 اختيار العقيدة العقائدية لمسار الطائفة البدنية", callback: () => {
+            setChoices([
+                { text: "🗡️ عقيدة نصل السيف القاطع (تزيد الهجوم)", callback: () => { 
+                    const res = window.SECTS.setSpecialization(state, "Sword");
+                    narrate("تم اعتناق عقيدة نصل السيف القاطع! شحذ فارسوك نصالهم ووهبوا أنفسهم للبراعة الهجومية الحادة.", "النظام");
+                    calculateTotalStats(); updateTopBar(); saveGame(); showManagementScreen();
+                }},
+                { text: "⚗️ عقيدة خيمياء الإكسير الطاهر (تزيد بركة التقطير)", callback: () => { 
+                    const res = window.SECTS.setSpecialization(state, "Alchemy");
+                    narrate("تم اعتناق عقيدة خيمياء الإكسير الطاهر! فاحت عطور الأعشاب المقدسة وزادت نسب استقرار التقطير في طائفتك.", "النظام");
+                    calculateTotalStats(); updateTopBar(); saveGame(); showManagementScreen();
+                }},
+                { text: "🌌 عقيدة النقوش والتشكيلات الدفاعية (تزيد الدفاع)", callback: () => { 
+                    const res = window.SECTS.setSpecialization(state, "Array");
+                    narrate("تم اعتناق عقيدة النقوش والتشكيلات الدفاعية! اصطفت جدران ونقوش مانا المدافعة زادت صلابة بنيانك.", "النظام");
+                    calculateTotalStats(); updateTopBar(); saveGame(); showManagementScreen();
+                }},
+                { text: "↩ رجوع", callback: showManagementScreen }
+            ]);
+        }});
+        choices.push({ text: "👤 جذب وتجنيد فارس جديد للطائفة", callback: () => {
+            const res = window.SECTS.recruit(state);
+            let msgArabic = res.message;
+            if (res.message.includes("recruited")) {
+                msgArabic = "🎉 <b>فارس جديد يدخل محرابك!</b> سمع سالك براري موهوب بذكر طائفتك، وقدم راكعاً يرجو قبول عهد ولائه وطاعته.";
+            } else if (res.message.includes("max")) {
+                msgArabic = "قاعات طائفتك ممتلئة بالفرسان حالياً. قم بترقية المنشآت أولاً لتتسع للمزيد.";
+            } else if (res.message.includes("stones") || res.message.includes("gold")) {
+                msgArabic = "معندكش دنانير ذهبية كافية بالخزنة لجذب وتوظيف فارس جديد حالياً.";
+            }
+            narrate(msgArabic, "النظام");
+            if (res.success) {
+                updateTopBar(); saveGame();
+            }
+            showManagementScreen();
+        }});
+        choices.push({ text: "⚔️ دخول غرفة العمليات والحروب الاستراتيجية", callback: showWarRoom });
+    }
+
+    choices.push({ text: "💍 البحث عن شريكة حياة بالزواج الشرعي (يكلف 5,000 دينار ذهبي)", callback: () => {
+        if (state.player.spouse) {
+            narrate(`أنت بالفعل متزوج من شريكتك الطاهرة <b>${state.player.spouse.name}</b> ومثبتين في رباط أبدي!`, "النظام");
+            showManagementScreen();
+        } else if (window.LIFE) {
+            const res = window.LIFE.seekMarriage(state, narrate);
+            let msgArabic = res.message;
+            if (res.message.includes("married")) {
+                msgArabic = `💍 <b>عقد رباط طاهر مبارك!</b> ارتبطت بقلبك وتركيزك وهمتك مع الشريكة الطاهرة <b>${state.player.spouse.name}</b> لتشاركك خلوة المسار وتشد أزرك!`;
+            } else if (res.message.includes("gold") || res.message.includes("stones")) {
+                msgArabic = "معندكش دنانير ذهبية كافية لتجهيز مهر وهدايا تليق بخطبة شريكة حياة طاهرة.";
+            }
+            narrate(msgArabic, "النظام");
+            if (res.success) {
+                calculateTotalStats(); updateTopBar(); saveGame();
+            }
+            showManagementScreen();
+        }
+    }});
+
+    choices.push({ text: "📜 قاعة الطائفة والمهارات العظمى (Sect Hall)", callback: showSectHallScreen });
+
+    if (state.player.spouse) {
+        choices.push({ 
+            text: "💖 تأمل مشترك مع شريكة الحياة لتغذية العزيمة", 
+            callback: () => {
+                const res = window.LIFE.dualCultivate(state);
+                let msgArabic = res.message;
+                if (res.message.includes("deepened your bonds")) {
+                    msgArabic = "جلس كلاكما متقابلين متقاطعي الأيدي في تأمل مشترك طاهر. امتزجت هالتكما لتزيد طاقتكما البدنية وتعمق الألفة بينكما بشكل عجيب!";
+                }
+                narrate(msgArabic, "النظام");
+                showManagementScreen();
+            } 
+        });
+    }
+
+    choices.push({ text: "↩ رجوع إلى واحة التقاطع", callback: hubLoop });
+
+    setChoices(choices);
+}
+
+// --- Sub-Screens for Management Screen ---
+function showPagodaUpgradeScreen() {
+    clearNarrative();
+    narrate("<b>معبد الأسلاف الأثري وتعديلات السلالة</b>", "النظام", null, false, true);
+    
+    let pagodaLvl = state.player.familyPagodaLevel || 0;
+    const pagodaNames = ["مفيش معبد أثري", "مزار الذكرى الخاشعة", "بهو شيوخ الأقدار الأبطال", "الضريح الإمبراطوري المهيب لملوك الشرق"];
+    const benefits = [
+        "بناء وتأسيس مزار الذكرى الخاشعة (يمنح +10% تدفق إضافي في تدريب العزيمة وجلسات البدن).",
+        "الترقية لبهو شيوخ الأقدار الأبطال (يمنح +15% زيادة في ألفة وود الأبطال ورفقاء الدرب).",
+        "الترقية للضريح الإمبراطوري المهيب لملوك الشرق (يمنح +15% ضرر حرج إضافي مطلق في المعارك)."
+    ];
+    
+    let html = `
+        <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; font-family:'Inter', sans-serif;">
+            <p>معبد أسلاف عائلتك يقف حالياً عند: <b>الرتبة ${pagodaLvl} / 3</b> (${pagodaNames[pagodaLvl]})</p>
+            ${pagodaLvl < 3 ? `<p style="color:var(--secondary); text-align:left;"><b>بركات ومنافع الترقية القادمة:</b><br>${benefits[pagodaLvl]}</p>` : `<p style="color:var(--jade);">لقد وصل صرح أسلافك لذروة التناغم الكوني والبدني المطلق!</p>`}
+        </div>
+    `;
+    narrate(html, "النظام", null, false, true);
+    
+    const choices = [];
+    if (pagodaLvl < 3) {
+        const costs = [
+            "1,000 دنانير ذهبية، 500 خشب، 200 حديد",
+            "3,000 دنانير ذهبية، 1,500 خشب، 800 حديد",
+            "8,000 دنانير ذهبية، 4,000 خشب، 2,000 حديد"
+        ];
+        choices.push({
+            text: `🧱 ترقية وتطوير معبد الأسلاف الأثري (التكلفة: ${costs[pagodaLvl]})`,
+            callback: () => {
+                const res = window.LIFE.upgradeAncestralPagoda(state);
+                let msgArabic = res.message;
+                if (res.message.includes("Upgraded ancestral pagoda")) {
+                    msgArabic = `🧱 <b>تم ترقية الصرح بنجاح!</b> صفق البناؤون وارتفعت أعمدة اليشم والغرانيت، وأصبح معبد أسلافك هو <b>${pagodaNames[pagodaLvl + 1]}</b>!`;
+                } else {
+                    msgArabic = `<b>الترقية فشلت!</b> معندكش الأحجار أو الخشب أو الحديد الكافي في حقيبتك لإنجاز الترقية المعمارية.`;
+                }
+
+                narrate(msgArabic, "النظام");
+                if (res.success) {
+                    calculateTotalStats(); updateTopBar(); saveGame();
+                }
+                setTimeout(showManagementScreen, 2200);
+            }
+        });
+    }
+    choices.push({ text: "↩ Back", callback: showManagementScreen });
+    setChoices(choices);
+}
+
+function showResolveCrisisScreen(memberId) {
+    clearNarrative();
+    const member = (state.player.family || []).find(f => f.id === memberId);
+    if (!member || !member.crisis) {
+        narrate("عضو العائلة ده آمن وبصحة كويسة في الواحة.", "النظام");
+        setTimeout(showManagementScreen, 1500);
+        return;
+    }
+    
+    const crisisTranslations = {
+        'Kidnapped': 'تم اختطافه من لصوص جبل اليشم!',
+        'Spiritual Poisoning': 'تسمم هالة قنوات مانا مهدد لحياته!',
+        'Demonic Incursion': 'هجوم كوابيس وأرواح مظلمة سلب بصيرته!'
+    };
+
+    narrate(`<b>حل وتفريج محنة عائلية:</b> إنقاذ <b>${member.name}</b>`, "النظام", null, false, true);
+    narrate(`قريبك ودمك سقط في محنة عاتية: <b>${crisisTranslations[member.crisis] || member.crisis}</b>. كيف ستنقذه وتفرج كربه؟`, "النظام", null, false, true);
+    
+    const cost = member.crisis === 'Kidnapped' ? 2000 : 1500;
+    
+    const choices = [
+        {
+            text: `💎 دفع فدية التخليص / جلب الحكيم المعالج (${cost} دينار ذهبي)`,
+            callback: () => {
+                const res = window.LIFE.resolveFamilyCrisis(state, memberId, 'pay');
+                let msgArabic = res.message;
+                if (res.message.includes("paid")) {
+                    msgArabic = `💎 <b>تم فك كرب قريبتك بنجاح!</b> دفعت الغرامة المطلوبة للحكيم أو اللصوص، وعاد <b>${member.name}</b> سالماً معافى لبيتك.`;
+                }
+                narrate(msgArabic, "النظام");
+                if (res.success) {
+                    updateTopBar(); saveGame();
+                }
+                setTimeout(showManagementScreen, 2200);
+            }
+        },
+        {
+            text: `⚔️ شن هجوم شخصي ساحق للاسترداد (خوض معركة!)`,
+            callback: () => {
+                const res = window.LIFE.resolveFamilyCrisis(state, memberId, 'fight');
+                // Starts combat automatically via system callback
+                let msgArabic = "شحذت نصلك وسحبت طاقتك متجهاً لمعقل اللصوص أو الأرواح المظلمة؛ المعركة بدأت!";
+                narrate(msgArabic, "النظام");
+            }
+        }
+    ];
+    
+    if (state.sect && state.sect.disciples && state.sect.disciples.length > 0) {
+        choices.push({
+            text: `👤 تفويض وإرسال فارس من الطائفة للإنقاذ (فرصة النجاح: مستوى الفارس * 15%)`,
+            callback: () => {
+                const res = window.LIFE.resolveFamilyCrisis(state, memberId, 'disciple');
+                let msgArabic = res.message;
+                if (res.message.includes("succeeded")) {
+                    msgArabic = `👤 <b>مهمة إنقاذ ناجحة للأتباع!</b> اقتحم فارسوك المعقل بقوة وشجاعة وأرجعوا <b>${member.name}</b> معززاً مكرماً للواحة!`;
+                } else if (res.message.includes("failed")) {
+                    msgArabic = `👤 <b>فشلت البعثة!</b> عاد فارسوك مثخنين بالجراح يعتذرون عن العجز في تخليص قريبتك من معقل الأعداء الأقوياء.`;
+                }
+                narrate(msgArabic, "النظام");
+                if (res.success) {
+                    saveGame();
+                }
+                setTimeout(showManagementScreen, 2500);
+            }
+        });
+    }
+    
+    choices.push({ text: "↩ Back", callback: showManagementScreen });
+    setChoices(choices);
+}
+
+function showManageDiscipleScreen() {
+    clearNarrative();
+    narrate("<b>تعيين وإدارة مهام وتكاليف الفرسان والأتباع</b>", "النظام", null, false, true);
+    
+    if (!state.sect || !state.sect.disciples || state.sect.disciples.length === 0) {
+        narrate("معندكش فرسان أتباع في طائفتك حالياً لتكليفهم بالمهام. اجذب فرسان أولاً.", "النظام");
+        setTimeout(showManagementScreen, 1500);
+        return;
+    }
+    
+    const choices = state.sect.disciples.map((d, index) => {
+        const dutyTranslations = {
+            'array': ' صف التشكيل الدفاعي لدعم العزيمة',
+            'harvest': ' جمع وحصاد الموارد بالأقاليم',
+            'patrol': ' دوريات حراسة وحماية حدود الطائفة'
+        };
+        let duty = d.assignment ? (dutyTranslations[d.assignment] || d.assignment.toUpperCase()) : "في خلوة تأمل هادئة";
+        if (d.assignment === 'expedition') duty = `في بعثة استكشافية بالبرية المهجورة (${d.expeditionTicks} ثانية متبقية)`;
+        return {
+            text: `👤 ${d.name} (مستوى ${d.lvl} | ${duty})`,
+            callback: () => showDiscipleAssignmentScreen(index)
+        };
+    });
+    
+    choices.push({ text: "↩ Back", callback: showManagementScreen });
+    setChoices(choices);
+}
+
+function showDiscipleAssignmentScreen(index) {
+    clearNarrative();
+    const d = state.sect.disciples[index];
+    narrate(`<b>تعيين وتوجيه عهد ومهمة للفارس:</b> <b>${d.name}</b>`, "النظام", null, false, true);
+    
+    const duties = [
+        { name: "🌌 تعيين في التشكيل الدفاعي لدعم تدفق العزيمة (+5% تأمل عزيمة لكل مستوى)", id: "array" },
+        { name: "🌾 إرسال لحصاد خامات الموارد الطبيعية (أعشاب/حديد/خشب)", id: "harvest" },
+        { name: "🛡️ تعيين لحراسة ودوريات تأمين حدود الطائفة", id: "patrol" },
+        { name: "💤 استدعاء وإرجاع لخلوة التدريب والتركيز الهادئة", id: null }
+    ];
+    
+    const choices = duties.map(du => ({
+        text: du.name,
+        callback: () => {
+            const res = window.SECTS.assignDisciple(state, index, du.id);
+            narrate(`تم تعديل مهمة الفارس <b>${d.name}</b> بنجاح إلى العهد الجديد.`, "النظام");
+            saveGame();
+            setTimeout(showManageDiscipleScreen, 1500);
+        }
+    }));
+    
+    choices.push({
+        text: "🌀 إرساله في بعثة استكشافية كبرى للبرية المهجورة (يكلف 500 مؤن)",
+        callback: () => {
+            const res = window.SECTS.sendOnExpedition(state, index);
+            let msgArabic = res.message;
+            if (res.message.includes("sent")) {
+                msgArabic = `🌀 <b>بعثة انطلقت!</b> ارتدى الفارس درعه وصرة طعامه، وانطلق يستكشف دروب البراري المقفرة بحثاً عن الكنوز الغابرة.`;
+            } else if (res.message.includes("food") || res.message.includes("mats")) {
+                msgArabic = "مخازن طائفتك خالية من المؤن الكافية لتغطية احتياجات بعثة الفارس البدني حالياً. (تتطلب 500 طعام)";
+            }
+            narrate(msgArabic, "النظام");
+            saveGame();
+            setTimeout(showManageDiscipleScreen, 2000);
+        }
+    });
+    
+    choices.push({ text: "↩ Back", callback: showManageDiscipleScreen });
+    setChoices(choices);
+}
+
+function showWarRoom() {
+    clearNarrative();
+    narrate("<b>غرفة الحرب والتخطيط الاستراتيجي للطائفة</b> — العرش العسكري", "النظام", null, false, true);
+    
+    let html = `<div style="text-align:left;">
+        <h3 style="color:var(--danger)">🚩 الحروب الجارية والخصوم المباشرين</h3>`;
+    
+    const rivalNamesArabic = {
+        'shadow_fang': 'طائفة مخلب الظل الشيطانية',
+        'golden_lotus': 'طائفة لوتس البرق العريقة',
+        'vanguard_sect': 'فرسان طليعة نصل الرمل الكاسر'
+    };
+
+    if (window.SECTS && window.SECTS.rivalSects) {
+        window.SECTS.rivalSects.forEach(r => {
+            const status = r.relation === 'War' ? '<b style="color:var(--danger)">[في حالة حرب معلنة وسيوف مشهورة!]</b>' : r.relation === 'Neutral' ? 'هدوء حيادي حذر' : r.relation;
+            html += `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <b>${rivalNamesArabic[r.id] || r.name}</b> (${status})<br>
+                القوة الحربية الكامنة: ${r.power} | أراضي مقاطعاتهم: ${r.territory}
+            </div>`;
+        });
+    }
+
+    html += `<h3 style="color:var(--secondary); margin-top:20px;">🗺️ السيطرة الإقليمية وجباية الموارد</h3>`;
+    if (window.SECTS && window.SECTS.territories) {
+        Object.entries(window.SECTS.territories).forEach(([name, t]) => {
+            const ownerColor = t.owner === 'Player' ? 'var(--success)' : 'var(--danger)';
+            const ownerArabic = t.owner === 'Player' ? 'تحت سيطرة طائفتك الطاهرة' : `مغتصبة من ${rivalNamesArabic[t.owner] || t.owner}`;
+            html += `<p>المقاطعة البدنية ${name}: <b style="color:${ownerColor}">${ownerArabic}</b> (+${t.income} دنانير ذهبية جباية لكل دورة)</p>`;
+        });
+    }
+    
+    html += `</div>`;
+    narrate(html, "النظام", null, false, true);
+
+    const choices = [];
+    if (window.SECTS) {
+        window.SECTS.rivalSects.filter(r => r.relation !== 'War' && r.relation !== 'Defeated').forEach(r => {
+            choices.push({ text: `⚔️ إعلان الحرب الحربية الشاملة على طائفة ${rivalNamesArabic[r.id] || r.name}`, callback: () => {
+                const res = window.SECTS.declareWar(state, r.id);
+                narrate(`أعلنت بوق وجحافل الحرب على طائفة <b>${rivalNamesArabic[r.id] || r.name}</b>! اصطفت جحافلك وقرعت الطبول وسحبت السيوف من أغمادها!`, "النظام");
+                showWarRoom();
+            }});
+        });
+    }
+    
+    choices.push({ text: "↩ Back to Management", callback: showManagementScreen });
+    setChoices(choices);
+}
+
+function showDwellingScreen() {
+    clearNarrative();
+    if (window.DWELLING) window.DWELLING.init(state);
+    const d = state.dwelling;
+    
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary);">🏡 القلعة والديوان الحربي</b>', 'النظام', null, false, true);
+    
+    let html = `<div style="background:rgba(212,175,55,0.05); padding:15px; border-radius:8px; border:1px solid var(--secondary); margin-bottom:15px; text-align:left;">
+        <b>عمال وبنائين القلعة:</b> <span class="loot-epic">${d.servants}/${d.maxServants}</span><br>
+        <small style="color:var(--text-dim);">العمال يجمعون الخامات تلقائياً. تأمين الطعام والمؤن يبقيهم بكامل طاقتهم وكفاءتهم.</small>
+    </div>`;
+
+    html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px; text-align:left;">
+        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+            🍏 <b>المؤن والطعام:</b> <b>${d.resources.food}</b><br>
+            <small style="color:var(--text-dim);">العمال المخصصين: ${d.nodes.food}</small>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+            🪵 <b>الخشب الجبلي:</b> <b>${d.resources.wood}</b><br>
+            <small style="color:var(--text-dim);">العمال المخصصين: ${d.nodes.wood}</small>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">
+            🪙 <b>الحديد الدمشقي:</b> <b>${d.resources.iron}</b><br>
+            <small style="color:var(--text-dim);">العمال المخصصين: ${d.nodes.iron}</small>
+        </div>
+        <div style="background:rgba(0,229,160,0.03); padding:10px; border-radius:6px; border:1px solid var(--jade);">
+            ✨ <b>مخزون الحيوية والهمة بالقلعة:</b> <b style="color:var(--jade);">${d.qi}</b><br>
+            <small style="color:var(--text-dim);">العمال المخصصين: ${d.nodes.qi} | مستوى ديوان الحيوية بالقلعة: ${d.qiArrayLevel}</small>
+        </div>
+    </div>`;
+
+    html += `<div style="background:rgba(0,168,107,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); text-align:left;">
+        <b style="color:var(--jade);">🌱 عروق ومقامات القوة والهمة البدنية (Martial Roots)</b><br>
+        🛡️ عرق الذهب (لتعزيز الهجوم): <b>المرتبة ${d.roots.gold}</b> (+${d.roots.gold * 10} هجوم)<br>
+        🪵 عرق الخشب (لتعزيز الصحة): <b>المرتبة ${d.roots.wood}</b> (+${d.roots.wood * 50} صحة)<br>
+        💧 عرق الماء (لتعزيز الدفاع): <b>المرتبة ${d.roots.water}</b> (+${d.roots.water * 8} دفاع)<br>
+        🔥 عرق النار (لتعزيز فرصة الضرب القاطع): <b>المرتبة ${d.roots.fire}</b> (+${d.roots.fire * 1}% فرصة ضربة قاضية حاسمة)<br>
+        🌍 عرق الأرض (لتعزيز سعة الطاقة الباطنية): <b>المرتبة ${d.roots.earth}</b> (+${d.roots.earth * 25} أقصى عزيمة)<br>
+    </div>`;
+
+    narrate(html, 'النظام', null, false, true);
+
+    const choices = [
+        {
+            text: `👤 تعيين عامل قلعة جديد (التكلفة: ${200 + d.servants * 100} دينار ذهبي)`,
+            callback: () => {
+                const res = window.DWELLING.buyServant(state);
+                let msgArabic = res.message;
+                if (res.message.includes("recruited")) {
+                    msgArabic = "👤 <b>عامل قلعة جديد يبدأ مهامه!</b> تم جلب عامل مخلص في قلعتك لرعاية وتنمية منابع الموارد.";
+                } else if (res.message.includes("stones") || res.message.includes("gold")) {
+                    msgArabic = "معندكش دنانير ذهبية كافية بالخزنة لتعيين عامل جديد حالياً.";
+                }
+                narrate(msgArabic, 'النظام');
+                updateTopBar(); saveGame();
+                setTimeout(showDwellingScreen, 1500);
+            }
+        },
+        {
+            text: "👷 إدارة وتوجيه مهام العمال",
+            callback: () => {
+                clearNarrative();
+                narrate("<b>توزيع العمال على منابع الموارد بداخل قلعتك ومقرك:</b>", "النظام", null, false, true);
+                setChoices([
+                    { text: "🍏 حقل المؤن والزراعة [+] زيادة عامل", callback: () => { window.DWELLING.assignServant(state, 'food', 1); showDwellingScreen(); }},
+                    { text: "🍏 حقل المؤن والزراعة [-] سحب عامل", callback: () => { window.DWELLING.assignServant(state, 'food', -1); showDwellingScreen(); }},
+                    { text: "🪵 غابة الخشب الجبلي [+] زيادة عامل", callback: () => { window.DWELLING.assignServant(state, 'wood', 1); showDwellingScreen(); }},
+                    { text: "🪵 غابة الخشب الجبلي [-] سحب عامل", callback: () => { window.DWELLING.assignServant(state, 'wood', -1); showDwellingScreen(); }},
+                    { text: "🪙 منجم الحديد الدمشقي [+] زيادة عامل", callback: () => { window.DWELLING.assignServant(state, 'iron', 1); showDwellingScreen(); }},
+                    { text: "🪙 منجم الحديد الدمشقي [-] سحب عامل", callback: () => { window.DWELLING.assignServant(state, 'iron', -1); showDwellingScreen(); }},
+                    { text: "✨ مصفوفة التشي وشحذ الطاقة [+] زيادة عامل", callback: () => { window.DWELLING.assignServant(state, 'qi', 1); showDwellingScreen(); }},
+                    { text: "✨ مصفوفة التشي وشحذ الطاقة [-] سحب عامل", callback: () => { window.DWELLING.assignServant(state, 'qi', -1); showDwellingScreen(); }},
+                    { text: "↩ Back", callback: showDwellingScreen }
+                ]);
+            }
+        },
+        {
+            text: `⚗️ ترقية وتطوير مصفوفة التشي بالقلعة (التكلفة: ${d.qiArrayLevel * 150} خشب / ${d.qiArrayLevel * 80} حديد)`,
+            callback: () => {
+                const res = window.DWELLING.upgradeQiArray(state);
+                let msgArabic = res.message;
+                if (res.message.includes("Upgraded")) {
+                    msgArabic = `⚗️ <b>تم ترقية مصفوفة القلعة بنجاح!</b> تم شحذ الطاقة وارتفعت رتبة المصفوفة إلى <b>المستوى ${d.qiArrayLevel}</b>!`;
+                } else {
+                    msgArabic = "ليس لديك الخشب أو الحديد الكافي لتطوير مصفوفة القلعة حالياً.";
+                }
+                narrate(msgArabic, 'النظام');
+                saveGame();
+                setTimeout(showDwellingScreen, 1500);
+            }
+        },
+        {
+            text: "🌱 ترقية وتطهير عروق التشي والمسارات الباطنية",
+            callback: () => {
+                clearNarrative();
+                narrate("<b>طهّر ورقّ مسارات وعروق التشي لجسدك باستخدام طاقة مصفوفة القلعة المتراكمة:</b>", "النظام", null, false, true);
+                const upgradeChoices = Object.keys(d.roots).map(key => {
+                    const cost = Math.floor(100 * Math.pow(1.5, d.roots[key]));
+                    
+                    const rootArabic = key === 'gold' ? 'عرق الذهب' : key === 'wood' ? 'عرق الخشب' : key === 'water' ? 'عرق الماء' : key === 'fire' ? 'عرق النار' : 'عرق الأرض';
+                    return {
+                        text: `⚡ درجة ${d.roots[key] + 1} لـ ${rootArabic} (التكلفة: ${cost} نقطة تشي)`,
+                        callback: () => {
+                            const res = window.DWELLING.upgradeRoot(state, key);
+                            let msgArabic = res.message;
+                            if (res.message.includes("Upgraded")) {
+                                msgArabic = `🌱 <b>ترقية وتطهير ناجح!</b> رقّيت وسخّرت مسار <b>${rootArabic}</b> بداخل بنيانك الباطني لترتقي إلى <b>الدرجة ${d.roots[key]}</b>!`;
+                            } else {
+                                msgArabic = "ليس لديك نقاط طاقة تشي كافية بداخل مصفوفة قلعتك لإنجاز الترقية حالياً.";
+                            }
+                            narrate(msgArabic, 'النظام');
+                            calculateTotalStats(); updateTopBar(); saveGame();
+                            setTimeout(showDwellingScreen, 1500);
+                        }
+                    };
+                });
+                setChoices([...upgradeChoices, { text: "↩ Back", callback: showDwellingScreen }]);
+            }
+        },
+        { text: "↩ عودة للديوان والتدريب", callback: showCultivationScreen }
+    ];
+
+    setChoices(choices);
+}
+
+function showSoulWanderingScreen() {
+    clearNarrative();
+    if (window.SOUL_WANDERING) window.SOUL_WANDERING.init(state);
+    const sw = state.soulWandering;
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary);">🌀 إرسال الفرسان واستطلاع البرية والبحث عن الكنوز</b>', 'النظام', null, false, true);
+
+    if (sw.active) {
+        const swRegionsArabic = {
+            'wandering_forest': 'الغابة الموحشة الكثيفة بالأعشاب الطبية',
+            'iron_mountain': 'سلسلة جبال الحديد والصلب العالية',
+            'void_rift': 'وادي الموت الكوني وأسرار الملوك'
+        };
+        const rNameArabic = swRegionsArabic[sw.regionId] || sw.regionId;
+
+        narrate(`فرسانك وقوافل الاستكشاف تسبح حالياً وتستكشف نواحي <b style="color:var(--secondary);">${rNameArabic}</b>.<br>الوقت والدورات المتبقية للاستطلاع: <b>${sw.ticksRemaining}/${sw.totalTicks} دورة تدريبية</b>.`, 'النظام', null, false, true);
+        
+        let logHtml = `<div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); padding:10px; border-radius:6px; max-height:200px; overflow-y:auto; text-align:left; font-size:0.9rem; font-family:monospace; line-height:1.4;">
+            ${sw.log.map(line => {
+                let lineArabic = line;
+                if (line.includes("Gathered")) {
+                    lineArabic = "حصد فرسانك خامات جديدة وأرسلوها عبر القوافل لقلعتك.";
+                } else if (line.includes("Meditated")) {
+                    lineArabic = "أخذ فرسانك قسطاً من الراحة في البرية وامتصوا تدفقاً نقياً من طاقة الطبيعة والهمة.";
+                } else if (line.includes("Defeated")) {
+                    lineArabic = "واجه فرسانك وحشاً كامناً في البرية وسحقوه في معركة بطولية مذهلة.";
+                }
+                return `• ${lineArabic}`;
+            }).join('<br>')}
+        </div>`;
+        narrate(logHtml, 'سجل الاستطلاع والاستكشاف الجاري', null, false, true);
+
+        setChoices([
+            { text: "🔄 تحديث سجل الاستطلاع", callback: showSoulWanderingScreen },
+            {
+                text: "🛑 استدعاء الفرسان والقافلة فوراً (واستلام الغنائم)",
+                callback: () => {
+                    const res = window.SOUL_WANDERING.stop(state);
+                    narrate("أغلقت ممرات الاستطلاع وسحبت فرسانك وقافلتك بأمان للقلعة، محتفظاً بكل الغنائم والكنوز والخبرة المتراكمة خلال الرحلة!", 'النظام');
+                    setTimeout(showSoulWanderingScreen, 1800);
+                }
+            },
+            { text: "↩ Back", callback: showCultivationScreen }
+        ]);
+    } else {
+        narrate("أرسل فرسانك وقوافل استطلاعك خارج مدارات القلعة لتستكشف في البرية وأقاليم الصحراء البعيدة، وتجمع خامات الحديد والأعشاب الطبية تلقائياً وبشكل سلبي وآمن تماماً.", 'النظام', null, false, true);
+
+        const swRegionsArabic = {
+            'wandering_forest': 'الغابة الموحشة الكثيفة بالأعشاب الطبية (مستوى 1)',
+            'iron_mountain': 'سلسلة جبال الحديد والصلب العالية (مستوى 8)',
+            'void_rift': 'وادي الموت الكوني وأسرار الملوك (مستوى 15)'
+        };
+
+        const choices = Object.entries(window.SOUL_WANDERING.regions).map(([id, r]) => {
+            const unlocked = (state.player.lvl || 1) >= r.minLvl;
+            return {
+                text: `${unlocked ? '✨' : '🔒'} ${swRegionsArabic[id] || r.name} (أدنى مستوى: ${r.minLvl})`,
+                callback: () => {
+                    if (!unlocked) {
+                        narrate("مستوى الفرسان بقلعتك أضعف من أن يتحمل إرسالهم إلى غياهب هذا الوادي الخطير حالياً.", "النظام");
+                        setTimeout(showSoulWanderingScreen, 1500);
+                        return;
+                    }
+                    clearNarrative();
+                    narrate(`حدد مدة ودورات استطلاع فرسانك في أنحاء <b>${swRegionsArabic[id] || r.name}</b>:`, "النظام", null, false, true);
+                    setChoices([
+                        { text: "🌀 استطلاع قصير المدى (10 دورات / دقيقة تقريباً)", callback: () => { window.SOUL_WANDERING.start(state, id, 10); showSoulWanderingScreen(); }},
+                        { text: "🌀 استطلاع متوسط المدى (30 دورات / 3 دقائق تقريباً)", callback: () => { window.SOUL_WANDERING.start(state, id, 30); showSoulWanderingScreen(); }},
+                        { text: "🌀 استطلاع طويل المدى (50 دورات / 5 دقائق تقريباً)", callback: () => { window.SOUL_WANDERING.start(state, id, 50); showSoulWanderingScreen(); }},
+                        { text: "↩ Back", callback: showSoulWanderingScreen }
+                    ]);
+                }
+            };
+        });
+
+        setChoices([...choices, { text: "↩ عودة للديوان والتدريب", callback: showCultivationScreen }]);
+    }
+}
+
+function showSectHallScreen() {
+    clearNarrative();
+    if (window.SECTS) window.SECTS.init(state);
+    
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary);">📜 ديوان قاعة الطائفة الكبرى</b>', 'النظام', null, false, true);
+
+    if (state.sect) {
+        const s = (window.SECTS && window.SECTS.sectsDb && state.sect.id && window.SECTS.sectsDb[state.sect.id]) || {
+            ultName: "Primordial Jade Grand Ultimate",
+            ult: "grand_dao",
+            tier: state.sect.tier || 1
+        };
+        const ultArabic = s.ultName === 'Primordial Jade Grand Ultimate' ? 'تأمل اليشم المطلق للأقدمين' : s.ultName === 'Sufi Fana Transcendence' ? 'أسلوب الاتحاد والتركيز العظيم' : s.ultName;
+
+        narrate(`الطائفة المنتمي إليها: <b style="color:var(--secondary);">${state.sect.name}</b> (الرتبة ${state.sect.tier})<br>نقاط المساهمة والولاء في الطائفة: <span class="loot-epic">${state.sect.contribution || 0}</span>`, 'النظام', null, false, true);
+
+        setChoices([
+            {
+                text: `✨ إتقان وتنشيط فن الطائفة المطلق: ${ultArabic} (يتطلب: ${s.tier * 500} ولاء)`,
+                callback: () => {
+                    const res = window.SECTS.learnUltimate(state);
+                    let msgArabic = res.message;
+                    if (res.message.includes("learned")) {
+                        msgArabic = `✨ <b>إتقان تام للفن المطلق!</b> ركعت في بهو الطائفة ووهبك الشيوخ أسرار ومخطوطة <b>${ultArabic}</b> ليتغلغل في مهاراتك القتالية!`;
+                    } else {
+                        msgArabic = "معندكش نقاط مساهمة وولاء كافية لطلب تلقين الفن المطلق من شيوخ الطائفة.";
+                    }
+                    narrate(msgArabic, 'النظام');
+                    saveGame();
+                    setTimeout(showSectHallScreen, 2200);
+                }
+            },
+            {
+                text: "❌ الانشقاق والخروج من الطائفة (يمسح الفن المطلق إلا لو دفعت 1,000 دينار ذهبي)",
+                callback: () => {
+                    const res = window.SECTS.leaveSect(state);
+                    let msgArabic = res.message;
+                    if (res.message.includes("betrayed")) {
+                        msgArabic = "❌ <b>لقد انشققت وغادرت الطائفة!</b> تم مسح اسمك من سجلاتهم ومسحت نقوش فنهم المطلق من عروقك كعقوبة خيانة.";
+                    }
+                    narrate(msgArabic, 'النظام');
+                    saveGame();
+                    setTimeout(showSectHallScreen, 2500);
+                }
+            },
+            { text: "↩ عودة لديوان الإدارة", callback: showManagementScreen }
+        ]);
+    } else {
+        narrate("ارتحل للمرتفعات والجبال البدنية العالية بالشرق، وقدم التماساً مكتوباً وتضحيات من الأحجار لتنضم لإحدى الطوائف العظمى المتاحة وتكتسب فنونهم المطلقة.", 'النظام', null, false, true);
+
+        const choices = Object.entries(window.SECTS.sectsDb).map(([id, s]) => {
+            const currentRealm = state.player.cultivation?.stage || 'الفارس المبتدئ';
+            const realms = ['الفارس المبتدئ', 'الفارس المغوار', 'الفارس الصنديد', 'سيد الفرسان والديوان'];
+            const playerRealmIdx = realms.indexOf(currentRealm);
+            const reqRealmIdx = realms.indexOf(s.reqRealm);
+            const eligible = playerRealmIdx >= reqRealmIdx;
+
+            const sectNameArabic = s.name;
+            const reqRealmArabic = s.reqRealm;
+
+            return {
+                text: `${eligible ? '✨' : '🔒'} تقديم التماس انضمام لـ ${sectNameArabic} (الرتبة ${s.tier} | الرسوم: ${s.cost} دينار ذهبي | يتطلب: ملكوت ${reqRealmArabic})`,
+                callback: () => {
+                    const res = window.SECTS.joinSect(state, id);
+                    let msgArabic = res.message;
+                    if (res.message.includes("joined")) {
+                        msgArabic = `✨ <b>تم قبول التماسك ودخلت المحراب!</b> رحب بك شيوخ طائفة <b>${sectNameArabic}</b> وألبسوك رداءهم البدني المميز!`;
+                    } else if (res.message.includes("gold") || res.message.includes("stones")) {
+                        msgArabic = "معندكش دنانير ذهبية كافية لدفع رسوم الانضمام لهذه الطائفة العريقة.";
+                    } else if (res.message.includes("realm") || res.message.includes("stage")) {
+                        msgArabic = `بنيانك البدني ضعيف، شيوخ الطائفة يتطلبون سالكاً في ملكوت <b>${reqRealmArabic}</b> على الأقل ليقبلوا نظره.`;
+                    }
+                    narrate(msgArabic, 'النظام');
+                    updateTopBar(); saveGame();
+                    setTimeout(showSectHallScreen, 2200);
+                }
+            };
+        });
+
+        setChoices([...choices, { text: "↩ عودة لديوان الإدارة", callback: showManagementScreen }]);
+    }
+}
+
+function showAscensionScreen() {
+    clearNarrative();
+    narrate('<b style="font-size:1.4em;letter-spacing:2px;color:var(--secondary); text-shadow:0 0 8px var(--secondary);">⚡ بوابة الارتقاء السماوي المطلق</b>', 'النظام', null, false, true);
+    narrate("تقف تركيزك وهمتك وجسدك الفاني أمام الحاجز الكوني الأخير للملكوت الأرضي. خلف البوابة تترامى بلاد السماوات السبع الخالدة حيث التركيز وهمة المطلق والارتقاء لمرتبة Deity الأبدية. اختر مسار وسبيل ارتقائك الكوني:", 'النظام', null, false, true);
+
+    setChoices([
+        {
+            text: "🛡️ ارتقاء البنيان والجسد المادي المطور (يتطلب 100 دفاع على الأقل)",
+            callback: () => {
+                const res = window.ASCENSION.attemptPhysical(state);
+                if (!res.success) {
+                    let msgArabic = "صلابة جسدك المادي ضعيفة! سحق وفتت ضغط الرياح الكونية فارسك وأعاده ذليلاً للقلعة وديوان.";
+                    narrate(msgArabic, 'النظام', null, false, true);
+                    setTimeout(showCultivationScreen, 3500);
+                } else {
+                    clearNarrative();
+                    narrate("<div class='cinematic-transition' style='text-align:center; padding: 40px;'><h1 style='font-family:Cinzel; letter-spacing:3px; animation: pulse 2s infinite; color:var(--secondary);'>الفصل الرابع: الارتقاء السماوي الأعظم</h1><p>تحول جسدك الفاني إلى تمثال من اليشم والذهب، مقاوماً الرياح الساحقة للحدود الكونية. عبرت بوابات السماء السبع خالدأ لا تموت!</p></div>", 'النظام', null, false, true);
+                    window.ASCENSION.complete(state);
+                    setTimeout(hubLoop, 4000);
+                }
+            }
+        },
+        {
+            text: "⚔️ ارتقاء السيف القاطع (تحدي البطل الحارس للبوابات الكونية!)",
+            callback: () => {
+                const res = window.ASCENSION.attemptCombat(state);
+                if (!res.success) {
+                    narrate("حارس البوابة الكونية يرفض التحدي حالياً؛ لم تكتمل كل فصول وشروط الأقدار اللازمة لمواجهته.", 'النظام');
+                }
+            }
+        },
+        { text: "↩ عودة لقنوات التركيز والهمة", callback: showCultivationScreen }
+    ]);
+}
+
+function showAuctionHouse() {
+    clearNarrative();
+    if (!window.AUCTION) {
+        narrate("دار المزادات مغلقة حالياً بقرار من شيوخ طائفة قمة اليشم لتعديل نقوش الحماية.", "النظام");
+        setTimeout(hubLoop, 2000);
+        return;
+    }
+
+    const auction = state.activeAuction || window.AUCTION.start(state);
+    state.activeAuction = auction;
+
+    const item = auction.item;
+    
+    const auctionItemsArabic = {
+        'dragon_bone': 'عظم التنين الأزلي المحفور بالنار',
+        'nirvana_pill': 'حبة نيرفانا الكبرى لتمحيص الأغلال البدنية',
+        'ancient_manual': 'مخطوطة السيف البصير الكبرى المكتوبة بالدم والذهب'
+    };
+    const auctionItemDescsArabic = {
+        'dragon_bone': 'شريحة عظم من وحش كاسر عتيق، تنبعث منها طاقة نارية عارمة ومثالية لورش الصهر وسحر السيف.',
+        'nirvana_pill': 'حبة خيمياء أسطورية طهرها حكماء الشرق لزيادة حظوظك وفرص ارتقاء عقيدتك بمعدل 50%!',
+        'ancient_manual': 'مخطوطة جلدية قديمة تحوي تفاصيل الفن المطلق لقلب السيف، تفتح فنوناً هجومية إضافية عند دراستها.'
+    };
+
+    narrate('<b style="font-size:1.3em;letter-spacing:2px;color:var(--secondary); text-shadow: 0 0 10px rgba(255,215,0,0.2);">🏛️ دار المزايدات السماوية ببهو القوافل</b>', 'النظام', null, false, true);
+    narrate(`حشد صاخب ورهيب من سالكي البراري والتجار المتنافسين يملأ بهو المزايدة. الكنز المعروض على الحامل المخملي الفاخر أمام الجميع هو:`, 'النظام', null, false, true);
+    
+    // Display item card
+    narrate(`
+        <div style="background:rgba(255,215,0,0.03); padding:15px; border-radius:8px; border:1px solid rgba(212,175,55,0.3); text-align:left; margin:15px 0;">
+            <b class="loot-epic" style="font-size:1.15rem; letter-spacing:1px;">✨ ${auctionItemsArabic[item.id] || item.name}</b><br>
+            <span style="color:var(--text-dim); font-size:0.88rem;">${auctionItemDescsArabic[item.id] || item.desc}</span><br><br>
+            <span style="color:var(--text)">سعر البدء المبدئي المعروض: <b>${item.basePrice} دينار ذهبي</b></span>
+        </div>
+    `, 'النظام', null, false, true);
+
+    narrate(`
+        <div style="padding:10px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:6px; display:flex; justify-content:space-between; margin-bottom:15px;">
+            <span>صاحب أعلى عرض حالياً: <b style="color:var(--secondary);">${auction.highestBidder === state.player.name ? 'أنت (الفارس السالك)' : auction.highestBidder}</b></span>
+            <span>العرض الأعلى الحالي: <b style="color:var(--jade); font-size:1.1rem;">${auction.currentBid} حجر</b></span>
+        </div>
+        <div style="color:var(--danger); font-weight:bold; letter-spacing:1px; text-shadow:0 0 4px rgba(255,75,75,0.2);">
+            ⏳ الوقت المتبقي لحسم المزاد: ${auction.timeLeft} ثانية
+        </div>
+    `, 'النظام', null, false, true);
+
+    const gold = state.player.gold || 0;
+    const bid10 = Math.floor(auction.currentBid * 1.10);
+    const bid25 = Math.floor(auction.currentBid * 1.25);
+
+    const choices = [
+        {
+            text: `⚡ تقديم مزايدة طفيفة (+10%): عرض ${bid10} دينار ذهبي`,
+            callback: () => {
+                if (gold < bid10) {
+                    narrate("<span style='color:var(--danger)'><b>مزايدة تعذرت!</b> صرتك خالية من الأحجار البدنية الكافية لتقديم هذا العرض الشجاع.</span>", "النظام");
+                    setTimeout(showAuctionHouse, 2000);
+                    return;
+                }
+                const success = window.AUCTION.placeBid(state, state.player.name, bid10);
+                if (success) {
+                    narrate(`رفعت لوح المزايدة بثقة تامة أمام التجار! أنت الآن صاحب أعلى عرض بقيمة <b>${bid10} دينار ذهبي</b>!`, "النظام");
+                    if (window.AUDIO) window.AUDIO.playEffect('menu_click');
+                }
+                setTimeout(showAuctionHouse, 1800);
+            }
+        },
+        {
+            text: `🔥 اكتساح المزايدة بقوة وجرأة (+25%): عرض ${bid25} دينار ذهبي`,
+            callback: () => {
+                if (gold < bid25) {
+                    narrate("<span style='color:var(--danger)'><b>مزايدة تعذرت!</b> صرتك خالية من الأحجار البدنية الكافية لتقديم هذا العرض الشجاع.</span>", "النظام");
+                    setTimeout(showAuctionHouse, 2000);
+                    return;
+                }
+                const success = window.AUCTION.placeBid(state, state.player.name, bid25);
+                if (success) {
+                    narrate(`صحت بقوة وهيبة في أرجاء قاعة المزايدة، معلناً عن عرض جبار بقيمة <b>${bid25} دينار ذهبي</b>! همس الحاضرون في دهول وتراجع المنافسون!`, "النظام");
+                    if (window.AUDIO) window.AUDIO.playEffect('combat_hit');
+                }
+                setTimeout(showAuctionHouse, 1800);
+            }
+        },
+        {
+            text: `⏳ تمهل وترقب (جولة مزايدة التجار الآخرين بالبهو)`,
+            callback: () => {
+                window.AUCTION.processNPCs(state);
+                auction.timeLeft = Math.max(0, auction.timeLeft - 10);
+                
+                if (auction.timeLeft <= 0) {
+                    // Auction Ends!
+                    clearNarrative();
+                    narrate('<b>دق ناقوس المزاد ودق المطرقة! تم البيع بنجاح!</b>', 'المنادي بصوت جوهري', null, false, true);
+                    
+                    if (auction.highestBidder === state.player.name) {
+                        state.player.gold -= auction.currentBid;
+                        if (!state.player.inventory.items) state.player.inventory.items = [];
+                        
+                        // Create item in inventory
+                        if (item.id === 'dragon_bone') {
+                            if (!state.player.inventory.materials) state.player.inventory.materials = {};
+                            state.player.inventory.materials['dragon_vein_shard'] = (state.player.inventory.materials['dragon_vein_shard'] || 0) + 3;
+                            narrate(`<div class="cinematic-transition" style="background:rgba(0,229,160,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); text-align:center;"><span class="loot-epic" style="font-size:1.2rem; font-weight:bold;">🎉 انتصار باهر ومطلق في المزاد!</span><br>تم رسو المزاد عليك وفزت بـ <b>${auctionItemsArabic[item.id] || item.name}</b>! قام العمال بصهرها فوراً وتحويلها لـ <b>3x شظايا عروق تنين</b> ذهبية أضيفت لحقيبتك!</div>`, 'النظام', null, false, true);
+                        } else if (item.id === 'nirvana_pill') {
+                            const newItem = {
+                                id: 'nirvana_pill',
+                                name: auctionItemsArabic[item.id] || item.name,
+                                type: 'consumable',
+                                effect: { breakthroughRateUp: 0.50 }
+                            };
+                            if (!state.player.inventory.items) state.player.inventory.items = [];
+                            state.player.inventory.items.push(newItem);
+                            narrate(`<div class="cinematic-transition" style="background:rgba(0,229,160,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); text-align:center;"><span class="loot-epic" style="font-size:1.2rem; font-weight:bold;">🎉 انتصار باهر ومطلق في المزاد!</span><br>تم رسو المزاد عليك وفزت بـ <b>${auctionItemsArabic[item.id] || item.name}</b> الأسطورية! أضيفت لجرعات حقيبتك؛ يمكنك بلعها لرفع حظوظ الارتقاء القادم!</div>`, 'System', null, false, true);
+                        } else {
+                            const newItem = {
+                                id: 'ancient_manual',
+                                name: auctionItemsArabic[item.id] || item.name,
+                                type: 'manual',
+                                manualSkill: 'sword_heart'
+                            };
+                            if (!state.player.inventory.items) state.player.inventory.items = [];
+                            state.player.inventory.items.push(newItem);
+                            narrate(`<div class="cinematic-transition" style="background:rgba(0,229,160,0.05); padding:15px; border-radius:8px; border:1px solid var(--jade); text-align:center;"><span class="loot-epic" style="font-size:1.2rem; font-weight:bold;">🎉 انتصار باهر ومطلق في المزاد!</span><br>تم رسو المزاد عليك وفزت بـ <b>${auctionItemsArabic[item.id] || item.name}</b>! يمكنك الآن دراسة <b>مخطوطة قلب السيف البصير</b> وتفعيل فنها البدني!</div>`, 'System', null, false, true);
+                            if (window.CULTIVATION && window.CULTIVATION.methods && window.CULTIVATION.methods['sword_heart']) {
+                                window.CULTIVATION.methods['sword_heart'].unlocked = true;
+                            }
+                        }
+                        if (window.AUDIO) window.AUDIO.playEffect('level_up');
+                    } else {
+                        // Rival wins
+                        narrate(`<div style="background:rgba(255,75,75,0.05); padding:15px; border-radius:8px; border:1px solid var(--danger); text-align:center;"><b style="color:var(--danger)">أغلق المزاد وعاد الحشد</b><br>طار الكنز وجرف المزاد منافس آخر! فاز به <b>${auction.highestBidder}</b> بسعر <b>${auction.currentBid} دينار ذهبي</b>.</div>`, 'النظام', null, false, true);
+                    }
+                    
+                    state.activeAuction = null;
+                    setChoices([{ text: "↩ عودة إلى سوق الواحة", callback: hubLoop }]);
+                } else {
+                    narrate("تراقب المزايدين المنافسين بكتم أنفاس وترقب، والعيون تتأجج شحاً وتنافساً...", "النظام");
+                    setTimeout(showAuctionHouse, 1500);
+                }
+            }
+        },
+        {
+            text: "↩ انسحب واخرج من القاعة",
+            callback: () => {
+                state.activeAuction = null;
+                hubLoop();
+            }
+        }
+    ];
+
+    setChoices(choices);
+}
+
+function showPetsPavilionScreen() {
+    showScreen('story-screen');
+    state.screen = 'pets-pavilion-screen';
+    clearNarrative();
+
+    const p = state.player;
+    if (!p.pets) p.pets = [];
+    if (!window.PETS) {
+        narrate("ديوان الترويض غير متوفر حالياً.", "النظام");
+        setTimeout(hubLoop, 1500);
+        return;
+    }
+    window.PETS.init(state);
+    
+    narrate('<b style="font-size:1.35em;letter-spacing:2px;color:var(--secondary);">🐾 ديوان ترويض وحوش الجان والدواب المروضة</b>', 'النظام', null, false, true);
+    narrate(`أهلاً بك في جناح الدواب ومروضات وحوش الفيافي. هنا يمكنك ركوب الجمال والخيل وتدريب رفاقك من صقور وفهود لزيادة عزيمتك وصلابتك البدنية في المعارك!`, 'النظام', null, false, true);
+
+    let activeMountHtml = `<span style="color:var(--text-dim);">لا يوجد دابة مجهزة</span>`;
+    if (p.activeMount) {
+        const mount = p.pets.find(b => b.id === p.activeMount);
+        if (mount) {
+            const level = mount.level || 1;
+            const scale = 1 + (level - 1) * 0.12;
+            const bonusTxt = Object.entries(mount.bonus).map(([k, v]) => {
+                const val = k === 'atk' || k === 'def' || k === 'crit' ? `+${Math.floor(v * scale * 100)}%` : `+${Math.floor(v * scale)}`;
+                return `${k.toUpperCase()}: ${val}`;
+            }).join(' | ');
+
+            activeMountHtml = `
+                <div style="background:rgba(212,175,55,0.06); border:1.5px solid var(--secondary); border-radius:8px; padding:10px; text-align:right; box-shadow:0 0 10px rgba(212,175,55,0.15);">
+                    <b style="color:var(--secondary); font-size:1.15rem;">🐪 الدابة النشطة: ${mount.name}</b> <span style="font-size:0.8rem; background:var(--secondary); color:#000; padding:1px 6px; border-radius:3px; font-weight:bold;">رتبة ${level}</span><br>
+                    <small style="color:var(--text-dim);">${mount.desc}</small><br>
+                    <span style="color:var(--success); font-weight:bold; font-size:0.85rem;">📊 بركة الركوب المسخرة: ${bonusTxt}</span>
+                </div>
+            `;
+        }
+    }
+
+    let activePetHtml = `<span style="color:var(--text-dim);">لا يوجد مرافق أليف مجهز</span>`;
+    if (p.activePet) {
+        const pet = p.pets.find(b => b.id === p.activePet);
+        if (pet) {
+            const level = pet.level || 1;
+            const scale = 1 + (level - 1) * 0.12;
+            const bonusTxt = Object.entries(pet.bonus).map(([k, v]) => {
+                const val = k === 'atk' || k === 'def' || k === 'crit' ? `+${Math.floor(v * scale * 100)}%` : `+${Math.floor(v * scale)}`;
+                return `${k.toUpperCase()}: ${val}`;
+            }).join(' | ');
+
+            activePetHtml = `
+                <div style="background:rgba(0,229,160,0.06); border:1.5px solid var(--jade); border-radius:8px; padding:10px; text-align:right; box-shadow:0 0 10px rgba(0,229,160,0.12); margin-top:8px;">
+                    <b style="color:var(--jade); font-size:1.15rem;">🦅 المرافق الأليف: ${pet.name}</b> <span style="font-size:0.8rem; background:var(--jade); color:#000; padding:1px 6px; border-radius:3px; font-weight:bold;">رتبة ${level}</span><br>
+                    <small style="color:var(--text-dim);">${pet.desc}</small><br>
+                    <span style="color:var(--success); font-weight:bold; font-size:0.85rem;">📊 بركة المرافقة النشطة: ${bonusTxt}</span>
+                </div>
+            `;
+        }
+    }
+
+    narrate(`
+        <div style="display:flex; flex-direction:column; gap:8px; margin:15px 0;">
+            ${activeMountHtml}
+            ${activePetHtml}
+        </div>
+    `, 'النظام', null, false, true);
+
+    narrate('<b style="color:var(--secondary); font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; display:block;">📜 قائمة وحوش البادية والدواب المتاحة للتطوير والترويض:</b>', 'النظام', null, false, true);
+
+    const choices = [];
+
+    Object.values(window.PETS.beasts).forEach(beast => {
+        const owned = p.pets.find(b => b.id === beast.id);
+        const typeArabic = beast.type === 'mount' ? '🐪 دابة للركوب' : '🦅 حيوان مرافق';
+        
+        let detailsHtml = "";
+        if (owned) {
+            const level = owned.level || 1;
+            const scale = 1 + (level - 1) * 0.12;
+            const nextLvlCost = 10 + level * 5;
+            const bonusTxt = Object.entries(beast.bonus).map(([k, v]) => {
+                const val = k === 'atk' || k === 'def' || k === 'crit' ? `+${Math.floor(v * scale * 100)}%` : `+${Math.floor(v * scale)}`;
+                return `${k.toUpperCase()}: ${val}`;
+            }).join(' | ');
+
+            detailsHtml = `
+                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:12px; text-align:right;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span><b style="color:#fff;">${beast.name}</b> (مروض رتبة ${level})</span>
+                        <span style="color:var(--secondary); font-size:0.8rem;">${typeArabic}</span>
+                    </div>
+                    <small style="color:var(--text-dim);">${beast.desc}</small><br>
+                    <span style="color:var(--success); font-size:0.8rem;">الإضافات الحالية: ${bonusTxt}</span>
+                </div>
+            `;
+
+            const activeId = beast.type === 'mount' ? p.activeMount : p.activePet;
+            const isEquipped = activeId === beast.id;
+            choices.push({
+                text: `${isEquipped ? '❌ إلغاء تجهيز' : '🏇 تجهيز وامتطاء'} ${beast.name} (رتبة ${level})`,
+                callback: () => {
+                    const res = window.PETS.toggleEquip(state, beast.id);
+                    narrate(res.message, 'النظام', null, false, true);
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    setTimeout(showPetsPavilionScreen, 1800);
+                }
+            });
+
+            choices.push({
+                text: `✨ ترقية [${beast.name}] إلى رتبة ${level + 1} | يتطلب: ${nextLvlCost} أعشاب`,
+                callback: () => {
+                    const res = window.PETS.levelUp(state, beast.id);
+                    narrate(res.message, 'النظام', null, false, true);
+                    if (res.success) {
+                        calculateTotalStats();
+                        updateTopBar();
+                        saveGame();
+                        if (window.AUDIO) window.AUDIO.playEffect('level_up');
+                    }
+                    setTimeout(showPetsPavilionScreen, 2000);
+                }
+            });
+
+        } else {
+            const tameCost = beast.rarity === 'أسطوري' ? 1200 : beast.rarity === 'نادر' ? 600 : 300;
+            
+            detailsHtml = `
+                <div style="background:rgba(255,255,255,0.01); border:1px dashed rgba(255,255,255,0.1); padding:10px; border-radius:6px; margin-bottom:12px; opacity:0.6; text-align:right;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span><b style="color:#aaa;">${beast.name}</b> (غير مروض)</span>
+                        <span style="color:var(--text-dim); font-size:0.8rem;">${typeArabic}</span>
+                    </div>
+                    <small style="color:var(--text-dim);">${beast.desc}</small><br>
+                    <span style="color:var(--secondary); font-size:0.8rem;">بركة الترويض المتوقعة: ${Object.entries(beast.bonus).map(([k,v]) => `${k.toUpperCase()}: +${k==='atk'||k==='def'||k==='crit'?v*100+'%':v}`).join(' | ')}</span>
+                </div>
+            `;
+
+            choices.push({
+                text: `🐾 ترويض وتبني [${beast.name}] | التكلفة: ${tameCost} دينار ذهبي`,
+                callback: () => {
+                    const currentGold = p.gold || 0;
+                    if (currentGold < tameCost) {
+                        narrate(`<span style="color:var(--danger)"><b>الترويض تعذر!</b> ليس لديك ${tameCost} دينار ذهبي لشراء مستلزمات ترويض [${beast.name}].</span>`, "النظام");
+                        setTimeout(showPetsPavilionScreen, 2000);
+                        return;
+                    }
+                    p.gold -= tameCost;
+                    const res = window.PETS.tame(state, beast.id);
+                    narrate(res.message, 'النظام', null, false, true);
+                    calculateTotalStats();
+                    updateTopBar();
+                    saveGame();
+                    if (window.AUDIO) window.AUDIO.playEffect('loot_mythic');
+                    setTimeout(showPetsPavilionScreen, 2000);
+                }
+            });
+        }
+
+        narrate(detailsHtml, 'النظام', null, false, true);
+    });
+
+    choices.push({ text: '↩ عودة إلى واحة القوافل الكبرى', callback: hubLoop });
+    setChoices(choices);
+}
+
+window.showPetsPavilionScreen = showPetsPavilionScreen;
