@@ -46,17 +46,95 @@ function hasChronicleFlag(state, flag) {
     return !!state.storyFlags[flag];
 }
 
+// Trigger pulsing and breathing animation on the Karma Pointer (مؤشر مقام القدر)
+window.triggerKarmaPointerPulse = function(pointerEl, currentKarma, delta = 0) {
+    const pointer = pointerEl || document.getElementById('chronicle-karma-pointer');
+    if (!pointer) return;
+
+    // Reset any currently running pulse classes to re-trigger CSS keyframes cleanly
+    pointer.classList.remove('karma-pulse-saintly', 'karma-pulse-demonic', 'karma-pulse-balance', 'karma-breathing');
+
+    // Force DOM reflow to restart keyframe animation immediately
+    void pointer.offsetWidth;
+
+    // Choose pulse style based on the alignment direction
+    let pulseClass = 'karma-pulse-balance';
+    if (currentKarma >= 50) {
+        pulseClass = 'karma-pulse-saintly';
+    } else if (currentKarma <= -50) {
+        pulseClass = 'karma-pulse-demonic';
+    } else {
+        pulseClass = 'karma-pulse-balance';
+    }
+
+    pointer.classList.add(pulseClass);
+
+    // Provide auditory and tactile feedback for the significant moral shift
+    try {
+        if (window.AUDIO && typeof window.AUDIO.playEffect === 'function') {
+            if (pulseClass === 'karma-pulse-saintly') {
+                window.AUDIO.playEffect('heal_spell');
+            } else if (pulseClass === 'karma-pulse-demonic') {
+                window.AUDIO.playEffect('crit_strike');
+            } else {
+                window.AUDIO.playEffect('story_beat');
+            }
+        }
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate([40, 60, 40]);
+        }
+    } catch (pulseFeedbackErr) {
+        console.warn('Karma pulse audio/haptic feedback notice:', pulseFeedbackErr);
+    }
+
+    // After 3 intense pulsing cycles (3.3s), smoothly transition to ambient breathing
+    if (pointer._karmaPulseTimer) clearTimeout(pointer._karmaPulseTimer);
+    pointer._karmaPulseTimer = setTimeout(() => {
+        pointer.classList.remove('karma-pulse-saintly', 'karma-pulse-demonic', 'karma-pulse-balance');
+        pointer.classList.add('karma-breathing');
+    }, 3400);
+};
+
 window.updateChronicleUI = function(state) {
     if (!state) return;
     
-    // 1. Update Karma Slider pointer
+    // 1. Update Karma Slider pointer with pulsing animation on significant alignment shifts
     const pointer = document.getElementById('chronicle-karma-pointer');
     if (pointer) {
-        const karma = state.player.karma || 0;
+        const currentKarma = typeof state.player?.karma === 'number' ? state.player.karma : 0;
         // Map -100 to 100 onto 0% to 100%
-        const pct = Math.max(0, Math.min(100, ((karma + 100) / 2)));
+        const pct = Math.max(0, Math.min(100, ((currentKarma + 100) / 2)));
         pointer.style.left = `${pct}%`;
+
+        // Detect significant change in the hero's alignment
+        const hasPrev = typeof window._lastKarmaChronicle === 'number';
+        const prevKarma = hasPrev ? window._lastKarmaChronicle : (typeof state.player?._lastKarma === 'number' ? state.player._lastKarma : currentKarma);
+        const delta = Math.abs(currentKarma - prevKarma);
+
+        // A significant change is defined as:
+        // - A shift of 15 or more karma points
+        // - Entering the Saintly realm (>= 60)
+        // - Entering the Demonic realm (<= -60)
+        // - Crossing the central moral axis between darkness and light
+        const crossedIntoSaintly = (prevKarma < 60 && currentKarma >= 60);
+        const crossedIntoDemonic = (prevKarma > -60 && currentKarma <= -60);
+        const crossedMoralAxis = (prevKarma > 10 && currentKarma < -10) || (prevKarma < -10 && currentKarma > 10);
+        const isSignificantShift = delta >= 15 || crossedIntoSaintly || crossedIntoDemonic || crossedMoralAxis;
+
+        if (isSignificantShift || pointer.dataset.forcePulse === 'true') {
+            window.triggerKarmaPointerPulse(pointer, currentKarma, delta);
+            pointer.dataset.forcePulse = 'false';
+        } else if (!pointer.classList.contains('karma-breathing') &&
+                   !pointer.classList.contains('karma-pulse-saintly') &&
+                   !pointer.classList.contains('karma-pulse-demonic') &&
+                   !pointer.classList.contains('karma-pulse-balance')) {
+            pointer.classList.add('karma-breathing');
+        }
+
+        window._lastKarmaChronicle = currentKarma;
+        if (state.player) state.player._lastKarma = currentKarma;
     }
+
     
     // 2. Update Ending Projections based on Alignment
     const projectionBox = document.getElementById('ending-projection-box');
