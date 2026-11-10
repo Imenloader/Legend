@@ -407,6 +407,51 @@ h2 { font-size: 2rem; margin-bottom: 15px; }
     outline: none;
 }
 
+/* Antique Oil Lamp Ambient Rising Embers */
+.oil-lamp-ember-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 14px;
+}
+
+.oil-lamp-ember {
+    position: absolute;
+    bottom: -8px;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, #fff2a3 25%, #f39c12 70%, transparent 100%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px rgba(243, 156, 18, 0.9));
+    opacity: 0;
+    animation: emberRise 5.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    will-change: transform, opacity;
+}
+
+@keyframes emberRise {
+    0% {
+        transform: translateY(0) translateX(0) scale(0.6);
+        opacity: 0;
+    }
+    14% {
+        opacity: 0.85;
+    }
+    50% {
+        transform: translateY(-160px) translateX(14px) scale(1.15);
+        opacity: 0.95;
+    }
+    82% {
+        opacity: 0.55;
+    }
+    100% {
+        transform: translateY(-360px) translateX(-16px) scale(0.3);
+        opacity: 0;
+    }
+}
+
+
 
 .screen::before, .screen::after {
     content: '';

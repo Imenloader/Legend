@@ -421,6 +421,56 @@ window.AUDIO = {
                 g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
                 osc.connect(g); g.connect(this.ctx.destination);
                 osc.start(now); osc.stop(now + 0.12);
+            },
+            crit_strike: () => {
+                // Resonant oriental gong with sharp harmonic blade shimmer
+                [330, 660, 990, 1320].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = idx === 0 ? 'triangle' : 'sine';
+                    osc.frequency.setValueAtTime(freq, now);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 0.9, now + 0.4);
+                    g.gain.setValueAtTime(0.2 / (idx + 1), now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc.connect(g); g.connect(this.ctx.destination);
+                    osc.start(now); osc.stop(now + 0.55);
+                });
+            },
+            heal_spell: () => {
+                // Rising harmonic ripple of desert spring water
+                [440, 554, 659, 880].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = 'sine';
+                    const delay = idx * 0.06;
+                    osc.frequency.setValueAtTime(freq, now + delay);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 1.15, now + delay + 0.3);
+                    g.gain.setValueAtTime(0.12, now + delay);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.35);
+                    osc.connect(g); g.connect(this.ctx.destination);
+                    osc.start(now + delay); osc.stop(now + delay + 0.4);
+                });
+            },
+            perfect_counter: () => {
+                // Metallic blade clash + brass bell ring
+                const osc1 = this.ctx.createOscillator();
+                const g1 = this.ctx.createGain();
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(800, now);
+                osc1.frequency.exponentialRampToValueAtTime(150, now + 0.18);
+                g1.gain.setValueAtTime(0.25, now);
+                g1.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc1.connect(g1); g1.connect(this.ctx.destination);
+                osc1.start(now); osc1.stop(now + 0.22);
+
+                const osc2 = this.ctx.createOscillator();
+                const g2 = this.ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1174.66, now + 0.04);
+                g2.gain.setValueAtTime(0.15, now + 0.04);
+                g2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                osc2.connect(g2); g2.connect(this.ctx.destination);
+                osc2.start(now + 0.04); osc2.stop(now + 0.65);
             }
         };
 

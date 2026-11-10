@@ -260,6 +260,26 @@
             const pos = getTargetPos(target || 'enemy');
             const fn = EFFECTS[effectName] || EFFECTS.hit;
             fn(pos);
+
+            // Connect procedural audio effects & physical mobile haptics
+            try {
+                if (window.AUDIO && typeof window.AUDIO.playEffect === 'function') {
+                    if (effectName === 'crit' || effectName === 'execution' || effectName === 'sword_intent') {
+                        window.AUDIO.playEffect('crit_strike');
+                        navigator.vibrate?.([60, 40, 90]);
+                    } else if (effectName === 'guard_break') {
+                        window.AUDIO.playEffect('perfect_counter');
+                        navigator.vibrate?.([40, 50, 40]);
+                    } else if (effectName === 'heal') {
+                        window.AUDIO.playEffect('heal_spell');
+                    } else if (effectName === 'slash' || effectName === 'hit') {
+                        window.AUDIO.playEffect('combat_hit');
+                        navigator.vibrate?.(35);
+                    }
+                }
+            } catch (fxErr) {
+                console.warn('Combat FX audio/haptic notice:', fxErr);
+            }
         },
 
         showDamage(amount, target) {
