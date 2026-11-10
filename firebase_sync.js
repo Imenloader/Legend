@@ -1,6 +1,10 @@
 // firebase_sync.js — Firebase Firestore & Google Auth Cloud Persistence Module
 import { initializeApp } from 'firebase/app';
 import {
+    initializeAuth,
+    indexedDBLocalPersistence,
+    browserLocalPersistence,
+    browserPopupRedirectResolver,
     getAuth,
     GoogleAuthProvider,
     signInWithPopup,
@@ -24,9 +28,39 @@ import {
     sanitizeSaveState
 } from './combat_engine.js';
 
+// Catch unhandled iframe network rejections that can occur in nested sandboxed iframes
+if (typeof window !== 'undefined') {
+    window.addEventListener('unhandledrejection', (event) => {
+        const reason = event.reason;
+        const msg = String(reason?.message || reason || '');
+        const code = String(reason?.code || '');
+        const stack = String(reason?.stack || '');
+        if (
+            code === 'auth/network-request-failed' ||
+            msg.includes('network-request-failed') ||
+            stack.includes('_openIframe') ||
+            stack.includes('firebase_auth')
+        ) {
+            event.preventDefault();
+            console.warn('Handled Firebase Auth sandbox network state:', msg || code);
+        }
+    });
+}
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
+
+let authInstance;
+try {
+    // initializeAuth avoids proactively opening an authDomain iframe on page load
+    authInstance = initializeAuth(app, {
+        persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+    });
+} catch (e) {
+    authInstance = getAuth(app);
+}
+export const auth = authInstance;
+
 
 const OperationType = {
     CREATE: 'create',
@@ -226,7 +260,8 @@ const FIREBASE_SYNC = {
     async signIn() {
         try {
             const provider = new GoogleAuthProvider();
-            const result = await signInWithPopup(auth, provider);
+            provider.setCustomParameters({ prompt: 'select_account' });
+            const result = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
             if (result && result.user && window.state) {
                 await this.loadFromCloud(window.state);
                 if (typeof window.showToast === 'function') {
@@ -234,9 +269,14 @@ const FIREBASE_SYNC = {
                 }
             }
         } catch (err) {
-            console.warn('Google Sign-In cancelled or failed:', err);
+            console.warn('Google Sign-In notice:', err);
+            const msg = String(err?.code || err?.message || '');
             if (typeof window.showToast === 'function') {
-                window.showToast('تعذر إكمال تسجيل الدخول السحابي — بياناتك محفوظة محلياً بأمان.');
+                if (msg.includes('popup-closed-by-user')) {
+                    window.showToast('تم إغلاق نافذة تسجيل الدخول.');
+                } else {
+                    window.showToast('تعذر إكمال تسجيل الدخول السحابي — بياناتك محفوظة محلياً بأمان.');
+                }
             }
         }
     },

@@ -2,6 +2,23 @@
 <html lang="ar" dir="rtl">
 <head>
     <script>
+        // Intercept and prevent sandbox iframe auth timeout errors from bubbling up as uncaught crashes
+        window.addEventListener('unhandledrejection', function(event) {
+            var reason = event.reason;
+            var msg = String(reason && (reason.message || reason) || '');
+            var code = String(reason && reason.code || '');
+            var stack = String(reason && reason.stack || '');
+            if (
+                code === 'auth/network-request-failed' ||
+                msg.indexOf('network-request-failed') !== -1 ||
+                stack.indexOf('_openIframe') !== -1 ||
+                stack.indexOf('firebase_auth') !== -1
+            ) {
+                event.preventDefault();
+                console.warn('Handled Firebase Auth sandbox network state:', msg || code);
+            }
+        });
+
         // Ensure fresh assets and Service Worker updates
         if ('caches' in window) {
             caches.keys().then(keys => {
