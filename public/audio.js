@@ -471,6 +471,45 @@ window.AUDIO = {
                 g2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
                 osc2.connect(g2); g2.connect(this.ctx.destination);
                 osc2.start(now + 0.04); osc2.stop(now + 0.65);
+            },
+            stance_flow: () => {
+                // Harmonic ripple of flowing stances
+                [523.25, 659.25, 783.99].forEach((f, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.05);
+                    g.gain.setValueAtTime(0, now + idx * 0.05);
+                    g.gain.linearRampToValueAtTime(0.14, now + idx * 0.05 + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.35);
+                    osc.connect(g); g.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.05); osc.stop(now + idx * 0.05 + 0.4);
+                });
+            },
+            awakening_burst: () => {
+                // Heavenly cosmic chord: low gong swell + multi-octave radiant shimmer
+                const sub = this.ctx.createOscillator();
+                const subGain = this.ctx.createGain();
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(110, now);
+                sub.frequency.exponentialRampToValueAtTime(55, now + 0.6);
+                subGain.gain.setValueAtTime(0.35, now);
+                subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                sub.connect(subGain); subGain.connect(this.ctx.destination);
+                sub.start(now); sub.stop(now + 0.85);
+
+                [440, 554.37, 659.25, 880, 1108.73, 1318.51].forEach((f, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(f, now + i * 0.04);
+                    osc.frequency.exponentialRampToValueAtTime(f * 1.05, now + i * 0.04 + 0.5);
+                    g.gain.setValueAtTime(0, now + i * 0.04);
+                    g.gain.linearRampToValueAtTime(0.18 / (1 + i * 0.2), now + i * 0.04 + 0.04);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.04 + 0.8);
+                    osc.connect(g); g.connect(this.ctx.destination);
+                    osc.start(now + i * 0.04); osc.stop(now + i * 0.04 + 0.85);
+                });
             }
         };
 

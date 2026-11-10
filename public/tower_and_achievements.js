@@ -79,8 +79,22 @@
         const momColor = mom > 0 ? '#00e5a0' : (mom < 0 ? '#ff6b6b' : '#f5c842');
         const momText = mom >= 0 ? `+${mom}` : `${mom}`;
 
+        const awkPct = Math.max(0, Math.min(100, Math.round(state.awakeningGauge || 0)));
+        const isAwkReady = awkPct >= 100;
+
         const pSprite = esc(p.sprite || 'assets/sword_immortal_1778872325571.png');
         const eSprite = esc(enemy.sprite || 'assets/desert_ghoul_1778872388305.png');
+
+        const activeFlow = (typeof getEngine().getStanceFlow === 'function')
+            ? getEngine().getStanceFlow(state.activeStanceFlow)
+            : null;
+        const flowChip = activeFlow
+            ? `<span class="arena-chip stance-flow-chip" style="border-color:#38bdf8;color:#38bdf8;background:rgba(56,189,248,0.15);">⚡ ${esc(activeFlow.name)}</span>`
+            : '';
+
+        const vulnChip = (state.enemyVulnerableTurns || 0) > 0
+            ? `<span class="arena-chip" style="border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.2);font-weight:bold;">⚡ ثغرة مكشوفة (+40% ضرر)</span>`
+            : '';
 
         banner.innerHTML = `
             <div class="arena-fighter-card player-card">
@@ -99,15 +113,21 @@
                     <div class="arena-bar-label"><span>🌀 عزيمة</span><span class="tabular-nums">${Math.round(p.mp)}/${Math.round(p.maxMp)}</span></div>
                     <div class="arena-bar-track"><div class="arena-bar-fill mp-fill" style="width:${pMpPct}%"></div></div>
                 </div>
+                <div class="arena-bar-row">
+                    <div class="arena-bar-label"><span style="color:#f59e0b;">🔥 تجلّي القدر</span><span class="tabular-nums" style="color:${isAwkReady ? '#ffd700;font-weight:900;' : '#cbd5e1'}">${isAwkReady ? 'جاهز ⚡' : `${awkPct}%`}</span></div>
+                    <div class="arena-bar-track arena-awakening-track"><div class="arena-bar-fill arena-awakening-fill ${isAwkReady ? 'awakening-ready' : ''}" style="width:${awkPct}%"></div></div>
+                </div>
                 <div class="arena-chips-row">
                     <span class="arena-chip">🗡️ ${p.atk}</span>
                     <span class="arena-chip">🛡️ ${p.def}</span>
                     ${classSpecHtml}
+                    ${flowChip}
                 </div>
             </div>
 
             <div class="arena-vs-center">
                 <div class="arena-turn-badge tabular-nums">جولة ${state.combatTurnCount || 1} · <span style="color:${momColor}">⚡زخم ${momText}</span></div>
+                <button type="button" class="arena-speed-btn" onclick="window.toggleCombatSpeed()" title="تبديل سرعة المعركة">${state.combatSpeed === 2 ? '⚡ 2x خاطف' : '⚡ 1x عادي'}</button>
                 <div class="arena-intent-badge" style="border-color:${intent.color};color:${intent.color};">${intent.label}</div>
             </div>
 
@@ -125,11 +145,23 @@
                 </div>
                 <div class="arena-chips-row">
                     <span class="arena-chip">⚔️ ${enemy.atk}</span>
-                    <span class="arena-chip">🛡️ ${enemy.def || 5}</span>
+                    <span class="arena-chip">🛡️ ${enemy.def !== undefined ? enemy.def : 5}</span>
                     ${state.enemyStaggered ? '<span class="arena-chip" style="border-color:#ffcc00;color:#ffcc00;">⚡ مترنح!</span>' : ''}
+                    ${vulnChip}
                 </div>
             </div>
         `;
+    };
+
+    window.toggleCombatSpeed = function () {
+        if (!window.state) return;
+        window.state.combatSpeed = window.state.combatSpeed === 2 ? 1 : 2;
+        if (typeof showToast === 'function') {
+            showToast(window.state.combatSpeed === 2 ? '⚡ تم تفعيل سرعة المعارك الخاطفة (2x)!' : '⚡ تم تفعيل سرعة المعارك العادية (1x)!');
+        }
+        if (typeof window.updateCombatArenaBanner === 'function') {
+            window.updateCombatArenaBanner();
+        }
     };
 
     // ------------------------------------------------------------

@@ -17,6 +17,9 @@ import {
   parseAndVerifySaveToken,
   getTowerFloorConfig,
   evaluateAchievements,
+  checkStanceFlow,
+  STANCE_FLOWS,
+  AWAKENING_MOVES,
 } from './combat_engine.js';
 
 function createMockState(overrides: Record<string, any> = {}) {
@@ -169,5 +172,80 @@ test('evaluateAchievements unlocks earned achievements and accumulates stat bonu
   assert.ok(state.achievements.includes('tower_initiate'));
   assert.ok(res.totalBonus.atk > 0);
   assert.ok(res.totalBonus.hp > 0);
+});
+
+test('checkStanceFlow detects valid stance transitions and applies synergy combo bonuses', () => {
+  const flowWaterMountain = checkStanceFlow('water', 'mountain');
+  assert.ok(flowWaterMountain);
+  assert.equal(flowWaterMountain.id, 'surging_shockwave');
+
+  const flowMountainWind = checkStanceFlow('mountain', 'wind');
+  assert.ok(flowMountainWind);
+  assert.equal(flowMountainWind.id, 'gale_flash');
+
+  const flowWindWater = checkStanceFlow('wind', 'water');
+  assert.ok(flowWindWater);
+  assert.equal(flowWindWater.id, 'vortex_recovery');
+
+  assert.equal(checkStanceFlow('water', 'water'), null);
+  assert.equal(checkStanceFlow('water', 'wind'), null);
+
+  // Test applying activeStanceFlow in resolveMove
+  const state: any = createMockState({
+    activeStanceFlow: 'surging_shockwave',
+    player: { atk: 30, def: 10, critRate: 0 },
+  });
+  initCombatState(state);
+  state.activeStanceFlow = 'surging_shockwave';
+  const enemy = { name: 'غول الصحراء', hp: 150, maxHp: 150, atk: 10, def: 5 };
+
+  const res = resolveMove('earthshatter', 'heavy', 30, 10, enemy, state);
+  assert.ok(res.resultText.includes('زلزال المد العارم'));
+  assert.equal(state.staggerCounter, 1);
+  assert.equal(state.activeStanceFlow, null); // Consumed
+  assert.ok(state.awakeningGauge >= 15);
+});
+
+test('Awakening Limit Break unlocks at gauge 100 and executes class-specific ultimate', () => {
+  const state: any = createMockState({
+    player: { class: 'Sword Immortal', atk: 40, def: 10, critRate: 0 },
+    awakeningGauge: 100,
+  });
+  initCombatState(state);
+  state.awakeningGauge = 100;
+
+  // Actions include awakening move when gauge is 100
+  const actions = getActionsForForm('wind', state);
+  const awkAction = actions.find((a: any) => a.id === 'awakening_burst');
+  assert.ok(awkAction);
+  assert.equal(awkAction.isAwakening, true);
+
+  // Resolve awakening burst
+  const enemy = { name: 'حارس البرج العظيم', hp: 500, maxHp: 500, atk: 25, def: 10 };
+  const res = resolveMove('awakening_burst', 'heavy', 40, 25, enemy, state);
+  assert.ok(res.playerDmg > 100);
+  assert.equal(res.enemyDmg, 0);
+  assert.equal(state.awakeningGauge, 0); // Consumed
+  assert.equal(state.swordIntent, 3); // Sword Immortal passive fully activated!
+  assert.ok(res.resultText.includes('تسعة أسياف شهابية'));
+});
+
+test('Perfect Parry inflicts vulnerable status and amplifies subsequent attack damage by 40%', () => {
+  const state: any = createMockState({
+    player: { atk: 30, def: 10, critRate: 0 },
+  });
+  initCombatState(state);
+  const enemy = { name: 'لص الليل', hp: 200, maxHp: 200, atk: 15, def: 0 };
+
+  // Perfect deflect against heavy attack
+  const parryRes = resolveMove('deflect', 'heavy', 30, 15, enemy, state);
+  assert.equal(state.enemyVulnerableTurns, 2);
+  assert.ok(parryRes.resultText.includes('انكشفت ثغرة دفاع الخصم'));
+
+  // Next attack consumes/benefits from vulnerability multiplier
+  const normalDmgExpected = 30; // 30 - 0
+  const strikeRes = resolveMove('slipstream', 'magic', 30, 15, enemy, state);
+  assert.ok(strikeRes.resultText.includes('ثغرة مكشوفة'));
+  assert.ok(strikeRes.playerDmg >= Math.floor(normalDmgExpected * 0.9 * 1.4));
 });
 

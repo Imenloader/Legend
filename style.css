@@ -3179,6 +3179,99 @@ input[type="text"]:focus {
     line-height: 1.3;
 }
 
+/* Combat Speed Blitz Toggle */
+.arena-speed-btn {
+    appearance: none;
+    background: rgba(212, 175, 55, 0.14);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    color: var(--secondary);
+    font-family: 'El Messiri', serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.arena-speed-btn:hover {
+    background: rgba(212, 175, 55, 0.28);
+    border-color: #ffd700;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.35);
+    transform: scale(1.05);
+}
+
+.arena-speed-btn:active {
+    transform: scale(0.96);
+}
+
+/* Awakening Limit Break Bar */
+.arena-awakening-track {
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.arena-awakening-fill {
+    background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24);
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.45);
+}
+
+.arena-awakening-fill.awakening-ready {
+    background: linear-gradient(90deg, #f59e0b, #ffd700, #fff3b0);
+    box-shadow: 0 0 10px #ffd700, inset 0 0 6px #fff;
+    animation: pulseAwakening 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseAwakening {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 2px #ffd700); }
+    50% { filter: brightness(1.3) drop-shadow(0 0 8px #ffaa00); }
+}
+
+/* Awakening Burst Action Button */
+.btn.choice-btn.awakening-burst-btn {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.85), rgba(120, 53, 15, 0.95)) !important;
+    border: 1.5px solid #ffd700 !important;
+    color: #fff !important;
+    font-weight: 900 !important;
+    font-size: 0.95rem !important;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.6), inset 0 0 12px rgba(255, 215, 0, 0.25) !important;
+    animation: awakeningGlow 1.8s ease-in-out infinite !important;
+    order: -1;
+}
+
+.btn.choice-btn.awakening-burst-btn:hover {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.95), rgba(146, 64, 14, 0.98)) !important;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.85), inset 0 0 16px rgba(255, 255, 255, 0.35) !important;
+    transform: translateY(-2px) scale(1.02);
+}
+
+@keyframes awakeningGlow {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.5), inset 0 0 8px rgba(255, 215, 0, 0.2);
+        border-color: #ffd700;
+    }
+    50% {
+        box-shadow: 0 0 22px rgba(255, 215, 0, 0.8), inset 0 0 16px rgba(255, 215, 0, 0.4);
+        border-color: #fff;
+    }
+}
+
+.stance-flow-chip {
+    animation: flowChipShimmer 2s infinite ease-in-out;
+}
+
+@keyframes flowChipShimmer {
+    0%, 100% { box-shadow: 0 0 4px rgba(56, 189, 248, 0.3); }
+    50% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
+}
+
 /* ============================================================
    MASTER UI/UX OVERHAUL: DESKTOP & MOBILE RESPONSIVENESS,
    ZERO BLANK SPACE, DEDUPLICATED MENUS & ENHANCED BATTLES

@@ -966,6 +966,9 @@ function setChoices(choicesArray) {
             const txt = choice.text.toLowerCase();
             if (choice.type) {
                 btn.setAttribute('data-type', choice.type);
+                if (choice.type === 'awakening') {
+                    btn.classList.add('awakening-burst-btn');
+                }
             } else if (txt.includes('تآزر') || txt.includes('synergy')) {
                 btn.setAttribute('data-type', 'synergy');
             } else if (txt.includes('form') || txt.includes('وضعية')) {
@@ -1884,7 +1887,18 @@ function renderCombatChoices() {
             recommended: isRec && !isActive,
             callback: () => {
                 if (state.playerForm !== f.id) {
+                    const prevForm = state.playerForm;
                     state.playerForm = f.id;
+                    if (state.lastActionForm && state.lastActionForm !== f.id) {
+                        const flow = window.COMBAT?.checkStanceFlow ? window.COMBAT.checkStanceFlow(state.lastActionForm, f.id) : null;
+                        if (flow) {
+                            state.activeStanceFlow = flow.id;
+                            if (window.AUDIO) window.AUDIO.playEffect('stance_flow');
+                            if (typeof showToast === 'function') showToast(`⚡ تفعيل سلسلة المقامات: [${flow.name}]!`);
+                            window.COMBAT_UI?.playEffect('sword_intent', 'player');
+                            navigator.vibrate?.(40);
+                        }
+                    }
                     calculateTotalStats();
                     updateTopBar();
                     updateMomentumUI();
@@ -1916,13 +1930,14 @@ function renderCombatChoices() {
         const currentCD = state.skillCooldowns[m.id] || 0;
         const isOnCD = currentCD > 0;
         const isRecMove = recMove === m.id;
+        const isAwk = m.type === 'awakening' || m.id === 'awakening_burst';
 
         // Clean, concise label without redundant "(ماء)/(جبل)/(رياح)" suffix
         const cleanName = String(m.name || '').replace(/\s*\((ماء|جبل|رياح)\)\s*/g, '');
-        let btnText = (isRecMove ? '🎯 ' : '') + cleanName;
+        let btnText = isAwk ? `🔥 ${cleanName}` : (isRecMove ? '🎯 ' : '') + cleanName;
         if (isOnCD) {
             btnText += ` ⏳(${currentCD})`;
-        } else {
+        } else if (!isAwk) {
             btnText += (actualCost > 0 ? ` (${actualCost}🌀)` : '') + (m.hpCost ? ` (${Math.floor(state.player.maxHp * m.hpCost)}❤️)` : '');
         }
 
@@ -1937,8 +1952,8 @@ function renderCombatChoices() {
 
         choices.push({
             text: btnText,
-            type: 'attack',
-            recommended: isRecMove && !disabledReason,
+            type: isAwk ? 'awakening' : 'attack',
+            recommended: (isRecMove || isAwk) && !disabledReason,
             disabledReason,
             callback: () => {
                 if (actualCost > 0) state.player.mp -= actualCost;
@@ -1998,6 +2013,9 @@ function resolveCombatTurn(moveId) {
 
     const enemy = state.currentEnemy;
     if (!enemy) { state._combatLock = false; return; }
+
+    state.lastActionForm = state.playerForm;
+    const speedMult = state.combatSpeed === 2 ? 0.5 : 1.0;
 
     if (moveId.startsWith('synergy_')) {
         let dmg = 0;
@@ -2094,7 +2112,7 @@ function resolveCombatTurn(moveId) {
             } else {
                 state._combatLock = false; combatLoop();
             }
-        }, 1800);
+        }, Math.round(1800 * speedMult));
         return;
     }
 
@@ -2104,8 +2122,17 @@ function resolveCombatTurn(moveId) {
     if (result.special === 'tamed') {
         narrate(result.resultText, "النظام");
         if (window.PETS) window.PETS.tame(state, enemy.id);
-        setTimeout(() => { state._combatLock = false; handleVictory(); }, 1500);
+        setTimeout(() => { state._combatLock = false; handleVictory(); }, Math.round(1500 * speedMult));
         return;
+    }
+
+    if (moveId === 'awakening_burst') {
+        if (window.AUDIO) window.AUDIO.playEffect('awakening_burst');
+        window.COMBAT_UI?.playEffect('execution', 'enemy');
+        window.COMBAT_UI?.playEffect('sword_intent', 'enemy');
+        triggerFlash('gold');
+        triggerScreenShake(20);
+        navigator.vibrate?.([60, 40, 100]);
     }
 
     // Mythology 6-piece Set: Supreme Sovereign Life-steal
@@ -2239,11 +2266,11 @@ function resolveCombatTurn(moveId) {
     }
 
     if (state.player.hp <= 0) {
-        setTimeout(() => { state._combatLock = false; handleDefeat(); }, 1500);
+        setTimeout(() => { state._combatLock = false; handleDefeat(); }, Math.round(1500 * speedMult));
     } else if (enemy.hp <= 0) {
-        setTimeout(() => { state._combatLock = false; handleVictory(); }, 1500);
+        setTimeout(() => { state._combatLock = false; handleVictory(); }, Math.round(1500 * speedMult));
     } else {
-        setTimeout(() => { state._combatLock = false; combatLoop(); }, 2000);
+        setTimeout(() => { state._combatLock = false; combatLoop(); }, Math.round(2000 * speedMult));
     }
 }
 
