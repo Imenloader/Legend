@@ -106,6 +106,13 @@ export function sanitizeSaveState(parsed) {
     clean.player.maxXp = clampNum(clean.player.maxXp, 50, 999999999, 100);
     clean.player.towerFloor = clampNum(clean.player.towerFloor, 1, 500, 1);
     clean.player.maxTowerFloor = clampNum(clean.player.maxTowerFloor, 0, 500, 0);
+    clean.player.bossKills = clampNum(clean.player.bossKills, 0, 999999, 0);
+    clean.player.kills = clampNum(clean.player.kills, 0, 999999, 0);
+    if (clean.player.activeTitle && typeof clean.player.activeTitle === 'string') {
+        clean.player.activeTitle = clean.player.activeTitle.replace(/[<>'"&`\\]/g, '').trim().slice(0, 32);
+    } else {
+        clean.player.activeTitle = '';
+    }
     return { valid: true, state: clean };
 }
 
@@ -232,6 +239,30 @@ export const ACHIEVEMENTS_CATALOG = [
         check: (s) => (s.player?.kills || 0) >= 1 || (s.exploreStreak || 0) >= 1 || (s.player?.maxTowerFloor || 0) >= 1
     },
     {
+        id: 'boss_slayer_10',
+        title: 'قاهر العتاة وقامع الزعماء',
+        desc: 'اهزم 10 وحوش من فئة الزعماء وحراس أختام الأبراج.',
+        bonus: { atk: 35, def: 18, hp: 150 },
+        bonusText: '+35 هجوم، +18 دفاع، +150 صحة',
+        check: (s) => (s.player?.bossKills || 0) >= 10
+    },
+    {
+        id: 'boss_slayer_25',
+        title: 'سفاح الجبابرة وقاطع الرؤوس',
+        desc: 'اهزم 25 وحشاً من فئة الزعماء والجبابرة العظام في البرج والصحراء.',
+        bonus: { atk: 70, def: 35, hp: 350, mp: 50 },
+        bonusText: '+70 هجوم، +35 دفاع، +350 صحة، +50 عزيمة',
+        check: (s) => (s.player?.bossKills || 0) >= 25
+    },
+    {
+        id: 'monster_scourge_50',
+        title: 'مبيد الوحوش والفيافي',
+        desc: 'اقضِ على 50 وحشاً أو قاطع طريق في رحلتك.',
+        bonus: { atk: 25, hp: 120 },
+        bonusText: '+25 هجوم، +120 صحة',
+        check: (s) => (s.player?.kills || 0) >= 50
+    },
+    {
         id: 'rising_knight',
         title: 'فارس البادية الصاعد',
         desc: 'ارفع مستوى بطلك إلى المستوى 5 أو أعلى.',
@@ -246,6 +277,14 @@ export const ACHIEVEMENTS_CATALOG = [
         bonus: { atk: 35, def: 18, hp: 180, mp: 40 },
         bonusText: '+35 هجوم، +18 دفاع، +180 صحة، +40 عزيمة',
         check: (s) => (s.player?.lvl || 1) >= 15
+    },
+    {
+        id: 'legend_hero_lvl30',
+        title: 'أسطورة طريق الحرير الخالدة',
+        desc: 'ارتقِ ببطلك إلى المستوى 30 أو أعلى واقترب من قمة المجد.',
+        bonus: { atk: 60, def: 30, hp: 300, mp: 60 },
+        bonusText: '+60 هجوم، +30 دفاع، +300 صحة، +60 عزيمة',
+        check: (s) => (s.player?.lvl || 1) >= 30
     },
     {
         id: 'tower_initiate',
@@ -264,12 +303,44 @@ export const ACHIEVEMENTS_CATALOG = [
         check: (s) => (s.player?.maxTowerFloor || 0) >= 15
     },
     {
+        id: 'tower_ascendant_30',
+        title: 'خالد البرج السماوي',
+        desc: 'اطوِ الطابق 30 في برج السراب الخالد وتجاوز حدود الفناء.',
+        bonus: { atk: 80, def: 40, hp: 400, mp: 70 },
+        bonusText: '+80 هجوم، +40 دفاع، +400 صحة، +70 عزيمة',
+        check: (s) => (s.player?.maxTowerFloor || 0) >= 30
+    },
+    {
         id: 'silk_tycoon',
         title: 'أمير قوافل الذهب',
         desc: 'اجمع 1,000 دينار ذهبي أو أكثر في خزانتك.',
         bonus: { hp: 80, mp: 30 },
         bonusText: '+80 صحة، +30 عزيمة',
         check: (s) => (s.player?.gold || 0) >= 1000
+    },
+    {
+        id: 'gold_croesus_10k',
+        title: 'قارون الفيافي والقفار',
+        desc: 'اجمع 10,000 دينار ذهبي أو أكثر في ثروتك الخاصة.',
+        bonus: { hp: 220, mp: 60 },
+        bonusText: '+220 صحة، +60 عزيمة',
+        check: (s) => (s.player?.gold || 0) >= 10000
+    },
+    {
+        id: 'beast_legend',
+        title: 'مروض الكواسر الأسطوري',
+        desc: 'روّض 2 أو أكثر من الوحوش والدواب لتسير في ركابك.',
+        bonus: { atk: 20, def: 15, hp: 100 },
+        bonusText: '+20 هجوم، +15 دفاع، +100 صحة',
+        check: (s) => (s.player?.pets?.length || 0) >= 2
+    },
+    {
+        id: 'alchemist_supreme',
+        title: 'حكيم الكيمياء والإكسير الكوني',
+        desc: 'اصنع واقطف 10 إكسيرات أو أدوية في مرجل الكيمياء الصيدلاني.',
+        bonus: { hp: 120, mp: 50 },
+        bonusText: '+120 صحة، +50 عزيمة',
+        check: (s) => (s.player?.questProgress?.refines || 0) >= 10 || (s.player?.alchemyCount || 0) >= 10
     },
     {
         id: 'saint_of_light',

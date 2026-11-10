@@ -101,7 +101,7 @@
                 <div class="arena-fighter-head">
                     <img src="${pSprite}" alt="${esc(p.name)}" class="arena-avatar" onerror="this.src='assets/avatar.png'">
                     <div class="arena-fighter-meta">
-                        <div class="arena-fighter-name">${esc(p.name)}</div>
+                        <div class="arena-fighter-name">${p.activeTitle ? `<span class="arena-title-tag">[${esc(p.activeTitle)}]</span> ` : ''}${esc(p.name)}</div>
                         <div class="arena-fighter-sub" style="color:${st.color};">${st.label}</div>
                     </div>
                 </div>

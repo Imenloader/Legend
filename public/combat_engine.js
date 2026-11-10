@@ -106,6 +106,13 @@ export function sanitizeSaveState(parsed) {
     clean.player.maxXp = clampNum(clean.player.maxXp, 50, 999999999, 100);
     clean.player.towerFloor = clampNum(clean.player.towerFloor, 1, 500, 1);
     clean.player.maxTowerFloor = clampNum(clean.player.maxTowerFloor, 0, 500, 0);
+    clean.player.bossKills = clampNum(clean.player.bossKills, 0, 999999, 0);
+    clean.player.kills = clampNum(clean.player.kills, 0, 999999, 0);
+    if (clean.player.activeTitle && typeof clean.player.activeTitle === 'string') {
+        clean.player.activeTitle = clean.player.activeTitle.replace(/[<>'"&`\\]/g, '').trim().slice(0, 32);
+    } else {
+        clean.player.activeTitle = '';
+    }
     return { valid: true, state: clean };
 }
 
@@ -232,6 +239,30 @@ export const ACHIEVEMENTS_CATALOG = [
         check: (s) => (s.player?.kills || 0) >= 1 || (s.exploreStreak || 0) >= 1 || (s.player?.maxTowerFloor || 0) >= 1
     },
     {
+        id: 'boss_slayer_10',
+        title: 'قاهر العتاة وقامع الزعماء',
+        desc: 'اهزم 10 وحوش من فئة الزعماء وحراس أختام الأبراج.',
+        bonus: { atk: 35, def: 18, hp: 150 },
+        bonusText: '+35 هجوم، +18 دفاع، +150 صحة',
+        check: (s) => (s.player?.bossKills || 0) >= 10
+    },
+    {
+        id: 'boss_slayer_25',
+        title: 'سفاح الجبابرة وقاطع الرؤوس',
+        desc: 'اهزم 25 وحشاً من فئة الزعماء والجبابرة العظام في البرج والصحراء.',
+        bonus: { atk: 70, def: 35, hp: 350, mp: 50 },
+        bonusText: '+70 هجوم، +35 دفاع، +350 صحة، +50 عزيمة',
+        check: (s) => (s.player?.bossKills || 0) >= 25
+    },
+    {
+        id: 'monster_scourge_50',
+        title: 'مبيد الوحوش والفيافي',
+        desc: 'اقضِ على 50 وحشاً أو قاطع طريق في رحلتك.',
+        bonus: { atk: 25, hp: 120 },
+        bonusText: '+25 هجوم، +120 صحة',
+        check: (s) => (s.player?.kills || 0) >= 50
+    },
+    {
         id: 'rising_knight',
         title: 'فارس البادية الصاعد',
         desc: 'ارفع مستوى بطلك إلى المستوى 5 أو أعلى.',
@@ -246,6 +277,14 @@ export const ACHIEVEMENTS_CATALOG = [
         bonus: { atk: 35, def: 18, hp: 180, mp: 40 },
         bonusText: '+35 هجوم، +18 دفاع، +180 صحة، +40 عزيمة',
         check: (s) => (s.player?.lvl || 1) >= 15
+    },
+    {
+        id: 'legend_hero_lvl30',
+        title: 'أسطورة طريق الحرير الخالدة',
+        desc: 'ارتقِ ببطلك إلى المستوى 30 أو أعلى واقترب من قمة المجد.',
+        bonus: { atk: 60, def: 30, hp: 300, mp: 60 },
+        bonusText: '+60 هجوم، +30 دفاع، +300 صحة، +60 عزيمة',
+        check: (s) => (s.player?.lvl || 1) >= 30
     },
     {
         id: 'tower_initiate',
@@ -264,12 +303,44 @@ export const ACHIEVEMENTS_CATALOG = [
         check: (s) => (s.player?.maxTowerFloor || 0) >= 15
     },
     {
+        id: 'tower_ascendant_30',
+        title: 'خالد البرج السماوي',
+        desc: 'اطوِ الطابق 30 في برج السراب الخالد وتجاوز حدود الفناء.',
+        bonus: { atk: 80, def: 40, hp: 400, mp: 70 },
+        bonusText: '+80 هجوم، +40 دفاع، +400 صحة، +70 عزيمة',
+        check: (s) => (s.player?.maxTowerFloor || 0) >= 30
+    },
+    {
         id: 'silk_tycoon',
         title: 'أمير قوافل الذهب',
         desc: 'اجمع 1,000 دينار ذهبي أو أكثر في خزانتك.',
         bonus: { hp: 80, mp: 30 },
         bonusText: '+80 صحة، +30 عزيمة',
         check: (s) => (s.player?.gold || 0) >= 1000
+    },
+    {
+        id: 'gold_croesus_10k',
+        title: 'قارون الفيافي والقفار',
+        desc: 'اجمع 10,000 دينار ذهبي أو أكثر في ثروتك الخاصة.',
+        bonus: { hp: 220, mp: 60 },
+        bonusText: '+220 صحة، +60 عزيمة',
+        check: (s) => (s.player?.gold || 0) >= 10000
+    },
+    {
+        id: 'beast_legend',
+        title: 'مروض الكواسر الأسطوري',
+        desc: 'روّض 2 أو أكثر من الوحوش والدواب لتسير في ركابك.',
+        bonus: { atk: 20, def: 15, hp: 100 },
+        bonusText: '+20 هجوم، +15 دفاع، +100 صحة',
+        check: (s) => (s.player?.pets?.length || 0) >= 2
+    },
+    {
+        id: 'alchemist_supreme',
+        title: 'حكيم الكيمياء والإكسير الكوني',
+        desc: 'اصنع واقطف 10 إكسيرات أو أدوية في مرجل الكيمياء الصيدلاني.',
+        bonus: { hp: 120, mp: 50 },
+        bonusText: '+120 صحة، +50 عزيمة',
+        check: (s) => (s.player?.questProgress?.refines || 0) >= 10 || (s.player?.alchemyCount || 0) >= 10
     },
     {
         id: 'saint_of_light',
@@ -326,8 +397,173 @@ export function evaluateAchievements(state) {
 }
 
 // ============================================================
-// 4. CORE COMBAT ENGINE
+// 4. CORE COMBAT ENGINE: STANCE FLOWS & AWAKENING LIMIT BREAK
 // ============================================================
+
+export const STANCE_FLOWS = {
+    'water->mountain': {
+        id: 'surging_shockwave',
+        name: 'زلزال المد العارم',
+        desc: 'موجة ارتدادية (+35% ضرر وزعزعة اتزان الخصم)',
+        apply: (state, enemy, res) => {
+            res.playerDmg = Math.floor(res.playerDmg * 1.35);
+            state.staggerCounter = (state.staggerCounter || 0) + 1;
+            res.resultText += `<br><span style="color:#f5c842;font-weight:bold;">🌊➔🏔️ [سلسلة المقامات: زلزال المد العارم]: تحول انسياب الماء إلى ثقل الجبل الصادم (+35% ضرر وزعزعة)!</span>`;
+        }
+    },
+    'mountain->wind': {
+        id: 'gale_flash',
+        name: 'خاطفة العاصفة الصخرية',
+        desc: 'ضربة حرجة مؤكدة 100% وزخم متدفق +25',
+        apply: (state, enemy, res) => {
+            res.special = 'crit';
+            res.playerDmg = Math.floor(res.playerDmg * 1.5);
+            res.momentumShift = (res.momentumShift || 0) + 25;
+            res.resultText += `<br><span style="color:#38bdf8;font-weight:bold;">🏔️➔🌪️ [سلسلة المقامات: خاطفة العاصفة]: تفجرت طاقة الجبل الكامنة برياح خاطفة (ضربة حرجة مؤكدة وزخم +25)!</span>`;
+        }
+    },
+    'wind->water': {
+        id: 'vortex_recovery',
+        name: 'انسياب النهر السلسبيل',
+        desc: 'تجدد +12% صحة و +15% تركيز وطهارة من العلل',
+        apply: (state, enemy, res) => {
+            const h = Math.max(10, Math.floor(state.player.maxHp * 0.12));
+            const m = Math.max(10, Math.floor(state.player.maxMp * 0.15));
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + h);
+            state.player.mp = Math.min(state.player.maxMp, state.player.mp + m);
+            if (state.playerPoisonTurns > 0) state.playerPoisonTurns = Math.max(0, state.playerPoisonTurns - 1);
+            if (state.playerFearTurns > 0) state.playerFearTurns = Math.max(0, state.playerFearTurns - 1);
+            res.resultText += `<br><span style="color:#00e5a0;font-weight:bold;">🌪️➔🌊 [سلسلة المقامات: انسياب النهر السلسبيل]: ركدت العاصفة إلى جدول رقراق شفى +${h} صحة و +${m} تركيز!</span>`;
+        }
+    }
+};
+
+export function checkStanceFlow(fromForm, toForm) {
+    if (!fromForm || !toForm || fromForm === toForm) return null;
+    const key = `${fromForm}->${toForm}`;
+    return STANCE_FLOWS[key] || null;
+}
+
+export function getStanceFlow(flowIdOrKey) {
+    if (!flowIdOrKey) return null;
+    if (STANCE_FLOWS[flowIdOrKey]) return STANCE_FLOWS[flowIdOrKey];
+    return Object.values(STANCE_FLOWS).find(f => f.id === flowIdOrKey) || null;
+}
+
+export const AWAKENING_MOVES = {
+    'Sword Immortal': {
+        id: 'awakening_burst',
+        name: '⚔️ تجلّي القدر: تسعة أسياف شهابية',
+        shortName: 'تسعة أسياف شهابية',
+        desc: 'تسعة سيوف شبحية تخترق 50% من دفاع العدو وتملأ نية السيف المطلقة!',
+        damageMultiplier: 4.2,
+        ignoreDefPct: 0.50,
+        specialEffect: (state, enemy, res) => {
+            state.swordIntent = 3;
+            res.resultText += `<br><span style="color:#ffd700;font-weight:bold;">✨ [تسعة أسياف شهابية]: تشظى فضاء المعركة بتسعة أسياف نورانية خارقة للدروع، وامتلكت نية السيف العظمى!</span>`;
+        }
+    },
+    'Medicine Cultivator': {
+        id: 'awakening_burst',
+        name: '🌸 تجلّي القدر: تطهير لوتس الألف بتلة',
+        shortName: 'تطهير لوتس الألف بتلة',
+        desc: 'شفاء كامل لصحتك، استرداد 50 تركيز، وإشعال سم سماوي حارق بالخصم!',
+        damageMultiplier: 2.8,
+        specialEffect: (state, enemy, res) => {
+            state.player.hp = state.player.maxHp;
+            state.player.mp = Math.min(state.player.maxMp, (state.player.mp || 0) + 50);
+            state.playerPoisonTurns = 0;
+            state.playerFearTurns = 0;
+            state.dotEffects = state.dotEffects || [];
+            state.dotEffects.push({ type: 'burn', dmg: Math.max(30, Math.floor(state.player.atk * 0.8)), duration: 4 });
+            res.resultText += `<br><span style="color:#00e5a0;font-weight:bold;">🌿 [لوتس الألف بتلة]: انفتحت زهرة اللوتس الكونية فطهّرت جسدك من كل علّة واستعادت صحتك كاملة وأحرقت جوهر الخصم!</span>`;
+        }
+    },
+    'Desert Knight': {
+        id: 'awakening_burst',
+        name: '🏜️ تجلّي القدر: زلزال القيامة الرملي',
+        shortName: 'زلزال القيامة الرملي',
+        desc: 'سحق غاشم يحطم 35% من دفاع الخصم للأبد ويشله لدور كامل!',
+        damageMultiplier: 3.5,
+        specialEffect: (state, enemy, res) => {
+            enemy.def = Math.max(0, Math.floor((enemy.def || 5) * 0.65));
+            state.enemyStunned = true;
+            res.resultText += `<br><span style="color:#e67e22;font-weight:bold;">🌪️ [زلزال القيامة]: هدمت قوى الرمال دروع ${escapeHtml(enemy.name)} بنسبة 35% وشلّت حركته تماماً!</span>`;
+        }
+    },
+    'Lancer': {
+        id: 'awakening_burst',
+        name: '🗡️ تجلّي القدر: طعنة التنين الماحقة',
+        shortName: 'طعنة التنين الماحقة',
+        desc: 'طعنة تخترق دروع الخصم وتضعه في حالة ترنح وزعزعة تامة للضربة القاضية!',
+        damageMultiplier: 3.6,
+        specialEffect: (state, enemy, res) => {
+            state.enemyStaggered = true;
+            res.resultText += `<br><span style="color:#ff8c00;font-weight:bold;">🐉 [طعنة التنين الماحقة]: اخترق رمحك مركز توازن العدو وجعله مذهولاً ومترنحاً لتوجيه الضربة القاضية!</span>`;
+        }
+    },
+    'Horseman': {
+        id: 'awakening_burst',
+        name: '🐎 تجلّي القدر: صاعقة خيول الفاتحين',
+        shortName: 'صاعقة خيول الفاتحين',
+        desc: 'غارة فرسان ساحقة تمنح +60 زخماً وتكشف ثغرة قاتلة بالخصم لدورين!',
+        damageMultiplier: 3.8,
+        specialEffect: (state, enemy, res) => {
+            state.momentum = Math.min(100, (state.momentum || 0) + 60);
+            state.enemyVulnerableTurns = 2;
+            res.resultText += `<br><span style="color:#90ee90;font-weight:bold;">⚡ [صاعقة خيول الفاتحين]: زلزلت سنابك الخيل الأرض كاشفة ثغرة قاتلة في الخصم ورفعت معنوياتك لأعلى ذروة!</span>`;
+        }
+    },
+    'Astrologer': {
+        id: 'awakening_burst',
+        name: '🌌 تجلّي القدر: انفجار النجم المستعر',
+        shortName: 'انفجار النجم المستعر',
+        desc: 'انفجار كوني يمتص هجوم الخصم ويسترد عزيمتك بالكامل!',
+        damageMultiplier: 4.0,
+        specialEffect: (state, enemy, res) => {
+            enemy.atk = Math.max(1, Math.floor(enemy.atk * 0.75));
+            state.player.mp = state.player.maxMp;
+            res.resultText += `<br><span style="color:#bf5fff;font-weight:bold;">✨ [انفجار النجم المستعر]: شهاب سديمي سحق هجوم العدو بنسبة 25% وملأ بئر عزيمتك حتى فيضانه!</span>`;
+        }
+    },
+    'Steelmaster': {
+        id: 'awakening_burst',
+        name: '🛡️ تجلّي القدر: سحق السندان السماوي',
+        shortName: 'سحق السندان السماوي',
+        desc: 'ضربة فولاذية ثقيلة تمنحك درعاً مانعاً للضرر في الجولة التالية!',
+        damageMultiplier: 3.5,
+        specialEffect: (state, enemy, res) => {
+            state.player_invulnerable_turn = true;
+            res.resultText += `<br><span style="color:#c0c0c0;font-weight:bold;">⚙️ [سحق السندان السماوي]: صلابة فولاذ دمشقي حصنت جسدك بحصانة كاملة للجولة القادمة!</span>`;
+        }
+    },
+    'Sufi Mystic': {
+        id: 'awakening_burst',
+        name: '✨ تجلّي القدر: سر الوجد والفيض الرباني',
+        shortName: 'سر الوجد والفيض الرباني',
+        desc: 'تحويل كامل لكافة السموم والعلل إلى نور، مع زخم مطلق 100%!',
+        damageMultiplier: 3.8,
+        specialEffect: (state, enemy, res) => {
+            state.playerPoisonTurns = 0;
+            state.playerFearTurns = 0;
+            const heal = Math.floor(state.player.maxHp * 0.5);
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + heal);
+            state.momentum = 100;
+            res.resultText += `<br><span style="color:#f59e0b;font-weight:bold;">🕊️ [سر الوجد والفيض]: صعدت روحك في فلك السكينة، فطهرت كل أذى واسترددت +${heal} صحة وبلغت ذروة الزخم!</span>`;
+        }
+    },
+    default: {
+        id: 'awakening_burst',
+        name: '🔥 تجلّي القدر: الصاعقة الكبرى',
+        shortName: 'الصاعقة الكبرى',
+        desc: 'ضربة قصوى تطلق كامل طاقة البطل الكامنة وتحدث دماراً شاملاً!',
+        damageMultiplier: 3.6,
+        specialEffect: (state, enemy, res) => {
+            state.momentum = Math.min(100, (state.momentum || 0) + 50);
+            res.resultText += `<br><span style="color:#ffd700;font-weight:bold;">🔥 [الصاعقة الكبرى]: تفجرت طاقة القدر في ساحة المعركة بضربة قاضية مهيبة!</span>`;
+        }
+    }
+};
 
 export function initCombatState(state) {
     state.combatState = 'enemy_prep';
@@ -348,6 +584,11 @@ export function initCombatState(state) {
     state.playerFearTurns = 0;
     state.combatTurnCount = 0;
     state._ultimateReviveUsed = false;
+    state.awakeningGauge = Math.max(0, Math.min(100, Number(state.awakeningGauge) || 0));
+    state.lastActionForm = null;
+    state.activeStanceFlow = null;
+    state.enemyVulnerableTurns = 0;
+    state.combatSpeed = state.combatSpeed || 1;
     const comp = w.COMPANIONS?.getActive(state);
     if (comp?.passiveBuff?.effect) comp.passiveBuff.effect(state);
 }
@@ -418,6 +659,14 @@ export function processTurnEffects(state, enemy) {
         state.skipEnemyTurn = false;
     }
 
+    if ((state.enemyVulnerableTurns || 0) > 0) {
+        msg += `<br><span style="color:#f59e0b;font-weight:bold;">⚡ [ثغرة مكشوفة] الخصم يتأرجح من الصدمة ويتلقى 40% ضرراً إضافياً (${state.enemyVulnerableTurns} جولة)!</span>`;
+        state.enemyVulnerableTurns--;
+    }
+    if ((state.momentum || 0) >= 40) {
+        state.awakeningGauge = Math.min(100, (state.awakeningGauge || 0) + 4);
+    }
+
     // Weather effects during combat
     if (w.WEATHER_SYSTEM && typeof w.WEATHER_SYSTEM.getModifiers === 'function') {
         const wMods = w.WEATHER_SYSTEM.getModifiers();
@@ -475,7 +724,18 @@ export function getActionsForForm(form, state) {
         wind:     [{id:'gale_strike',name:'🌪️ ضربة الريح (خاطف)',type:'fast',cost:5},{id:'qi_blade',name:'⚡ سيف النور (اختراق)',type:'magic',cost:20}]
     };
     const actions = [...(BASE[form]||[])];
-    (state.player.skills||[]).forEach(sid => {
+    if (state && (state.awakeningGauge || 0) >= 100) {
+        const cls = state.player?.class || 'default';
+        const awk = AWAKENING_MOVES[cls] || AWAKENING_MOVES['default'];
+        actions.unshift({
+            id: 'awakening_burst',
+            name: awk.name,
+            type: 'awakening',
+            cost: 0,
+            isAwakening: true
+        });
+    }
+    (state?.player?.skills||[]).forEach(sid => {
         const s = w.SKILLS?.techniques?.[sid];
         if (s && !s.passive) actions.push({...s, cost:s.mpCost});
     });
@@ -542,6 +802,25 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
         return { playerDmg:0, enemyDmg:ok?0:enemyAtk, resultText:msg, special:ok?'tamed':null, momentumShift:ok?100:-30 };
     }
 
+    if (playerMoveId === 'awakening_burst') {
+        const cls = state.player?.class || 'default';
+        const awk = AWAKENING_MOVES[cls] || AWAKENING_MOVES['default'];
+        let sAtk = isNight ? Math.floor(playerAtk * 1.2) : playerAtk;
+        let ignoreDefPct = awk.ignoreDefPct || 0;
+        let enemyDef = (enemy.def || 5) * (1 - ignoreDefPct);
+        let baseDmg = Math.max(1, Math.floor(sAtk * awk.damageMultiplier - enemyDef));
+        if ((state.enemyVulnerableTurns || 0) > 0) {
+            baseDmg = Math.floor(baseDmg * 1.4);
+        }
+        state.awakeningGauge = 0;
+        msg = `<span style="color:#ffd700;font-size:1.05rem;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.5);">🔥 [${escapeHtml(awk.name)}]!</span><br>${awk.desc}`;
+        const awkRes = { playerDmg: baseDmg, enemyDmg: 0, resultText: msg, special: 'crit', momentumShift: 40 };
+        if (typeof awk.specialEffect === 'function') {
+            awk.specialEffect(state, enemy, awkRes);
+        }
+        return awkRes;
+    }
+
     const skill = w.SKILLS?.techniques?.[playerMoveId];
     if (skill) {
         msg += `أطلقت <b>${escapeHtml(skill.name)}</b>! `;
@@ -570,8 +849,10 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
     }
 
     let ignorePct = (w.WEATHER_SYSTEM?.currentWeather === 'eclipse') ? 0.20 : 0.0;
-    const pBase = Math.max(1, Math.floor(playerAtk - ((enemy.def || 5) * (1 - ignorePct))));
-    const eBase = Math.max(1, Math.floor(enemyAtk - ((state.player.def || 0) * (1 - ignorePct))));
+    const enemyDefVal = (enemy && enemy.def !== undefined) ? enemy.def : 5;
+    const playerDefVal = (state && state.player && state.player.def !== undefined) ? state.player.def : 0;
+    const pBase = Math.max(1, Math.floor(playerAtk - (enemyDefVal * (1 - ignorePct))));
+    const eBase = Math.max(1, Math.floor(enemyAtk - (playerDefVal * (1 - ignorePct))));
 
     // Enemy archetype specials
     if (enemy?.id==='crossroads_venomous_spider' && enemyMoveType==='magic') {
@@ -656,6 +937,33 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
         msg += `<br><span style="color:var(--danger); font-size:0.9em;">[${escapeHtml(enemy.moves[enemyMoveType].name)}] أصابتك!</span>`;
     }
 
+    // Apply Vulnerable enemy damage bonus
+    if ((state.enemyVulnerableTurns || 0) > 0 && pDmg > 0) {
+        pDmg = Math.floor(pDmg * 1.4);
+        msg += ` <span style="color:#f59e0b;font-weight:bold;">[ثغرة مكشوفة: +40% ضرر]</span>`;
+    }
+
+    // Apply Stance Flow combo if primed
+    const activeFlow = getStanceFlow(state.activeStanceFlow);
+    if (activeFlow) {
+        const flowObj = { playerDmg: pDmg, resultText: msg, special: spec, momentumShift: mom };
+        activeFlow.apply(state, enemy, flowObj);
+        pDmg = flowObj.playerDmg;
+        msg = flowObj.resultText;
+        spec = flowObj.special;
+        mom = flowObj.momentumShift;
+        state.activeStanceFlow = null;
+        state.awakeningGauge = Math.min(100, (state.awakeningGauge || 0) + 15);
+    }
+
+    // Perfect Parry & Riposte enhancement
+    if (spec === 'perfect_counter') {
+        state.enemyVulnerableTurns = 2;
+        pDmg = Math.floor(pDmg * 1.15);
+        state.awakeningGauge = Math.min(100, (state.awakeningGauge || 0) + 25);
+        msg += `<br><span style="color:#f59e0b;font-weight:bold;">⚡ [صد معجز وهجوم مرتد]: انكشفت ثغرة دفاع الخصم (يتلقى +40% ضرر للجولات القادمة)!</span>`;
+    }
+
     // Heritage Trait Active Effects
     const trait = state.player.inheritedTrait;
     if (trait === 'resolute_will' && state.player.hp < state.player.maxHp * 0.3 && eDmg > 0) {
@@ -733,6 +1041,14 @@ export function resolveMove(playerMoveId, enemyMoveType, playerAtk, enemyAtk, en
     if (cls==='Steelmaster'&&pDmg>0) { const bonus=Math.floor(pDmg*.15); pDmg+=bonus; msg+=` <span style="color:#c0c0c0;">[فولاذ: +${bonus}]</span>`; }
     if (cls==='Sufi Mystic'&&mom>0) { mom=Math.floor(mom*1.4); msg+=` <span style="color:#9b59b6;">[صفاء القلب: زخم +40%]</span>`; }
 
+    // Awakening Limit Break gauge charging on active combat actions
+    if (pDmg > 0) {
+        state.awakeningGauge = Math.min(100, (state.awakeningGauge || 0) + 8);
+    }
+    if (eDmg > 0) {
+        state.awakeningGauge = Math.min(100, (state.awakeningGauge || 0) + 5);
+    }
+
     return { playerDmg:pDmg, enemyDmg:eDmg, resultText:msg, special:spec, momentumShift:mom };
 }
 
@@ -752,5 +1068,9 @@ export const CombatEngine = {
     parseAndVerifySaveToken,
     getTowerFloorConfig,
     ACHIEVEMENTS_CATALOG,
-    evaluateAchievements
+    evaluateAchievements,
+    STANCE_FLOWS,
+    checkStanceFlow,
+    getStanceFlow,
+    AWAKENING_MOVES
 };

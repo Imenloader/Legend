@@ -3078,6 +3078,21 @@ input[type="text"]:focus {
     margin-right: 4px;
 }
 
+.hud-hero-title {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ffd700;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.22), rgba(255, 215, 0, 0.08));
+    border: 1px solid rgba(212, 175, 55, 0.6);
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-inline-end: 4px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 0 6px rgba(212, 175, 55, 0.25);
+    vertical-align: middle;
+}
+
 .arena-fighter-sub {
     font-size: 0.7rem;
     color: var(--text-dim);

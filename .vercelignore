@@ -1,0 +1,5 @@
+.git
+.github
+bun.lock
+wrangler.jsonc
+*.test.ts

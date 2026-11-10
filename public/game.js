@@ -1034,8 +1034,11 @@ function setChoices(choicesArray) {
 
 function updateTopBar() {
     if (!UI_ELEMENTS.storyPlayerName) return;
-    const titlePrefix = state.player.activeTitle ? `[${state.player.activeTitle}] ` : '';
-    UI_ELEMENTS.storyPlayerName.innerText = `${titlePrefix}${state.player.name} (مستوى ${state.player.lvl})`;
+    if (state.player.activeTitle) {
+        UI_ELEMENTS.storyPlayerName.innerHTML = `<span class="hud-hero-title">[${state.player.activeTitle}]</span> ${state.player.name} (مستوى ${state.player.lvl})`;
+    } else {
+        UI_ELEMENTS.storyPlayerName.innerText = `${state.player.name} (مستوى ${state.player.lvl})`;
+    }
     UI_ELEMENTS.storyHp.innerText = state.player.hp;
     UI_ELEMENTS.storyMp.innerText = state.player.mp;
     UI_ELEMENTS.storyHpBar.style.width = `${(state.player.hp / state.player.maxHp) * 100}%`;
@@ -1049,7 +1052,13 @@ function updateTopBar() {
     const mobMp = document.getElementById('hud-mp-val');
     const mobAvatar = document.getElementById('hud-avatar-img');
 
-    if (mobName) mobName.innerText = `${state.player.name} (lvl ${state.player.lvl})`;
+    if (mobName) {
+        if (state.player.activeTitle) {
+            mobName.innerHTML = `<span class="hud-hero-title">[${state.player.activeTitle}]</span> ${state.player.name} (lvl ${state.player.lvl})`;
+        } else {
+            mobName.innerText = `${state.player.name} (lvl ${state.player.lvl})`;
+        }
+    }
     if (mobClass) {
         const classNamesArabic = {
             'Sword Immortal': 'السياف الأسطوري',
@@ -2282,6 +2291,27 @@ function handleVictory() {
     state._activeTowerRewards = null;
 
     state.player.kills = (state.player.kills || 0) + 1;
+    const isBossEnemy = !!(
+        enemy && (
+            enemy.isBoss ||
+            enemy.isTowerBoss ||
+            enemy.isBossFloor ||
+            (enemy.isTowerGuardian && enemy.towerFloor && enemy.towerFloor % 5 === 0) ||
+            (typeof enemy.name === 'string' && (
+                enemy.name.includes("زعيم") ||
+                enemy.name.includes("ملك") ||
+                enemy.name.includes("سلطان") ||
+                enemy.name.includes("طاغية") ||
+                enemy.name.includes("عملاق") ||
+                enemy.name.includes("تنين") ||
+                enemy.name.includes("الجبّار") ||
+                enemy.name.includes("الجبار")
+            ))
+        )
+    );
+    if (isBossEnemy) {
+        state.player.bossKills = (state.player.bossKills || 0) + 1;
+    }
     narrate(`النصر الحاسم! لقد سحقت وهزمت ${enemy.name} في معركة أسطورية.`, 'النظام');
 
     // Track quest progress for bandit defeats and raid defeats
@@ -2432,11 +2462,14 @@ function handleVictory() {
         const ach = window.COMBAT.evaluateAchievements(state);
         if (ach && ach.newlyUnlocked && ach.newlyUnlocked.length > 0) {
             ach.newlyUnlocked.forEach(a => {
-                state.player.gold = (state.player.gold || 0) + (a.rewardGold || 0);
+                state.player.gold = (state.player.gold || 0) + (a.rewardGold || 50);
                 narrate(`<div style="background:rgba(0,229,160,0.12); border:1px solid var(--jade); border-radius:8px; padding:10px; text-align:right;">
-                    <b style="color:var(--jade);">🏆 إنجاز ولقب جديد: [${a.title}]!</b><br>
-                    <span style="font-size:0.85rem;">${a.desc} — مكافأة فورية: +${a.rewardGold} ذهب!</span>
+                    <b style="color:var(--jade);">🏆 إنجاز ولقب بطولة جديد: [${a.title}]!</b><br>
+                    <span style="font-size:0.85rem;">${a.desc} — البركة الدائمة: ${a.bonusText || ''}</span>
                 </div>`, "ديوان الألقاب", null, false, true);
+                if (typeof showToast === 'function') {
+                    showToast(`🏆 نلت لقباً بطولياً جديداً: [${a.title}]!`);
+                }
             });
             calculateTotalStats();
         }

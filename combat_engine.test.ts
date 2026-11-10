@@ -249,3 +249,33 @@ test('Perfect Parry inflicts vulnerable status and amplifies subsequent attack d
   assert.ok(strikeRes.playerDmg >= Math.floor(normalDmgExpected * 0.9 * 1.4));
 });
 
+test('evaluateAchievements unlocks boss slayer heroic titles and assigns activeTitle', () => {
+  const state: any = createMockState({
+    player: {
+      name: 'فارس المجد',
+      lvl: 1,
+      kills: 10,
+      bossKills: 10,
+      gold: 50,
+    },
+    achievements: [],
+  });
+
+  const res = evaluateAchievements(state);
+  assert.ok(state.achievements.includes('boss_slayer_10'));
+  assert.equal(state.player.activeTitle, 'قاهر العتاة وقامع الزعماء');
+  assert.ok(res.totalBonus.atk >= 35);
+  assert.ok(res.totalBonus.hp >= 150);
+
+  // When defeating 25 bosses
+  state.player.bossKills = 25;
+  const res2 = evaluateAchievements(state);
+  assert.ok(state.achievements.includes('boss_slayer_25'));
+  assert.ok(res2.totalBonus.atk >= 105); // 35 + 70
+
+  // Equipping the higher boss slayer title
+  state.player.activeTitle = 'سفاح الجبابرة وقاطع الرؤوس';
+  assert.equal(state.player.activeTitle, 'سفاح الجبابرة وقاطع الرؤوس');
+});
+
+
